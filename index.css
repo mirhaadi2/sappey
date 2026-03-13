@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&family=DM+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-primary: hsl(22, 56%, 29%);
+    --color-primary-foreground: hsl(35, 100%, 97%);
+    --color-secondary: hsl(22, 56%, 38%);
+    --color-secondary-foreground: hsl(35, 100%, 97%);
+    --color-tertiary: hsl(275, 25%, 34%);
+    --color-tertiary-foreground: hsl(35, 100%, 97%);
+    --color-neutral: hsl(35, 40%, 96%);
+    --color-neutral-foreground: hsl(22, 40%, 20%);
+    --color-brand-brown: hsl(22, 56%, 29%);
+    --color-brand-cocoa: hsl(22, 56%, 38%);
+    --color-brand-plum: hsl(275, 25%, 34%);
+    --color-brand-cream: hsl(35, 100%, 97%);
+    --color-brand-latte: hsl(35, 40%, 96%);
+    --color-success: hsl(142, 45%, 35%);
+    --color-warning: hsl(38, 75%, 45%);
+    --font-headline: 'Raleway', sans-serif;
+    --font-sans: 'Open Sans', sans-serif;
+    --font-label: 'DM Sans', sans-serif;
+    --border-radius: 8px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body,
+html {
+    color: hsl(22, 40%, 20%);
+    background-color: hsl(30, 35%, 98%);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+* {
+    box-sizing: border-box;
+}
