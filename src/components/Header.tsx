@@ -238,7 +238,10 @@ const Header: React.FC = () => {
                         ) : (
                             <div className="hidden md:flex items-center gap-1">
                                 <button
-                                  onClick={() => openAuthModal("signin")}
+                                  onClick={() => {
+                                    console.log('hello header')
+                                    openAuthModal("signin")
+                                  }}
                                   className="font-label text-sm px-4 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"  
                                 >
                                     Sign In

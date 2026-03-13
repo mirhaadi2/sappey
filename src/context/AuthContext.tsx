@@ -67,7 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const signOut = () => setUser(null);
 
-    const openAuthModal = (mode: "signin" | "signup") => setAuthModal(mode);
+    const openAuthModal = (mode: "signin" | "signup") => {
+        console.log('mode', mode)
+        setAuthModal(mode)
+    };
     const closeAuthModal = () => setAuthModal(null);
 
     return (
