@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { products } from "../data/products";
 import { useCart } from "../context/CardContext";
-import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/ProductCard";
 import { Star, Minus, Plus, ShoppingCart, ArrowRight, Check, Truck, Package, ArrowLeft } from "@phosphor-icons/react";
 
@@ -14,7 +13,7 @@ const ProductDetailPage: React.FC = () => {
 
     const product = products.find((p) => p.slug === slug);
     const [quantity, setQuantity] = useState(1);
-    const [selectedImage, setSelectedImage] = useState<any>(product?.image || "");
+    const [selectedImage, setSelectedImage] = useState<any>(0);
     const [selectedVariant, setSelectedVariant] = useState(product?.variants[0] || null);
     const [addedToCart, setAddedToCart] = useState(false);
 
@@ -283,16 +282,15 @@ const ProductDetailPage: React.FC = () => {
                                 Buy Now
                                 <ArrowRight size={16} weight="regular" />
                             </button>
-
-                            <div className="flex flex-wrap gap-4">
-                                <div className="flex items-center gap-2 text-gray-600">
-                                    <Truck size={20} weight="regular" className="text-brand-cocoa" />
-                                    <span className="font-sans text-xs">Free delivery above $49</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-600">
-                                    <Package size={20} weight="regular" className="text-brand-cocoa" />
-                                    <span className="font-sans text-xs">Freshness guaranteed</span>
-                                </div>
+                        </div>
+                        <div className="flex flex-wrap gap-4">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <Truck size={20} weight="regular" className="text-brand-cocoa" />
+                                <span className="font-sans text-xs">Free delivery above $49</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <Package size={20} weight="regular" className="text-brand-cocoa" />
+                                <span className="font-sans text-xs">Freshness guaranteed</span>
                             </div>
                         </div>
                     </motion.div>
