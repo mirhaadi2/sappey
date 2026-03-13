@@ -1,39 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, EnvelopeSimple, Lock, User, ArrowRight } from "@phosphor-icons/react";
+import { X, Eye, EyeSlash, User, Envelope, Lock } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 
 const AuthModal: React.FC = () => {
-    const { isAuthModalOpen, setIsAuthModalOpen, login, register } = useAuth();
-    const [isLogin, setIsLogin] = useState(true);
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-    });
-    const [isLoading, setIsLoading] = useState(false);
+    const { authModal, openAuthModal, closeAuthModal, signIn, signUp } = useAuth();
+    const isOpen = authModal !== null;
+    const isSignIn = authModal === "signin";
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        setName("");
+        setEmail("");
+        setPassword("");
+        setError("");
+        setShowPassword(false);
+        setLoading(false);
+    }, [authModal]);
+
+    useEffect(() => {
+        if (isOpen) document.body.style.overflow = "hidden";
+        else document.body.style.overflow = "";
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        if (!email || !password || (!isSignIn && !name)) {
+            setError("Please fill in all fields.");
+            return;
+        }
+        if (password?.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
+        }
+        setLoading(true);
         try {
-            if (isLogin) {
-                await login(formData.email, formData.password);
+            if (isSignIn) {
+                await signIn(email, password);
             } else {
-                await register(formData.name, formData.email, formData.password);
+                await signUp(name, email, password);
             }
-        } catch (error) {
-            console.error("Auth error:", error);
+        } catch {
+            setError("Something went wrong. Please try again");
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
         <AnimatePresence>
-            {isAuthModalOpen && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center px-4">
-                    {/* Backdrop */}
+            {isOpen && (
+                <>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -41,108 +66,168 @@ const AuthModal: React.FC = () => {
                         onClick={() => setIsAuthModalOpen(false)}
                         className="absolute inset-0 bg-brand-brown/40 backdrop-blur-sm"
                     />
-
-                    {/* Modal Card */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+                        key="backdrop"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
                     >
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setIsAuthModalOpen(false)}
-                            className="absolute top-6 right-6 p-2 hover:bg-brand-latte rounded-full transition-colors z-10"
+                        <motion.div
+                            key="modal"
+                            className="fixed inset-0 z-[101] flex items-center justify-center px-4"
+                            initial={{ opacity:0, scale: 0.95, y: 16 }}
+                            animate={{ opacity:1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 16 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
                         >
-                            <X size={20} weight="bold" className="text-brand-brown" />
-                        </button>
+                            <div
+                                className="relative w-full max-w-md bg-brand-cream rounded-2xl shadown-2xl p-8"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button
+                                    onClick={closeAuthModal}
+                                    className="absolute top-4 right-4 p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors"
+                                    aria-label="Close"
+                                >
+                                    <X size={20} />
+                                </button>
 
-                        <div className="p-8 pt-12">
-                            <div className="text-center mb-10">
-                                <h2 className="font-headline text-3xl text-brand-brown mb-2">
-                                    {isLogin ? "Welcome Back" : "Join NutriHaven"}
-                                </h2>
-                                <p className="font-sans text-gray-500 text-sm">
-                                    {isLogin
-                                        ? "Enter your details to access your account"
-                                        : "Create an account to start your wellness journey"}
-                                </p>
-                            </div>
+                                <div className="mb-6 text-center">
+                                    <span className="font-headline font-bold text-2xl text-brand-brown tracking-tight">
+                                        Kruncho
+                                    </span>
+                                    <p className="mt-1 font-label text-sm text-gray-500">
+                                        {isSignIn ? "Welcome back! Sign in to continue" : "Create your account to get started."}
+                                    </p>
+                                </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                {!isLogin && (
+                                <div className="flex rounded-xl bg-brand-latte p-1 mb-6">
+                                    {(["signin", "signup"] as const)?.map((mode) => (
+                                        <button
+                                            key={mode}
+                                            onClick={() => openAuthModal(mode)}
+                                            className={`flex-1 py-2 rounded-lg font-label text-sm transition-all duration-200 cursor-pointer ${
+                                                authModal === mode
+                                                    ? "bg-brand-brown text-brand-cream shadown-sm"
+                                                    : "text-brand-brown hover:text-brand-cocoa"
+                                            }`}
+                                        >
+                                            {mode === "signin" ? "Sign In" : "Sign Up"}
+                                        </button>
+                                    ))} 
+                                </div>
+
+                                <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+                                    {!isSignIn && (
+                                        <div className="relative">
+                                            <User
+                                                size={16}
+                                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="Full name"
+                                                value={name}
+                                                onChange={(e) => setName(e?.target?.value)}
+                                                className="w-full pl-9 py-3 rounded-xl border border-gray-200 bg-white font-label text-sm text-brand-brown placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 focus:border-brand-brown transition"
+                                            />
+                                        </div>
+                                    )}  
+
                                     <div className="relative">
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                        <Envelope
+                                            size={16}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                                        />
                                         <input
-                                            type="text"
-                                            placeholder="Full Name"
-                                            required
-                                            className="w-full bg-brand-latte/50 border border-gray-100 rounded-xl py-4 pl-12 pr-4 font-sans text-sm focus:outline-none focus:border-brand-brown transition-colors"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            type="email"
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e?.target?.value)}
+                                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 bg-white font-label text-sm text-brand-brown placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 focus:border-brand-brown transition"
                                         />
                                     </div>
-                                )}
 
-                                <div className="relative">
-                                    <EnvelopeSimple className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                    <input
-                                        type="email"
-                                        placeholder="Email Address"
-                                        required
-                                        className="w-full bg-brand-latte/50 border border-gray-100 rounded-xl py-4 pl-12 pr-4 font-sans text-sm focus:outline-none focus:border-brand-brown transition-colors"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        required
-                                        className="w-full bg-brand-latte/50 border border-gray-100 rounded-xl py-4 pl-12 pr-4 font-sans text-sm focus:outline-none focus:border-brand-brown transition-colors"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    />
-                                </div>
-
-                                {isLogin && (
-                                    <div className="text-right">
-                                        <button type="button" className="text-xs font-label text-brand-brown hover:underline">
-                                            Forgot Password?
+                                    <div className="relative">
+                                        <Lock
+                                            size={16}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                                        />
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e?.target?.value)}
+                                            className="w-full pl-9 pr-10 py-3 rounded-xl border border-gray-200 bg-white font-label text-sm text-brand-brown placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 focus:border-brand-brown transition"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                                            aria-label={showPassword ? "Hide password": "Show password"}
+                                        >
+                                            {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                                         </button>
                                     </div>
-                                )}
+
+                                    {isSignIn && (
+                                        <div className="text-right -mt-1">
+                                            <button
+                                                type="button"
+                                                className="font-label text-xs text-brand-coca hover:text-brand-brown underline underline-offset-2 transition-colors"
+                                            >   
+                                                Forgot password?
+                                            </button>
+                                        </div>      
+                                    )}
+
+                                    {error && (
+                                        <p className="font-label text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">
+                                            {error}
+                                        </p>
+                                    )}
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="mt-1 w-full py-3 rounded-xl bg-brand-brown text-brand-cream font-label text-sm font-medium hover:bg-brand-cocoa active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed" 
+                                    >
+                                        {loading ? "Please wait..." : isSignIn ? "Sign In" : "Create Account"}
+                                    </button>
+                                </form>
+
+                                <div className="flex items-center gap-3 my-5">
+                                    <div className="flex-1 h-px bg-gray-200" />
+                                    <span className="font-label text-xs text-gray-400">or</span>
+                                    <div className="flex-1 h-px bg-gray-200" />
+                                </div>
 
                                 <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full bg-brand-brown text-brand-cream font-label py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-brand-cocoa transition-all shadow-lg shadow-brand-brown/20 disabled:opacity-70"
+                                    type="button"
+                                    className="w-full py-3 rounded-xl border border-gray-200 bg-white font-label text-sm text-brand-brown hover:bg-brand-latte transition-colors duration-200 flex items-center justify-center gap-2"
                                 >
-                                    {isLoading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
-                                    {!isLoading && <ArrowRight size={18} />}
+                                    <img
+                                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/500px-Google_%22G%22_logo.svg.png"
+                                        className="w-5 h-5"
+                                    />
+                                    Continue with Google
                                 </button>
-                            </form>
 
-                            <div className="mt-8 text-center">
-                                <p className="font-sans text-sm text-gray-500">
-                                    {isLogin ? "Don't have an account?" : "Already have an account?"}
+                                <p className="mt-5 text-center font-label text-xs text-gray-500">
+                                    {isSignIn ? "Don't have an account? ": "Already have an account? "}
                                     <button
-                                        onClick={() => setIsLogin(!isLogin)}
-                                        className="ml-2 font-bold text-brand-brown hover:underline cursor-pointer"
+                                        type="button"
+                                        onClick={() => openAuthModal(isSignIn ? "signup" : "signin")}
+                                        className="text-brand-brown font-medium underline underline-offset-2 hover:text-brand-cocoa transition-colors"
                                     >
-                                        {isLogin ? "Sign Up Free" : "Sign In Here"}
+                                        {isSignIn ? "Sign Up": "Sign In"}
                                     </button>
                                 </p>
                             </div>
-                        </div>
-
-                        {/* Bottom Accent */}
-                        <div className="h-2 bg-gradient-to-r from-brand-brown via-brand-cocoa to-brand-plum" />
+                        </motion.div>
                     </motion.div>
-                </div>
+                </>
             )}
         </AnimatePresence>
     );
