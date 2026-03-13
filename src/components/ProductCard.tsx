@@ -27,7 +27,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 }}
                 className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full"
             >
-                {/* Image Container */}
                 <div className="relative aspect-square overflow-hidden bg-gray-50">
                     <img
                         src={product.image}
@@ -35,21 +34,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
-                    {/* Badges */}
                     <div className="absolute top-3 left-3 flex flex-col gap-2">
                         {product.badge && (
-                            <span className="bg-brand-brown text-brand-cream text-[10px] font-label uppercase tracking-widest px-2 py-1 rounded-md">
+                            <span className={`${product?.isNew ? "bg-brand-plum" : "bg-brand-brown"} text-brand-cream text-[10px] font-label uppercase tracking-widest px-2 py-1 rounded-md`}>
                                 {product.badge}
-                            </span>
-                        )}
-                        {product.isNew && (
-                            <span className="bg-brand-plum text-brand-cream text-[10px] font-label uppercase tracking-widest px-2 py-1 rounded-md">
-                                New Arrival
                             </span>
                         )}
                     </div>
 
-                    {/* Wishlist Button */}
                     <button
                         className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full text-brand-brown opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-brand-brown hover:text-brand-cream cursor-pointer"
                         onClick={(e) => {
