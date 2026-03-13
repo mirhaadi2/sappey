@@ -233,33 +233,35 @@ const HomePage: React.FC = () => {
                         loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
-                        
-                    <div className="max-w-lg">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                Health & Wellness
-                            </span>
-                            <h2
-                                className="font-headline text-4xl text-brand mb-4"
-                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                    
+                    <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
+                        <div className="max-w-lg">
+                            <motion.div
+                                variants={fadeUpVariants}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
                             >
-                                Stay Strong with Almonds
-                            </h2>
-                            <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                Rich in Vitamin E, magnesium, and healthy fats. Make almonds your daily ritual for a stronger, healthier you.
-                            </p>
-                            <button
-                                onClick={() => navigate("/shop?category=almonds")}
-                                className="bg-brand-cream text-brand-brown font-label text-sm px-8 py-8 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"                              
-                            >
-                                Shop Almond Range
-                            </button>
-                        </motion.div>
+                                <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
+                                    Health & Wellness
+                                </span>
+                                <h2
+                                    className="font-headline text-4xl text-brand mb-4 text-brand-cream"
+                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                >
+                                    Stay Strong with Almonds
+                                </h2>
+                                <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
+                                    Rich in Vitamin E, magnesium, and healthy fats. Make almonds your daily ritual for a stronger, healthier you.
+                                </p>
+                                <button
+                                    onClick={() => navigate("/shop?category=almonds")}
+                                    className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"                              
+                                >
+                                    Shop Almond Range
+                                </button>
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
             </section>

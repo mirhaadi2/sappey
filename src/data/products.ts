@@ -135,7 +135,7 @@ export const products: Product[] = [
     variants: ["500g", "1kg"],
     rating: 4.7,
     reviewCount: 120,
-    isBestSeller: true,
+    isBestseller: true,
     nutrition: [
       { label: "Fiber", value: "7g" },
       { label: "Energy", value: "277kcal" },
@@ -237,7 +237,7 @@ export const products: Product[] = [
     variants: ["400g", "800g"],
     rating: 4.8,
     reviewCount: 312,
-    isBestSeller: true,
+    isBestseller: true,
     nutrition: [
       { label: "Fiber", value: "18g" },
       { label: "Protein", value: "25g" }
@@ -251,7 +251,75 @@ export const products: Product[] = [
         date: "2024-02-18"
       }
     ]
-  }
+  },
+  {
+    id: "7",
+    slug: "jumbo-cashews-w180",
+    name: "Jumbo Cashews W180",
+    price: 13.99,
+    originalPrice: 23.99,
+    category: "cashews",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
+    images: [
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png"
+    ],
+    badge: "Premium",
+    description: "A powerhouse of nutrition featuring Pumpkin, Sunflower, Flax, Chia, Watermelon, Sesame, and Muskmelon seeds. Lightly roasted for a crunch.",
+    weight: "250g",
+    variants: ["400g", "800g"],
+    rating: 4.9,
+    reviewCount: 56,
+    isBestseller: true,
+    nutrition: [
+      { label: "Fiber", value: "18g" },
+      { label: "Protein", value: "25g" }
+    ],
+    reviews: [
+      {
+        id: "r10",
+        author: "Nisha B.",
+        rating: 5,
+        comment: "Perfect roast level, not too salty!",
+        date: "2024-02-18"
+      }
+    ]
+  },
+  {
+    id: "8",
+    slug: "almond-cashew-combo",
+    name: "Almond & Cashew Combo",
+    price: 19.99,
+    originalPrice: 26.99,
+    category: "combos",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_3.png",
+    images: [
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_3.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
+    ],
+    badge: "New Arrival",
+    description: "Snow-white walnut kernels, rich in Omega-3 fatty acids. These halves are perfect for brain health and make a great addition to salads and brownies.",
+    weight: "250g",
+    variants: ["250g", "500g"],
+    rating: 4.8,
+    reviewCount: 34,
+    isNew: true,
+    nutrition: [
+      { label: "Calories", value: "566 kcal" },
+      { label: "Protein", value: "19g" },
+      { label: "Carbohydrates", value: "26g" },
+      { label: "Fat", value: "47g" },
+    ],
+    reviews: [
+      {
+        id: "r9",
+        author: "Kavya L.",
+        rating: 5,
+        comment: "Perfect roast level, not too salty!",
+        date: "2024-03-08"
+      }
+    ]
+  },
 ];
 
 export const testimonials = [
