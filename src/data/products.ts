@@ -2,34 +2,34 @@ import { Product, Category } from "../types";
 
 export const categories: Category[] = [
   {
-    id: "nuts",
-    name: "Premium Nuts",
-    slug: "premium-nuts",
-    image: "https://images.unsplash.com/photo-1596501048141-5ac42966838b?q=80&w=800&auto=format&fit=crop",
+    id: "cashews",
+    name: "Cashews",
+    slug: "cashews",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
     color: "bg-brand-brown",
     textColor: "text-brand-cream"
   },
   {
-    id: "seeds",
-    name: "Organic Seeds",
-    slug: "organic-seeds",
-    image: "https://images.unsplash.com/photo-1515942661900-94b3d197c591?q=80&w=800&auto=format&fit=crop",
+    id: "almonds",
+    name: "Almonds",
+    slug: "almonds",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_3.png",
     color: "bg-brand-cocoa",
     textColor: "text-brand-cream"
   },
   {
-    id: "dried-fruits",
-    name: "Dried Fruits",
-    slug: "dried-fruits",
-    image: "https://images.unsplash.com/photo-1596003906949-67221c37965c?q=80&w=800&auto=format&fit=crop",
+    id: "mixed",
+    name: "Mixed Fruits",
+    slug: "mixed",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
     color: "bg-brand-plum",
     textColor: "text-brand-cream"
   },
   {
-    id: "mixes",
-    name: "Healthy Mixes",
-    slug: "healthy-mixes",
-    image: "https://images.unsplash.com/photo-1533602952207-7bc97063d893?q=80&w=800&auto=format&fit=crop",
+    id: "combos",
+    name: "Combos",
+    slug: "combos",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
     color: "bg-brand-brown",
     textColor: "text-brand-cream"
   }
@@ -38,30 +38,30 @@ export const categories: Category[] = [
 export const products: Product[] = [
   {
     id: "1",
-    slug: "premium-california-almonds",
-    name: "Premium California Almonds",
-    price: 899,
-    originalPrice: 1199,
-    category: "nuts",
-    image: "https://images.unsplash.com/photo-1508817628294-5a453fa0b8fb?q=80&w=800&auto=format&fit=crop",
+    slug: "premium-cashews-w240",
+    name: "Premium Cashews W240",
+    price: 12.99,
+    originalPrice: 16.99,
+    category: "cashews",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
     images: [
-      "https://images.unsplash.com/photo-1508817628294-5a453fa0b8fb?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1511018556340-d16906a10aa4?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png"
     ],
     badge: "Bestseller",
-    isBestseller: true,
-    description: "Our Premium California Almonds are carefully selected for their size and crunch. They are 100% natural, protein-rich, and perfect for your daily nutrition. Each almond is hand-picked to ensure consistent quality and maximum nutrient retention. Great for snacking, baking, or adding to your morning cereal.",
+    description: "Our Premium California Cashews are carefully selected for their size and crunch. They are 100% natural, protein-rich, and perfect for your daily nutrition. Each cashew is hand-picked to ensure consistent quality and maximum nutrient retention. Great for snacking, baking, or adding to your morning cereal.",
     weight: "500g",
     variants: ["250g", "500g", "1kg"],
     rating: 4.8,
     reviewCount: 156,
+    isBestseller: true,
     nutrition: [
-      { label: "Protein", value: "21g" },
-      { label: "Fats", value: "49g" },
-      { label: "Carbs", value: "22g" },
-      { label: "Fiber", value: "12g" }
+      { label: "Calories", value: "553 kcal" },
+      { label: "Protien", value: "18g" },
+      { label: "Fat", value: "44g" },
+      { label: "Fiber", value: "3g" },
+      { label: "Sodium", value: "12mg" },
     ],
     reviews: [
       {
@@ -82,17 +82,18 @@ export const products: Product[] = [
   },
   {
     id: "2",
-    slug: "organic-cashew-nuts",
-    name: "Organic Cashew Nuts",
-    price: 749,
-    originalPrice: 999,
+    slug: "california-almonds",
+    name: "California Almonds",
+    price: 9.99,
+    originalPrice: 13.99,
     category: "nuts",
-    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800&auto=format&fit=crop",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
     images: [
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1567434720166-7281c7e96b3a?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_3.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png"
     ],
-    badge: "New",
+    badge: "New Arrival",
     isNew: true,
     description: "Creamy and delicious organic cashews sourced from sustainable farms. These whole cashews are perfect for snacking or as a nutritious addition to your recipes. They are processed in a hygienic facility to maintain their natural sweetness and buttery texture.",
     weight: "500g",
@@ -117,22 +118,24 @@ export const products: Product[] = [
   },
   {
     id: "3",
-    slug: "medjool-dates",
-    name: "Premium Medjool Dates",
-    price: 1299,
-    originalPrice: 1599,
-    category: "dried-fruits",
-    image: "https://images.unsplash.com/photo-1596003906949-67221c37965c?q=80&w=800&auto=format&fit=crop",
+    slug: "mixed-nuts-delight",
+    name: "Mixed Nuts Delight",
+    price: 12.99,
+    originalPrice: 15.99,
+    category: "mixed",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
     images: [
-      "https://images.unsplash.com/photo-1596003906949-67221c37965c?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1501747315-124a0ecca060?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png"
     ],
-    badge: "Imported",
+    badge: "Bestseller",
     description: "Known as the 'King of Dates', our Medjool dates are exceptionally large, sweet, and soft. Naturally high in energy and fiber, they are the perfect natural sweetener for your smoothies and desserts.",
     weight: "500g",
     variants: ["500g", "1kg"],
     rating: 4.7,
     reviewCount: 120,
+    isBestSeller: true,
     nutrition: [
       { label: "Fiber", value: "7g" },
       { label: "Energy", value: "277kcal" },
@@ -151,21 +154,23 @@ export const products: Product[] = [
   },
   {
     id: "4",
-    slug: "roasted-pistachios",
-    name: "Salted Roasted Pistachios",
-    price: 1099,
-    originalPrice: 1399,
-    category: "nuts",
-    image: "https://images.unsplash.com/photo-1596501048141-5ac42966838b?q=80&w=800&auto=format&fit=crop",
+    slug: "dry-fruits-combo-pack",
+    name: "Dry Fruits Combo Pack",
+    price: 24.99,
+    originalPrice: 32.99,
+    category: "combos",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
     images: [
-      "https://images.unsplash.com/photo-1596501048141-5ac42966838b?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1522307751700-6dc574929851?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
     ],
+    badge: "New Arrival",
     description: "Premium California pistachios, lightly salted and roasted to perfection. These are naturally opened and offer a great source of protein and antioxidants. Ideal for a healthy lifestyle snack.",
     weight: "500g",
     variants: ["250g", "500g"],
     rating: 4.9,
     reviewCount: 210,
+    isNew: true,
     nutrition: [
       { label: "Protein", value: "20g" },
       { label: "Iron", value: "3.9mg" },
@@ -183,48 +188,69 @@ export const products: Product[] = [
   },
   {
     id: "5",
-    slug: "walnut-kernels",
-    name: "Premium Walnut Kernels",
-    price: 649,
-    originalPrice: 899,
-    category: "nuts",
-    image: "https://images.unsplash.com/photo-1543325252-45e046637e93?q=80&w=800&auto=format&fit=crop",
+    slug: "roasted-pistachios",
+    name: "Roasted Pistachios",
+    price: 11.99,
+    originalPrice: 19.99,
+    category: "mixed",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
     images: [
-      "https://images.unsplash.com/photo-1543325252-45e046637e93?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png"
     ],
+    badge: "New Arrival",
     description: "Snow-white walnut kernels, rich in Omega-3 fatty acids. These halves are perfect for brain health and make a great addition to salads and brownies.",
     weight: "250g",
     variants: ["250g", "500g"],
     rating: 4.6,
     reviewCount: 95,
+    isNew: true,
     nutrition: [
       { label: "Omega-3", value: "2.5g" },
       { label: "Protein", value: "15g" }
     ],
-    reviews: []
+    reviews: [
+      {
+        id: "r9",
+        author: "Kavya L.",
+        rating: 5,
+        comment: "Perfect roast level, not too salty!",
+        date: "2024-03-08"
+      }
+    ]
   },
   {
     id: "6",
-    slug: "mixed-seeds-pack",
-    name: "7-in-1 Super Seeds Mix",
-    price: 499,
-    originalPrice: 599,
-    category: "seeds",
-    image: "https://images.unsplash.com/photo-1515942661900-94b3d197c591?q=80&w=800&auto=format&fit=crop",
+    slug: "premium-walnuts",
+    name: "Premium Walnuts",
+    price: 13.99,
+    originalPrice: 17.99,
+    category: "mixed",
+    image: "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
     images: [
-      "https://images.unsplash.com/photo-1515942661900-94b3d197c591?q=80&w=800&auto=format&fit=crop"
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_5.png",
+      "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_4.png"
     ],
-    badge: "Healthy Choice",
+    badge: "Bestseller",
     description: "A powerhouse of nutrition featuring Pumpkin, Sunflower, Flax, Chia, Watermelon, Sesame, and Muskmelon seeds. Lightly roasted for a crunch.",
     weight: "400g",
     variants: ["400g", "800g"],
     rating: 4.8,
     reviewCount: 312,
+    isBestSeller: true,
     nutrition: [
       { label: "Fiber", value: "18g" },
       { label: "Protein", value: "25g" }
     ],
-    reviews: []
+    reviews: [
+      {
+        id: "r10",
+        author: "Nisha B.",
+        rating: 5,
+        comment: "Perfect roast level, not too salty!",
+        date: "2024-02-18"
+      }
+    ]
   }
 ];
 
@@ -257,7 +283,7 @@ export const testimonials = [
     id: "t4",
     author: "Vikram Patel",
     location: "Ahmedabad",
-    rating: ,4
+    rating: 4,
     comment: "Great products and very reasonable prices. The combo packs are perfect for families. Will definitely recommend to friends",
     initials: "VP"
   },
