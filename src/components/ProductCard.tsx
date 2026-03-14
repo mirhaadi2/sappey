@@ -10,12 +10,13 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-    const { addItem } = useCart();
+    const { dispatch } = useCart();
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        addItem(product, 1, product.variants[0]);
+        dispatch({ type: "ADD_ITEM", payload: { product, variant: product.variants[0] } });
+        dispatch({ type: "OPEN_CART" });
     };
 
     return (
