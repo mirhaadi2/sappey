@@ -2,141 +2,204 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const CartDrawer: React.FC = () => {
-    const {
-        items,
-        removeItem,
-        updateQuantity,
-        totalPrice,
-        isCartOpen,
-        setIsCartOpen
-    } = useCart();
+    const { state, dispatch, totalItems, totalPrice } = useCart();
+
+    const { user, openAuthModal } = useAuth();
+    const navigate = useNavigate();
+
+    const handleCheckout = () => {
+        if (!user) {
+            dispatch({ type: "CLOSE_CART" });
+            openAuthModal("signin");
+            return;
+        }
+        dispatch({ type: "CLOSE_CART" });
+        navigate("/checkout");
+    };
 
     return (
         <AnimatePresence>
-            {isCartOpen && (
+            {state.isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => setIsCartOpen(false)}
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+                        transition={{ duration: 0.25 }}
+                        onClick={() => dispatch({ type: "CLOSE_CART" })}
+                        className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50"
+                        aria-hidden="true"
                     />
 
-                    {/* Drawer */}
                     <motion.div
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
-                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-[101] flex flex-col"
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-cream z-50 flex flex-col"
+                        role="dialog"
+                        aria-label="Shopping cart"
+                        aria-modal="true"
                     >
-                        {/* Header */}
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
                             <div className="flex items-center gap-3">
-                                <ShoppingBag size={24} weight="duotone" className="text-brand-brown" />
-                                <h2 className="font-headline text-xl text-brand-brown">Your Cart</h2>
-                                <span className="bg-brand-latte text-brand-brown text-xs font-bold px-2 py-1 rounded-full">
-                                    {items.length}
-                                </span>
+                                <ShoppingBag
+                                    size={24}
+                                    weight="regular"
+                                    className="text-brand-brown"
+                                />
+                                <h2
+                                    className="font-headline text-xl text-brand-brown"
+                                    style={{ fontWeight: 600 }}
+                                >
+                                    Your Cart ({totalItems})
+                                </h2>
                             </div>
                             <button
-                                onClick={() => setIsCartOpen(false)}
-                                className="p-2 hover:bg-brand-latte rounded-full transition-colors cursor-pointer"
+                                onClick={() => dispatch({ type: "CLOSE_CART" })}
+                                className="p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
                             >
-                                <X size={20} weight="bold" />
+                                <X size={20} weight="regular" />
                             </button>
                         </div>
 
-                        {/* Cart Items */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                            {items.length === 0 ? (
-                                <div className="h-full flex flex-col items-center justify-center text-center">
-                                    <div className="w-20 h-20 bg-brand-latte rounded-full flex items-center justify-center mb-4">
-                                        <ShoppingBag size={32} weight="light" className="text-brand-brown" />
-                                    </div>
-                                    <p className="font-sans text-gray-500 mb-6">Your cart is empty</p>
+                        <div className="flex-1 overflow-y-auto px-6 py-6">
+                            {state?.items.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full gap-4">
+                                    <ShoppingBag
+                                        size={48}
+                                        weight="thin"
+                                        className="text-gray-400"
+                                    />
+                                    <p className="font-sans text-gray-500 text-center">
+                                        Your cart is empty. Start adding some delicious nuts!
+                                    </p>
                                     <button
-                                        onClick={() => setIsCartOpen(false)}
-                                        className="bg-brand-brown text-brand-cream px-8 py-3 rounded-xl font-label text-sm hover:bg-brand-cocoa transition-colors"
+                                        onClick={() => {
+                                            dispatch({ type: "CLOSE_CART" });
+                                            navigate("/shop");
+                                        }}
+                                        className="bg-brand-brown text-brand-cream px-6 py-3 rounded-lg font-label text-sm hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer"
                                     >
-                                        Start Shopping
+                                        Shop Now
                                     </button>
                                 </div>
                             ) : (
-                                items.map((item: any) => (
-                                    <div key={`${item.product.id}-${item.variant}`} className="flex gap-4">
-                                        <div className="w-24 h-24 rounded-xl overflow-hidden bg-brand-latte shrink-0">
+                                <ul className="space-y-4">
+                                    {state?.items.map((item: any) => (
+                                        <li
+                                            key={`${item.product.id}-${item.variant}`}
+                                            className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200"
+                                        >
                                             <img
                                                 src={item.product.image}
                                                 alt={item.product.name}
-                                                className="w-full h-full object-cover"
+                                                className="w-16 h-16 object-cover rounded-lg"
                                             />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between mb-1">
-                                                <h3 className="font-headline text-brand-brown leading-tight">
+                                            <div className="flex-1 min-w-0">
+                                                <h3
+                                                    className="font-label text-sm text-brand-brown font-500 truncate"
+                                                    style={{ fontWeight: 500 }}
+                                                >
                                                     {item.product.name}
                                                 </h3>
-                                                <button
-                                                    onClick={() => removeItem(item.product.id, item.variant)}
-                                                    className="text-gray-400 hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash size={18} />
-                                                </button>
-                                            </div>
-                                            <p className="text-xs text-gray-500 font-sans mb-3">
-                                                Size: {item.variant}
-                                            </p>
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center bg-brand-latte rounded-lg p-1">
-                                                    <button
-                                                        onClick={() => updateQuantity(item.product.id, item.variant, item.quantity - 1)}
-                                                        className="p-1 hover:bg-white rounded-md transition-colors"
+                                                <p className="font-sans text-xs text-gray-500 mb-2">
+                                                    Size: {item.variant}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() =>
+                                                                dispatch({
+                                                                type: "UPDATE_QUANTITY",
+                                                                payload: {
+                                                                    productId: item.product.id,
+                                                                    variant: item.variant,
+                                                                    quantity: item.quantity - 1,
+                                                                },
+                                                                })
+                                                            }
+                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                                                            aria-label={`Decrease quantity of ${item.product.name}`}
+                                                        >
+                                                            <Minus size={12} weight="bold" />
+                                                        </button>
+                                                        <span className="font-label text-sm text-brand-brown w-6 text-center">
+                                                            {item.quantity}
+                                                        </span>
+                                                        <button
+                                                            onClick={() =>
+                                                                dispatch({
+                                                                    type: "UPDATE_QUANTITY",
+                                                                    payload: {
+                                                                        productId: item.product.id,
+                                                                        variant: item.variant,
+                                                                        quantity: item.quantity + 1,
+                                                                    },
+                                                                })
+                                                            }
+                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                                                            aria-label={`Increase quantity of ${item.product.name}`}
+                                                        >
+                                                            <Plus size={12} weight="bold" />
+                                                        </button>
+                                                    </div>
+                                                    <span
+                                                        className="font-label text-sm text-brand-brown font-500"
+                                                        style={{ fontWeight: 500 }}
                                                     >
-                                                        <Minus size={14} weight="bold" />
-                                                    </button>
-                                                    <span className="w-8 text-center text-xs font-bold">
-                                                        {item.quantity}
+                                                        ₹{(item.product.price * item.quantity).toFixed(2)}
                                                     </span>
-                                                    <button
-                                                        onClick={() => updateQuantity(item.product.id, item.variant, item.quantity + 1)}
-                                                        className="p-1 hover:bg-white rounded-md transition-colors"
-                                                    >
-                                                        <Plus size={14} weight="bold" />
-                                                    </button>
                                                 </div>
-                                                <span className="font-bold text-brand-brown">
-                                                    ₹{item.product.price * item.quantity}
-                                                </span>
                                             </div>
-                                        </div>
-                                    </div>
-                                ))
+                                            <button
+                                                onClick={() =>
+                                                    dispatch({
+                                                        type: "REMOVE_ITEM",
+                                                        payload: {
+                                                            productId: item.product.id,
+                                                            variant: item.variant,
+                                                        },
+                                                    })
+                                                }
+                                                className="text-gray-400 hover:text-red-500 transition-colors duration-200 cursor-pointer self-start-mt-1"
+                                                aria-label={`Remove ${item.product.name} from cart`}
+                                            >
+                                                <Trash size={16} weight="regular" />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
                         </div>
 
-                        {/* Footer / Checkout */}
-                        {items.length > 0 && (
-                            <div className="p-6 border-t border-gray-100 space-y-4 bg-brand-latte/30">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-500">Subtotal</span>
-                                    <span className="font-bold text-brand-brown text-xl">₹{totalPrice}</span>
+                        {state?.items.length > 0 && (
+                            <div className="px-8 py-6 border-t border-gray-200 bg-white">
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="font-sans text-sm text-gray-600">Subtotal</span>
+                                    <span className="font-headline text-brand-brown text-xl" style={{ fontWeight: 600 }}>
+                                        ₹{totalPrice?.toFixed(2)}
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest">
+                                <p className="text-xs text-gray-500 mb-4 font-sans">
                                     Shipping & taxes calculated at checkout
                                 </p>
-                                <Link
-                                    to="/checkout"
-                                    onClick={() => setIsCartOpen(false)}
-                                    className="block w-full bg-brand-brown text-brand-cream text-center py-4 rounded-xl font-label uppercase tracking-widest hover:bg-brand-cocoa transition-all shadow-lg shadow-brand-brown/20"
+                                <button
+                                    onClick={handleCheckout}
+                                    className="w-full bg-brand-brown text-brand-cream font-label text-sm py-4 rounded-lg hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer uppercase tracking-widest"
                                 >
                                     Proceed to Checkout
-                                </Link>
+                                </button>
+                                <button
+                                    onClick={() => dispatch({ type: "CLEAR_CART" })}
+                                    className="w-full mt-2 bg-transparent text-brand-brown font-label text-xs py-2 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
+                                >
+                                    Clear Cart
+                                </button>
                             </div>
                         )}
                     </motion.div>
