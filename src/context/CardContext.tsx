@@ -7,7 +7,7 @@ interface CartState {
 }
 
 type CartAction = 
-    | { type: "ADD_ITEM", payload: { product: Product; variant: string }}
+    | { type: "ADD_ITEM", payload: { product: Product; variant: string; quantity: number }}
     | { type: "REMOVE_ITEM"; payload: { productId: string; variant: string }}
     | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: string; quantity: number }}
     | { type: "TOGGLE_CART" }
@@ -29,7 +29,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
                     items: state.items.map((item) =>
                         item.product.id === action.payload.product.id && 
                         item.variant === action.payload.variant
-                         ? { ...item, quantity: item.quantity + 1 }
+                         ? { ...item, quantity: item.quantity + action.payload.quantity }
                          : item
                     )
                 };
@@ -41,7 +41,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
                     {
                         product: action.payload.product,
                         variant: action.payload.variant,
-                        quantity: 1
+                        quantity: action.payload.quantity
                     }
                 ]
             };

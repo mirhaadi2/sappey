@@ -1,18 +1,23 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-
-interface User {
-    name: string;
-    email: string;
-}
+import React, { createContext, useContext, useState } from "react";
+import { useAuth as useAuthApi, User } from "../api/exports";
 
 interface AuthContextType {
-    user: User | null;
-    signIn: (email: string, pass: string) => Promise<void>;
-    signUp: (name: string, email: string, pass: string) => Promise<void>;
+    user: User | null | undefined;
+    loading: boolean;
+    signIn: (email: string, password: string) => void;
+    signUp: (email: string, password: string, firstName: string, lastName: string) => void;
     signOut: () => void;
     authModal: "signin" | "signup" | null;
     openAuthModal: (mode: "signin" | "signup") => void;
-    closeAuthModal: (mode: "signin" | "signup") => void;
+    closeAuthModal: () => void;
+    // Loading states
+    signInLoading: boolean;
+    signUpLoading: boolean;
+    signOutLoading: boolean;
+    // Error states
+    signInError: any;
+    signUpError: any;
+    signOutError: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,69 +25,64 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
-    const [user, setUser] = useState<User | null>(null);
     const [authModal, setAuthModal] = useState<"signin" | "signup" | null>(null);
 
-    // useEffect(() => {
-    //     const savedUser = localStorage.getItem("user");
-    //     if (savedUser) {
-    //         try {
-    //             setUser(JSON.parse(savedUser));
-    //         } catch (error) {
-    //             console.error("Failed to parse user:", error);
-    //         }
-    //     }
-    // }, []);
+    // Use the authentication API hook
+    const {
+        user,
+        isLoading,
+        loginMutation,
+        registerMutation,
+        logoutMutation,
+        profileQuery,
+    } = useAuthApi();
 
-    // const login = async (email: string, pass: string) => {
-    //     // Mock login logic - in a real app, this would be an API call
-    //     const mockUser = { id: "1", name: "Guest User", email };
-    //     setUser(mockUser);
-    //     localStorage.setItem("user", JSON.stringify(mockUser));
-    //     setIsAuthModalOpen(false);
-    // };
+    const signIn = (email: string, password: string) => {
+        loginMutation.mutate({ email, password });
+    };
 
-    // const register = async (name: string, email: string, pass: string) => {
-    //     // Mock register logic
-    //     const mockUser = { id: "1", name, email };
-    //     setUser(mockUser);
-    //     localStorage.setItem("user", JSON.stringify(mockUser));
-    //     setIsAuthModalOpen(false);
-    // };
+    const signUp = (email: string, password: string, firstName: string, lastName: string) => {
+        registerMutation.mutate({ email, password, firstName, lastName });
+    };
 
-    // const logout = () => {
-    //     setUser(null);
-    //     localStorage.removeItem("user");
-    // };
-
-    const signIn = async (email: string, _password: string) => {
-        setUser({ name: email.split("@")[0], email });
-        setAuthModal(null);
-    }
-
-    const signUp = async (name: string, email: string, _password: string) => {
-        setUser({ name, email });
-        setAuthModal(null);
-    }
-
-    const signOut = () => setUser(null);
+    const signOut = () => {
+        logoutMutation.mutate(undefined);
+    };
 
     const openAuthModal = (mode: "signin" | "signup") => {
-        console.log('mode', mode)
-        setAuthModal(mode)
+        setAuthModal(mode);
     };
-    const closeAuthModal = () => setAuthModal(null);
+
+    const closeAuthModal = () => {
+        setAuthModal(null);
+    };
+
+    // Handle successful authentication
+    React.useEffect(() => {
+        if (user && authModal) {
+            closeAuthModal();
+            // Optional: redirect to dashboard or home
+            // window.location.href = '/dashboard';
+        }
+    }, [user, authModal]);
 
     return (
         <AuthContext.Provider
             value={{
                 user,
+                loading: isLoading,
                 signIn,
                 signUp,
                 signOut,
                 authModal,
                 openAuthModal,
                 closeAuthModal,
+                signInLoading: loginMutation.isPending,
+                signUpLoading: registerMutation.isPending,
+                signOutLoading: logoutMutation.isPending,
+                signInError: loginMutation.error,
+                signUpError: registerMutation.error,
+                signOutError: logoutMutation.error,
             }}
         >
             {children}

@@ -46,3 +46,14 @@ export interface Category {
     textColor: string;
     image: string;
 }
+
+export enum UserRole {
+    USER = "USER",
+    ADMIN = "ADMIN",
+}
+
+export interface User {
+    id: string;
+    email: string;
+    role: UserRole;
+}

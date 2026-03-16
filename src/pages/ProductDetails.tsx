@@ -14,7 +14,7 @@ const ProductDetailPage: React.FC = () => {
     const product = products.find((p) => p.slug === slug);
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState<any>(0);
-    const [selectedVariant, setSelectedVariant] = useState(product?.variants[0] || null);
+    const [selectedVariant, setSelectedVariant] = useState<string>(product?.variants?.[0] || '');
     const [addedToCart, setAddedToCart] = useState(false);
 
     useEffect(() => {

@@ -223,11 +223,11 @@ const Header: React.FC = () => {
                                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown">
                                     <User size={18} weight="fill" />
                                     <span className="hidden sm:inline font-label text-sm font-medium capitalize">
-                                        {user?.name}
+                                        {user?.email?.split('@')[0]}
                                     </span>
                                 </div>
                                 <button
-                                    onClick={signOut}
+                                    onClick={() => signOut()}
                                     className="p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
                                     aria-label="Sign out"
                                     title="Sign out"

@@ -1,0 +1,9 @@
+// Authentication API endpoint paths
+export const AUTH_LOGIN = '/auth/login';
+export const AUTH_REGISTER = '/auth/register';
+export const AUTH_PROFILE = '/auth/profile';
+export const AUTH_LOGOUT = '/auth/logout';
+export const AUTH_CHANGE_PASSWORD = '/auth/change-password';
+export const AUTH_FORGOT_PASSWORD = '/auth/forgot-password';
+export const AUTH_RESET_PASSWORD = '/auth/reset-password';
+export const AUTH_REFRESH_TOKEN = '/auth/refresh';

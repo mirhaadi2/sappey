@@ -15,7 +15,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch({ type: "ADD_ITEM", payload: { product, variant: product.variants[0] } });
+        dispatch({ type: "ADD_ITEM", payload: { product, variant: product.variants[0], quantity: 1 } });
         dispatch({ type: "OPEN_CART" });
     };
 

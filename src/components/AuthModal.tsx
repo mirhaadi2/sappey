@@ -4,7 +4,17 @@ import { X, Eye, EyeSlash, User, Envelope, Lock } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 
 const AuthModal: React.FC = () => {
-    const { authModal, openAuthModal, closeAuthModal, signIn, signUp } = useAuth();
+    const { 
+        authModal, 
+        openAuthModal, 
+        closeAuthModal, 
+        signIn, 
+        signUp,
+        signInLoading,
+        signUpLoading,
+        signInError,
+        signUpError
+    } = useAuth();
     const isOpen = authModal !== null;
     const isSignIn = authModal === "signin";
 
@@ -12,16 +22,15 @@ const AuthModal: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+
+    const loading = isSignIn ? signInLoading : signUpLoading;
+    const error = isSignIn ? signInError : signUpError;
 
     useEffect(() => {
         setName("");
         setEmail("");
         setPassword("");
-        setError("");
         setShowPassword(false);
-        setLoading(false);
     }, [authModal]);
 
     useEffect(() => {
@@ -30,28 +39,24 @@ const AuthModal: React.FC = () => {
         return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
+
         if (!email || !password || (!isSignIn && !name)) {
-            setError("Please fill in all fields.");
             return;
         }
-        if (password?.length < 6) {
-            setError("Password must be at least 6 characters.");
+
+        if (password.length < 6) {
             return;
         }
-        setLoading(true);
-        try {
-            if (isSignIn) {
-                await signIn(email, password);
-            } else {
-                await signUp(name, email, password);
-            }
-        } catch {
-            setError("Something went wrong. Please try again");
-        } finally {
-            setLoading(false);
+
+        if (isSignIn) {
+            signIn(email, password);
+        } else {
+            const nameParts = name.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            signUp(email, password, firstName, lastName);
         }
     };
 
@@ -63,7 +68,7 @@ const AuthModal: React.FC = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => setIsAuthModalOpen(false)}
+                        onClick={() => closeAuthModal()}
                         className="absolute inset-0 bg-brand-brown/40 backdrop-blur-sm"
                     />
                     <motion.div
