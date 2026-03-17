@@ -27,7 +27,7 @@ const CheckoutPage: React.FC = () => {
     addresses.find((a) => a.isDefault)?.id || null
   );
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("upi");
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
 
@@ -264,10 +264,10 @@ const CheckoutPage: React.FC = () => {
 
                     <div className="space-y-4 mb-8">
                       {[
-                        { id: "card", name: "Credit/Debit Card", icon: CreditCard, desc: "Visa, Mastercard, Rupay" },
-                        { id: "upi", name: "UPI", icon: QrCode, desc: "Google Pay, PhonePe, Paytm" },
-                        { id: "netbanking", name: "Net Banking", icon: CurrencyDollar, desc: "All major banks" },
+                        // { id: "upi", name: "UPI", icon: QrCode, desc: "Google Pay, PhonePe, Paytm" },
                         { id: "cod", name: "Cash on Delivery", icon: Package, desc: "Pay when you receive" },
+                        // { id: "card", name: "Credit/Debit Card", icon: CreditCard, desc: "Visa, Mastercard, Rupay" },
+                        // { id: "netbanking", name: "Net Banking", icon: DollarSign, desc: "All major banks" },
                       ].map((method) => (
                         <motion.label
                           key={method.id}
@@ -294,8 +294,8 @@ const CheckoutPage: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* Payment Method Details */}
-                    {paymentMethod === "card" && (
+                    {/* Card Payment - Currently Disabled */}
+                    {/* {paymentMethod === "card" && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -336,13 +336,18 @@ const CheckoutPage: React.FC = () => {
                       >
                         <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 text-center">
                           <QrCode size={64} className="mx-auto text-purple-600 mb-4" />
-                          <p className="font-semibold text-gray-900 mb-2">Scan QR Code with your UPI app</p>
-                          <p className="text-gray-600 text-sm">Google Pay, PhonePe, Paytm, BHIM, etc.</p>
+                          <p className="font-semibold text-gray-900 mb-2">Scan QR Code with any UPI app</p>
+                          <p className="text-gray-600 text-sm mb-4">Works with Google Pay, PhonePe, Paytm, BHIM, and all UPI apps</p>
+                          <div className="bg-white p-4 rounded-lg">
+                            <p className="text-xs text-gray-500 mb-2">No individual app integration needed</p>
+                            <p className="text-sm font-mono text-brand-brown">UPI: yourname@bank</p>
+                          </div>
                         </div>
                       </motion.div>
                     )}
 
-                    {paymentMethod === "netbanking" && (
+                    {/* Net Banking - Currently Disabled */}
+                    {/* {paymentMethod === "netbanking" && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -362,7 +367,7 @@ const CheckoutPage: React.FC = () => {
                           </div>
                         </div>
                       </motion.div>
-                    )}
+                    )} */}
 
                     {paymentMethod === "cod" && (
                       <motion.div
@@ -374,7 +379,8 @@ const CheckoutPage: React.FC = () => {
                           <Info size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
                           <div className="text-sm">
                             <p className="font-semibold text-amber-900 mb-1">Cash on Delivery</p>
-                            <p className="text-amber-800">Pay ₹{orderSummary.total.toFixed(2)} when your order arrives at your doorstep. A small delivery charge may apply.</p>
+                            <p className="text-amber-800">Pay ₹{orderSummary.total.toFixed(2)} when your order arrives at your doorstep.</p>
+                            <p className="font-semibold text-green-600 mt-2">✨ FREE Delivery - Launch Offer</p>
                           </div>
                         </div>
                       </motion.div>
