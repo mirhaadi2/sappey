@@ -221,12 +221,16 @@ const Header: React.FC = () => {
                         </div>
                         {user ? (
                             <div className="relative flex items-center gap-1">
-                                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown">
+                                <button
+                                    onClick={() => navigate('/profile')}
+                                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown hover:bg-brand-brown hover:text-white transition-colors duration-200 cursor-pointer"
+                                    title="Profile"
+                                >
                                     <User size={18} weight="fill" />
                                     <span className="hidden sm:inline font-label text-sm font-medium capitalize">
                                         {user?.name || user?.email?.split("@")?.[0]}
                                     </span>
-                                </div>
+                                </button>
                                 <button
                                     onClick={() => signOut()}
                                     className="p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
