@@ -7,6 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true, // Enable sending cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,10 +35,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
+    // Only redirect on 401 if the user was previously authenticated (had a token)
+    // Profile endpoint 401 is normal for unauthenticated users
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      const hadToken = !!localStorage.getItem('auth_token');
+      if (hadToken) {
+        // Token was expired or invalid
+        localStorage.removeItem('auth_token');
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('signin')) {
+          window.location.href = '/';
+        }
+      }
     }
     return Promise.reject(error);
   }

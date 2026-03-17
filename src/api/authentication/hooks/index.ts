@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authClient } from '../client';
+import { authApi } from '../client';
 import { AuthResponse, User, LoginData, RegisterData } from '../types';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
-    mutationFn: authClient.login,
+    mutationFn: authApi.login,
     onSuccess: (data: AuthResponse) => {
       localStorage.setItem('auth_token', data.token);
       queryClient.setQueryData(['user'], data.user);
@@ -14,28 +14,41 @@ export const useAuth = () => {
   });
 
   const registerMutation = useMutation({
-    mutationFn: authClient.register,
+    mutationFn: authApi.register,
     onSuccess: (data: AuthResponse) => {
       localStorage.setItem('auth_token', data.token);
       queryClient.setQueryData(['user'], data.user);
     },
   });
 
+  const completeRegistrationMutation = useMutation({
+    mutationFn: authApi.completeRegistration,
+    onSuccess: async () => {
+      // Refetch user profile to validate session and get user data
+      // This will refetch immediately and then cache for 5 minutes
+      await queryClient.refetchQueries({ queryKey: ['user'] });
+    },
+    retry: 1, // Retry once in case of network hiccup
+  });
+
   const profileQuery = useQuery({
     queryKey: ['user'],
-    queryFn: authClient.getProfile,
-    enabled: !!localStorage.getItem('auth_token'),
+    queryFn: authApi.getProfile,
+    enabled: true, // Always attempt to check for session-based auth
+    retry: false, // Don't retry on 401
+    staleTime: 1000 * 60 * 5, // Cache user data for 5 minutes
+    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: authClient.updateProfile,
+    mutationFn: authApi.updateProfile,
     onSuccess: (data) => {
       queryClient.setQueryData(['user'], data);
     },
   });
 
   const logoutMutation = useMutation({
-    mutationFn: authClient.logout,
+    mutationFn: authApi.logout,
     onSuccess: () => {
       localStorage.removeItem('auth_token');
       queryClient.clear();
@@ -43,26 +56,27 @@ export const useAuth = () => {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: authClient.changePassword,
+    mutationFn: authApi.changePassword,
   });
 
   const forgotPasswordMutation = useMutation({
-    mutationFn: authClient.forgotPassword,
+    mutationFn: authApi.forgotPassword,
   });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: authClient.resetPassword,
+    mutationFn: authApi.resetPassword,
   });
 
   return {
     // Data
     user: profileQuery.data,
     isLoading: profileQuery.isLoading,
-    isAuthenticated: !!localStorage.getItem('auth_token'),
+    isAuthenticated: !!localStorage.getItem('auth_token') || !!profileQuery.data,
 
     // Mutations (full objects for flexible usage)
     loginMutation,
     registerMutation,
+    completeRegistrationMutation,
     updateProfileMutation,
     logoutMutation,
     changePasswordMutation,

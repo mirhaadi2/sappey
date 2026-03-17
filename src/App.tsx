@@ -6,7 +6,8 @@ import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
-import AuthModal from "./components/AuthModal";
+import SignInModal from "./components/SignInModal";
+import SignUpModal from "./components/SignUpModal";
 import ShopPage from "./pages/ShopPage";
 import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
@@ -37,7 +38,8 @@ const App: React.FC = () => {
                             </main>
                             <Footer />
                             <CartDrawer />
-                            <AuthModal />
+                            <SignInModal />
+                            <SignUpModal />
                         </div>
                     </BrowserRouter>
                 </CartProvider>

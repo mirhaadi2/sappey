@@ -344,7 +344,7 @@ export const testimonials = [
     author: "Anita Krishnan",
     location: "Bengalore",
     rating: 5,
-    comment: "I've been ordering from kruncho for 6 months now. Consistent quality every single time. The almonds are absolutely top-notch.",
+    comment: "I've been ordering from Sappay for 6 months now. Consistent quality every single time. The almonds are absolutely top-notch.",
     initials: "AK"
   },
   {

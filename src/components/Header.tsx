@@ -97,11 +97,12 @@ const Header: React.FC = () => {
             navigate(href);
         }
     };
+    console.log(user,'user')
 
     return (
         <>
             <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
-                Free shipping on orders over $49 &nbsp;|&nbsp; Use code KRUNCHO10 for 10% off
+                Free shipping on orders over $49 &nbsp;|&nbsp; Use code SAPPAY10 for 10% off
             </div>
 
             <header
@@ -115,7 +116,7 @@ const Header: React.FC = () => {
                         className="font-headline font-700 text-2xl text-brand-brown tracking-tight hover:text-brand-cocoa transition-colors duration-200"
                         style={{ fontWeight: 700, letterSpacing: "-0.025em" }}
                     >
-                        Kruncho
+                        Sappay
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
@@ -223,7 +224,7 @@ const Header: React.FC = () => {
                                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown">
                                     <User size={18} weight="fill" />
                                     <span className="hidden sm:inline font-label text-sm font-medium capitalize">
-                                        {user?.email?.split('@')[0]}
+                                        {user?.name || user?.email?.split("@")?.[0]}
                                     </span>
                                 </div>
                                 <button

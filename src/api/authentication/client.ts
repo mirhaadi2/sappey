@@ -8,15 +8,27 @@ import {
   AUTH_FORGOT_PASSWORD,
   AUTH_RESET_PASSWORD,
   AUTH_REFRESH_TOKEN,
+  AUTH_CHECK_USER,
+  AUTH_INITIATE_REGISTRATION,
+  AUTH_VERIFY_OTP,
+  AUTH_COMPLETE_REGISTRATION,
 } from './endpoints';
 import {
   AuthResponse,
   LoginData,
   RegisterData,
   User,
+  CheckUserData,
+  CheckUserResponse,
+  InitiateRegistrationData,
+  InitiateRegistrationResponse,
+  VerifyOtpData,
+  VerifyOtpResponse,
+  CompleteRegistrationData,
+  CompleteRegistrationResponse,
 } from './types';
 
-export const authClient = {
+export const authApi = {
   login: async (data: LoginData): Promise<AuthResponse> => {
     const response = await apiMethods.post<AuthResponse>(AUTH_LOGIN, data);
     return response.data;
@@ -27,9 +39,30 @@ export const authClient = {
     return response.data;
   },
 
+  // New registration flow APIs
+  checkUser: async (data: CheckUserData): Promise<CheckUserResponse> => {
+    const response = await apiMethods.post<CheckUserResponse>(AUTH_CHECK_USER, data);
+    return response.data;
+  },
+
+  initiateRegistration: async (data: InitiateRegistrationData): Promise<InitiateRegistrationResponse> => {
+    const response = await apiMethods.post<InitiateRegistrationResponse>(AUTH_INITIATE_REGISTRATION, data);
+    return response.data;
+  },
+
+  verifyOtp: async (data: VerifyOtpData): Promise<VerifyOtpResponse> => {
+    const response = await apiMethods.post<VerifyOtpResponse>(AUTH_VERIFY_OTP, data);
+    return response.data;
+  },
+
+  completeRegistration: async (data: CompleteRegistrationData): Promise<CompleteRegistrationResponse> => {
+    const response = await apiMethods.post<CompleteRegistrationResponse>(AUTH_COMPLETE_REGISTRATION, data);
+    return response.data;
+  },
+
   getProfile: async (): Promise<User> => {
     const response = await apiMethods.get<User>(AUTH_PROFILE);
-    return response.data;
+    return response.data?.user || response.data; // Handle both legacy and new response formats
   },
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
