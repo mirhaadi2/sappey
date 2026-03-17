@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle, Lock,
-  Plus, Package, Minus, Trash2, Info
+  Plus, Package, Minus, Trash2, Info, QrCode, CurrencyDollar
 } from "@phosphor-icons/react";
 
 interface OrderSummary {
@@ -27,6 +27,7 @@ const CheckoutPage: React.FC = () => {
     addresses.find((a) => a.isDefault)?.id || null
   );
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("card");
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
 
@@ -261,31 +262,123 @@ const CheckoutPage: React.FC = () => {
                       Payment Method
                     </h2>
 
-                    <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white mb-6 relative overflow-hidden">
-                      <div className="absolute top-4 right-4">
-                        <Lock size={24} className="opacity-50" />
-                      </div>
-                      <p className="text-sm opacity-75 mb-8">Card Number</p>
-                      <p className="text-2xl tracking-wider font-mono mb-8">•••• •••• •••• 4242</p>
-                      <div className="flex justify-between">
-                        <div>
-                          <p className="text-xs opacity-75">Cardholder</p>
-                          <p className="font-semibold">{user.email?.split("@")[0].toUpperCase()}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs opacity-75">Expires</p>
-                          <p className="font-semibold">12/26</p>
-                        </div>
-                      </div>
+                    <div className="space-y-4 mb-8">
+                      {[
+                        { id: "card", name: "Credit/Debit Card", icon: CreditCard, desc: "Visa, Mastercard, Rupay" },
+                        { id: "upi", name: "UPI", icon: QrCode, desc: "Google Pay, PhonePe, Paytm" },
+                        { id: "netbanking", name: "Net Banking", icon: CurrencyDollar, desc: "All major banks" },
+                        { id: "cod", name: "Cash on Delivery", icon: Package, desc: "Pay when you receive" },
+                      ].map((method) => (
+                        <motion.label
+                          key={method.id}
+                          className="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition hover:border-brand-brown hover:bg-brand-brown/5"
+                          style={{
+                            borderColor: paymentMethod === method.id ? "var(--color-brand-brown)" : "#e5e7eb",
+                            backgroundColor: paymentMethod === method.id ? "rgba(var(--color-brand-brown), 0.05)" : "white",
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value={method.id}
+                            checked={paymentMethod === method.id as any}
+                            onChange={(e) => setPaymentMethod(e.target.value as any)}
+                            className="w-5 h-5 accent-brand-brown cursor-pointer"
+                          />
+                          <method.icon size={24} className="text-brand-brown flex-shrink-0" weight={paymentMethod === method.id ? "fill" : "regular"} />
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900">{method.name}</p>
+                            <p className="text-gray-600 text-sm">{method.desc}</p>
+                          </div>
+                        </motion.label>
+                      ))}
                     </div>
 
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6 flex gap-3">
-                      <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-semibold text-blue-900 mb-1">Demo Payment</p>
-                        <p className="text-blue-800">This is a demo checkout. Use test card 4242 4242 4242 4242.</p>
-                      </div>
-                    </div>
+                    {/* Payment Method Details */}
+                    {paymentMethod === "card" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 space-y-4"
+                      >
+                        <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white relative overflow-hidden">
+                          <div className="absolute top-4 right-4">
+                            <Lock size={24} className="opacity-50" />
+                          </div>
+                          <p className="text-sm opacity-75 mb-8">Card Number</p>
+                          <p className="text-2xl tracking-wider font-mono mb-8">•••• •••• •••• 4242</p>
+                          <div className="flex justify-between">
+                            <div>
+                              <p className="text-xs opacity-75">Cardholder</p>
+                              <p className="font-semibold">{user.email?.split("@")[0].toUpperCase()}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs opacity-75">Expires</p>
+                              <p className="font-semibold">12/26</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded flex gap-3">
+                          <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">
+                            <p className="font-semibold text-blue-900 mb-1">Demo Payment</p>
+                            <p className="text-blue-800">This is a demo checkout. Use test card 4242 4242 4242 4242.</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {paymentMethod === "upi" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 space-y-4"
+                      >
+                        <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 text-center">
+                          <QrCode size={64} className="mx-auto text-purple-600 mb-4" />
+                          <p className="font-semibold text-gray-900 mb-2">Scan QR Code with your UPI app</p>
+                          <p className="text-gray-600 text-sm">Google Pay, PhonePe, Paytm, BHIM, etc.</p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {paymentMethod === "netbanking" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6"
+                      >
+                        <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                          <p className="font-semibold text-gray-900 mb-4">Select Your Bank:</p>
+                          <div className="grid grid-cols-2 gap-4">
+                            {["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank", "Kotak Bank", "IDBI Bank"].map((bank) => (
+                              <button
+                                key={bank}
+                                className="p-3 border-2 border-green-200 rounded-lg hover:bg-green-100 transition font-semibold text-sm text-gray-700"
+                              >
+                                {bank}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {paymentMethod === "cod" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6"
+                      >
+                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded flex gap-3">
+                          <Info size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">
+                            <p className="font-semibold text-amber-900 mb-1">Cash on Delivery</p>
+                            <p className="text-amber-800">Pay ₹{orderSummary.total.toFixed(2)} when your order arrives at your doorstep. A small delivery charge may apply.</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
 
                     <button
                       onClick={() => setOrderStep("review")}
@@ -331,8 +424,18 @@ const CheckoutPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-4 pb-6 border-b border-gray-200">
-                      <h3 className="font-bold text-gray-900">Shipping:</h3>
+                      <h3 className="font-bold text-gray-900">Shipping Method:</h3>
                       <p className="text-sm text-gray-700">{shippingMethod.charAt(0).toUpperCase() + shippingMethod.slice(1)}</p>
+                    </div>
+
+                    <div className="space-y-4 pb-6 border-b border-gray-200">
+                      <h3 className="font-bold text-gray-900">Payment Method:</h3>
+                      <p className="text-sm text-gray-700 capitalize">
+                        {paymentMethod === "cod" && "Cash on Delivery"}
+                        {paymentMethod === "card" && "Credit/Debit Card"}
+                        {paymentMethod === "upi" && "UPI"}
+                        {paymentMethod === "netbanking" && "Net Banking"}
+                      </p>
                     </div>
 
                     <button
