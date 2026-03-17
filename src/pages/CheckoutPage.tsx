@@ -20,7 +20,7 @@ interface OrderSummary {
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart, dispatch } = useCart();
+  const { state, dispatch } = useCart();
   const { addresses, createAddress } = useAddresses();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -32,8 +32,8 @@ const CheckoutPage: React.FC = () => {
 
   // Calculate order summary
   const orderSummary: OrderSummary = {
-    items: cart?.length,
-    subtotal: cart?.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    items: state.items.length,
+    subtotal: state.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
     tax: 0,
     shipping: shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99,
     total: 0,
@@ -59,7 +59,7 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  if (cart?.length === 0) {
+  if (state.items?.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
         <div className="text-center">
@@ -77,12 +77,13 @@ const CheckoutPage: React.FC = () => {
   }
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+  console.log(state.items, 'cart items');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <button
             onClick={() => navigate("/shop")}
             className="flex items-center gap-2 text-gray-600 hover:text-brand-brown transition mb-4"
@@ -90,7 +91,7 @@ const CheckoutPage: React.FC = () => {
             <ArrowLeft size={20} />
             Continue Shopping
           </button>
-          <h1 className="text-4xl font-bold text-brand-brown">Checkout</h1>
+          <h1 className="text-2xl font-bold text-brand-brown">Checkout</h1>
         </div>
       </div>
 
@@ -403,18 +404,18 @@ const CheckoutPage: React.FC = () => {
               </h3>
 
               <div className="space-y-4 mb-6 pb-6 border-b border-gray-200 max-h-80 overflow-y-auto">
-                {cart?.map((item) => (
-                  <div key={item.id} className="flex items-start gap-4">
+                {state.items?.map((item) => (
+                  <div key={item.product.id} className="flex items-start gap-4">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.product.image}
+                      alt={item.product.name}
                       className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate text-sm">{item.name}</p>
+                      <p className="font-semibold text-gray-900 truncate text-sm">{item.product.name}</p>
                       <p className="text-gray-600 text-xs mt-1">Qty: {item.quantity}</p>
                       <p className="font-bold text-brand-brown text-sm mt-1">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
