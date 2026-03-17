@@ -11,11 +11,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-// Address type options
+// Address type options (mapped to backend enum values)
 const ADDRESS_TYPES = [
-  { id: "home", label: "Home", icon: House },
-  { id: "work", label: "Work", icon: Briefcase },
-  { id: "other", label: "Other", icon: MapPin },
+  { id: "HOME" as const, label: "Home", icon: House },
+  { id: "WORK" as const, label: "Work", icon: Briefcase },
+  { id: "OTHER" as const, label: "Other", icon: MapPin },
 ] as const;
 
 // Form validation schemas
@@ -80,7 +80,7 @@ const ProfilePage: React.FC = () => {
   const handleSelectAddressType = (typeId: string) => {
     setSelectedAddressType(typeId);
     const selectedType = ADDRESS_TYPES.find(t => t.id === typeId);
-    if (selectedType && typeId !== "other") {
+    if (selectedType && typeId !== "OTHER") {
       setValue("name", selectedType.label);
     } else {
       setValue("name", "");
@@ -89,9 +89,16 @@ const ProfilePage: React.FC = () => {
 
   const handleAddressSubmit = (data: AddressFormData) => {
     if (editingAddressId) {
-      updateAddress({ ...data, id: editingAddressId });
+      updateAddress({ 
+        ...data, 
+        id: editingAddressId,
+        type: (selectedAddressType as any) || "HOME"
+      });
     } else {
-      createAddress(data);
+      createAddress({
+        ...data,
+        type: (selectedAddressType as any) || "HOME"
+      });
     }
     reset();
     setEditingAddressId(null);
@@ -103,13 +110,13 @@ const ProfilePage: React.FC = () => {
     const address = addresses.find((a) => a.id === addressId);
     if (address) {
       Object.entries(address).forEach(([key, value]) => {
-        if (key !== "id" && key !== "userId" && key !== "createdAt" && key !== "updatedAt" && key !== "isDefault") {
+        if (key !== "id" && key !== "userId" && key !== "type" && key !== "createdAt" && key !== "updatedAt" && key !== "isDefault") {
           setValue(key as keyof AddressFormData, value as string);
         }
       });
+      setSelectedAddressType(address.type || "HOME");
       setEditingAddressId(addressId);
       setShowAddressForm(true);
-      setSelectedAddressType(null);
     }
   };
 
@@ -121,8 +128,8 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-40">
-        <div className="max-w-6xl mx-auto px-6 py-6">
+      <div className="sticky top-16 z-40">
+        <div className="max-w-6xl mx-auto px-6 pt-6">
           <button
             onClick={() => navigate("/")}
             className="flex items-center gap-2 text-gray-600 hover:text-brand-brown transition mb-4"
@@ -135,7 +142,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Profile Card */}
@@ -149,8 +156,8 @@ const ProfilePage: React.FC = () => {
                 <div className="w-20 h-20 bg-gradient-to-br from-brand-brown/20 to-brand-cocoa/20 rounded-full flex items-center justify-center mb-6">
                   <User size={40} className="text-brand-brown" weight="fill" />
                 </div>
-                <h2 className="text-2xl font-bold text-brand-brown mb-1">{user.email?.split("@")[0]}</h2>
-                <p className="text-gray-500 text-sm mb-6">{user.email}</p>
+                <h2 className="text-2xl font-bold text-brand-brown mb-1">{user?.name ?? user.email?.split("@")[0]}</h2>
+                {/* <p className="text-gray-500 text-sm mb-6">{user.email}</p> */}
                 <div className="w-full space-y-3 pt-6 border-t border-gray-100">
                   <div className="flex items-center gap-3 text-gray-700 text-sm">
                     <Envelope size={18} className="text-brand-brown" />
@@ -174,7 +181,7 @@ const ProfilePage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-2 flex flex-col bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
+            className="lg:col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
           >
             <div className="flex justify-between items-center mb-8">
               <div>
@@ -393,7 +400,7 @@ const ProfilePage: React.FC = () => {
             </AnimatePresence>
 
             {/* Addresses List */}
-            <div className="space-y-4 flex-1 overflow-y-auto max-h-[calc(100vh-400px)] pr-2">
+            <div className="space-y-4">
               {addresses.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
                   <MapPin size={40} className="mx-auto text-gray-400 mb-3" />

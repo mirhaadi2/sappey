@@ -1,7 +1,10 @@
+export type AddressType = "HOME" | "WORK" | "OTHER";
+
 export interface Address {
   id: string;
   userId: string;
-  name: string; // e.g., "Home", "Office"
+  type: AddressType;
+  name?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -15,7 +18,8 @@ export interface Address {
 }
 
 export interface CreateAddressData {
-  name: string;
+  type: AddressType;
+  name?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -26,6 +30,6 @@ export interface CreateAddressData {
   isDefault?: boolean;
 }
 
-export interface UpdateAddressData extends CreateAddressData {
+export interface UpdateAddressData extends Partial<CreateAddressData> {
   id: string;
 }

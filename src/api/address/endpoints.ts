@@ -1,6 +1,8 @@
 // Address API endpoints
-export const ADDRESS_LIST = '/users/addresses';
-export const ADDRESS_CREATE = '/users/addresses';
-export const ADDRESS_UPDATE = (id: string) => `/users/addresses/${id}`;
-export const ADDRESS_DELETE = (id: string) => `/users/addresses/${id}`;
-export const ADDRESS_SET_DEFAULT = (id: string) => `/users/addresses/${id}/set-default`;
+export const ADDRESS_LIST = '/addresses';
+export const ADDRESS_CREATE = '/addresses';
+export const ADDRESS_GET_DEFAULT = '/addresses/default';
+export const ADDRESS_GET = (id: string) => `/addresses/${id}`;
+export const ADDRESS_UPDATE = (id: string) => `/addresses/${id}`;
+export const ADDRESS_DELETE = (id: string) => `/addresses/${id}`;
+export const ADDRESS_SET_DEFAULT = (id: string) => `/addresses/${id}/set-default`;
