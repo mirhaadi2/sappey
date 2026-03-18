@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
-import { products } from "../data/products";
+import { useProductSearch } from "../api/exports";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },

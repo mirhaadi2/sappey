@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
+import { useOrders } from "../api/orders/hooks";
 import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle, Lock,
   Plus, Package, Minus, Trash2, Info, QrCode, CurrencyDollar
@@ -22,14 +23,17 @@ const CheckoutPage: React.FC = () => {
   const { user } = useAuth();
   const { state, dispatch } = useCart();
   const { addresses, createAddress } = useAddresses();
+  const { placeOrder, isCreatingOrder, createError } = useOrders();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     addresses.find((a) => a.isDefault)?.id || null
   );
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("upi");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("cod");
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
+  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
+  const [errorDismissed, setErrorDismissed] = useState(false);
 
   // Calculate order summary
   const orderSummary: OrderSummary = {
@@ -42,6 +46,39 @@ const CheckoutPage: React.FC = () => {
 
   orderSummary.tax = parseFloat((orderSummary.subtotal * 0.08).toFixed(2));
   orderSummary.total = parseFloat((orderSummary.subtotal + orderSummary.tax + orderSummary.shipping).toFixed(2));
+
+  const handlePlaceOrder = async () => {
+    if (!selectedAddressId) {
+      alert("Please select a delivery address");
+      return;
+    }
+
+    try {
+      // Map cart items to order items with seller product IDs
+      const orderItems = state.items.map((item) => ({
+        sellerProductId: item.product.id, // Using product ID as seller product ID for now
+        quantity: item.quantity,
+        price: item.product.price,
+      }));
+
+      const orderData = {
+        items: orderItems,
+        shippingAddressId: selectedAddressId,
+        paymentMethod,
+      };
+
+      const newOrder = await placeOrder(orderData);
+      setPlacedOrderId(newOrder.id);
+      
+      // Clear cart after successful order
+      dispatch({ type: "CLEAR_CART" });
+      
+      setOrderStep("confirmation");
+    } catch (err) {
+      console.error("Failed to place order:", err);
+      // Error is already set in the orderError state from the hook
+    }
+  };
 
   if (!user) {
     return (
@@ -127,6 +164,27 @@ const CheckoutPage: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {/* Error Alert */}
+            {createError && !errorDismissed && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border-l-4 border-red-500 p-4 rounded flex gap-3 mb-6"
+              >
+                <Info size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-semibold text-red-900">Order Error</p>
+                  <p className="text-red-800">{(createError as any)?.message || 'Failed to place order'}</p>
+                  <button
+                    onClick={() => setErrorDismissed(true)}
+                    className="text-red-700 underline mt-2 text-xs font-semibold"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
             {/* Shipping Address Step */}
             <AnimatePresence mode="wait">
@@ -445,11 +503,21 @@ const CheckoutPage: React.FC = () => {
                     </div>
 
                     <button
-                      onClick={() => setOrderStep("confirmation")}
-                      className="w-full py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-bold text-lg flex items-center justify-center gap-2"
+                      onClick={handlePlaceOrder}
+                      disabled={isCreatingOrder}
+                      className="w-full py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <CheckCircle size={24} />
-                      Place Order
+                      {isCreatingOrder ? (
+                        <>
+                          <div className="animate-spin">⏳</div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={24} />
+                          Place Order
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={() => setOrderStep("payment")}

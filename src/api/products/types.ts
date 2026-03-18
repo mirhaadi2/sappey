@@ -1,28 +1,90 @@
 export interface Product {
   id: string;
+  categoryId: string;
   name: string;
-  description: string;
-  price: number;
-  category: string;
-  images: string[];
-  stock: number;
-  isActive: boolean;
+  slug: string;
+  description?: string;
+  images?: string[];
+  specifications?: Record<string, any>;
+  basePrice?: number;
+  hsn_code?: string;
+  gst_rate: number;
+  certifications?: string[];
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
+}
+
+export interface SellerProduct {
+  id: string;
+  sellerId: string;
+  productId: string;
+  sellerSku?: string;
+  sellerPrice: number;
+  costPrice: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
+  rating?: number;
+  ratingCount?: number;
+  weight?: number;
+  dimensions?: Record<string, any>;
+  warrantyMonths?: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
+  createdAt: string;
+  updatedAt: string;
+  product?: Product; // For populated queries
+}
+
+export interface ProductWithSeller extends Product {
+  sellerProducts?: SellerProduct[];
 }
 
 export interface CreateProductData {
+  categoryId: string;
   name: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  images?: File[];
+  slug: string;
+  description?: string;
+  images?: string[];
+  specifications?: Record<string, any>;
+  basePrice?: number;
+  hsn_code?: string;
+  gst_rate?: number;
+  certifications?: string[];
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {
   id: string;
-  isActive?: boolean;
+  status?: 'ACTIVE' | 'INACTIVE';
+}
+
+export interface CreateSellerProductData {
+  productId: string;
+  sellerSku?: string;
+  sellerPrice: number;
+  costPrice: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
+  weight?: number;
+  dimensions?: Record<string, any>;
+  warrantyMonths?: number;
+}
+
+export interface UpdateSellerProductData extends Partial<CreateSellerProductData> {
+  id: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductFilters {
@@ -32,12 +94,50 @@ export interface ProductFilters {
   search?: string;
   page?: number;
   limit?: number;
+  categoryId?: string;
+}
+
+export interface SellerListing {
+  id: string;
+  sellerId: string;
+  sellerPrice: number; // What you paid
+  costPrice: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
 }
 
 export interface ProductResponse {
-  products: Product[];
+  id: string;
+  categoryId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  images?: string[];
+  specifications?: Record<string, any>;
+  basePrice?: number; // DISPLAY PRICE on website
+  displayPrice?: number;
+  hsn_code?: string;
+  gst_rate: number;
+  certifications?: string[];
+  status: 'ACTIVE' | 'INACTIVE';
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+  // Seller listings (internal only - DO NOT show price on frontend)
+  sellerListings?: SellerListing[];
+  sellerProducts?: SellerProduct[];
+}
+
+export interface ProductsListResponse {
+  products: ProductResponse[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CategoryResponse {
+  rows: Category[];
+  count: number;
 }

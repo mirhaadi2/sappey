@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FunnelSimple, GridFour, SquaresFour, Rows } from "@phosphor-icons/react";
-import { products, categories } from "../data/products";
+import { useProducts, useCategories } from "../api/exports";
 import ProductCard from "../components/ProductCard";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "rating" | "newest";
@@ -26,6 +26,16 @@ const ShopPage: React.FC = () => {
   const activeCategory = searchParams.get("category") || "all";
   const searchQuery = searchParams.get("search") || "";
 
+  // Fetch products from API with optional category filter
+  const { products, isLoading, error } = useProducts(
+    activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
+    true
+  );
+  console.log("Fetched products:", products);
+
+  // Fetch categories from API
+  const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
+
   const setCategory = (cat: string) => {
     const newParams = new URLSearchParams(searchParams);
     if (cat === "all") {
@@ -36,37 +46,35 @@ const ShopPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
-  const filteredProducts = useMemo(() => {
+  // Client-side filtering for search and sorting
+  const filteredProducts = React.useMemo(() => {
     let result = [...products];
-    
-    if (activeCategory !== "all") {
-      result = result.filter((p) => p.category === activeCategory);
-    }
     
     if (searchQuery) {
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(searchQuery.toLowerCase())
+          p.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     switch (sortBy) {
       case "price-asc":
-        result.sort((a, b) => a.price - b.price);
+        result.sort((a, b) => Number(a.basePrice) - Number(b.basePrice));
         break;
       case "price-desc":
-        result.sort((a, b) => b.price - a.price);
+        result.sort((a, b) => Number(b.basePrice) - Number(a.basePrice));
         break;
       case "rating":
-        result.sort((a, b) => b.rating - a.rating);
+        // TODO: Add rating field to API response
         break;
       case "newest":
-        result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+        // TODO: Add isNew field or createdAt timestamp to API response
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
     return result;
-  }, [activeCategory, sortBy, searchQuery]);
+  }, [products, sortBy, searchQuery]);
 
   const gridClass =
     viewMode === "grid-4"
@@ -107,19 +115,23 @@ const ShopPage: React.FC = () => {
               <span className="font-label text-xs uppercase tracking-wider text-gray-500 mr-1">
                 Category:
               </span>
-              {[{ id: "all", name: "All" }, ...categories].map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
-                    activeCategory === cat.id
-                      ? "bg-brand-brown text-brand-cream"
-                      : "bg-brand-latte text-brand-brown hover:bg-gray-200"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+              {categoriesLoading ? (
+                <div className="text-xs text-gray-500">Loading...</div>
+              ) : (
+                [{ id: "all", name: "All" }, ...apiCategories].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setCategory(cat.id)}
+                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                      activeCategory === cat.id
+                        ? "bg-brand-brown text-brand-cream"
+                        : "bg-brand-latte text-brand-brown hover:bg-gray-200"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="ml-auto flex items-center gap-3">
@@ -182,17 +194,40 @@ const ShopPage: React.FC = () => {
 
         {/* Results Count */}
         <p className="font-sans text-sm text-gray-500 mb-6">
-          Showing <span className="text-brand-brown font-medium" style={{ fontWeight: 500 }}>{filteredProducts.length}</span> products
-          {activeCategory !== "all" && (
-            <span> in <span className="text-brand-brown capitalize">{activeCategory}</span></span>
-          )}
-          {searchQuery && (
-            <span> matching "<span className="text-brand-brown font-medium">{searchQuery}</span>"</span>
+          {isLoading ? (
+            "Loading products..."
+          ) : (
+            <>
+              Showing <span className="text-brand-brown font-medium" style={{ fontWeight: 500 }}>{filteredProducts.length}</span> products
+              {activeCategory !== "all" && (
+                <span> in <span className="text-brand-brown capitalize">{activeCategory}</span></span>
+              )}
+              {searchQuery && (
+                <span> matching "<span className="text-brand-brown font-medium">{searchQuery}</span>"</span>
+              )}
+            </>
           )}
         </p>
 
-        {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {/* Error State */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6"
+          >
+            <p className="text-red-800">Failed to load products. Please try again.</p>
+          </motion.div>
+        )}
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="grid gap-6 ${gridClass}">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-96 bg-gray-200 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <motion.div 
             variants={staggerContainer}
             initial="hidden"

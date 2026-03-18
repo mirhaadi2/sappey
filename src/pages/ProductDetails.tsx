@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { products } from "../data/products";
+import { useProduct, useProducts } from "../api/exports";
 import { useCart } from "../context/CardContext";
 import ProductCard from "../components/ProductCard";
 import { Star, Minus, Plus, ShoppingCart, ArrowRight, Check, Truck, Package, ArrowLeft } from "@phosphor-icons/react";
@@ -11,15 +11,30 @@ const ProductDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { dispatch } = useCart();
 
+    // Note: Backend API typically uses UUID IDs, but slug lookup requires API support
+    // For now, we'll fetch products and filter by slug client-side
+    const { products, isLoading: productsLoading } = useProducts(undefined, true);
     const product = products.find((p) => p.slug === slug);
+    
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState<any>(0);
-    const [selectedVariant, setSelectedVariant] = useState<string>(product?.variants?.[0] || '');
+    const [selectedVariant, setSelectedVariant] = useState<string>('');
     const [addedToCart, setAddedToCart] = useState(false);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [slug]);
+
+    if (productsLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-brand-latte px-8">
+                <div className="text-center">
+                    <div className="animate-spin w-10 h-10 border-4 border-brand-brown border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading product details...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!product) {
         return (
@@ -37,7 +52,9 @@ const ProductDetailPage: React.FC = () => {
         );
     }
 
-    const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+    const relatedProducts = products
+        .filter((p) => p.category === product.category && p.id !== product.id)
+        .slice(0, 4);
 
     const handleAddToCart = () => {
         dispatch({

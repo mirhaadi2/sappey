@@ -1,4 +1,4 @@
 export * from './types';
 export * from './endpoints';
 export { productsClient } from './client';
-export * from './hooks';
+export * from './hooks/index';

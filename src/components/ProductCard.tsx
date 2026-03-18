@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
                 <div className="relative aspect-square overflow-hidden bg-gray-50">
                     <img
-                        src={product.image}
+                        src={product.images?.[0] || "https://via.placeholder.com/300?text=No+Image"}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -67,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
                 {/* Content */}
                 <div className="p-5 flex flex-col flex-1">
-                    <div className="flex items-center gap-1 mb-2">
+                    {/* <div className="flex items-center gap-1 mb-2">
                         <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                                 <Star
@@ -81,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <span className="text-xs text-gray-400 font-sans">
                             ({product.reviewCount})
                         </span>
-                    </div>
+                    </div> */}
 
                     <h3 className="font-headline text-brand-brown text-lg mb-1 line-clamp-1 group-hover:text-brand-cocoa transition-colors">
                         {product.name}
@@ -92,7 +92,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     <div className="mt-auto flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xl font-bold text-brand-brown">
-                                ₹{product.price}
+                                ₹{product.basePrice}
                             </span>
                             {product.originalPrice && (
                                 <span className="text-sm text-gray-400 line-through">
