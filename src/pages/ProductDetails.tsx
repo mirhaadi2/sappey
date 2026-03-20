@@ -14,7 +14,7 @@ const ProductDetailPage: React.FC = () => {
     // Note: Backend API typically uses UUID IDs, but slug lookup requires API support
     // For now, we'll fetch products and filter by slug client-side
     const { products, isLoading: productsLoading } = useProducts(undefined, true);
-    const product = products.find((p) => p.slug === slug);
+    const product = products.find((p: any) => p.slug === slug);
     
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState<any>(0);
@@ -53,7 +53,7 @@ const ProductDetailPage: React.FC = () => {
     }
 
     const relatedProducts = products
-        .filter((p) => p.category === product.category && p.id !== product.id)
+        .filter((p: any) => p.category === product.category && p.id !== product.id)
         .slice(0, 4);
 
     const handleAddToCart = () => {
@@ -123,7 +123,7 @@ const ProductDetailPage: React.FC = () => {
                         </div>
 
                         <div className="flex gap-3">
-                            {product.images.map((img, index: any) => (
+                            {product.images.map((img: string, index: number) => (
                                 <button
                                     key={index}
                                     onClick={() => setSelectedImage(index)}
@@ -414,7 +414,7 @@ const ProductDetailPage: React.FC = () => {
                             You May Also Like
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {relatedProducts?.map((p) => (
+                            {relatedProducts?.map((p: any) => (
                                 <ProductCard key={p?.id} product={p} />
                             ))}
                         </div>

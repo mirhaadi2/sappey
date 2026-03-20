@@ -15,6 +15,7 @@ export interface User {
   id: string;
   email: string;
   role: string;
+  name?: string; // Optional, can be derived from firstName + lastName
   data?: any; // For additional user info if needed
 }
 

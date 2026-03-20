@@ -11,29 +11,10 @@ import {
 
 export const productsClient = {
   // Get all products with filters
-  getProducts: async (filters?: ProductFilters): Promise<{
-    products: Product[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> => {
-    const response = await apiMethods.get<{
-      success: boolean;
-      products: Product[];
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    }>('/products', filters);
+  getProducts: async (filters?: ProductFilters): Promise<{ data: any }> => {
+    const response = await apiMethods.get<{ data: any }>('/products', filters);
 
-    return {
-      products: response.data.products,
-      total: response.data.total,
-      page: response.data.page,
-      limit: response.data.limit,
-      totalPages: response.data.totalPages,
-    };
+    return response.data?.data ?? { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
   },
 
   // Get single product by ID

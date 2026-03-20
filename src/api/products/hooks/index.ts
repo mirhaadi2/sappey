@@ -7,7 +7,7 @@ import { Product, ProductFilters, CreateSellerProductData, UpdateSellerProductDa
  * Uses React Query for automatic caching and refetching
  */
 export const useProducts = (filters?: ProductFilters, enabled = true) => {
-  const query = useQuery({
+  const query: any = useQuery({
     queryKey: ['products', filters],
     queryFn: () => productsClient.getProducts(filters),
     enabled,
@@ -68,7 +68,7 @@ export const useProductSearch = (searchQuery: string) => {
  * Category ID is used as cache key
  */
 export const useProductsByCategory = (categoryId?: string) => {
-  const query = useQuery({
+  const query: any = useQuery({
     queryKey: ['products', 'category', categoryId],
     queryFn: () => 
       productsClient.getProducts(categoryId ? { categoryId } : undefined),
@@ -138,22 +138,22 @@ export const useProductsMutations = () => {
   });
 
   // Upload images mutation
-  const uploadImagesMutation = useMutation({
-    mutationFn: ({ productId, images }: { productId: string; images: File[] }) =>
-      productsClient.uploadImages(productId, images),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['product'] });
-    },
-  });
+  // const uploadImagesMutation = useMutation({
+  //   mutationFn: ({ productId, images }: { productId: string; images: File[] }) =>
+  //     productsClient.uploadImages(productId, images),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['product'] });
+  //   },
+  // });
 
-  // Delete image mutation
-  const deleteImageMutation = useMutation({
-    mutationFn: ({ productId, imageUrl }: { productId: string; imageUrl: string }) =>
-      productsClient.deleteImage(productId, imageUrl),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['product'] });
-    },
-  });
+  // // Delete image mutation
+  // const deleteImageMutation = useMutation({
+  //   mutationFn: ({ productId, imageUrl }: { productId: string; imageUrl: string }) =>
+  //     productsClient.deleteImage(productId, imageUrl),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['product'] });
+  //   },
+  // });
 
   const invalidateProducts = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -163,20 +163,20 @@ export const useProductsMutations = () => {
     createProduct: createMutation.mutate,
     updateProduct: updateMutation.mutate,
     deleteProduct: deleteMutation.mutate,
-    uploadImages: uploadImagesMutation.mutate,
-    deleteImage: deleteImageMutation.mutate,
+    // uploadImages: uploadImagesMutation.mutate,
+    // deleteImage: deleteImageMutation.mutate,
 
     createLoading: createMutation.isPending,
     updateLoading: updateMutation.isPending,
     deleteLoading: deleteMutation.isPending,
-    uploadImagesLoading: uploadImagesMutation.isPending,
-    deleteImageLoading: deleteImageMutation.isPending,
+    // uploadImagesLoading: uploadImagesMutation.isPending,
+    // deleteImageLoading: deleteImageMutation.isPending,
 
     createError: createMutation.error,
     updateError: updateMutation.error,
     deleteError: deleteMutation.error,
-    uploadImagesError: uploadImagesMutation.error,
-    deleteImageError: deleteImageMutation.error,
+    // uploadImagesError: uploadImagesMutation.error,
+    // deleteImageError: deleteImageMutation.error,
 
     invalidateProducts,
   };

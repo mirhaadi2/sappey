@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
-import { useProductSearch } from "../api/exports";
+import { useProducts } from "../api/products";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
@@ -24,9 +24,21 @@ const Header: React.FC = () => {
     const { user, signOut, openAuthModal } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [sortBy, setSortBy] = useState<any>("default");
+    const [viewMode, setViewMode] = useState<any>("grid-4");
+
+    const activeCategory = searchParams.get("category") || "all";
+    //   const searchQuery = searchParams.get("search") || "";
+
+    // Fetch products from API with optional category filter
+    const { products, isLoading, error } = useProducts(
+        activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
+        true
+    );
 
     const searchResults = searchQuery?.trim()?.length > 0
-        ? products?.filter((p) =>
+        ? products?.filter((p: any) =>
             p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.category.toLowerCase().includes(searchQuery.toLowerCase())
         )?.slice(0, 6)
@@ -97,7 +109,7 @@ const Header: React.FC = () => {
             navigate(href);
         }
     };
-    console.log(user,'user')
+    console.log(user, 'user')
 
     return (
         <>
@@ -106,9 +118,8 @@ const Header: React.FC = () => {
             </div>
 
             <header
-                className={`sticky top-0 z-50 transition-all duration-300 ${
-                    scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"
-                }`}
+                className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"
+                    }`}
             >
                 <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-16">
                     <Link
@@ -189,7 +200,7 @@ const Header: React.FC = () => {
                                         transition={{ duration: 0.18 }}
                                         className="absolute top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden"
                                     >
-                                        {searchResults.map((result) => (
+                                        {searchResults.map((result: any) => (
                                             <button
                                                 onClick={() => handleSearchSelect(result.id)}
                                                 className="flex items-center gap-3 w-full px-4 py-3 hover:bg-brand-latte transition-colors text-left"
@@ -201,7 +212,7 @@ const Header: React.FC = () => {
                                                     className="w-10 h-10 object-cover rounded-lg flex-shrink-0"
                                                 />
                                                 <div className="min-w-0">
-                                                    <div className="font-label text-sm text-brand-brown truncate">{result.name}</div>   
+                                                    <div className="font-label text-sm text-brand-brown truncate">{result.name}</div>
                                                     <div className="font-sans text-xs text-gray-400 capitalize">{result.category}</div>
                                                 </div>
                                                 <span className="ml-auto font-label text-sm text-brand-brown font-medium flex-shrink-0">
@@ -243,17 +254,17 @@ const Header: React.FC = () => {
                         ) : (
                             <div className="hidden md:flex items-center gap-1">
                                 <button
-                                  onClick={() => {
-                                    console.log('hello header')
-                                    openAuthModal("signin")
-                                  }}
-                                  className="font-label text-sm px-4 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"  
+                                    onClick={() => {
+                                        console.log('hello header')
+                                        openAuthModal("signin")
+                                    }}
+                                    className="font-label text-sm px-4 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
                                 >
                                     Sign In
                                 </button>
                                 <button
-                                  onClick={() => openAuthModal("signup")}
-                                  className="font-label text-sm px-4 py-2 rounded-lg bg-brand-brown text-brand-cream hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer"  
+                                    onClick={() => openAuthModal("signup")}
+                                    className="font-label text-sm px-4 py-2 rounded-lg bg-brand-brown text-brand-cream hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer"
                                 >
                                     Sign Up
                                 </button>
@@ -308,14 +319,13 @@ const Header: React.FC = () => {
                                     <button
                                         key={link.href}
                                         onClick={() => handleNavClick(link.href)}
-                                        className={`font-label text-sm px-4 py-3 rounded-lg text-left transition-all duration-200 cursor-pointer ${
-                                            isActive(link?.href)
+                                        className={`font-label text-sm px-4 py-3 rounded-lg text-left transition-all duration-200 cursor-pointer ${isActive(link?.href)
                                                 ? "text-brand-brown font-500 bg-brand-latte"
-                                                : "text-brand-brown hover:bg-brand-latte"  
-                                        }`}
+                                                : "text-brand-brown hover:bg-brand-latte"
+                                            }`}
                                     >
                                         {link?.label}
-                                    </button>        
+                                    </button>
                                 ))}
                             </nav>
                         </motion.div>

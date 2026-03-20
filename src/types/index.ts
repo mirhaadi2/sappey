@@ -17,6 +17,7 @@ export interface Product {
     reviews: Review[];
     isNew?: boolean;
     isBestseller?: boolean;
+    basePrice?: string;
 }
 
 export interface NutritionFact {
