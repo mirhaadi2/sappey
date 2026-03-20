@@ -15,7 +15,6 @@ const ProductDetailPage: React.FC = () => {
     // For now, we'll fetch products and filter by slug client-side
     const { products, isLoading: productsLoading } = useProducts(undefined, true);
     const product = products.find((p: any) => p.slug === slug);
-    
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState<any>(0);
     const [selectedVariant, setSelectedVariant] = useState<string>('');
