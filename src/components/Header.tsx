@@ -102,7 +102,7 @@ const Header: React.FC = () => {
     return (
         <>
             <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
-                Free shipping on orders over $49 &nbsp;|&nbsp; Use code SAPPAY10 for 10% off
+                Free shipping on orders over $49 &nbsp;|&nbsp; Use code SAPPEY10 for 10% off
             </div>
 
             <header
@@ -116,7 +116,7 @@ const Header: React.FC = () => {
                         className="font-headline font-700 text-2xl text-brand-brown tracking-tight hover:text-brand-cocoa transition-colors duration-200"
                         style={{ fontWeight: 700, letterSpacing: "-0.025em" }}
                     >
-                        Sappay
+                        Sappey
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">

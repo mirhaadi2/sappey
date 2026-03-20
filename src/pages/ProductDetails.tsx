@@ -215,7 +215,7 @@ const ProductDetailPage: React.FC = () => {
                             <ul className="space-y-2">
                                 {[
                                     "Free shipping on orders above $49",
-                                    "Use SAPPAY10 for 10% off your first order",
+                                    "Use SAPPEY10 for 10% off your first order",
                                     "Buy 2 get 5% off | Buy 3 get 10% off"
                                 ]?.map((offer: any) => (
                                     <li key={offer} className="flex items-start gap-2">
