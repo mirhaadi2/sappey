@@ -108,7 +108,7 @@ const CartDrawer: React.FC = () => {
                                                     {item.product.name}
                                                 </h3>
                                                 <p className="font-sans text-xs text-gray-500 mb-2">
-                                                    Size: {item.variant}
+                                                    Weight: {typeof item.variant === 'object' && item.variant.weight ? `${item.variant.weight}g` : (typeof item.variant === 'object' ? item.variant.label : item.variant)}
                                                 </p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
@@ -152,7 +152,9 @@ const CartDrawer: React.FC = () => {
                                                         className="font-label text-sm text-brand-brown font-500"
                                                         style={{ fontWeight: 500 }}
                                                     >
-                                                        ₹{(item.product.price * item.quantity).toFixed(2)}
+                                                        ₹{(((typeof item.variant === 'object' && item.variant.price)
+                                                            ? item.variant.price
+                                                            : item.product.price) * item.quantity).toFixed(2)}
                                                     </span>
                                                 </div>
                                             </div>

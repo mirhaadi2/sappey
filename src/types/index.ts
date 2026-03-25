@@ -1,3 +1,13 @@
+export interface ProductVariant {
+    id: string;
+    label: string;
+    price: number;
+    originalPrice?: number;
+    weight?: string;
+    sku?: string;
+    status?: string;
+}
+
 export interface Product {
     id: string;
     slug: string;
@@ -9,15 +19,17 @@ export interface Product {
     images: string[];
     badge?: string;
     description: string;
-    weight: string;
-    variants: string[];
+    weight: number;
+    variants: (string | ProductVariant)[];
     rating: number;
     reviewCount: number;
     nutrition: NutritionFact[];
     reviews: Review[];
     isNew?: boolean;
     isBestseller?: boolean;
-    basePrice?: string;
+    basePrice?: number;
+    discountedPrice?: number;
+    discountedPercent?: number;
 }
 
 export interface NutritionFact {
@@ -36,7 +48,7 @@ export interface Review {
 export interface CartItem {
     product: Product;
     quantity: number;
-    variant: string | null;
+    variant: string | null | ProductVariant | any;
 }
 
 export interface Category {

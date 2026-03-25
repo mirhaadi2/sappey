@@ -7,9 +7,9 @@ interface CartState {
 }
 
 type CartAction = 
-    | { type: "ADD_ITEM", payload: { product: Product; variant: string; quantity: number }}
-    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: string }}
-    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: string; quantity: number }}
+    | { type: "ADD_ITEM", payload: { product: Product; variant: any; quantity: number }}
+    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: any }}
+    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: any; quantity: number }}
     | { type: "TOGGLE_CART" }
     | { type: "OPEN_CART" }
     | { type: "CLOSE_CART" } 
