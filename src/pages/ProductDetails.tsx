@@ -133,7 +133,7 @@ const ProductDetailPage: React.FC = () => {
         {/* Image Gallery */}
         <div className="max-w-7xl mx-auto flex items-center gap-2">
           <button
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-1 font-label text-xs text-gray-500 hover:text-brand-brown transition-colors duration-200 cursor-pointer"
           >
             <ArrowLeft size={14} weight="regular" />

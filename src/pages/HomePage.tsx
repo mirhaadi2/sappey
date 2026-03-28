@@ -301,7 +301,7 @@ const HomePage: React.FC = () => {
                                 variants={fadeUpVariants}
                                 whileHover={{ scale: 1.03 }}
                                 transition={{ duration: 0.2 }}
-                                onClick={() => navigate(`/products/${product?.id}`)}
+                                onClick={() => navigate(`/products/${product?.slug}`)}
                                 className="relative rounded-lg overflow-hidden aspect-square cursor-pointer group w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)]"
                                 role="button"
                                 aria-label={`Browse ${product?.name}`}
