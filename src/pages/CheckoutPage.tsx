@@ -7,7 +7,7 @@ import { useAddresses } from "../api/address/hooks";
 import { useOrders } from "../api/orders/hooks";
 import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle, Lock,
-  Plus, Package, Minus, Trash2, Info, QrCode, CurrencyDollar
+  Plus, Package, Info, QrCode, CurrencyDollar
 } from "@phosphor-icons/react";
 
 interface OrderSummary {

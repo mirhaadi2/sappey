@@ -17,5 +17,9 @@ export type { Order, CreateOrderData, OrderItem, OrderResponse, OrdersListRespon
 export { addressApi, useAddresses } from './address';
 // export type { Address, CreateAddressData, UpdateAddressData } from './address';
 
+// Homepage API
+export { homepageApi, useHomepageData } from './homepage';
+export type { Banner, Hero, Section, Testimonial, InstagramPost, HomepageData } from './homepage';
+
 // API utilities for creating new services
 export { ApiService, createApiHooks, createApiService } from './utils';

@@ -30,12 +30,10 @@ const ProductDetailPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [addedToCart, setAddedToCart] = useState(false);
 
-  console.log(product, "product");
-
   const variantOptions = React.useMemo(() => {
     if (!product) return [];
 
-    const options = [];
+    const options: any[] = [];
 
     // 1. Add additional variants if they exist
     if (Array.isArray(product.variants)) {
@@ -63,7 +61,7 @@ const ProductDetailPage: React.FC = () => {
     );
     return found || variantOptions[0];
   }, [selectedVariant, variantOptions]);
-console.log(selectedVariantData, "selectedVariantData");
+
   useEffect(() => {
     if (variantOptions.length > 0 && !selectedVariant) {
       setSelectedVariant(variantOptions[0].id);

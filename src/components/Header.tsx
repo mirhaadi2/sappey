@@ -5,6 +5,7 @@ import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut } from "@phosphor
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../api/products";
+import { useHomepageData } from "../api/homepage";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
@@ -36,6 +37,9 @@ const Header: React.FC = () => {
         activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
         true
     );
+
+    // Fetch homepage data for banner
+    const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
 
     const searchResults = searchQuery?.trim()?.length > 0
         ? products?.filter((p: any) =>
@@ -109,13 +113,16 @@ const Header: React.FC = () => {
             navigate(href);
         }
     };
-    console.log(user, 'user')
+    const activeBanner = homepageData?.banners?.find(b => b.isActive);
 
     return (
         <>
-            <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
-                Free shipping on orders over $49 &nbsp;|&nbsp; Use code SAPPEY10 for 10% off
-            </div>
+            {/* Dynamic Banner */}
+            {activeBanner && (
+                <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
+                    {activeBanner?.text}
+                </div>
+            )}
 
             <header
                 className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"

@@ -13,7 +13,7 @@ export const useProducts = (filters?: ProductFilters, enabled = true) => {
     enabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
-  console.log('API response for useProducts hook:', query.data);
+
   return {
     products: query.data?.products || [],
     total: query.data?.total || 0,

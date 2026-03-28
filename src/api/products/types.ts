@@ -11,6 +11,9 @@ export interface Product {
   gst_rate: number;
   certifications?: string[];
   status: 'ACTIVE' | 'INACTIVE';
+  isNew: boolean;
+  isCustomerFavourites: boolean;
+  isBestseller: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;

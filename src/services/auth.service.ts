@@ -35,7 +35,6 @@ class WebsiteAuthService {
     const response = await apiMethods.post('/auth/login', {
       ...credentials,
     });
-    console.log(response,'res')
 
     const { user } = response.data.data;
 
