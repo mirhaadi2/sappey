@@ -11,10 +11,29 @@ import {
 
 export const productsClient = {
   // Get all products with filters
-  getProducts: async (filters?: ProductFilters): Promise<{ data: any }> => {
-    const response = await apiMethods.get<{ data: any }>('/products', filters);
+  getProducts: async (filters?: ProductFilters): Promise<{ products: any[]; total: number; page: number; limit: number; totalPages: number }> => {
+    try {
+      const response = await apiMethods.get<{ data: any }>('/products', filters);
+      const data = response.data?.data;
 
-    return response.data?.data ?? { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
+      // Ensure we return the expected structure
+      if (data && typeof data === 'object' && Array.isArray(data.products)) {
+        return {
+          products: data.products,
+          total: data.total || 0,
+          page: data.page || 1,
+          limit: data.limit || 10,
+          totalPages: data.totalPages || 1,
+        };
+      }
+
+      // Fallback for unexpected response structure
+      console.warn('Unexpected products API response structure:', data);
+      return { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
+    }
   },
 
   // Get single product by ID

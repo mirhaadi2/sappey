@@ -12,10 +12,12 @@ export const useProducts = (filters?: ProductFilters, enabled = true) => {
     queryFn: () => productsClient.getProducts(filters),
     enabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   return {
-    products: query.data?.products || [],
+    products: Array.isArray(query.data?.products) ? query.data.products : [],
     total: query.data?.total || 0,
     isLoading: query.isLoading,
     error: query.error,

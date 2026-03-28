@@ -82,7 +82,7 @@ const HomePage: React.FC = () => {
     const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
 
     // Fetch products and categories
-    const { products: productsData, isLoading: productsLoading } = useProducts();
+    const { products: productsData, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useProducts();
 
     const homepageTestimonials = homepageData?.testimonials || [];
 
@@ -98,10 +98,40 @@ const HomePage: React.FC = () => {
         return () => clearInterval(interval);
     }, [homepageTestimonials.length]);
 
-    if (homepageLoading) {
+    // Debug logging for products data
+    useEffect(() => {
+        console.log('Products data:', productsData);
+        console.log('Products loading:', productsLoading);
+        console.log('Products error:', productsError);
+    }, [productsData, productsLoading, productsError]);
+
+    if (homepageLoading || productsLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-brown"></div>
+            </div>
+        );
+    }
+
+    if (productsError) {
+        console.error('Products loading error:', productsError);
+        // Show error state with retry option
+        return (
+            <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
+                <div className="text-center bg-white border border-slate-200 rounded-xl p-8 shadow-sm max-w-sm">
+                    <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                        Unable to load products
+                    </h2>
+                    <p className="text-sm text-slate-500 mb-6">
+                        There was an issue loading the product data. Please try again.
+                    </p>
+                    <button
+                        onClick={() => refetchProducts()}
+                        className="bg-brand-brown text-brand-cream px-6 py-2 rounded-lg hover:bg-brand-cocoa transition-colors"
+                    >
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
@@ -111,8 +141,8 @@ const HomePage: React.FC = () => {
     const testimonials = homepageData?.testimonials || [];
     const instagramPosts = homepageData?.instagramPosts || [];
 
-    const bestsellers = productsData?.filter((p: any) => p.isBestseller) || [];
-    const newArrivals = productsData?.filter((p: any) => p.isNew) || [];
+    const bestsellers = Array.isArray(productsData) ? productsData.filter((p: any) => p.isBestseller) || [] : [];
+    const newArrivals = Array.isArray(productsData) ? productsData.filter((p: any) => p.isNew) || [] : [];
 
     // Get specific sections
     const collectionsSection = sections.find(
