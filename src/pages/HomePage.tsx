@@ -98,13 +98,6 @@ const HomePage: React.FC = () => {
         return () => clearInterval(interval);
     }, [homepageTestimonials.length]);
 
-    // Debug logging for products data
-    useEffect(() => {
-        console.log('Products data:', productsData);
-        console.log('Products loading:', productsLoading);
-        console.log('Products error:', productsError);
-    }, [productsData, productsLoading, productsError]);
-
     if (homepageLoading || productsLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -114,8 +107,6 @@ const HomePage: React.FC = () => {
     }
 
     if (productsError) {
-        console.error('Products loading error:', productsError);
-        // Show error state with retry option
         return (
             <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
                 <div className="text-center bg-white border border-slate-200 rounded-xl p-8 shadow-sm max-w-sm">
@@ -136,7 +127,7 @@ const HomePage: React.FC = () => {
         );
     }
 
-    const hero = homepageData?.hero;
+    const hero = homepageData?.hero?.find((hero: any) => hero?.isActive) || [];
     const sections = homepageData?.sections || [];
     const testimonials = homepageData?.testimonials || [];
     const instagramPosts = homepageData?.instagramPosts || [];
@@ -168,7 +159,7 @@ const HomePage: React.FC = () => {
         <div className="text-foreground">
             <section
                 ref={heroRef}
-                className="relative min-h-screen flex items-center justify-center overflow-hidden"
+                className={`relative ${hero?.videoUrl ? 'min-h-[80vh]' : 'min-h-screen'} flex items-center justify-center overflow-hidden`}
                 aria-label="Hero section"
             >
                 <div className="absolute inset-0">
@@ -221,7 +212,7 @@ const HomePage: React.FC = () => {
                             }}
                             className="bg-brand-cream text-brand-brown font-label text-sm px-10 py-4 rounded-lg hover:bg-brand-latte transition-all duration-300 cursor-pointer uppercase tracking-widest inline-flex items-center gap-3"
                         >
-                            {hero?.ctaText || "Explore Collections"}
+                            {hero?.buttonText || "Explore Collections"}
                             <ArrowRight size={16} weight="regular" />
                         </button>
                     </motion.div>
