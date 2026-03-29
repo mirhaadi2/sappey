@@ -129,7 +129,7 @@ const HomePage: React.FC = () => {
 
     const hero = homepageData?.hero?.find((hero: any) => hero?.isActive) || [];
     const sections = homepageData?.sections || [];
-    const testimonials = homepageData?.testimonials || [];
+    const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
     const instagramPosts = homepageData?.instagramPosts || [];
 
     const bestsellers = Array.isArray(productsData) ? productsData.filter((p: any) => p.isBestseller) || [] : [];
