@@ -128,9 +128,9 @@ const HomePage: React.FC = () => {
     }
 
     const hero = homepageData?.hero?.find((hero: any) => hero?.isActive) || [];
-    const sections = homepageData?.sections || [];
+    const sections = Array.isArray(homepageData?.sections) ? homepageData.sections?.filter((section: any) => section?.isActive) : [];
     const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
-    const instagramPosts = homepageData?.instagramPosts || [];
+    const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
 
     const bestsellers = Array.isArray(productsData) ? productsData.filter((p: any) => p.isBestseller) || [] : [];
     const newArrivals = Array.isArray(productsData) ? productsData.filter((p: any) => p.isNew) || [] : [];
