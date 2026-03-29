@@ -178,10 +178,7 @@ const HomePage: React.FC = () => {
                             hero?.videoUrl ||
                             "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1.mp4"
                         }
-                        poster={
-                            hero?.videoPosterUrl ||
-                            "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1-poster.png"
-                        }
+                        poster={"https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1-poster.png"}
                         className="w-full h-full object-cover"
                         autoPlay
                         loop
