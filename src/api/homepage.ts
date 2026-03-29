@@ -29,7 +29,7 @@ export interface Hero {
 
 export interface Section {
   id: string;
-  sectionType: 'collections' | 'bestsellers' | 'health_wellness' | 'new_arrivals' | 'story' | 'testimonials' | 'instagram' | 'contact' | 'about' | 'footer';
+  sectionType: string;
   title: string;
   subtitle?: string;
   content?: string;
