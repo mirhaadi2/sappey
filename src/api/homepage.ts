@@ -69,7 +69,7 @@ export interface InstagramPost {
 
 export interface HomepageData {
   banners: Banner[];
-  hero: Hero | null;
+  hero: Hero[];
   sections: Section[];
   testimonials: Testimonial[];
   instagramPosts: InstagramPost[];

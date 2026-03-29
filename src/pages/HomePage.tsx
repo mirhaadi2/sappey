@@ -13,7 +13,7 @@ import {
     Quotes,
 } from "@phosphor-icons/react";
 import ProductCard from "../components/ProductCard";
-import { useHomepageData } from "../api/homepage";
+import { useHomepageData, Hero } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
         );
     }
 
-    const hero = homepageData?.hero?.find((hero: any) => hero?.isActive) || [];
+    const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
     const sections = Array.isArray(homepageData?.sections) ? homepageData.sections?.filter((section: any) => section?.isActive) : [];
     const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
     const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
