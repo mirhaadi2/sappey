@@ -177,21 +177,51 @@ const HomePage: React.FC = () => {
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     const renderDynamicSection = (s: any) => (
-        <section key={s.id} className="py-16 px-8 bg-white">
-            <div className="max-w-7xl mx-auto text-center">
-                <h2 className="font-headline text-4xl text-brand-brown mb-4" style={{ fontWeight: 500, letterSpacing: "-0.025em" }}>
-                    {s.title || formatSectionTitle(s.sectionType)}
-                </h2>
-                {s.subtitle && <p className="font-sans text-gray-600 mb-6">{s.subtitle}</p>}
-                {s.content && <p className="font-sans text-gray-600 max-w-3xl mx-auto">{s.content}</p>}
-                {s.buttonLink && s.buttonText && (
-                    <button
-                        onClick={() => navigate(s.buttonLink)}
-                        className="mt-8 bg-brand-cream text-brand-brown font-label text-sm px-8 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200"
-                    >
-                        {s.buttonText}
-                    </button>
-                )}
+        <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
+            <div className="relative h-80 md:h-96">
+                <img
+                    src={
+                        s.backgroundImageUrl ||
+                        s?.imageUrl ||
+                        "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
+                    }
+                    alt={`${s.sectionType} banner`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
+
+                <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
+                    <div className="max-w-lg">
+                        <motion.div
+                            variants={fadeUpVariants}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                        >
+                            <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
+                                {formatSectionTitle(s.sectionType)}
+                            </span>
+                            <h2
+                                className="font-headline text-4xl text-brand mb-4 text-brand-cream"
+                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                            >
+                                {s.title || formatSectionTitle(s.sectionType)}
+                            </h2>
+                            <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
+                                {s.subtitle || s.content || "Discover more about our premium products."}
+                            </p>
+                            {s.buttonLink && s.buttonText && (
+                                <button
+                                    onClick={() => navigate(s.buttonLink)}
+                                    className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
+                                >
+                                    {s.buttonText}
+                                </button>
+                            )}
+                        </motion.div>
+                    </div>
+                </div>
             </div>
         </section>
     );
