@@ -16,11 +16,17 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="space-y-6">
-                        <Link to="/" className="inline-block">
-                            <h2 className="font-headline text-3xl font-bold tracking-tight">NUTRI<span className="text-brand-latte opacity-80">HAVEN</span></h2>
+                        <Link to="/" className="inline-block group">
+                            <h2 className="font-headline text-3xl font-black tracking-tighter text-white">
+                            SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-colors">.COM</span>
+                            </h2>
                         </Link>
-                        <p className="font-sans text-sm opacity-70 leading-relaxed max-w-xs">
-                            Sourcing the finest dry fruits, nuts, and seeds from around the globe to bring premium nutrition directly to your doorstep.
+
+                        {/* Brand Description */}
+                        <p className="font-sans text-sm text-slate-200 leading-relaxed max-w-xs">
+                            Connecting you directly with local farmers to deliver peak-season dry fruits, 
+                            professionally vacuum-sealed and delivered from the harvest source to 
+                            your doorstep.
                         </p>
                         <div className="flex items-center gap-4">
                             <a href="#" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
@@ -63,28 +69,47 @@ const Footer: React.FC = () => {
                         <ul className="space-y-4 font-sans text-sm">
                             <li className="flex items-start gap-3">
                                 <MapPin size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">123 Nutri Lane, Wellness District, Mumbai, MH 400001</span>
+                                <span className="opacity-80">Delhi, India</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">+91 98765 43210</span>
+                                <span className="opacity-80">+91 0000000000</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <EnvelopeSimple size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">hello@nutrihaven.com</span>
+                                <span className="opacity-80">sappay4@gmail.com</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-brand-cream/10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <p className="font-sans text-xs opacity-50">
-                        © 2024 NutriHaven Premium Dry Fruits. All rights reserved.
+                <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+                    {/* Copyright Information */}
+                    <p className="font-sans text-xs text-slate-200 font-medium tracking-wide">
+                        © 2026 <span className="text-slate-300">Sappey Premium Harvest.</span> All rights reserved.
                     </p>
-                    <div className="flex items-center gap-6 opacity-50 font-sans text-xs">
-                        <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
-                        <Link to="/terms" className="hover:underline">Terms of Service</Link>
+
+                    {/* Legal Links */}
+                    <div className="flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-200">
+                        <Link 
+                            to="/privacy-policy" 
+                            className="hover:text-orange-500 transition-colors duration-200"
+                        >
+                            Privacy Policy
+                        </Link>
+                        <Link 
+                            to="/terms-and-conditions" 
+                            className="hover:text-orange-500 transition-colors duration-200"
+                        >
+                            Terms of Service
+                        </Link>
+                        <Link 
+                            to="/sitemap" 
+                            className="hover:text-orange-500 transition-colors duration-200"
+                        >
+                            Sitemap
+                        </Link>
                     </div>
                 </div>
             </div>

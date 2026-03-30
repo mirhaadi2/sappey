@@ -27,7 +27,7 @@ const queryClient = new QueryClient({
 
 const AppContent: React.FC = () => {
     const location = useLocation();
-    const isPageContentRoute = ["/about", "/shipping", "/returns", "/faqs"].includes(location.pathname) || location.pathname.startsWith("/pages/");
+    const isPageContentRoute = ["/about", "/shipping", "/returns", "/faqs", "/privacy-policy", "/terms-and-conditions", "/sitemap"].includes(location.pathname) || location.pathname.startsWith("/pages/");
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -57,6 +57,9 @@ const AppContent: React.FC = () => {
                     <Route path="/shipping" element={<PageContent />} />
                     <Route path="/returns" element={<PageContent />} />
                     <Route path="/faqs" element={<PageContent />} />
+                    <Route path="/privacy-policy" element={<PageContent />} />
+                    <Route path="/terms-and-conditions" element={<PageContent />} />
+                    <Route path="/sitemap" element={<PageContent />} />
                     <Route path="/pages/:slug" element={<PageContent />} />
                 </Routes>
             </main>

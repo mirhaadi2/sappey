@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Clock,
   CheckCircle2,
+  MapPin,
 } from "lucide-react";
 
 const PageContent: React.FC = () => {
@@ -22,7 +23,7 @@ const PageContent: React.FC = () => {
   let slug = pathSlug;
   if (!slug) {
     const path = location.pathname.replace(/^\//, "").toLowerCase();
-    const validPaths = ["about", "shipping", "returns", "faqs"];
+    const validPaths = ["about", "shipping", "returns", "faqs", "privacy-policy", "terms-and-conditions", "sitemap"];
     if (validPaths.includes(path)) {
       slug = path;
     }
@@ -58,6 +59,24 @@ const PageContent: React.FC = () => {
       path: "/faqs",
       slug: "frequently-asked-questions",
       icon: <HelpCircle size={18} />,
+    },
+    {
+      label: "Privacy Policy",
+      path: "/privacy-policy",
+      slug: "privacy-policy",
+      icon: <ShieldCheck size={18} />,
+    },
+    {
+      label: "Terms & Conditions",
+      path: "/terms-and-conditions",
+      slug: "terms-and-conditions",
+      icon: <Clock size={18} />,
+    },
+    {
+      label: "Sitemap",
+      path: "/sitemap",
+      slug: "sitemap",
+      icon: <MapPin size={18} />,
     },
   ];
 
