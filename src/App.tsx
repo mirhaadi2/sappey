@@ -14,6 +14,7 @@ import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
+import PageContent from "./pages/PageContent";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -53,6 +54,11 @@ const App: React.FC = () => {
                                             </ProtectedRoute>
                                         }
                                     />
+                                    <Route path="/about" element={<PageContent />} />
+                                    <Route path="/shipping" element={<PageContent />} />
+                                    <Route path="/returns" element={<PageContent />} />
+                                    <Route path="/faq" element={<PageContent />} />
+                                    <Route path="/pages/:slug" element={<PageContent />} />
                                 </Routes>
                             </main>
                             <Footer />

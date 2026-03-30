@@ -67,6 +67,18 @@ export interface InstagramPost {
   updatedAt: string;
 }
 
+export interface WebsitePage {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HomepageData {
   banners: Banner[];
   hero: Hero[];
@@ -76,10 +88,19 @@ export interface HomepageData {
 }
 
 const BASE_URL = '/homepage';
+const PAGES_URL = '/homepage/pages';
 
 export const homepageApi = {
   getHomepageData: async (): Promise<HomepageData> => {
     const response = await apiMethods.get(`${BASE_URL}`);
+    return response.data.data;
+  },
+  getPages: async (): Promise<WebsitePage[]> => {
+    const response = await apiMethods.get(`${PAGES_URL}`);
+    return response.data.data;
+  },
+  getPageBySlug: async (slug: string): Promise<WebsitePage> => {
+    const response = await apiMethods.get(`${PAGES_URL}/${slug}`);
     return response.data.data;
   },
 };
@@ -93,6 +114,37 @@ export const useHomepageData = () => {
 
   return {
     data: query.data,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const usePages = () => {
+  const query = useQuery({
+    queryKey: ['website-pages'],
+    queryFn: () => homepageApi.getPages(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return {
+    pages: query.data || [],
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const usePageBySlug = (slug: string) => {
+  const query = useQuery({
+    queryKey: ['website-page', slug],
+    queryFn: () => homepageApi.getPageBySlug(slug),
+    enabled: !!slug,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return {
+    page: query.data,
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,
