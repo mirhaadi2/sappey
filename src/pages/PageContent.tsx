@@ -23,7 +23,7 @@ const PageContent: React.FC = () => {
   let slug = pathSlug;
   if (!slug) {
     const path = location.pathname.replace(/^\//, "").toLowerCase();
-    const validPaths = ["about", "shipping", "returns", "faqs", "privacy-policy", "terms-and-conditions", "sitemap"];
+    const validPaths = ["about-us", "shipping-policy", "returns-refunds", "faqs", "privacy-policy", "terms-and-conditions", "sitemap"];
     if (validPaths.includes(path)) {
       slug = path;
     }
@@ -38,19 +38,19 @@ const PageContent: React.FC = () => {
   const navLinks = [
     {
       label: "About Sappey",
-      path: "/about",
+      path: "/about-us",
       slug: "about-sappey",
       icon: <ShieldCheck size={18} />,
     },
     {
       label: "Shipping Policy",
-      path: "/shipping",
+      path: "/shipping-policy",
       slug: "shipping-policy",
       icon: <Truck size={18} />,
     },
     {
       label: "Returns & Refunds",
-      path: "/returns",
+      path: "/returns-refunds",
       slug: "returns-and-refunds",
       icon: <RotateCcw size={18} />,
     },
