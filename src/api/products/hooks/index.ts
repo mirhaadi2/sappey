@@ -38,7 +38,7 @@ export const useProduct = (id: string, enabled = true) => {
   });
 
   return {
-    product: query.data || null,
+    data: query.data || null,
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,

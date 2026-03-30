@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     };
 
     return (
-        <Link to={`/products/${product.slug}`}>
+        <Link to={`/products/${product.id}`} className="w-full h-full">
             <motion.div
                 variants={{
                     hidden: { opacity: 0, y: 20 },

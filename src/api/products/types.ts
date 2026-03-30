@@ -1,8 +1,27 @@
+export interface Variant {
+  id: string;
+  productId: string;
+  sku: string;
+  price: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
+  weight?: number;
+}
+
 export interface Product {
   id: string;
   categoryId: string;
   name: string;
   slug: string;
+  category: string;
+  badge?: string;
+  rating?: number;
+  reviews?: string[];
+  reviewCount?: number;
+  nutrition?: string[];
+  price?: number;
+  image?: string;
+  weight?: number;
   description?: string;
   images?: string[];
   specifications?: Record<string, any>;
@@ -10,6 +29,7 @@ export interface Product {
   hsn_code?: string;
   gst_rate: number;
   certifications?: string[];
+  variants?: Variant[];
   status: 'ACTIVE' | 'INACTIVE';
   isNew: boolean;
   isCustomerFavourites: boolean;

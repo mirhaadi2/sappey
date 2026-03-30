@@ -17,14 +17,16 @@ import {
 } from "@phosphor-icons/react";
 
 const ProductDetailPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
+  
   const navigate = useNavigate();
   const { dispatch } = useCart();
 
   // Note: Backend API typically uses UUID IDs, but slug lookup requires API support
   // For now, we'll fetch products and filter by slug client-side
   const { products, isLoading: productsLoading } = useProducts(undefined, true);
-  const product = products.find((p: any) => p.slug === slug);
+  const { data: product, isLoading: productLoading } = useProduct(id!, true);
+  // const product = products.find((p: any) => p.id === id);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<any>(0);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
@@ -74,9 +76,9 @@ const ProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [slug]);
+  }, [id]);
 
-  if (productsLoading) {
+  if (productLoading || productsLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-brand-latte px-8">
         <div className="text-center">
@@ -87,7 +89,7 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  if (!product) {
+  if (!product && productLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-brand-latte px-8">
         <h1
@@ -107,13 +109,13 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const relatedProducts = products
-    .filter((p: any) => p.category === product.category && p.id !== product.id)
+    .filter((p: any) => p.category === product?.category && p.id !== product.id)
     .slice(0, 4);
 
   const handleAddToCart = () => {
     dispatch({
       type: "ADD_ITEM",
-      payload: { product, variant: selectedVariant, quantity },
+      payload: { product: { ...product, price: selectedVariantData?.price || 0 }, variant: selectedVariant, quantity },
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
@@ -122,7 +124,8 @@ const ProductDetailPage: React.FC = () => {
   const handleBuyNow = () => {
     dispatch({
       type: "ADD_ITEM",
-      payload: { product, variant: selectedVariantData, quantity },
+      payload: { product: { ...product, price: selectedVariantData?.price || 0 }, variant: selectedVariant, quantity },
+      // payload: { product, variant: selectedVariantData, quantity },
     });
     dispatch({ type: "OPEN_CART" });
   };
@@ -159,38 +162,38 @@ const ProductDetailPage: React.FC = () => {
           >
             <div className="relative rounded-lg overflow-hidden aspect-square bg-white mb-4">
               <img
-                src={product.images[selectedImage]}
-                alt={`${product.name} - view ${selectedImage + 1}`}
+                src={product?.images?.[selectedImage]}
+                alt={`${product?.name} - view ${selectedImage + 1}`}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              {product.badge && (
+              {product?.badge && (
                 <span
                   className={`absolute top-4 left-4 font-label text-xs px-3 py-1 rounded-full uppercase tracking-wider 
-                                    ${
-                                      product.badge === "Bestseller"
-                                        ? "bg-brand-brown text-brand-cream"
-                                        : product?.badge === "New Arrival"
-                                          ? "bg-brand-plum text-brand-cream"
-                                          : "bg-brand-cocoa text-brand-cream"
-                                    }`}
+                  ${
+                    product?.badge === "Bestseller"
+                      ? "bg-brand-brown text-brand-cream"
+                      : product?.badge === "New Arrival"
+                        ? "bg-brand-plum text-brand-cream"
+                        : "bg-brand-cocoa text-brand-cream"
+                  }`}
                 >
-                  {product.badge}
+                  {product?.badge}
                 </span>
               )}
             </div>
 
             <div className="flex gap-3">
-              {product.images.map((img: string, index: number) => (
+              {product?.images?.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${selectedImage === index ? "border-brand-brown" : "border-gray-200 hover:border-brand-cocoa"}`}
-                  aria-label={`View ${product.name} - image ${index + 1}`}
+                  aria-label={`View ${product?.name} - image ${index + 1}`}
                 >
                   <img
                     src={img}
-                    alt={`${product.name} - view ${index + 1}`}
+                    alt={`${product?.name} - view ${index + 1}`}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -212,13 +215,13 @@ const ProductDetailPage: React.FC = () => {
               {product?.badge && (
                 <span
                   className={`font-label text-xs uppercase tracking-widest px-2 py-1 rounded-full 
-                                    ${
-                                      product.badge === "Bestseller"
-                                        ? "bg-brand-brown text-brand-cream"
-                                        : "bg-brand-plum text-brand-cream"
-                                    }`}
+                  ${
+                    product.badge === "Bestseller"
+                      ? "bg-brand-brown text-brand-cream"
+                      : "bg-brand-plum text-brand-cream"
+                  }`}
                 >
-                  {product.badge}
+                  {product?.badge}
                 </span>
               )}
             </div>
@@ -236,9 +239,9 @@ const ProductDetailPage: React.FC = () => {
                   <Star
                     key={i}
                     size={16}
-                    weight={i < Math.round(product.rating) ? "fill" : "regular"}
+                    weight={i < (product?.rating ? Math.floor(product?.rating) : 0) ? "fill" : "regular"}
                     className={
-                      i < Math.floor(product?.rating)
+                      i < (product?.rating ? Math.floor(product?.rating) : 0)
                         ? "text-warning"
                         : "text-gray-300"
                     }
@@ -246,7 +249,7 @@ const ProductDetailPage: React.FC = () => {
                 ))}
               </div>
               <span className="font-sans text-sm text-gray-600">
-                {product?.rating} ({product.reviewCount} reviews)
+                {product?.rating} ({product?.reviewCount ?? 0} reviews)
               </span>
             </div>
 
