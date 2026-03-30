@@ -128,6 +128,7 @@ const HomePage: React.FC = () => {
     }
 
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
+    console.log(hero,'hero');
     const sections = Array.isArray(homepageData?.sections) ? homepageData.sections?.filter((section: any) => section?.isActive) : [];
     const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
     const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
