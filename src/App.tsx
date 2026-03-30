@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -25,47 +25,56 @@ const queryClient = new QueryClient({
     },
 });
 
+const AppContent: React.FC = () => {
+    const location = useLocation();
+    const isPageContentRoute = ["/about", "/shipping", "/returns", "/faqs"].includes(location.pathname) || location.pathname.startsWith("/pages/");
+
+    return (
+        <div className="flex flex-col min-h-screen bg-background text-foreground">
+            {!isPageContentRoute && <Header />}
+            <main className="flex-1">
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/shop" element={<ShopPage />} />
+                    <Route path="/products/:slug" element={<ProductDetailsPage />} />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfilePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/checkout"
+                        element={
+                            <ProtectedRoute>
+                                <CheckoutPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="/about" element={<PageContent />} />
+                    <Route path="/shipping" element={<PageContent />} />
+                    <Route path="/returns" element={<PageContent />} />
+                    <Route path="/faqs" element={<PageContent />} />
+                    <Route path="/pages/:slug" element={<PageContent />} />
+                </Routes>
+            </main>
+            {!isPageContentRoute && <Footer />}
+            <CartDrawer />
+            <SignInModal />
+            <SignUpModal />
+        </div>
+    );
+};
+
 const App: React.FC = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <CartProvider>
                     <BrowserRouter>
-                        <div className="flex flex-col min-h-screen bg-background text-foreground">
-                            <Header />
-                            <main className="flex-1">
-                                <Routes>
-                                    <Route path="/" element={<HomePage />} />
-                                    <Route path="/shop" element={<ShopPage />} />
-                                    <Route path="/products/:slug" element={<ProductDetailsPage />} />
-                                    <Route
-                                        path="/profile"
-                                        element={
-                                            <ProtectedRoute>
-                                                <ProfilePage />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/checkout"
-                                        element={
-                                            <ProtectedRoute>
-                                                <CheckoutPage />
-                                            </ProtectedRoute>
-                                        }
-                                    />
-                                    <Route path="/about" element={<PageContent />} />
-                                    <Route path="/shipping" element={<PageContent />} />
-                                    <Route path="/returns" element={<PageContent />} />
-                                    <Route path="/faqs" element={<PageContent />} />
-                                    <Route path="/pages/:slug" element={<PageContent />} />
-                                </Routes>
-                            </main>
-                            <Footer />
-                            <CartDrawer />
-                            <SignInModal />
-                            <SignUpModal />
-                        </div>
+                        <AppContent />
                     </BrowserRouter>
                 </CartProvider>
             </AuthProvider>

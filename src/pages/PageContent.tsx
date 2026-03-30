@@ -180,8 +180,25 @@ const PageContent: React.FC = () => {
                 prose-strong:text-slate-900 prose-strong:font-bold prose-strong:bg-orange-50 prose-strong:px-1.5 prose-strong:py-0.5 prose-strong:rounded-md"
               >
                 <ReactMarkdown
-                  // remark-breaks fixes the "single line" issue from your screenshot
                   remarkPlugins={[remarkGfm, remarkBreaks]}
+                  components={{
+                    p: ({ children }) => (
+                      <p className="mb-6 leading-relaxed text-slate-600">{children}</p>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-2xl font-black mt-12 mb-4 text-slate-900 flex items-center gap-3 before:content-[''] before:w-1 before:h-8 before:bg-orange-500 before:rounded">
+                        {children}
+                      </h3>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="mb-6 list-disc ml-6 space-y-2">{children}</ul>
+                    ),
+                    strong: ({ children }) => (
+                      <strong className="text-slate-900 font-semibold">
+                        {children}
+                      </strong>
+                    ),
+                  }}
                 >
                   {page.content}
                 </ReactMarkdown>
@@ -214,6 +231,8 @@ const PageContent: React.FC = () => {
   );
 };
 
+export default PageContent;
+
 const PageSkeleton = () => (
   <div className="max-w-7xl mx-auto px-4 py-20 animate-pulse">
     <div className="h-4 w-32 bg-slate-200 rounded-full mb-6"></div>
@@ -229,4 +248,3 @@ const PageSkeleton = () => (
   </div>
 );
 
-export default PageContent;
