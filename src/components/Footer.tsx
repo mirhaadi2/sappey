@@ -11,7 +11,7 @@ import {
 
 const Footer: React.FC = () => {
     return (
-        <footer className="bg-brand-brown text-brand-cream pt-20 pb-10 px-8">
+        <footer className="bg-brand-brown text-brand-cream pt-12 pb-6 px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
                     {/* Brand Column */}
