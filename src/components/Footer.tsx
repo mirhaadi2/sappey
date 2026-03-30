@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
     return (
         <footer className="bg-brand-brown text-brand-cream pt-20 pb-10 px-8">
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="space-y-6">
                         <Link to="/" className="inline-block group">
@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
                     </div>
 
                     {/* Quick Links */}
-                    <div>
+                    {/* <div>
                         <h4 className="font-label text-sm uppercase tracking-widest mb-6 opacity-60">Shop Categories</h4>
                         <ul className="space-y-4 font-sans text-sm">
                             <li><Link to="/shop?category=nuts" className="hover:text-brand-latte transition-colors">Premium Nuts</Link></li>
@@ -50,15 +50,15 @@ const Footer: React.FC = () => {
                             <li><Link to="/shop?category=seeds" className="hover:text-brand-latte transition-colors">Organic Seeds</Link></li>
                             <li><Link to="/shop?category=mixes" className="hover:text-brand-latte transition-colors">Healthy Mixes</Link></li>
                         </ul>
-                    </div>
+                    </div> */}
 
                     {/* Support */}
                     <div>
                         <h4 className="font-label text-sm uppercase tracking-widest mb-6 opacity-60">Customer Support</h4>
                         <ul className="space-y-4 font-sans text-sm">
-                            <li><Link to="/about" className="hover:text-brand-latte transition-colors">About Us</Link></li>
-                            <li><Link to="/shipping" className="hover:text-brand-latte transition-colors">Shipping Policy</Link></li>
-                            <li><Link to="/returns" className="hover:text-brand-latte transition-colors">Returns & Refunds</Link></li>
+                            <li><Link to="/about-us" className="hover:text-brand-latte transition-colors">About Us</Link></li>
+                            <li><Link to="/shipping-policy" className="hover:text-brand-latte transition-colors">Shipping Policy</Link></li>
+                            <li><Link to="/returns-refunds" className="hover:text-brand-latte transition-colors">Returns & Refunds</Link></li>
                             <li><Link to="/faqs" className="hover:text-brand-latte transition-colors">FAQs</Link></li>
                         </ul>
                     </div>
