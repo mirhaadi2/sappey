@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CardContext";
+import { useCart, getVariantKey } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import { useOrders } from "../api/orders/hooks";
@@ -36,11 +36,16 @@ const CheckoutPage: React.FC = () => {
   const [errorDismissed, setErrorDismissed] = useState(false);
 
   // Calculate order summary
+  const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
+  const isFreeDelivery = paymentMethod === "cod";
+  
   const orderSummary: OrderSummary = {
     items: state.items.length,
-    subtotal: state.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
+    subtotal: state.items.reduce((sum, item) => sum + ( (typeof item.variant === 'object' && item.variant.price)
+          ? item.variant.price
+          : item.product.price) * item.quantity, 0),
     tax: 0,
-    shipping: shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99,
+    shipping: isFreeDelivery ? 0 : originalShipping,
     total: 0,
   };
 
@@ -54,15 +59,27 @@ const CheckoutPage: React.FC = () => {
     }
 
     try {
-      // Map cart items to order items with seller product IDs
-      const orderItems = state.items.map((item) => ({
-        sellerProductId: item.product.id, // Using product ID as seller product ID for now
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
+      // ✅ Map cart items to order items with correct payload structure
+      const orderItems = state.items.map((item) => {
+        const variantData = typeof item.variant === 'object' ? item.variant : {};
+        return {
+          productId: item.product.id,
+          productVariantId: variantData.id || item.product.id,
+          sku: variantData.sku || item.product.sku || '',
+          quantity: item.quantity,
+          price: variantData.price || item.product.price || 0,
+          discountedPrice: variantData.discountedPrice || variantData.price || item.product.price || 0,
+          discountedPercent: variantData.discountedPercent || 0,
+        };
+      });
 
       const orderData = {
         items: orderItems,
+        subtotal: orderSummary.subtotal,
+        totalAmount: orderSummary.total,
+        discountAmount: 0,
+        taxAmount: orderSummary.tax,
+        shippingCost: orderSummary.shipping,
         shippingAddressId: selectedAddressId,
         paymentMethod,
       };
@@ -115,7 +132,6 @@ const CheckoutPage: React.FC = () => {
   }
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
-  console.log(state.items, 'cart items');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
@@ -290,7 +306,7 @@ const CheckoutPage: React.FC = () => {
                             <p className="font-bold text-gray-900">{method.name}</p>
                             <p className="text-gray-600 text-sm">{method.time}</p>
                           </div>
-                          <p className="font-bold text-brand-brown">${method.price.toFixed(2)}</p>
+                          <p className="font-bold text-brand-brown">₹{method.price.toFixed(2)}</p>
                         </motion.label>
                       ))}
                     </div>
@@ -489,7 +505,18 @@ const CheckoutPage: React.FC = () => {
 
                     <div className="space-y-4 pb-6 border-b border-gray-200">
                       <h3 className="font-bold text-gray-900">Shipping Method:</h3>
-                      <p className="text-sm text-gray-700">{shippingMethod.charAt(0).toUpperCase() + shippingMethod.slice(1)}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-700">{shippingMethod.charAt(0).toUpperCase() + shippingMethod.slice(1)}</p>
+                        {isFreeDelivery && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-400 line-through text-xs">₹{originalShipping.toFixed(2)}</span>
+                            <span className="text-green-600 font-bold text-xs">FREE</span>
+                          </div>
+                        )}
+                      </div>
+                      {isFreeDelivery && (
+                        <p className="text-xs text-green-600 font-semibold">✨ FREE Delivery - Launch Offer</p>
+                      )}
                     </div>
 
                     <div className="space-y-4 pb-6 border-b border-gray-200">
@@ -582,17 +609,22 @@ const CheckoutPage: React.FC = () => {
 
               <div className="space-y-4 mb-6 pb-6 border-b border-gray-200 max-h-80 overflow-y-auto">
                 {state.items?.map((item) => (
-                  <div key={item.product.id} className="flex items-start gap-4">
+                  <div key={`${item.product.id}-${getVariantKey(item.variant)}`} className="flex items-start gap-4">
                     <img
-                      src={item.product.image}
+                      src={item.product.images?.[0] || "https://via.placeholder.com/150"}
                       alt={item.product.name}
                       className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 truncate text-sm">{item.product.name}</p>
+                      <p className="font-sans text-xs text-gray-500 mt-1">
+                        Weight: {item.variant?.label || "Standard"}
+                      </p>
                       <p className="text-gray-600 text-xs mt-1">Qty: {item.quantity}</p>
                       <p className="font-bold text-brand-brown text-sm mt-1">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        ₹{(((typeof item.variant === 'object' && item.variant.price)
+                                                            ? item.variant.price
+                                                            : item.product.price) * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -602,19 +634,33 @@ const CheckoutPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>${orderSummary?.subtotal?.toFixed(2)}</span>
+                  <span>₹{orderSummary?.subtotal?.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Tax</span>
-                  <span>${orderSummary?.tax?.toFixed(2)}</span>
+                  <span>₹{orderSummary?.tax?.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span>${orderSummary?.shipping?.toFixed(2)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Shipping</span>
+                  <div className="flex items-center gap-2">
+                    {isFreeDelivery ? (
+                      <>
+                        <span className="text-gray-400 line-through text-sm">₹{originalShipping.toFixed(2)}</span>
+                        <span className="text-green-600 font-bold text-sm">FREE</span>
+                      </>
+                    ) : (
+                      <span className="text-gray-600">₹{orderSummary?.shipping?.toFixed(2)}</span>
+                    )}
+                  </div>
                 </div>
+                {isFreeDelivery && orderStep !== "shipping" && (
+                  <div className="text-center py-2 bg-green-50 rounded-lg">
+                    <p className="text-green-600 text-xs font-bold">✨ FREE Delivery - Launch Offer</p>
+                  </div>
+                )}
                 <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span className="text-brand-brown">${orderSummary?.total?.toFixed(2)}</span>
+                  <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
                 </div>
               </div>
             </div>

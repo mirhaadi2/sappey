@@ -38,8 +38,9 @@ const ProductDetailPage: React.FC = () => {
       product.variants.forEach((variant: any) => {
         options.push({
           id: variant.id,
+          productId: variant.productId,
           label: `${Math.floor(Number(variant.weight))} ${variant.weightUnit || "Grams"}`,
-          weight: Number(variant.weight),
+          weight: `${Math.floor(Number(variant.weight))} ${variant.weightUnit || "Grams"}`,
           price: Number(variant.price),
           sku: variant.sku,
           status: variant.status,
@@ -357,12 +358,11 @@ const ProductDetailPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 className={`flex-1 font-label text-sm py-4 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-widest 
-                                        ${
-                                          addedToCart
-                                            ? "bg-success text-brand-cream"
-                                            : "bg-brand-brown text-brand-cream hover:brand-cocoa"
-                                        }
-                                    `}
+                ${
+                  addedToCart
+                    ? "bg-success text-brand-cream"
+                    : "bg-brand-brown text-brand-cream hover:brand-cocoa"
+                }`}
                 disabled={addedToCart}
               >
                 {addedToCart ? (

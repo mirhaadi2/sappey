@@ -1,12 +1,17 @@
 export interface OrderItem {
-  sellerProductId: string;
+  productId: string;
+  productVariantId: string;
+  sku: string;
   quantity: number;
-  price?: number;
-  product?: any;
 }
 
 export interface CreateOrderData {
   items: OrderItem[];
+  subtotal: number;
+  totalAmount: number;
+  discountAmount: number;
+  taxAmount: number;
+  shippingCost?: number;
   shippingAddressId: string;
   paymentMethod: 'card' | 'cod' | 'upi' | 'netbanking';
 }
