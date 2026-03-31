@@ -1,16 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, Heart } from "@phosphor-icons/react";
+import { Heart } from "@phosphor-icons/react";
 import { Product } from "../types";
-import { useCart } from "../context/CardContext";
 
 interface ProductCardProps {
     product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-    const { dispatch } = useCart();
 
     const variantOptions = React.useMemo(() => {
         if (!Array.isArray(product.variants) || product.variants.length === 0) return [];
@@ -44,15 +42,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         const prices = variantOptions.map((v: any) => Number(v.price));
         return { min: Math.min(...prices), max: Math.max(...prices) };
     }, [product, variantOptions]);
-
-    const firstVariant = variantOptions[0] || null;
-
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch({ type: "ADD_ITEM", payload: { product, variant: firstVariant, quantity: 1 } });
-        dispatch({ type: "OPEN_CART" });
-    };
 
     return (
         <Link to={`/products/${product.id}`} className="w-full h-full">
@@ -88,16 +77,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <Heart size={18} />
                     </button>
 
-                    {/* Quick Add Button */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/20 to-transparent">
-                        <button
-                            onClick={handleAddToCart}
-                            className="w-full bg-brand-brown text-brand-cream font-label text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-brand-cocoa transition-colors cursor-pointer"
-                        >
-                            <ShoppingCart size={18} weight="fill" />
-                            Quick Add
-                        </button>
-                    </div>
                 </div>
 
                 {/* Content */}

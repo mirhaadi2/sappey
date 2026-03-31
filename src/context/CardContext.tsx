@@ -18,22 +18,30 @@ type CartAction =
 const cartReducer = (state: CartState, action: CartAction): CartState => {
     switch (action.type) {
         case "ADD_ITEM": {
+            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
             const existing = state.items.find(
-                (item) => 
-                    item.product.id === action.payload.product.id && 
-                    item.variant === action.payload.variant
-                );
+                (item) => {
+                    const itemVariantId = item.variant?.id ?? item.variant;
+                    return (
+                        item.product.id === action.payload.product.id &&
+                        itemVariantId === payloadVariantId
+                    );
+                }
+            );
+
             if (existing) {
                 return {
                     ...state,
-                    items: state.items.map((item) =>
-                        item.product.id === action.payload.product.id && 
-                        item.variant === action.payload.variant
-                         ? { ...item, quantity: item.quantity + action.payload.quantity }
-                         : item
-                    )
+                    items: state.items.map((item) => {
+                        const itemVariantId = item.variant?.id ?? item.variant;
+                        return item.product.id === action.payload.product.id &&
+                            itemVariantId === payloadVariantId
+                            ? { ...item, quantity: item.quantity + action.payload.quantity }
+                            : item;
+                    }),
                 };
             }
+
             return {
                 ...state,
                 items: [
@@ -41,30 +49,33 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
                     {
                         product: action.payload.product,
                         variant: action.payload.variant,
-                        quantity: action.payload.quantity
-                    }
-                ]
+                        quantity: action.payload.quantity,
+                    },
+                ],
             };
         }
-        case "REMOVE_ITEM":
+        case "REMOVE_ITEM": {
+            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
             return {
                 ...state,
-                items: state.items.filter(
-                    (item) =>
-                        !(item.product.id === action.payload.productId && 
-                          item.variant === action.payload.variant)
-                )
+                items: state.items.filter((item) => {
+                    const itemVariantId = item.variant?.id ?? item.variant;
+                    return !(item.product.id === action.payload.productId && itemVariantId === payloadVariantId);
+                }),
             };
-        case "UPDATE_QUANTITY":
+        }
+        case "UPDATE_QUANTITY": {
+            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
             return {
                 ...state,
-                items: state.items.map((item) =>
-                    item.product.id === action.payload.productId && 
-                    item.variant === action.payload.variant
+                items: state.items.map((item) => {
+                    const itemVariantId = item.variant?.id ?? item.variant;
+                    return item.product.id === action.payload.productId && itemVariantId === payloadVariantId
                         ? { ...item, quantity: action.payload.quantity }
-                        : item
-                )
+                        : item;
+                }),
             };
+        }
         case "TOGGLE_CART":
             return { ...state, isOpen: !state.isOpen };
         case "OPEN_CART":

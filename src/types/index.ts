@@ -1,9 +1,12 @@
 export interface ProductVariant {
     id: string;
-    label: string;
+    productId?: string;
+    label?: string;
     price: number;
     originalPrice?: number;
-    weight?: string;
+    discountedPrice?: number;
+    discountedPercent?: number;
+    weight?: string | number;
     sku?: string;
     status?: string;
 }
@@ -15,16 +18,16 @@ export interface Product {
     price?: number;
     originalPrice?: number;
     category: string;
-    image: string;
-    images: string[];
+    image?: string;
+    images?: string[];
     badge?: string;
-    description: string;
-    weight: number;
-    variants: (string | ProductVariant)[];
-    rating: number;
-    reviewCount: number;
-    nutrition: NutritionFact[];
-    reviews: Review[];
+    description?: string;
+    weight?: number;
+    variants?: (string | ProductVariant)[];
+    rating?: number;
+    reviewCount?: number;
+    nutrition?: (string | NutritionFact)[];
+    reviews?: (string | Review)[];
     isNew?: boolean;
     isBestseller?: boolean;
     basePrice?: number;

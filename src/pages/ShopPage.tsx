@@ -2,16 +2,11 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FunnelSimple, GridFour, SquaresFour, Rows } from "@phosphor-icons/react";
-import { useProducts, useCategories, useInfiniteProducts } from "../api/exports";
+import { useCategories, useInfiniteProducts } from "../api/exports";
 import ProductCard from "../components/ProductCard";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "rating" | "newest";
 type ViewMode = "grid-4" | "grid-3" | "grid-2";
-
-const fadeUpVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
 
 const staggerContainer = {
   hidden: {},
@@ -50,7 +45,6 @@ const ShopPage: React.FC = () => {
   // Fetch products from API with optional category or feature filter using infinite scroll + pagination
   const {
     products,
-    total,
     isLoading,
     error,
     isFetchingNextPage,

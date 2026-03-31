@@ -24,7 +24,7 @@ const ProductDetailPage: React.FC = () => {
 
   // Note: Backend API typically uses UUID IDs, but slug lookup requires API support
   // For now, we'll fetch products and filter by slug client-side
-  const { products, isLoading: productsLoading } = useProducts(undefined, true);
+  const { products, isLoading: productsLoading } = useProducts(undefined);
   const { data: product, isLoading: productLoading } = useProduct(id!, true);
   // const product = products.find((p: any) => p.id === id);
   const [quantity, setQuantity] = useState(1);
@@ -108,24 +108,35 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const relatedProducts = products
-    .filter((p: any) => p.category === product?.category && p.id !== product.id)
-    .slice(0, 4);
+  const relatedProducts = product
+    ? products
+        .filter((p: any) => p.category === product?.category && p.id !== product.id)
+        .slice(0, 4)
+    : [];
 
   const handleAddToCart = () => {
+    if (!product) return;
     dispatch({
       type: "ADD_ITEM",
-      payload: { product: { ...product, price: selectedVariantData?.price || 0 }, variant: selectedVariant, quantity },
+      payload: {
+        product: { ...product, price: selectedVariantData?.price || 0 } as any,
+        variant: selectedVariantData,
+        quantity,
+      },
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleBuyNow = () => {
+    if (!product) return;
     dispatch({
       type: "ADD_ITEM",
-      payload: { product: { ...product, price: selectedVariantData?.price || 0 }, variant: selectedVariant, quantity },
-      // payload: { product, variant: selectedVariantData, quantity },
+      payload: {
+        product: { ...product, price: selectedVariantData?.price || 0 } as any,
+        variant: selectedVariantData,
+        quantity,
+      },
     });
     dispatch({ type: "OPEN_CART" });
   };
