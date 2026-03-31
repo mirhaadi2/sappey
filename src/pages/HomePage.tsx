@@ -81,8 +81,42 @@ const HomePage: React.FC = () => {
     // Fetch homepage data from API
     const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
 
-    // Fetch products and categories
-    const { products: productsData, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useProducts();
+    // Fetch category-based UI for collections
+    const {
+      categories,
+      isLoading: categoriesLoading,
+      error: categoriesError,
+    } = useCategories();
+
+    const [activeCollectionCategory, setActiveCollectionCategory] = useState<string>('');
+
+    useEffect(() => {
+      if (!activeCollectionCategory && categories?.length) {
+        setActiveCollectionCategory(categories[0].id);
+      }
+    }, [categories, activeCollectionCategory]);
+
+    const {
+      products: collectionProducts,
+      isLoading: collectionLoading,
+      error: collectionError,
+    } = useProducts(
+      activeCollectionCategory
+        ? { categoryId: activeCollectionCategory, limit: 4, page: 1 }
+        : { limit: 4, page: 1 },
+    );
+
+    const {
+      products: bestsellersProducts,
+      isLoading: bestsellersLoading,
+      error: bestsellersError,
+    } = useProducts({ isBestseller: true, limit: 4, page: 1 });
+
+    const {
+      products: newArrivalsProducts,
+      isLoading: newArrivalsLoading,
+      error: newArrivalsError,
+    } = useProducts({ isNew: true, limit: 4, page: 1 });
 
     const homepageTestimonials = homepageData?.testimonials || [];
 
@@ -98,7 +132,14 @@ const HomePage: React.FC = () => {
         return () => clearInterval(interval);
     }, [homepageTestimonials.length]);
 
-    if (homepageLoading || productsLoading) {
+    const isAnyLoading =
+      homepageLoading ||
+      categoriesLoading ||
+      collectionLoading ||
+      bestsellersLoading ||
+      newArrivalsLoading;
+
+    if (isAnyLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-brown"></div>
@@ -106,7 +147,10 @@ const HomePage: React.FC = () => {
         );
     }
 
-    if (productsError) {
+    const errorToShow =
+      categoriesError || collectionError || bestsellersError || newArrivalsError;
+
+    if (errorToShow) {
         return (
             <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
                 <div className="text-center bg-white border border-slate-200 rounded-xl p-8 shadow-sm max-w-sm">
@@ -117,7 +161,7 @@ const HomePage: React.FC = () => {
                         There was an issue loading the product data. Please try again.
                     </p>
                     <button
-                        onClick={() => refetchProducts()}
+                        onClick={() => window.location.reload()}
                         className="bg-brand-brown text-brand-cream px-6 py-2 rounded-lg hover:bg-brand-cocoa transition-colors"
                     >
                         Try Again
@@ -133,8 +177,9 @@ const HomePage: React.FC = () => {
     const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
     const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
 
-    const bestsellers = Array.isArray(productsData) ? productsData.filter((p: any) => p.isBestseller) || [] : [];
-    const newArrivals = Array.isArray(productsData) ? productsData.filter((p: any) => p.isNew) || [] : [];
+    const collections = Array.isArray(collectionProducts) ? collectionProducts : [];
+    const bestsellers = Array.isArray(bestsellersProducts) ? bestsellersProducts : [];
+    const newArrivals = Array.isArray(newArrivalsProducts) ? newArrivalsProducts : [];
 
     // Get specific sections
     const collectionsSection = sections.find(
@@ -329,24 +374,38 @@ const HomePage: React.FC = () => {
             {collectionsSection && (
                 <section id="collections" className="py-16 px-8 bg-brand-latte">
                     <div className="max-w-7xl mx-auto">
-                        <motion.div
+                       <motion.div
                             variants={fadeUpVariants}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="text-center mb-12"
+                            // Added flex, items-end (to align button with bottom of text), and justify-between
+                            className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
                         >
-                            <h2
-                                className="font-headline text-4xl text-brand-brown mb-4"
-                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                            >
-                                {collectionsSection?.title || "Shop by Category"}
-                            </h2>
+                            {/* Left Side: Title and Subtitle */}
+                            <div className="max-w-2xl"> 
+                                <h2
+                                    className="font-headline text-4xl text-brand-brown mb-4"
+                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                >
+                                    {collectionsSection?.title || "Shop by Category"}
+                                </h2>
 
-                            <p className="font-sans text-gray-600 max-w-xl mx-auto">
-                                {collectionsSection?.subtitle ||
+                                <p className="font-sans text-gray-600">
+                                    {collectionsSection?.subtitle ||
                                     "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
-                            </p>
+                                </p>
+                            </div>
+
+                            {/* Right Side: View All Button */}
+                            <div className="shrink-0">
+                                <button
+                                    onClick={() => navigate(`/shop${activeCollectionCategory ? `?category=${activeCollectionCategory}` : ''}`)}
+                                    className="inline-flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200"
+                                >
+                                    View All <ArrowRight size={16} weight="regular" />
+                                </button>
+                            </div>
                         </motion.div>
 
                         <motion.div
@@ -354,41 +413,19 @@ const HomePage: React.FC = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="flex flex-wrap justify-center gap-4"
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                         >
-                            {productsData?.map((product: any) => (
-                                <motion.div
-                                    key={product.id}
-                                    variants={fadeUpVariants}
-                                    whileHover={{ scale: 1.03 }}
-                                    transition={{ duration: 0.2 }}
-                                    onClick={() => navigate(`/products/${product?.id}`)}
-                                    className="relative rounded-lg overflow-hidden aspect-square cursor-pointer group w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)]"
-                                    role="button"
-                                    aria-label={`Browse ${product?.name}`}
-                                    tabIndex={0}
-                                    onKeyDown={(e: any) =>
-                                        e.key === "Enter" && navigate(`/products/${product?.id}`)
-                                    }
-                                >
-                                    <img
-                                        src={product?.images?.[0] || "https://c.animaapp.com/mmlqdzfpT0CVfh/img/placeholder-category.png"}
-                                        alt={product?.name}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70" />
-
-                                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                                        <h3 className="font-headline text-xl text-brand-cream" style={{ fontWeight: 500 }}>
-                                            {product?.name}
-                                        </h3>
-                                        <span className="font-label text-xs text-brand-cream opacity-80 uppercase tracking-wider">
-                                            Shop Now
-                                        </span>
-                                    </div>
+                            {(collections.length > 0 ? collections : []).map((product: any) => (
+                                <motion.div key={product.id} variants={fadeUpVariants}>
+                                    <ProductCard product={product} />
                                 </motion.div>
                             ))}
+
+                            {collections.length === 0 && (
+                                <div className="col-span-full text-center text-gray-500" role="status">
+                                    No collection products available yet.
+                                </div>
+                            )}
                         </motion.div>
                     </div>
                 </section>
@@ -417,7 +454,7 @@ const HomePage: React.FC = () => {
                             </div>
 
                             <button
-                                onClick={() => navigate("/shop")}
+                                onClick={() => navigate("/shop?isBestseller=true")}
                                 className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
                             >
                                 View All <ArrowRight size={16} weight="regular" />
@@ -519,7 +556,7 @@ const HomePage: React.FC = () => {
                                 </h2>
                             </div>
                             <button
-                                onClick={() => navigate("/shop")}
+                                onClick={() => navigate("/shop?isNew=true")}
                                 className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
                             >
                                 View All <ArrowRight size={16} weight="regular" />

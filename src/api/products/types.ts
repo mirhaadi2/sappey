@@ -118,6 +118,9 @@ export interface ProductFilters {
   page?: number;
   limit?: number;
   categoryId?: string;
+  isBestseller?: boolean;
+  isNew?: boolean;
+  isCustomerFavourites?: boolean;
 }
 
 export interface SellerListing {

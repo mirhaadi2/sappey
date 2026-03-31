@@ -25,13 +25,34 @@ const ShopPage: React.FC = () => {
 
   const activeCategory = searchParams.get("category") || "all";
   const searchQuery = searchParams.get("search") || "";
+  const isBestsellerFilter = searchParams.get("isBestseller") === "true";
+  const isNewFilter = searchParams.get("isNew") === "true";
+  const isCustomerFavouritesFilter = searchParams.get("isCustomerFavourites") === "true";
 
-  // Fetch products from API with optional category filter
-  const { products, isLoading, error } = useProducts(
-    activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
-    true
-  );
-  console.log("Fetched products:", products);
+  const [page, setPage] = useState<number>(1);
+  const [visibleProducts, setVisibleProducts] = useState<any[]>([]);
+  const limit = 12;
+
+  const productFilters: any = React.useMemo(() => ({
+    ...(activeCategory !== "all" ? { categoryId: activeCategory } : {}),
+    ...(searchQuery ? { search: searchQuery } : {}),
+    ...(isBestsellerFilter ? { isBestseller: true } : {}),
+    ...(isNewFilter ? { isNew: true } : {}),
+    ...(isCustomerFavouritesFilter ? { isCustomerFavourites: true } : {}),
+    page,
+    limit,
+  }), [
+    activeCategory,
+    searchQuery,
+    isBestsellerFilter,
+    isNewFilter,
+    isCustomerFavouritesFilter,
+    page,
+    limit,
+  ]);
+
+  // Fetch products from API with optional category or feature filter
+  const { products, total, isLoading, error } = useProducts(productFilters, true);
 
   // Fetch categories from API
   const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
@@ -46,17 +67,21 @@ const ShopPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
-  // Client-side filtering for search and sorting
-  const filteredProducts = React.useMemo(() => {
-    let result = [...products];
-    
-    if (searchQuery) {
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  React.useEffect(() => {
+    if (page === 1) {
+      setVisibleProducts(products);
+    } else {
+      setVisibleProducts((prev) => [...prev, ...products]);
     }
+  }, [products, page]);
+
+  React.useEffect(() => {
+    setPage(1);
+    setVisibleProducts([]);
+  }, [activeCategory, searchQuery, isBestsellerFilter, isNewFilter, isCustomerFavouritesFilter]);
+
+  const sortedProducts = React.useMemo(() => {
+    const result = [...visibleProducts];
 
     switch (sortBy) {
       case "price-asc":
@@ -69,12 +94,14 @@ const ShopPage: React.FC = () => {
         // TODO: Add rating field to API response
         break;
       case "newest":
-        // TODO: Add isNew field or createdAt timestamp to API response
         result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
+      default:
+        break;
     }
+
     return result;
-  }, [products, sortBy, searchQuery]);
+  }, [visibleProducts, sortBy]);
 
   const gridClass =
     viewMode === "grid-4"
@@ -198,7 +225,7 @@ const ShopPage: React.FC = () => {
             "Loading products..."
           ) : (
             <>
-              Showing <span className="text-brand-brown font-medium" style={{ fontWeight: 500 }}>{filteredProducts.length}</span> products
+              Showing <span className="text-brand-brown font-medium" style={{ fontWeight: 500 }}>{sortedProducts.length}</span> products
               {activeCategory !== "all" && (
                 <span> in <span className="text-brand-brown capitalize">{activeCategory}</span></span>
               )}
@@ -227,14 +254,14 @@ const ShopPage: React.FC = () => {
               <div key={i} className="h-96 bg-gray-200 rounded-lg animate-pulse" />
             ))}
           </div>
-        ) : filteredProducts.length > 0 ? (
+        ) : sortedProducts.length > 0 ? (
           <motion.div 
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
             className={`grid gap-6 ${gridClass}`}
           >
-            {filteredProducts.map((product) => (
+            {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </motion.div>
@@ -264,6 +291,17 @@ const ShopPage: React.FC = () => {
               </button>
             </div>
           </motion.div>
+        )}
+
+        {!isLoading && sortedProducts.length > 0 && sortedProducts.length < total && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              className="font-label text-sm bg-brand-brown text-brand-cream px-8 py-3 rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer"
+            >
+              Load More
+            </button>
+          </div>
         )}
       </div>
 
