@@ -14,6 +14,7 @@ import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 import PageContent from "./pages/PageContent";
 
 const queryClient = new QueryClient({
@@ -61,6 +62,14 @@ const AppContent: React.FC = () => {
                         element={
                             <ProtectedRoute>
                                 <CheckoutPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/order-success"
+                        element={
+                            <ProtectedRoute>
+                                <OrderSuccessPage />
                             </ProtectedRoute>
                         }
                     />

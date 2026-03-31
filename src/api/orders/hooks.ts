@@ -18,26 +18,55 @@ export const useOrders = (enabled = true) => {
 
   const createMutation = useMutation({
     mutationFn: (data: CreateOrderData) => ordersClient.placeOrder(data),
-    onSuccess: (newOrder) => {
+    onSuccess: (response: any) => {
+      const newOrder = response?.data || response;
+      if (!newOrder?.id) {
+        console.warn("✗ Invalid order response:", response);
+        return;
+      }
+
       // Add new order to cache
-      queryClient.setQueryData(['orders'], (old: { orders: Order[] } | undefined) => {
+      queryClient.setQueryData(['orders'], (old: any) => {
+        // Ensure old is in the right format
+        const existingOrders = Array.isArray(old) 
+          ? old 
+          : (old?.orders && Array.isArray(old.orders) ? old.orders : []);
+        
+        console.log("✓ Cache updated with new order");
         return {
-          orders: [...(old?.orders || []), newOrder],
+          orders: [...existingOrders, newOrder],
         };
       });
+      
       // Also cache the individual order
       queryClient.setQueryData(['orders', newOrder.id], newOrder);
+      console.log("✓ Individual order cached");
+    },
+    onError: (error: any) => {
+      console.error("✗ Order mutation failed:", error);
     },
   });
 
   const cancelMutation = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       ordersClient.cancelOrder(id, reason),
-    onSuccess: (updatedOrder) => {
+    onSuccess: (response: any) => {
+      // Extract the order from response
+      const updatedOrder = response?.data || response;
+      
+      if (!updatedOrder?.id) {
+        console.warn("Invalid cancel response:", response);
+        return;
+      }
+      
       // Update order in list cache
-      queryClient.setQueryData(['orders'], (old: { orders: Order[] } | undefined) => {
+      queryClient.setQueryData(['orders'], (old: any) => {
+        const existingOrders = Array.isArray(old) 
+          ? old 
+          : (old?.orders && Array.isArray(old.orders) ? old.orders : []);
+        
         return {
-          orders: (old?.orders || []).map((order) =>
+          orders: existingOrders.map((order: any) =>
             order.id === updatedOrder.id ? updatedOrder : order
           ),
         };
@@ -49,10 +78,22 @@ export const useOrders = (enabled = true) => {
 
   const confirmPaymentMutation = useMutation({
     mutationFn: (id: string) => ordersClient.confirmPayment(id),
-    onSuccess: (updatedOrder) => {
-      queryClient.setQueryData(['orders'], (old: { orders: Order[] } | undefined) => {
+    onSuccess: (response: any) => {
+      // Extract the order from response
+      const updatedOrder = response?.data || response;
+      
+      if (!updatedOrder?.id) {
+        console.warn("Invalid payment confirmation response:", response);
+        return;
+      }
+      
+      queryClient.setQueryData(['orders'], (old: any) => {
+        const existingOrders = Array.isArray(old) 
+          ? old 
+          : (old?.orders && Array.isArray(old.orders) ? old.orders : []);
+        
         return {
-          orders: (old?.orders || []).map((order) =>
+          orders: existingOrders.map((order: any) =>
             order.id === updatedOrder.id ? updatedOrder : order
           ),
         };

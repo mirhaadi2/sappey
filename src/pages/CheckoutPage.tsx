@@ -6,8 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import { useOrders } from "../api/orders/hooks";
 import {
-  ArrowLeft, MapPin, Truck, CreditCard, CheckCircle, Lock,
-  Plus, Package, Info, QrCode, CurrencyDollar
+  ArrowLeft, MapPin, Truck, CreditCard, CheckCircle,
+  Plus, Package, Info
 } from "@phosphor-icons/react";
 
 interface OrderSummary {
@@ -22,7 +22,7 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { state, dispatch } = useCart();
-  const { addresses, createAddress } = useAddresses();
+  const { addresses } = useAddresses();
   const { placeOrder, isCreatingOrder, createError } = useOrders();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -65,7 +65,7 @@ const CheckoutPage: React.FC = () => {
         return {
           productId: item.product.id,
           productVariantId: variantData.id || item.product.id,
-          sku: variantData.sku || item.product.sku || '',
+          sku: variantData.sku || '',
           quantity: item.quantity,
           price: variantData.price || item.product.price || 0,
           discountedPrice: variantData.discountedPrice || variantData.price || item.product.price || 0,
@@ -84,15 +84,35 @@ const CheckoutPage: React.FC = () => {
         paymentMethod,
       };
 
+      console.log("📤 Sending order data to API:", orderData);
+      
       const newOrder = await placeOrder(orderData);
-      setPlacedOrderId(newOrder.id);
       
-      // Clear cart after successful order
+      console.log("✓ Order created successfully:", newOrder);
+      
+      // Clear cart
       dispatch({ type: "CLEAR_CART" });
+      console.log("✓ Cart cleared");
       
-      setOrderStep("confirmation");
+      // Navigate to success page with order details
+      navigate("/order-success", {
+        state: {
+          orderId: newOrder.id,
+          orderTotal: orderSummary.total,
+          estimatedDelivery: new Date(
+            Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          shippingMethod,
+          paymentMethod,
+          address: addresses.find((a) => a.id === selectedAddressId)
+            ? `${addresses.find((a) => a.id === selectedAddressId)?.name}, ${addresses.find((a) => a.id === selectedAddressId)?.city}`
+            : undefined,
+          itemCount: state.items.length,
+        },
+      });
+      
     } catch (err) {
-      console.error("Failed to place order:", err);
+      console.error("✗ Failed to place order:", err);
       // Error is already set in the orderError state from the hook
     }
   };
@@ -556,51 +576,17 @@ const CheckoutPage: React.FC = () => {
                 </motion.div>
               )}
 
-              {orderStep === "confirmation" && (
-                <motion.div
-                  key="confirmation"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center space-y-6"
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 0.6 }}
-                    className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center"
-                  >
-                    <CheckCircle size={40} className="text-green-600" weight="fill" />
-                  </motion.div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-brand-brown mb-2">Order Confirmed!</h2>
-                    <p className="text-gray-600">Thank you for your purchase</p>
-                  </div>
-                  <div className="bg-white rounded-3xl p-8 border border-gray-100 text-left">
-                    <p className="text-gray-600 mb-2">Order Number:</p>
-                    <p className="font-mono text-xl text-brand-brown font-bold mb-6">#ORD-{Date.now()}</p>
-                    <p className="text-gray-600 mb-2">Total Amount:</p>
-                    <p className="text-3xl font-bold text-brand-brown mb-6">${orderSummary.total.toFixed(2)}</p>
-                    <p className="text-gray-600 mb-2">Estimated Delivery:</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {new Date(Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => navigate("/shop")}
-                    className="px-8 py-4 bg-brand-brown text-white rounded-xl hover:bg-brand-cocoa transition font-bold text-lg"
-                  >
-                    Continue Shopping
-                  </button>
-                </motion.div>
-              )}
             </AnimatePresence>
+
           </div>
 
-          {/* Order Summary Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-1"
-          >
+          {/* Order Summary Sidebar - Hidden on Confirmation */}
+          {orderStep !== "confirmation" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-1"
+            >
             <div className="sticky top-32 bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
               <h3 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
                 <Package size={24} />
@@ -665,8 +651,11 @@ const CheckoutPage: React.FC = () => {
               </div>
             </div>
           </motion.div>
+          )}
         </div>
       </main>
+
+
     </div>
   );
 };

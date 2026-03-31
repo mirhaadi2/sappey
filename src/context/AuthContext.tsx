@@ -20,7 +20,25 @@ interface AuthContextType {
     signOutError: any;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// ✅ Default context value - always available (prevents undefined errors)
+const defaultAuthValue: AuthContextType = {
+    user: null,
+    loading: false,
+    signIn: () => console.warn("signIn called outside AuthProvider"),
+    signUp: () => console.warn("signUp called outside AuthProvider"),
+    signOut: () => console.warn("signOut called outside AuthProvider"),
+    authModal: null,
+    openAuthModal: () => console.warn("openAuthModal called outside AuthProvider"),
+    closeAuthModal: () => console.warn("closeAuthModal called outside AuthProvider"),
+    signInLoading: false,
+    signUpLoading: false,
+    signOutLoading: false,
+    signInError: null,
+    signUpError: null,
+    signOutError: null,
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthValue);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
@@ -83,6 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth must be used within an AuthProvider");
+    // ✅ Always returns a value - either real context or safe default
+    if (!context) {
+        console.warn("useAuth: Using default context (provider not found)");
+        return defaultAuthValue;
+    }
     return context;
 };
