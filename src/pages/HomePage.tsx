@@ -96,27 +96,32 @@ const HomePage: React.FC = () => {
       }
     }, [categories, activeCollectionCategory]);
 
+    const collectionFilters = React.useMemo(() => {
+      return activeCollectionCategory
+        ? { categoryId: activeCollectionCategory, limit: 4, page: 1 }
+        : { limit: 4, page: 1 };
+    }, [activeCollectionCategory]);
+
+    const bestsellersFilters = React.useMemo(() => ({ isBestseller: true, limit: 4, page: 1 }), []);
+    const newArrivalsFilters = React.useMemo(() => ({ isNew: true, limit: 4, page: 1 }), []);
+
     const {
       products: collectionProducts,
       isLoading: collectionLoading,
       error: collectionError,
-    } = useProducts(
-      activeCollectionCategory
-        ? { categoryId: activeCollectionCategory, limit: 4, page: 1 }
-        : { limit: 4, page: 1 },
-    );
+    } = useProducts(collectionFilters);
 
     const {
       products: bestsellersProducts,
       isLoading: bestsellersLoading,
       error: bestsellersError,
-    } = useProducts({ isBestseller: true, limit: 4, page: 1 });
+    } = useProducts(bestsellersFilters);
 
     const {
       products: newArrivalsProducts,
       isLoading: newArrivalsLoading,
       error: newArrivalsError,
-    } = useProducts({ isNew: true, limit: 4, page: 1 });
+    } = useProducts(newArrivalsFilters);
 
     const homepageTestimonials = homepageData?.testimonials || [];
 

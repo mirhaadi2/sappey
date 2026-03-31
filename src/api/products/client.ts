@@ -30,8 +30,12 @@ export const productsClient = {
       // Fallback for unexpected response structure
       console.warn('Unexpected products API response structure:', data);
       return { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } catch (error: any) {
+      if (error?.code === 'ECONNABORTED') {
+        console.warn('Products request timeout, returning empty result set');
+      } else {
+        console.error('Error fetching products:', error);
+      }
       return { products: [], total: 0, page: 1, limit: 10, totalPages: 1 };
     }
   },

@@ -1,6 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { productsClient } from '../client';
 import { Product, ProductFilters, CreateSellerProductData, UpdateSellerProductData } from '../types';
+
+type ProductPage = {
+  products: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
 
 /**
  * Hook for fetching a list of products with optional filters
@@ -83,6 +91,42 @@ export const useProductsByCategory = (categoryId?: string) => {
     total: query.data?.total || 0,
     isLoading: query.isLoading,
     error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useInfiniteProducts = (filters?: ProductFilters, enabled = true) => {
+  const query = useInfiniteQuery<ProductPage, Error>({
+    queryKey: ['products', filters],
+    // 1. Explicitly define the initial page parameter
+    initialPageParam: 1, 
+    queryFn: ({ pageParam }) => 
+      productsClient.getProducts({ ...filters, page: pageParam as number }),
+    getNextPageParam: (lastPage: ProductPage) => {
+      // Logic remains the same
+      if (lastPage.page < lastPage.totalPages) return lastPage.page + 1;
+      return undefined;
+    },
+    enabled,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  // FlatMap the pages into a single products array
+  const products = query.data ? query.data.pages.flatMap((p) => p.products || []) : [];
+  const total = query.data ? query.data.pages[0]?.total || 0 : 0;
+
+  return {
+    products,
+    total,
+    isLoading: query.isLoading,
+    error: query.error,
+    isFetchingNextPage: query.isFetchingNextPage,
+    hasNextPage: query.hasNextPage,
+    fetchNextPage: query.fetchNextPage,
+    isFetching: query.isFetching,
     refetch: query.refetch,
   };
 };

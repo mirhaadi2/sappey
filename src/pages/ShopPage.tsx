@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FunnelSimple, GridFour, SquaresFour, Rows } from "@phosphor-icons/react";
-import { useProducts, useCategories } from "../api/exports";
+import { useProducts, useCategories, useInfiniteProducts } from "../api/exports";
 import ProductCard from "../components/ProductCard";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "rating" | "newest";
@@ -29,8 +29,6 @@ const ShopPage: React.FC = () => {
   const isNewFilter = searchParams.get("isNew") === "true";
   const isCustomerFavouritesFilter = searchParams.get("isCustomerFavourites") === "true";
 
-  const [page, setPage] = useState<number>(1);
-  const [visibleProducts, setVisibleProducts] = useState<any[]>([]);
   const limit = 12;
 
   const productFilters: any = React.useMemo(() => ({
@@ -39,7 +37,6 @@ const ShopPage: React.FC = () => {
     ...(isBestsellerFilter ? { isBestseller: true } : {}),
     ...(isNewFilter ? { isNew: true } : {}),
     ...(isCustomerFavouritesFilter ? { isCustomerFavourites: true } : {}),
-    page,
     limit,
   }), [
     activeCategory,
@@ -47,13 +44,19 @@ const ShopPage: React.FC = () => {
     isBestsellerFilter,
     isNewFilter,
     isCustomerFavouritesFilter,
-    page,
     limit,
   ]);
 
-  // Fetch products from API with optional category or feature filter
-  const { products, total, isLoading, error } = useProducts(productFilters);
-
+  // Fetch products from API with optional category or feature filter using infinite scroll + pagination
+  const {
+    products,
+    total,
+    isLoading,
+    error,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteProducts(productFilters);
   // Fetch categories from API
   const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
 
@@ -67,21 +70,8 @@ const ShopPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
-  React.useEffect(() => {
-    if (page === 1) {
-      setVisibleProducts(products);
-    } else {
-      setVisibleProducts((prev) => [...prev, ...products]);
-    }
-  }, [products, page]);
-
-  React.useEffect(() => {
-    setPage(1);
-    setVisibleProducts([]);
-  }, [activeCategory, searchQuery, isBestsellerFilter, isNewFilter, isCustomerFavouritesFilter]);
-
-  const sortedProducts = React.useMemo(() => {
-    const result = [...visibleProducts];
+  const sortedProducts = useMemo(() => {
+    const result = [...products];
 
     switch (sortBy) {
       case "price-asc":
@@ -101,7 +91,29 @@ const ShopPage: React.FC = () => {
     }
 
     return result;
-  }, [visibleProducts, sortBy]);
+  }, [products, sortBy]);
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const gridClass =
     viewMode === "grid-4"
@@ -293,13 +305,14 @@ const ShopPage: React.FC = () => {
           </motion.div>
         )}
 
-        {!isLoading && sortedProducts.length > 0 && sortedProducts.length < total && (
-          <div className="text-center mt-8">
+        {!isLoading && sortedProducts.length > 0 && hasNextPage && (
+          <div ref={loadMoreRef} className="text-center mt-8">
             <button
-              onClick={() => setPage((prev) => prev + 1)}
-              className="font-label text-sm bg-brand-brown text-brand-cream px-8 py-3 rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer"
+              onClick={() => fetchNextPage()}
+              disabled={!hasNextPage || isFetchingNextPage}
+              className="font-label text-sm bg-brand-brown text-brand-cream px-8 py-3 rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
             >
-              Load More
+              {isFetchingNextPage ? "Loading more..." : "Load More"}
             </button>
           </div>
         )}

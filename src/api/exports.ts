@@ -6,7 +6,7 @@ export { authApi, useAuth } from './authentication';
 export type { LoginData, RegisterData, User, AuthResponse } from './authentication';
 
 // Products API
-export { productsClient as productsApi, useProducts, useProduct, useProductsMutations, useProductSearch, useProductsByCategory, useCategories } from './products';
+export { productsClient as productsApi, useProducts, useProduct, useProductsMutations, useProductSearch, useProductsByCategory, useInfiniteProducts, useCategories } from './products';
 export type { Product, CreateProductData, UpdateProductData, ProductFilters, ProductResponse, Category, CategoryResponse } from './products';
 
 // Orders API

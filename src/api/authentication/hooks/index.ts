@@ -34,7 +34,7 @@ export const useAuth = () => {
   const profileQuery = useQuery({
     queryKey: ['user'],
     queryFn: authApi.getProfile,
-    enabled: true, // Always attempt to check for session-based auth
+    enabled: !!localStorage.getItem('auth_token'), // fetch only when token is available
     retry: false, // Don't retry on 401
     staleTime: 1000 * 60 * 5, // Cache user data for 5 minutes
     gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
