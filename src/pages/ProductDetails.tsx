@@ -21,12 +21,8 @@ const ProductDetailPage: React.FC = () => {
   
   const navigate = useNavigate();
   const { dispatch } = useCart();
-
-  // Note: Backend API typically uses UUID IDs, but slug lookup requires API support
-  // For now, we'll fetch products and filter by slug client-side
   const { products, isLoading: productsLoading } = useProducts(undefined);
   const { data: product, isLoading: productLoading } = useProduct(id!, true);
-  // const product = products.find((p: any) => p.id === id);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<any>(0);
   const [selectedVariant, setSelectedVariant] = useState<string>("");

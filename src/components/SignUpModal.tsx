@@ -81,6 +81,16 @@ const SignUpModal: React.FC = () => {
     }
   }, [isOpen, reset]);
 
+  // Handle successful signup - close modal only (don't redirect)
+  useEffect(() => {
+    if (user && isOpen) {
+      setTimeout(() => {
+        closeAuthModal();
+        // Don't redirect - let user stay on current page
+      }, 500);
+    }
+  }, [user, isOpen, closeAuthModal]);
+
   // --- STEP 1 HANDLER ---
   const handleSendOtp = async (data: RegisterData) => {
     setLoading(true);
@@ -193,7 +203,7 @@ const SignUpModal: React.FC = () => {
             {/* Header */}
             <div className="flex justify-between items-start mb-10">
               <div>
-                <h2 className="text-3xl font-extrabold text-brand-brown tracking-tight mb-1">Kruncho</h2>
+                <h2 className="text-3xl font-extrabold text-brand-brown tracking-tight mb-1">Sappey</h2>
                 <div className="flex gap-1.5 mt-2">
                   <div className={`h-1 w-6 rounded-full transition-all duration-300 ${step === 'info' ? 'bg-brand-brown' : 'bg-brand-brown/20'}`} />
                   <div className={`h-1 w-6 rounded-full transition-all duration-300 ${step === 'otp' ? 'bg-brand-brown' : 'bg-brand-brown/20'}`} />

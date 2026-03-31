@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
-import { useCart } from "../context/CardContext";
+import { useCart, getVariantKey } from "../context/CardContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -92,11 +92,11 @@ const CartDrawer: React.FC = () => {
                                 <ul className="space-y-4">
                                     {state?.items.map((item: any) => (
                                         <li
-                                            key={`${item.product.id}-${item.variant}`}
+                                            key={`${item.product.id}-${getVariantKey(item.variant)}`}
                                             className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200"
                                         >
                                             <img
-                                                src={item.product.image}
+                                                src={item.product.images?.[0] || "/placeholder.png"}
                                                 alt={item.product.name}
                                                 className="w-16 h-16 object-cover rounded-lg"
                                             />
@@ -108,7 +108,7 @@ const CartDrawer: React.FC = () => {
                                                     {item.product.name}
                                                 </h3>
                                                 <p className="font-sans text-xs text-gray-500 mb-2">
-                                                    Weight: {typeof item.variant === 'object' && item.variant.weight ? `${item.variant.weight}g` : (typeof item.variant === 'object' ? item.variant.label : item.variant)}
+                                                    Weight: {item.variant?.label || "Standard"}
                                                 </p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
@@ -123,8 +123,10 @@ const CartDrawer: React.FC = () => {
                                                                 },
                                                                 })
                                                             }
-                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                                                            disabled={item.quantity <= 1}
+                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                                             aria-label={`Decrease quantity of ${item.product.name}`}
+                                                            title={item.quantity <= 1 ? "Quantity cannot be less than 1" : "Decrease quantity"}
                                                         >
                                                             <Minus size={12} weight="bold" />
                                                         </button>

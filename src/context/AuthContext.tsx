@@ -57,15 +57,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setAuthModal(null);
     };
 
-    // Handle successful authentication
-    React.useEffect(() => {
-        if (user && authModal) {
-            closeAuthModal();
-            // Optional: redirect to dashboard or home
-            // window.location.href = '/dashboard';
-        }
-    }, [user, authModal]);
-
     return (
         <AuthContext.Provider
             value={{

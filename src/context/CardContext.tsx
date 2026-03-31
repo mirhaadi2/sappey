@@ -15,33 +15,44 @@ type CartAction =
     | { type: "CLOSE_CART" } 
     | { type: "CLEAR_CART" }
 
+// Helper function to get consistent variant identifier
+export const getVariantKey = (variant: any): string => {
+    if (!variant) return "no-variant";
+    // Use variant.id as primary key, fallback to sku, then label
+    if (variant.id) return variant.id;
+    if (variant.sku) return variant.sku;
+    if (variant.label) return variant.label;
+    // Fallback to stringified variant for edge cases
+    return JSON.stringify(variant);
+};
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
     switch (action.type) {
         case "ADD_ITEM": {
-            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
+            const incomingVariantKey = getVariantKey(action.payload.variant);
             const existing = state.items.find(
                 (item) => {
-                    const itemVariantId = item.variant?.id ?? item.variant;
                     return (
                         item.product.id === action.payload.product.id &&
-                        itemVariantId === payloadVariantId
+                        getVariantKey(item.variant) === incomingVariantKey
                     );
                 }
             );
 
             if (existing) {
+                // UPSERT: Update quantity if product + variant already exists
                 return {
                     ...state,
                     items: state.items.map((item) => {
-                        const itemVariantId = item.variant?.id ?? item.variant;
                         return item.product.id === action.payload.product.id &&
-                            itemVariantId === payloadVariantId
+                            getVariantKey(item.variant) === incomingVariantKey
                             ? { ...item, quantity: item.quantity + action.payload.quantity }
                             : item;
                     }),
                 };
             }
 
+            // INSERT: Add as new item if it doesn't exist
             return {
                 ...state,
                 items: [
@@ -55,23 +66,39 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             };
         }
         case "REMOVE_ITEM": {
-            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
+            const incomingVariantKey = getVariantKey(action.payload.variant);
             return {
                 ...state,
                 items: state.items.filter((item) => {
-                    const itemVariantId = item.variant?.id ?? item.variant;
-                    return !(item.product.id === action.payload.productId && itemVariantId === payloadVariantId);
+                    return !(
+                        item.product.id === action.payload.productId &&
+                        getVariantKey(item.variant) === incomingVariantKey
+                    );
                 }),
             };
         }
         case "UPDATE_QUANTITY": {
-            const payloadVariantId = action.payload.variant?.id ?? action.payload.variant;
+            const incomingVariantKey = getVariantKey(action.payload.variant);
+            const newQuantity = Math.max(0, action.payload.quantity); // Ensure non-negative
+            
+            // If quantity is 0 or less, remove the item automatically
+            if (newQuantity === 0) {
+                return {
+                    ...state,
+                    items: state.items.filter((item) => {
+                        return !(item.product.id === action.payload.productId &&
+                            getVariantKey(item.variant) === incomingVariantKey);
+                    }),
+                };
+            }
+            
+            // Otherwise, update quantity with minimum of 1
             return {
                 ...state,
                 items: state.items.map((item) => {
-                    const itemVariantId = item.variant?.id ?? item.variant;
-                    return item.product.id === action.payload.productId && itemVariantId === payloadVariantId
-                        ? { ...item, quantity: action.payload.quantity }
+                    return item.product.id === action.payload.productId &&
+                        getVariantKey(item.variant) === incomingVariantKey
+                        ? { ...item, quantity: Math.max(1, newQuantity) }
                         : item;
                 }),
             };
@@ -96,12 +123,20 @@ interface CartContextType {
     totalPrice: number;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const defaultContextValue: CartContextType = {
+    state: { items: [], isOpen: false },
+    dispatch: () => {},
+    totalItems: 0,
+    totalPrice: 0,
+};
+
+const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export const CartProvider = ({ children } : { children: ReactNode }) => {
     const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
 
-    const totalItems = state.items.reduce((sum, item) => sum + (item?.quantity || 0), 0);
+    // totalItems = number of line items in cart (not total quantity)
+    const totalItems = state.items.length;
     
     const totalPrice = state.items.reduce(
         (sum, item) => sum + (item?.product?.price || 0) * (item?.quantity || 0),
@@ -117,6 +152,10 @@ export const CartProvider = ({ children } : { children: ReactNode }) => {
 
 export const useCart = () => {
     const ctx = useContext(CartContext);
-    if (!ctx) throw new Error("useCart must be used within CartProvider");
+    // Default value is always available, no need to throw error
+    if (!ctx) {
+        console.warn("useCart: Using default context (CartProvider might not be wrapping this component)");
+        return defaultContextValue;
+    }
     return ctx;
 };

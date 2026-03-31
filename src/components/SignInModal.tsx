@@ -24,7 +24,7 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>;
 
 const SignInModal: React.FC = () => {
-  const { authModal, closeAuthModal, signIn, signInLoading, signInError } = useAuth();
+  const { authModal, closeAuthModal, signIn, signInLoading, signInError, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   const isOpen = authModal === "signin";
@@ -48,6 +48,16 @@ const SignInModal: React.FC = () => {
       setError(errorMessage);
     }
   }, [signInError]);
+
+  // Handle successful login - close modal only
+  useEffect(() => {
+    if (user && isOpen) {
+      setTimeout(() => {
+        closeAuthModal();
+        // Don't redirect to home - let user stay on current page
+      }, 500);
+    }
+  }, [user, isOpen, closeAuthModal]);
 
   const handleSignIn = async (data: LoginData) => {
     setError(null);
@@ -74,7 +84,7 @@ const SignInModal: React.FC = () => {
             {/* Header Area */}
             <div className="flex justify-between items-start mb-10">
               <div>
-                <h2 className="text-3xl font-extrabold text-brand-brown tracking-tight mb-1">Kruncho</h2>
+                <h2 className="text-3xl font-extrabold text-brand-brown tracking-tight mb-1">Sappey</h2>
                 <p className="text-gray-500 font-medium">Welcome back! Please sign in to your account.</p>
               </div>
               <button onClick={closeAuthModal} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
@@ -131,7 +141,7 @@ const SignInModal: React.FC = () => {
                 )}
               </div>
 
-              <button type="submit" disabled={signInLoading} className="w-full py-4.5 bg-brand-brown text-white rounded-2xl font-bold shadow-xl shadow-brand-brown/20 hover:bg-brand-brown/90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              <button type="submit" disabled={signInLoading} className="w-full py-3 bg-brand-brown text-white rounded-2xl font-bold shadow-xl shadow-brand-brown/20 hover:bg-brand-brown/90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                 {signInLoading ? <Spinner /> : "Sign In"}
                 {!signInLoading && <SignIn weight="bold" />}
               </button>

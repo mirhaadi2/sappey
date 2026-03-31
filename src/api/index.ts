@@ -6,12 +6,41 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 // Create axios instance with session-based auth (HttpOnly cookies)
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  // timeout: 30000, // 30 seconds - increased for slower networks
   withCredentials: true, // Automatically send cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Request Interceptor - Log all requests
+api.interceptors.request.use(
+  (config) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[API] ${timestamp} → ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('[API] Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response Interceptor - Log all responses
+api.interceptors.response.use(
+  (response) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[API] ${timestamp} ✓ ${response.status} ${response.config.url}`, response.data);
+    return response;
+  },
+  (error) => {
+    const timestamp = new Date().toISOString();
+    const errorMsg = error.response?.data?.message || error.message;
+    const status = error.response?.status || 'TIMEOUT';
+    console.error(`[API] ${timestamp} ✗ ${status} ${error.config?.url} - ${errorMsg}`);
+    return Promise.reject(error);
+  }
+);
 
 // No response interceptor for 401 - let auth services handle it gracefully
 // This prevents infinite redirects during initial auth checks

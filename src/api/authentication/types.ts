@@ -51,7 +51,7 @@ export interface InitiateRegistrationResponse {
 }
 
 export interface VerifyOtpData {
-  phone: string;
+  email: string;
   otp: string;
 }
 
