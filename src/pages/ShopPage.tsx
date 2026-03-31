@@ -52,7 +52,7 @@ const ShopPage: React.FC = () => {
   ]);
 
   // Fetch products from API with optional category or feature filter
-  const { products, total, isLoading, error } = useProducts(productFilters, true);
+  const { products, total, isLoading, error } = useProducts(productFilters);
 
   // Fetch categories from API
   const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
