@@ -237,25 +237,25 @@ const OrderDetailsPage: React.FC = () => {
                                 <div className="space-y-3 mb-6">
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Subtotal</span>
-                                        <span className="text-white">${parseFloat(order.totalAmount).toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order.totalAmount).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Shipping & Handling</span>
-                                        <span className="text-white">${parseFloat(order?.shippingCost || '0').toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order?.shippingCost || '0').toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Applicable Tax</span>
-                                        <span className="text-white">${parseFloat(order?.taxAmount || '0').toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order?.taxAmount || '0').toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">Grand Total</p>
-                                        <h3 className="text-4xl font-black tracking-tighter">${parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
+                                        <h3 className="text-4xl font-black tracking-tighter">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Currency</p>
-                                        <p className="font-bold ">USD (United States Dollar)</p>
+                                        <p className="font-bold ">INR (Indian Rupee)</p>
                                     </div>
                                 </div>
                             </div>
@@ -274,25 +274,37 @@ const OrderDetailsPage: React.FC = () => {
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Recipient</p>
                                     <p className="text-sm font-black text-slate-900 uppercase">{user.name}</p>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Destination Address</p>
-                                    <p className="text-sm font-bold text-slate-600 leading-relaxed">
-                                        ID Ref: {order.shippingAddressId}<br />
-                                        Contact: {user.email}
+                                <div className="space-y-1">
+                                    <p className="font-label text-[10px] font-black text-brand-brown/40 uppercase tracking-[0.2em]">
+                                        Destination Address
+                                    </p>
+                                    <p className="font-sans text-sm font-bold text-brand-brown leading-relaxed max-w-[240px]">
+                                        {order?.shippingAddressLine1},
+                                        {order?.shippingAddressLine2 && ` ${order?.shippingAddressLine2},`}
+                                        <br />
+                                        <span className="text-slate-500 font-medium">
+                                            {order?.shippingCity}, {order?.shippingState} — {order?.shippingPostalCode}
+                                        </span>
+                                        <br />
+                                        <span className="text-orange-500 uppercase text-[11px] tracking-widest font-black">
+                                            {order?.shippingCountry}
+                                        </span>
                                     </p>
                                 </div>
-                                {user.phone && (
+                                {order?.shippingPhone && (
                                     <button
-                                        onClick={() => copyToClipboard(String(user.phone), "phone")}
+                                        onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")}
                                         className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all group"
                                     >
                                         <div className="flex items-center gap-3">
                                             <Phone size={18} className="text-slate-400" />
-                                            <span className="text-sm font-bold text-slate-700">{user.phone}</span>
+                                            <span className="text-sm font-bold text-slate-700">{order?.shippingPhone}</span>
                                         </div>
                                         {copiedField === 'phone' ? <CheckFat className="text-emerald-500" weight="fill" /> : <Copy className="text-slate-300 group-hover:text-slate-500" />}
                                     </button>
                                 )}
+
+
                             </div>
                         </div>
 

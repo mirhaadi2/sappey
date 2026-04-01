@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Trash, ShoppingBag, Minus, Plus, Package, CheckCircle, Truck, CheckFat } from "@phosphor-icons/react";
-import { OrderItemDetail } from "../api/orders/types";
 
 interface OrderItemCardProps {
     item: any; // Accept both OrderItemDetail and order items
@@ -75,6 +74,11 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                     <h4 className="font-bold text-slate-900 text-base">
                         {productName}
                     </h4>
+                    {item?.weight && (
+                        <p className="text-xs text-slate-500 mt-1">
+                            Weight: {item.weight}
+                        </p>
+                    )}
                     {item.variantLabel && (
                         <p className="text-xs text-slate-500 mt-1">
                             {item.variantLabel}
@@ -92,7 +96,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                     {discount > 0 && (
                         <div className="flex items-center gap-2">
                             <span className="text-xs line-through text-slate-400">
-                                ${price.toFixed(2)}
+                                ₹{price.toFixed(2)}
                             </span>
                             <span className="text-xs font-bold px-2 py-1 bg-red-100 text-red-700 rounded">
                                 -{discount}%
@@ -100,7 +104,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                         </div>
                     )}
                     <span className="font-bold text-slate-900">
-                        ${(isOrderItem ? price : discountedPrice).toFixed(2)}
+                        ₹{(isOrderItem ? price : discountedPrice).toFixed(2)}
                     </span>
                     {!isOrderItem && item.quantity > 0 && (
                         <span className="text-slate-500 text-sm">× {item.quantity}</span>
@@ -144,7 +148,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                 </div>
 
                 <div className={`${isOrderItem ? 'text-2xl font-bold text-slate-900' : 'text-lg font-bold text-slate-900'}`}>
-                    ${itemTotal.toFixed(2)}
+                    ₹{itemTotal.toFixed(2)}
                 </div>
 
                 {actionable && onRemove && !isOrderItem && (

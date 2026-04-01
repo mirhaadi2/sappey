@@ -49,6 +49,14 @@ export interface Order {
   createdAt: Date;
   updatedAt: Date;
   deliveredAt?: Date;
+  shippingAddressType?: string;
+  shippingAddressLine1?: string;
+  shippingAddressLine2?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingPostalCode?: string;
+  shippingCountry?: string;
+  shippingPhone?: string;
 }
 
 export interface OrderResponse {
