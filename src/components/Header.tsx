@@ -35,7 +35,6 @@ const Header: React.FC = () => {
     // Fetch products from API with optional category filter
     const { products, isLoading, error } = useProducts(
         activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
-        true
     );
 
     // Fetch homepage data for banner
@@ -240,6 +239,14 @@ const Header: React.FC = () => {
                         {user ? (
                             <div className="relative flex items-center gap-1">
                                 <button
+                                    onClick={() => navigate('/orders')}
+                                    className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
+                                    title="My Orders"
+                                >
+                                    <List size={18} weight="regular" />
+                                    <span className="font-label text-sm font-medium">Orders</span>
+                                </button>
+                                <button
                                     onClick={() => navigate('/profile')}
                                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown hover:bg-brand-brown hover:text-white transition-colors duration-200 cursor-pointer"
                                     title="Profile"
@@ -334,6 +341,18 @@ const Header: React.FC = () => {
                                         {link?.label}
                                     </button>
                                 ))}
+                                {user && (
+                                    <>
+                                        <div className="border-t border-gray-200 my-4"></div>
+                                        <button
+                                            onClick={() => { navigate('/orders'); setMobileOpen(false); }}
+                                            className="font-label text-sm px-4 py-3 rounded-lg text-left text-brand-brown hover:bg-brand-latte transition-all duration-200 cursor-pointer flex items-center gap-2"
+                                        >
+                                            <List size={16} />
+                                            My Orders
+                                        </button>
+                                    </>
+                                )}
                             </nav>
                         </motion.div>
                     )}

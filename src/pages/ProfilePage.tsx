@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import {
   User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check, X,
-  Warning, CircleNotch, ArrowLeft, House, Briefcase
+  Warning, CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -170,6 +170,17 @@ const ProfilePage: React.FC = () => {
                   <div className="flex items-center gap-3 text-gray-700 text-sm">
                     <User size={18} className="text-brand-brown" />
                     <span className="capitalize">{user.role || "Customer"}</span>
+                  </div>
+
+                  {/* Orders Button */}
+                  <div className="pt-3 mt-6 border-t border-gray-100">
+                    <button
+                      onClick={() => navigate("/orders")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brand-brown text-white rounded-xl hover:bg-brand-cocoa transition-all shadow-md hover:shadow-lg font-medium"
+                    >
+                      <ShoppingBag size={18} weight="fill" />
+                      View My Orders
+                    </button>
                   </div>
                 </div>
               </div>

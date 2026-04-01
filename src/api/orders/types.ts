@@ -3,6 +3,18 @@ export interface OrderItem {
   productVariantId: string;
   sku: string;
   quantity: number;
+  price?: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
+}
+
+export interface OrderItemDetail extends OrderItem {
+  productName?: string;
+  productImage?: string;
+  variantLabel?: string;
+  weight?: string;
+  category?: string;
+  seller?: string;
 }
 
 export interface CreateOrderData {
@@ -31,6 +43,7 @@ export interface Order {
   shippingAddressId: string;
   deliveryDate?: Date;
   notes?: string;
+  items?: OrderItemDetail[];
   metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
