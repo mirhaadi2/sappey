@@ -98,6 +98,7 @@ const CheckoutPage: React.FC = () => {
       navigate("/order-success", {
         state: {
           orderId: newOrder.id,
+          orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder.id}`,
           orderTotal: orderSummary.total,
           estimatedDelivery: new Date(
             Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
