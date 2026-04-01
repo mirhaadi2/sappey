@@ -150,11 +150,10 @@ const PageContent: React.FC = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`flex items-center gap-4 px-6 py-4 rounded-[20px] transition-all duration-300 group ${
-                        isActive
+                      className={`flex items-center gap-4 px-6 py-4 rounded-[20px] transition-all duration-300 group ${isActive
                           ? "bg-orange-600 text-white shadow-xl shadow-orange-200 ring-4 ring-orange-50"
                           : "bg-white border border-slate-100 text-slate-600 hover:border-orange-200 hover:shadow-lg"
-                      }`}
+                        }`}
                     >
                       <span
                         className={

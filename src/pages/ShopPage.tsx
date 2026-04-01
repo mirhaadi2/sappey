@@ -113,8 +113,8 @@ const ShopPage: React.FC = () => {
     viewMode === "grid-4"
       ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
       : viewMode === "grid-3"
-      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-      : "grid-cols-1 sm:grid-cols-2";
+        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2";
 
   return (
     <div className="min-h-screen bg-brand-latte text-foreground">
@@ -155,11 +155,10 @@ const ShopPage: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setCategory(cat.id)}
-                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
-                      activeCategory === cat.id
+                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${activeCategory === cat.id
                         ? "bg-brand-brown text-brand-cream"
                         : "bg-brand-latte text-brand-brown hover:bg-gray-200"
-                    }`}
+                      }`}
                   >
                     {cat.name}
                   </button>
@@ -189,33 +188,30 @@ const ShopPage: React.FC = () => {
               <div className="hidden md:flex items-center gap-1 bg-brand-latte rounded-lg p-1">
                 <button
                   onClick={() => setViewMode("grid-4")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-4"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-4"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="4 column grid"
                 >
                   <GridFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-3")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-3"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-3"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="3 column grid"
                 >
                   <SquaresFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-2")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-2"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-2"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="2 column grid"
                 >
                   <Rows size={16} weight="regular" />
@@ -261,7 +257,7 @@ const ShopPage: React.FC = () => {
             ))}
           </div>
         ) : sortedProducts.length > 0 ? (
-          <motion.div 
+          <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"

@@ -83,44 +83,44 @@ const HomePage: React.FC = () => {
 
     // Fetch category-based UI for collections
     const {
-      categories,
-      isLoading: categoriesLoading,
-      error: categoriesError,
+        categories,
+        isLoading: categoriesLoading,
+        error: categoriesError,
     } = useCategories();
 
     const [activeCollectionCategory, setActiveCollectionCategory] = useState<string>('');
 
     useEffect(() => {
-      if (!activeCollectionCategory && categories?.length) {
-        setActiveCollectionCategory(categories[0].id);
-      }
+        if (!activeCollectionCategory && categories?.length) {
+            setActiveCollectionCategory(categories[0].id);
+        }
     }, [categories, activeCollectionCategory]);
 
     const collectionFilters = React.useMemo(() => {
-      return activeCollectionCategory
-        ? { categoryId: activeCollectionCategory, limit: 4, page: 1 }
-        : { limit: 4, page: 1 };
+        return activeCollectionCategory
+            ? { categoryId: activeCollectionCategory, limit: 4, page: 1 }
+            : { limit: 4, page: 1 };
     }, [activeCollectionCategory]);
 
     const bestsellersFilters = React.useMemo(() => ({ isBestseller: true, limit: 4, page: 1 }), []);
     const newArrivalsFilters = React.useMemo(() => ({ isNew: true, limit: 4, page: 1 }), []);
 
     const {
-      products: collectionProducts,
-      isLoading: collectionLoading,
-      error: collectionError,
+        products: collectionProducts,
+        isLoading: collectionLoading,
+        error: collectionError,
     } = useProducts(collectionFilters);
 
     const {
-      products: bestsellersProducts,
-      isLoading: bestsellersLoading,
-      error: bestsellersError,
+        products: bestsellersProducts,
+        isLoading: bestsellersLoading,
+        error: bestsellersError,
     } = useProducts(bestsellersFilters);
 
     const {
-      products: newArrivalsProducts,
-      isLoading: newArrivalsLoading,
-      error: newArrivalsError,
+        products: newArrivalsProducts,
+        isLoading: newArrivalsLoading,
+        error: newArrivalsError,
     } = useProducts(newArrivalsFilters);
 
     const homepageTestimonials = homepageData?.testimonials || [];
@@ -138,11 +138,11 @@ const HomePage: React.FC = () => {
     }, [homepageTestimonials.length]);
 
     const isAnyLoading =
-      homepageLoading ||
-      categoriesLoading ||
-      collectionLoading ||
-      bestsellersLoading ||
-      newArrivalsLoading;
+        homepageLoading ||
+        categoriesLoading ||
+        collectionLoading ||
+        bestsellersLoading ||
+        newArrivalsLoading;
 
     if (isAnyLoading) {
         return (
@@ -153,7 +153,7 @@ const HomePage: React.FC = () => {
     }
 
     const errorToShow =
-      categoriesError || collectionError || bestsellersError || newArrivalsError;
+        categoriesError || collectionError || bestsellersError || newArrivalsError;
 
     if (errorToShow) {
         return (
@@ -177,7 +177,7 @@ const HomePage: React.FC = () => {
     }
 
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
-    console.log(hero,'hero');
+    console.log(hero, 'hero');
     const sections = Array.isArray(homepageData?.sections) ? homepageData.sections?.filter((section: any) => section?.isActive) : [];
     const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
     const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
@@ -379,7 +379,7 @@ const HomePage: React.FC = () => {
             {collectionsSection && (
                 <section id="collections" className="py-16 px-8 bg-brand-latte">
                     <div className="max-w-7xl mx-auto">
-                       <motion.div
+                        <motion.div
                             variants={fadeUpVariants}
                             initial="hidden"
                             whileInView="visible"
@@ -388,7 +388,7 @@ const HomePage: React.FC = () => {
                             className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
                         >
                             {/* Left Side: Title and Subtitle */}
-                            <div className="max-w-2xl"> 
+                            <div className="max-w-2xl">
                                 <h2
                                     className="font-headline text-4xl text-brand-brown mb-4"
                                     style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
@@ -398,7 +398,7 @@ const HomePage: React.FC = () => {
 
                                 <p className="font-sans text-gray-600">
                                     {collectionsSection?.subtitle ||
-                                    "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
+                                        "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
                                 </p>
                             </div>
 
@@ -436,7 +436,7 @@ const HomePage: React.FC = () => {
                 </section>
             )}
 
-            {bestsellersSection && bestsellers?.length > 0 && ( 
+            {bestsellersSection && bestsellers?.length > 0 && (
                 <section className="py-16 px-8 bg-white">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
@@ -480,7 +480,7 @@ const HomePage: React.FC = () => {
                             ))}
                         </motion.div>
                     </div>
-                </section>  
+                </section>
             )}
 
             {healthWellnessSection && (
@@ -535,7 +535,7 @@ const HomePage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                </section>  
+                </section>
             )}
 
             {newArrivalsSection && newArrivals?.length > 0 && (
@@ -582,7 +582,7 @@ const HomePage: React.FC = () => {
                             ))}
                         </motion.div>
                     </div>
-                </section>  
+                </section>
             )}
 
             {storySection && (
@@ -642,7 +642,7 @@ const HomePage: React.FC = () => {
                         </motion.div>
                     </div>
                 </section>
-            )}          
+            )}
 
             {testimonialsSection && testimonials?.length > 0 && (
                 <section className="py-16 px-8 bg-gradient-1">
@@ -737,7 +737,7 @@ const HomePage: React.FC = () => {
                     </div>
                 </section>
             )}
-         
+
             {instagramSection && instagramPosts?.length > 0 && (
                 <section id="recipes" className="py-16 px-8 bg-brand-latte">
                     <div>
@@ -791,7 +791,7 @@ const HomePage: React.FC = () => {
                             ))}
                         </motion.div>
                     </div>
-                </section>  
+                </section>
             )}
 
             {dynamicSections.map((section) => renderDynamicSection(section))}
@@ -842,8 +842,8 @@ const HomePage: React.FC = () => {
                             </form>
                         </motion.div>
                     </div>
-                </section>  
-            )}           
+                </section>
+            )}
         </div>
     );
 };

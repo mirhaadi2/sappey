@@ -49,15 +49,15 @@ const SignUpModal: React.FC = () => {
 
   const isOpen = authModal === "signup";
 
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors }, 
-    watch, 
-    reset 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    reset
   } = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
-    mode: "onChange" 
+    mode: "onChange"
   });
 
   const userData = watch();
@@ -127,7 +127,7 @@ const SignUpModal: React.FC = () => {
     try {
       // CHANGED: Sending email instead of phone to the verification API
       await authApi.verifyOtp({
-        email: userData.email, 
+        email: userData.email,
         otp: otpValue.join("")
       });
 
@@ -160,7 +160,7 @@ const SignUpModal: React.FC = () => {
 
       // Close modal and let the session take over
       closeAuthModal();
-      
+
       // Reset all states when registration completes
       setStep("info");
       setOtpValue(["", "", "", "", "", ""]);
@@ -237,9 +237,9 @@ const SignUpModal: React.FC = () => {
                   </div>
 
                   {[
-                    { id: "name", icon: <User size={20}/>, placeholder: "Full Name", type: "text" },
-                    { id: "email", icon: <Envelope size={20}/>, placeholder: "Email Address", type: "email" },
-                    { id: "phone", icon: <Phone size={20}/>, placeholder: "Phone Number", type: "tel" }
+                    { id: "name", icon: <User size={20} />, placeholder: "Full Name", type: "text" },
+                    { id: "email", icon: <Envelope size={20} />, placeholder: "Email Address", type: "email" },
+                    { id: "phone", icon: <Phone size={20} />, placeholder: "Phone Number", type: "tel" }
                   ].map((f) => (
                     <div key={f.id} className="relative group">
                       <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors[f.id as keyof RegisterData] ? 'text-red-500' : 'text-gray-400 group-focus-within:text-brand-brown'}`}>
@@ -249,11 +249,10 @@ const SignUpModal: React.FC = () => {
                         {...register(f.id as keyof RegisterData)}
                         type={f.type}
                         placeholder={f.placeholder}
-                        className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all placeholder:text-gray-400 font-medium ${
-                            errors[f.id as keyof RegisterData] 
-                            ? "border-red-500 focus:ring-red-50" 
+                        className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all placeholder:text-gray-400 font-medium ${errors[f.id as keyof RegisterData]
+                            ? "border-red-500 focus:ring-red-50"
                             : "border-transparent focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5"
-                        }`}
+                          }`}
                       />
                       {errors[f.id as keyof RegisterData] && (
                         <p className="text-[11px] text-red-500 mt-1.5 ml-1 font-bold flex items-center gap-1">
@@ -279,7 +278,7 @@ const SignUpModal: React.FC = () => {
                     <ArrowLeft size={16} weight="bold" /> Back
                   </button>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Check your inbox</h3>
-                  <p className="text-gray-500 mb-10">Verification code sent to <br/><span className="font-bold text-gray-700">{userData.email}</span></p>
+                  <p className="text-gray-500 mb-10">Verification code sent to <br /><span className="font-bold text-gray-700">{userData.email}</span></p>
 
                   <div className="flex justify-between gap-2 mb-10">
                     {otpValue.map((val, i) => (

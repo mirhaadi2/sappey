@@ -18,7 +18,7 @@ import {
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  
+
   const navigate = useNavigate();
   const { dispatch } = useCart();
   const { products, isLoading: productsLoading } = useProducts(undefined);
@@ -107,8 +107,8 @@ const ProductDetailPage: React.FC = () => {
 
   const relatedProducts = product
     ? products
-        .filter((p: any) => p.category === product?.category && p.id !== product.id)
-        .slice(0, 4)
+      .filter((p: any) => p.category === product?.category && p.id !== product.id)
+      .slice(0, 4)
     : [];
 
   const handleAddToCart = () => {
@@ -178,13 +178,12 @@ const ProductDetailPage: React.FC = () => {
               {product?.badge && (
                 <span
                   className={`absolute top-4 left-4 font-label text-xs px-3 py-1 rounded-full uppercase tracking-wider 
-                  ${
-                    product?.badge === "Bestseller"
+                  ${product?.badge === "Bestseller"
                       ? "bg-brand-brown text-brand-cream"
                       : product?.badge === "New Arrival"
                         ? "bg-brand-plum text-brand-cream"
                         : "bg-brand-cocoa text-brand-cream"
-                  }`}
+                    }`}
                 >
                   {product?.badge}
                 </span>
@@ -223,11 +222,10 @@ const ProductDetailPage: React.FC = () => {
               {product?.badge && (
                 <span
                   className={`font-label text-xs uppercase tracking-widest px-2 py-1 rounded-full 
-                  ${
-                    product.badge === "Bestseller"
+                  ${product.badge === "Bestseller"
                       ? "bg-brand-brown text-brand-cream"
                       : "bg-brand-plum text-brand-cream"
-                  }`}
+                    }`}
                 >
                   {product?.badge}
                 </span>
@@ -315,11 +313,10 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     key={variant.id}
                     onClick={() => setSelectedVariant(variant.id)}
-                    className={`px-6 py-3 border-2 rounded-lg text-sm font-label transition-all duration-200 ${
-                      selectedVariant === variant.id
+                    className={`px-6 py-3 border-2 rounded-lg text-sm font-label transition-all duration-200 ${selectedVariant === variant.id
                         ? "border-brand-brown bg-brand-brown text-brand-cream"
                         : "border-gray-200 bg-white text-brand-brown hover:border-brand-cocoa"
-                    }`}
+                      }`}
                   >
                     <div className="font-semibold">{variant.label}</div>
                     <div className="text-xs">₹{variant.price.toFixed(2)}</div>
@@ -358,11 +355,10 @@ const ProductDetailPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 className={`flex-1 font-label text-sm py-4 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-widest 
-                ${
-                  addedToCart
+                ${addedToCart
                     ? "bg-success text-brand-cream"
                     : "bg-brand-brown text-brand-cream hover:brand-cocoa"
-                }`}
+                  }`}
                 disabled={addedToCart}
               >
                 {addedToCart ? (

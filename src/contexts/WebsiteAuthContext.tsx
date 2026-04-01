@@ -44,7 +44,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       // Try to fetch current user from session
       // If session is valid, this will succeed; otherwise 401 will be caught
       const currentUser = await websiteAuthService.getCurrentUser();
-      console.log(currentUser,'uer')
+      console.log(currentUser, 'uer')
       setUser(currentUser);
     } catch (err) {
       console.error('Auth check failed:', err);

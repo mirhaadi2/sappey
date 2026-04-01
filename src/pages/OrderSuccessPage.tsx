@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { 
-  Check, 
-  Package, 
-  Truck, 
-  House, 
-  Receipt, 
-  CreditCard, 
+import {
+  Check,
+  Package,
+  Truck,
+  House,
+  Receipt,
+  CreditCard,
   ArrowRight,
   EnvelopeSimple,
   Question
@@ -61,14 +61,14 @@ const OrderSuccessPage: React.FC = () => {
           >
             <Check size={40} weight="bold" />
           </motion.div>
-          <motion.h1 
+          <motion.h1
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl"
           >
             Thanks for your order!
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -81,7 +81,7 @@ const OrderSuccessPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Details */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Status Stepper */}
             <section className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
               <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Order Status</h2>
@@ -89,9 +89,8 @@ const OrderSuccessPage: React.FC = () => {
                 <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-100 -z-0" />
                 {steps.map((step, idx) => (
                   <div key={idx} className="relative z-10 flex flex-col items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${
-                      step.active ? "bg-emerald-600 border-emerald-600 text-white" : "bg-white border-slate-200 text-slate-400"
-                    }`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${step.active ? "bg-emerald-600 border-emerald-600 text-white" : "bg-white border-slate-200 text-slate-400"
+                      }`}>
                       {step.icon}
                     </div>
                     <span className={`mt-3 text-xs font-bold ${step.active ? "text-emerald-600" : "text-slate-400"}`}>
@@ -138,7 +137,7 @@ const OrderSuccessPage: React.FC = () => {
             <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl">
               <h3 className="text-lg font-bold mb-2">Delivery Estimate</h3>
               <p className="text-3xl font-light text-emerald-400 mb-6">{orderData.estimatedDelivery}</p>
-              
+
               <button
                 onClick={() => navigate("/orders")}
                 className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group"

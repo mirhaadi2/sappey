@@ -115,12 +115,12 @@ const CartDrawer: React.FC = () => {
                                                         <button
                                                             onClick={() =>
                                                                 dispatch({
-                                                                type: "UPDATE_QUANTITY",
-                                                                payload: {
-                                                                    productId: item.product.id,
-                                                                    variant: item.variant,
-                                                                    quantity: item.quantity - 1,
-                                                                },
+                                                                    type: "UPDATE_QUANTITY",
+                                                                    payload: {
+                                                                        productId: item.product.id,
+                                                                        variant: item.variant,
+                                                                        quantity: item.quantity - 1,
+                                                                    },
                                                                 })
                                                             }
                                                             disabled={item.quantity <= 1}

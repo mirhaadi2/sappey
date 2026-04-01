@@ -38,12 +38,12 @@ const CheckoutPage: React.FC = () => {
   // Calculate order summary
   const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
   const isFreeDelivery = paymentMethod === "cod";
-  
+
   const orderSummary: OrderSummary = {
     items: state.items.length,
-    subtotal: state.items.reduce((sum, item) => sum + ( (typeof item.variant === 'object' && item.variant.price)
-          ? item.variant.price
-          : item.product.price) * item.quantity, 0),
+    subtotal: state.items.reduce((sum, item) => sum + ((typeof item.variant === 'object' && item.variant.price)
+      ? item.variant.price
+      : item.product.price) * item.quantity, 0),
     tax: 0,
     shipping: isFreeDelivery ? 0 : originalShipping,
     total: 0,
@@ -85,15 +85,15 @@ const CheckoutPage: React.FC = () => {
       };
 
       console.log("📤 Sending order data to API:", orderData);
-      
+
       const newOrder = await placeOrder(orderData);
-      
+
       console.log("✓ Order created successfully:", newOrder);
-      
+
       // Clear cart
       dispatch({ type: "CLEAR_CART" });
       console.log("✓ Cart cleared");
-      
+
       // Navigate to success page with order details
       navigate("/order-success", {
         state: {
@@ -111,7 +111,7 @@ const CheckoutPage: React.FC = () => {
           itemCount: state.items.length,
         },
       });
-      
+
     } catch (err) {
       console.error("✗ Failed to place order:", err);
       // Error is already set in the orderError state from the hook
@@ -179,23 +179,21 @@ const CheckoutPage: React.FC = () => {
               {(["shipping", "payment", "review", "confirmation"] as const).map((step, idx) => (
                 <div key={step} className="flex items-center flex-1">
                   <motion.div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition ${
-                      orderStep === step
+                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition ${orderStep === step
                         ? "bg-brand-brown text-white"
                         : idx < (["shipping", "payment", "review", "confirmation"] as const).indexOf(orderStep)
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
                   >
                     {idx + 1}
                   </motion.div>
                   {idx < 3 && (
                     <div
-                      className={`flex-1 h-1 mx-2 transition ${
-                        idx < (["shipping", "payment", "review", "confirmation"] as const).indexOf(orderStep)
+                      className={`flex-1 h-1 mx-2 transition ${idx < (["shipping", "payment", "review", "confirmation"] as const).indexOf(orderStep)
                           ? "bg-green-500"
                           : "bg-gray-300"
-                      }`}
+                        }`}
                     />
                   )}
                 </div>
@@ -588,70 +586,70 @@ const CheckoutPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="lg:col-span-1"
             >
-            <div className="sticky top-32 bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
-              <h3 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
-                <Package size={24} />
-                Order Summary
-              </h3>
+              <div className="sticky top-32 bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
+                <h3 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
+                  <Package size={24} />
+                  Order Summary
+                </h3>
 
-              <div className="space-y-4 mb-6 pb-6 border-b border-gray-200 max-h-80 overflow-y-auto">
-                {state.items?.map((item) => (
-                  <div key={`${item.product.id}-${getVariantKey(item.variant)}`} className="flex items-start gap-4">
-                    <img
-                      src={item.product.images?.[0] || "https://via.placeholder.com/150"}
-                      alt={item.product.name}
-                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate text-sm">{item.product.name}</p>
-                      <p className="font-sans text-xs text-gray-500 mt-1">
-                        Weight: {item.variant?.label || "Standard"}
-                      </p>
-                      <p className="text-gray-600 text-xs mt-1">Qty: {item.quantity}</p>
-                      <p className="font-bold text-brand-brown text-sm mt-1">
-                        ₹{(((typeof item.variant === 'object' && item.variant.price)
-                                                            ? item.variant.price
-                                                            : item.product.price) * item.quantity).toFixed(2)}
-                      </p>
+                <div className="space-y-4 mb-6 pb-6 border-b border-gray-200 max-h-80 overflow-y-auto">
+                  {state.items?.map((item) => (
+                    <div key={`${item.product.id}-${getVariantKey(item.variant)}`} className="flex items-start gap-4">
+                      <img
+                        src={item.product.images?.[0] || "https://via.placeholder.com/150"}
+                        alt={item.product.name}
+                        className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 truncate text-sm">{item.product.name}</p>
+                        <p className="font-sans text-xs text-gray-500 mt-1">
+                          Weight: {item.variant?.label || "Standard"}
+                        </p>
+                        <p className="text-gray-600 text-xs mt-1">Qty: {item.quantity}</p>
+                        <p className="font-bold text-brand-brown text-sm mt-1">
+                          ₹{(((typeof item.variant === 'object' && item.variant.price)
+                            ? item.variant.price
+                            : item.product.price) * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₹{orderSummary?.subtotal?.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Tax</span>
+                    <span>₹{orderSummary?.tax?.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Shipping</span>
+                    <div className="flex items-center gap-2">
+                      {isFreeDelivery ? (
+                        <>
+                          <span className="text-gray-400 line-through text-sm">₹{originalShipping.toFixed(2)}</span>
+                          <span className="text-green-600 font-bold text-sm">FREE</span>
+                        </>
+                      ) : (
+                        <span className="text-gray-600">₹{orderSummary?.shipping?.toFixed(2)}</span>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{orderSummary?.subtotal?.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
-                  <span>₹{orderSummary?.tax?.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Shipping</span>
-                  <div className="flex items-center gap-2">
-                    {isFreeDelivery ? (
-                      <>
-                        <span className="text-gray-400 line-through text-sm">₹{originalShipping.toFixed(2)}</span>
-                        <span className="text-green-600 font-bold text-sm">FREE</span>
-                      </>
-                    ) : (
-                      <span className="text-gray-600">₹{orderSummary?.shipping?.toFixed(2)}</span>
-                    )}
+                  {isFreeDelivery && orderStep !== "shipping" && (
+                    <div className="text-center py-2 bg-green-50 rounded-lg">
+                      <p className="text-green-600 text-xs font-bold">✨ FREE Delivery - Launch Offer</p>
+                    </div>
+                  )}
+                  <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
                   </div>
                 </div>
-                {isFreeDelivery && orderStep !== "shipping" && (
-                  <div className="text-center py-2 bg-green-50 rounded-lg">
-                    <p className="text-green-600 text-xs font-bold">✨ FREE Delivery - Launch Offer</p>
-                  </div>
-                )}
-                <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
-                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
           )}
         </div>
       </main>

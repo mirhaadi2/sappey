@@ -334,8 +334,8 @@ const Header: React.FC = () => {
                                         key={link.href}
                                         onClick={() => handleNavClick(link.href)}
                                         className={`font-label text-sm px-4 py-3 rounded-lg text-left transition-all duration-200 cursor-pointer ${isActive(link?.href)
-                                                ? "text-brand-brown font-500 bg-brand-latte"
-                                                : "text-brand-brown hover:bg-brand-latte"
+                                            ? "text-brand-brown font-500 bg-brand-latte"
+                                            : "text-brand-brown hover:bg-brand-latte"
                                             }`}
                                     >
                                         {link?.label}

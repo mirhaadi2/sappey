@@ -18,14 +18,14 @@ const Footer: React.FC = () => {
                     <div className="space-y-6">
                         <Link to="/" className="inline-block group">
                             <h2 className="font-headline text-3xl font-black tracking-tighter text-white">
-                            SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-colors">.COM</span>
+                                SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-colors">.COM</span>
                             </h2>
                         </Link>
 
                         {/* Brand Description */}
                         <p className="font-sans text-sm text-slate-200 leading-relaxed max-w-xs">
-                            Connecting you directly with local farmers to deliver peak-season dry fruits, 
-                            professionally vacuum-sealed and delivered from the harvest source to 
+                            Connecting you directly with local farmers to deliver peak-season dry fruits,
+                            professionally vacuum-sealed and delivered from the harvest source to
                             your doorstep.
                         </p>
                         <div className="flex items-center gap-4">
@@ -92,20 +92,20 @@ const Footer: React.FC = () => {
 
                     {/* Legal Links */}
                     <div className="flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-slate-200">
-                        <Link 
-                            to="/privacy-policy" 
+                        <Link
+                            to="/privacy-policy"
                             className="hover:text-orange-500 transition-colors duration-200"
                         >
                             Privacy Policy
                         </Link>
-                        <Link 
-                            to="/terms-and-conditions" 
+                        <Link
+                            to="/terms-and-conditions"
                             className="hover:text-orange-500 transition-colors duration-200"
                         >
                             Terms of Service
                         </Link>
-                        <Link 
-                            to="/sitemap" 
+                        <Link
+                            to="/sitemap"
                             className="hover:text-orange-500 transition-colors duration-200"
                         >
                             Sitemap

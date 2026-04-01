@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import {
   User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check, X,
-  Warning, CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag
+  CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -89,8 +89,8 @@ const ProfilePage: React.FC = () => {
 
   const handleAddressSubmit = (data: AddressFormData) => {
     if (editingAddressId) {
-      updateAddress({ 
-        ...data, 
+      updateAddress({
+        ...data,
         id: editingAddressId,
         type: (selectedAddressType as any) || "HOME"
       });
@@ -144,7 +144,7 @@ const ProfilePage: React.FC = () => {
 
       <main className="max-w-6xl mx-auto px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Profile Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -244,11 +244,10 @@ const ProfilePage: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleSelectAddressType(type.id)}
-                              className={`p-3 rounded-xl border-2 transition flex flex-col items-center gap-1 text-sm ${
-                                selectedAddressType === type.id
+                              className={`p-3 rounded-xl border-2 transition flex flex-col items-center gap-1 text-sm ${selectedAddressType === type.id
                                   ? "border-brand-brown bg-brand-brown/10 text-brand-brown"
                                   : "border-gray-300 bg-white text-gray-700 hover:border-brand-brown/50"
-                              }`}
+                                }`}
                             >
                               <IconComponent size={24} weight={selectedAddressType === type.id ? "fill" : "regular"} />
                               <span className="text-xs font-semibold">{type.label}</span>
@@ -423,11 +422,10 @@ const ProfilePage: React.FC = () => {
                   <motion.div
                     key={address.id}
                     layout
-                    className={`p-6 rounded-2xl border-2 transition-all ${
-                      address.isDefault
+                    className={`p-6 rounded-2xl border-2 transition-all ${address.isDefault
                         ? "border-brand-brown bg-gradient-to-br from-brand-brown/5 to-brand-latte"
                         : "border-gray-200 bg-white hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
@@ -463,7 +461,7 @@ const ProfilePage: React.FC = () => {
                         >
                           <Pencil size={18} />
                         </motion.button>
-                        
+
                         {!address.isDefault && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}

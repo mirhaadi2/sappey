@@ -29,15 +29,16 @@ export interface CreateOrderData {
 }
 
 export interface Order {
+  itemsCount: any;
   id: string;
   orderNumber: string;
   customerId: string;
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
-  totalAmount: number;
+  totalAmount: string;
   discountAmount: number;
-  taxAmount: number;
-  shippingCost: number;
-  finalAmount: number;
+  taxAmount: string;
+  shippingCost: string;
+  finalAmount: string;
   paymentStatus: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
   paymentMethod?: string;
   shippingAddressId: string;
