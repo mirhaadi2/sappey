@@ -7,6 +7,7 @@ export interface ProductVariant {
     discountedPrice?: number;
     discountedPercent?: number;
     weight?: string | number;
+    weightUnit?: string;
     sku?: string;
     status?: string;
 }

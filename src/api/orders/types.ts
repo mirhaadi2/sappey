@@ -12,9 +12,17 @@ export interface OrderItemDetail extends OrderItem {
   productName?: string;
   productImage?: string;
   variantLabel?: string;
+  unitPrice?: string;
+  totalPrice?: string;
+  discountAmount?: string;
+  taxAmount?: string;
   weight?: string;
   category?: string;
   seller?: string;
+  subtotal?: string;
+  metadata?: Record<string, any>;
+  status?: string;
+  id?: string;
 }
 
 export interface CreateOrderData {

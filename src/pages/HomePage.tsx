@@ -13,7 +13,7 @@ import {
     Quotes,
 } from "@phosphor-icons/react";
 import ProductCard from "../components/ProductCard";
-import { useHomepageData, Hero } from "../api/homepage";
+import { useHomepageData, Hero, Section, Testimonial, InstagramPost } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
 import { Product } from "../types";
 import { HomeSkeleton } from "../components/Skeletons";
@@ -175,39 +175,38 @@ const HomePage: React.FC = () => {
     }
 
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
-    console.log(hero, 'hero');
-    const sections = Array.isArray(homepageData?.sections) ? (homepageData.sections as unknown as Record<string, unknown>[])?.filter((section: Record<string, unknown>) => section?.isActive) : [];
-    const testimonials = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as unknown as Record<string, unknown>[])?.filter((testimony: Record<string, unknown>) => testimony?.isActive) : [];
-    const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as unknown as Record<string, unknown>[])?.filter((post: Record<string, unknown>) => post?.isActive) : [];
+    const sections: Section[] = Array.isArray(homepageData?.sections) ? (homepageData.sections as Section[])?.filter((section: Section) => section?.isActive) : [];
+    const testimonials: Testimonial[] = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as Testimonial[])?.filter((testimony: Testimonial) => testimony?.isActive) : [];
+    const instagramPosts: InstagramPost[] = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as InstagramPost[])?.filter((post: InstagramPost) => post?.isActive) : [];
 
     const collections = Array.isArray(collectionProducts) ? collectionProducts : [];
     const bestsellers = Array.isArray(bestsellersProducts) ? bestsellersProducts : [];
     const newArrivals = Array.isArray(newArrivalsProducts) ? newArrivalsProducts : [];
 
-    // Get specific sections
-    const collectionsSection = sections.find(
-        (s) => s.sectionType === "collections" && s.isActive,
+    // Get specific sections with proper typing
+    const collectionsSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "collections" && s.isActive,
     );
-    const bestsellersSection = sections.find(
-        (s) => s.sectionType === "bestsellers" && s.isActive,
+    const bestsellersSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "bestsellers" && s.isActive,
     );
-    const healthWellnessSection = sections.find(
-        (s) => s.sectionType === "health_wellness" && s.isActive,
+    const healthWellnessSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "health_wellness" && s.isActive,
     );
-    const newArrivalsSection = sections.find(
-        (s) => s.sectionType === "new_arrivals" && s.isActive,
+    const newArrivalsSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "new_arrivals" && s.isActive,
     );
-    const storySection = sections.find(
-        (s) => s.sectionType === "story" && s.isActive
+    const storySection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "story" && s.isActive
     );
-    const testimonialsSection = sections.find(
-        (s) => s.sectionType === "testimonials" && s.isActive,
+    const testimonialsSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "testimonials" && s.isActive,
     );
-    const instagramSection = sections.find(
-        (s) => s.sectionType === "instagram" && s.isActive
+    const instagramSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "instagram" && s.isActive
     );
-    const contactSection = sections.find(
-        (s) => s.sectionType === "contact" && s.isActive
+    const contactSection: Section | undefined = sections.find(
+        (s: Section) => s.sectionType === "contact" && s.isActive
     );
 
     const knownSectionTypes = [
@@ -221,31 +220,21 @@ const HomePage: React.FC = () => {
         "contact",
     ];
 
-    const dynamicSections = sections
-        .filter((s) => !knownSectionTypes.includes(String(s.sectionType)) && s.isActive)
-        .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    const dynamicSections: Section[] = sections
+        .filter((s: Section) => !knownSectionTypes.includes(s.sectionType) && s.isActive)
+        .sort((a: Section, b: Section) => (a.order || 0) - (b.order || 0));
 
-    const renderDynamicSection = (s: Record<string, unknown>) => {
-        const sectionId = String(s.id ?? '');
-        const sectionType = String(s.sectionType ?? '');
-        const title = String(s.title ?? '');
-        const subtitle = String(s.subtitle ?? '');
-        const content = String(s.content ?? '');
-        const buttonLink = String(s.buttonLink ?? '');
-        const buttonText = String(s.buttonText ?? '');
-        const backgroundImageUrl = String(s.backgroundImageUrl ?? '');
-        const imageUrl = String(s.imageUrl ?? '');
-        
+    const renderDynamicSection = (s: Section): React.ReactNode => {
         return (
-        <section key={sectionId} className="relative overflow-hidden" aria-label={`${sectionType} banner`}>
+        <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
             <div className="relative h-80 md:h-96">
                 <img
                     src={
-                        backgroundImageUrl ||
-                        imageUrl ||
+                        s.backgroundImageUrl ||
+                        s.imageUrl ||
                         "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
                     }
-                    alt={`${sectionType} banner`}
+                    alt={`${s.sectionType} banner`}
                     className="w-full h-full object-cover"
                     loading="lazy"
                 />
@@ -260,23 +249,23 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                         >
                             <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                {formatSectionTitle(sectionType)}
+                                {formatSectionTitle(s.sectionType)}
                             </span>
                             <h2
                                 className="font-headline text-4xl text-brand mb-4 text-brand-cream"
                                 style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                             >
-                                {title || formatSectionTitle(sectionType)}
+                                {s.title}
                             </h2>
                             <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                {subtitle || content || "Discover more about our premium products."}
+                                {s.subtitle || s.content || "Discover more about our premium products."}
                             </p>
-                            {buttonLink && buttonText && (
+                            {s.buttonLink && s.buttonText && (
                                 <button
-                                    onClick={() => navigate(buttonLink)}
+                                    onClick={() => navigate(s.buttonLink!)}
                                     className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
                                 >
-                                    {buttonText}
+                                    {s.buttonText}
                                 </button>
                             )}
                         </motion.div>
@@ -284,7 +273,7 @@ const HomePage: React.FC = () => {
                 </div>
             </div>
         </section>
-    );
+        );
     };
 
     return (
@@ -675,7 +664,7 @@ const HomePage: React.FC = () => {
                         </motion.div>
 
                         <div className="relative min-h-48">
-                            {testimonials?.map((t: Record<string, unknown>, i: number) => (
+                            {testimonials?.map((t: Testimonial, i: number) => (
                                 <motion.div
                                     key={t.id}
                                     initial={{ opacity: 0 }}
@@ -692,7 +681,7 @@ const HomePage: React.FC = () => {
                                         className="text-brand-cream opacity-40 mb-4"
                                     />
                                     <p className="font-sans text-lg text-brand-cream opacity-95 leading-relaxed mb-6 max-w-2xl">
-                                        "{t.comment}"
+                                        "{t.content}"
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-brand-cocoa flex items-center justify-center">
@@ -700,7 +689,7 @@ const HomePage: React.FC = () => {
                                                 className="font-label text-sm text-brand-cream font-500"
                                                 style={{ fontWeight: 500 }}
                                             >
-                                                {t?.author?.charAt(0)?.toUpperCase() || "U"}
+                                                {t.name?.charAt(0)?.toUpperCase() || "U"}
                                             </span>
                                         </div>
 
@@ -709,15 +698,15 @@ const HomePage: React.FC = () => {
                                                 className="font-label text-sm  text-brand-cream"
                                                 style={{ fontWeight: 500 }}
                                             >
-                                                {t?.author}
+                                                {t.name}
                                             </p>
                                             <p className="font-sans text-xs text-brand-cream opacity-70">
-                                                {t?.location}
+                                                {t.role || "Customer"}
                                             </p>
                                         </div>
 
                                         <div className="flex items-center gap-1 ml-2">
-                                            {Array.from({ length: t?.rating })?.map((_, i) => (
+                                            {Array.from({ length: t.rating })?.map((_, i: number) => (
                                                 <Star
                                                     key={i}
                                                     size={14}
@@ -732,7 +721,7 @@ const HomePage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-center gap-2 mt-16">
-                            {testimonials?.map((_: Record<string, unknown>, i: number) => (
+                            {testimonials?.map((_: Testimonial, i: number) => (
                                 <button
                                     key={i}
                                     onClick={() => setTestimonialIndex(i)}
@@ -780,7 +769,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
                         >
-                            {instagramPosts?.map((post: Record<string, unknown>, i: number) => (
+                            {instagramPosts?.map((post: InstagramPost, i: number) => (
                                 <motion.a
                                     key={post.id}
                                     href={post.postUrl || "https://instagram.com"}

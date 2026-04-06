@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProduct, useProducts } from "../api/exports";
@@ -6,6 +6,7 @@ import { useCart } from "../context/CardContext";
 import { useHomepagePromotions } from "../api/promotions";
 import ProductCard from "../components/ProductCard";
 import { ProductDetailSkeleton } from "../components/Skeletons";
+import { Product, ProductVariant, NutritionFact, Review } from "../types";
 import {
   Star,
   Minus,
@@ -34,44 +35,54 @@ const ProductDetailPage: React.FC = () => {
   const { data: promotionBanners = [] } = useHomepagePromotions();
   const hasBanner = promotionBanners && promotionBanners.length > 0;
   // Add padding-top to account for fixed header: Banner(32px) + Header(64px) = 96px when banner present
-  const topPadding = hasBanner ? "pt-24" : "pt-16";
+  // const topPadding = hasBanner ? "pt-24" : "pt-16";
 
 const variantOptions = useMemo(() => {
     if (!product) return [];
 
-    const options: Record<string, unknown>[] = [];
+    const options: ProductVariant[] = [];
 
-    // 1. Add additional variants if they exist
+    // Add variants if they exist
     if (Array.isArray(product?.variants)) {
-      (product?.variants as Array<string | ProductVariant>)?.forEach?.((variant: string | ProductVariant) => {
-        options.push({
-          id: variant?.id,
-          productId: variant?.productId,
-          label: `${Math.floor(Number(variant?.weight ?? 0))} ${variant?.weightUnit ?? "Grams"}`,
-          weight: `${Math.floor(Number(variant?.weight ?? 0))} ${variant?.weightUnit ?? "Grams"}`,
-          price: Number(variant?.price ?? 0),
-          sku: variant?.sku,
-          status: variant?.status,
-          isMaster: false,
-        });
+      (product?.variants as Array<string | ProductVariant>).forEach((variant: string | ProductVariant) => {
+        // Type guard: only process if it's a ProductVariant object
+        if (typeof variant !== 'string' && variant && 'id' in variant) {
+          options.push({
+            id: variant.id,
+            productId: variant.productId,
+            label: variant.label,
+            price: variant.price,
+            originalPrice: variant.originalPrice,
+            discountedPrice: variant.discountedPrice,
+            discountedPercent: variant.discountedPercent,
+            weight: variant.weight,
+            weightUnit: variant.weightUnit,
+            sku: variant.sku,
+            status: variant.status,
+          });
+        }
       });
     }
 
-    // 3. Sort by weight ascending (100g -> 250g -> 500g -> 1000g)
-    return options.sort((a, b) => a.weight - b.weight);
+    // Sort by weight ascending
+    return options.sort((a, b) => {
+      const weightA = typeof a.weight === 'string' ? parseFloat(a.weight) : (a.weight || 0);
+      const weightB = typeof b.weight === 'string' ? parseFloat(b.weight) : (b.weight || 0);
+      return weightA - weightB;
+    });
   }, [product]);
 
-  const selectedVariantData = useMemo(() => {
+  const selectedVariantData: ProductVariant | null = useMemo(() => {
     if (!variantOptions || variantOptions.length === 0) return null;
     const found = variantOptions.find(
-      (item: Record<string, unknown>) => item.id === selectedVariant,
+      (item: ProductVariant) => item.id === selectedVariant,
     );
-    return found || variantOptions[0];
+    return found || variantOptions[0] || null;
   }, [selectedVariant, variantOptions]);
 
   useEffect(() => {
     if (variantOptions.length > 0 && !selectedVariant) {
-      setSelectedVariant(variantOptions[0].id);
+      setSelectedVariant(String(variantOptions[0].id ?? ""));
     }
   }, [variantOptions, selectedVariant]);
 
@@ -106,18 +117,18 @@ const variantOptions = useMemo(() => {
     );
   }
 
-  const relatedProducts = product
+  const relatedProducts: Product[] = product
     ? (products ?? [])
       .filter((p: Product) => p?.category === product?.category && p?.id !== product?.id)
       .slice(0, 4)
     : [];
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || !selectedVariantData) return;
     dispatch({
       type: "ADD_ITEM",
       payload: {
-        product: { ...product, price: selectedVariantData?.price || 0 } as any,
+        product: { ...product, price: selectedVariantData.price || 0 } as Product,
         variant: selectedVariantData,
         quantity,
       },
@@ -127,11 +138,11 @@ const variantOptions = useMemo(() => {
   };
 
   const handleBuyNow = () => {
-    if (!product) return;
+    if (!product || !selectedVariantData) return;
     dispatch({
       type: "ADD_ITEM",
       payload: {
-        product: { ...product, price: selectedVariantData?.price || 0 } as any,
+        product: { ...product, price: selectedVariantData.price || 0 } as Product,
         variant: selectedVariantData,
         quantity,
       },
@@ -140,7 +151,7 @@ const variantOptions = useMemo(() => {
   };
 
   return (
-    <div className={`min-h-screen bg-brand-latte text-foreground ${topPadding}`}>
+    <div className={`min-h-screen bg-brand-latte text-foreground pt-2 ${hasBanner ? "pt-4" : ""}`}>
       <div className="bg-white border-b border-gray-200 px-8 py-4 mt-4">
         {/* Image Gallery */}
         <div className="max-w-7xl mx-auto flex items-center gap-2">
@@ -289,7 +300,7 @@ const variantOptions = useMemo(() => {
                   "Free shipping on orders above $49",
                   "Use SAPPEY10 for 10% off your first order",
                   "Buy 2 get 5% off | Buy 3 get 10% off",
-                ]?.map((offer: Record<string, unknown>) => (
+                ]?.map((offer: string) => (
                   <li key={offer} className="flex items-start gap-2">
                     <Check
                       size={14}
@@ -310,17 +321,17 @@ const variantOptions = useMemo(() => {
               </h3>
 
               <div className="flex flex-wrap gap-2">
-                {variantOptions.map((variant: Record<string, unknown>) => (
+                {variantOptions.map((variant: ProductVariant) => (
                   <button
                     key={variant.id}
-                    onClick={() => setSelectedVariant(variant.id)}
+                    onClick={() => setSelectedVariant(String(variant.id))}
                     className={`px-6 py-3 border-2 rounded-lg text-sm font-label transition-all duration-200 ${selectedVariant === variant.id
                         ? "border-brand-brown bg-brand-brown text-brand-cream"
                         : "border-gray-200 bg-white text-brand-brown hover:border-brand-cocoa"
                       }`}
                   >
                     <div className="font-semibold">{variant.label}</div>
-                    <div className="text-xs">₹{variant.price.toFixed(2)}</div>
+                    <div className="text-xs">₹{Number(variant.price).toFixed(2)}</div>
                   </button>
                 ))}
               </div>
@@ -423,22 +434,26 @@ const variantOptions = useMemo(() => {
             Per 100g serving
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {product?.nutrition?.map((fact: Record<string, unknown>) => (
-              <div
-                key={fact?.label}
-                className="bg-brand-latte rounded-lg p-4 text-center"
-              >
-                <p
-                  className="font-headline text-xl text-brand-brown mb-1"
-                  style={{ fontWeight: 600 }}
+            {product?.nutrition?.map((fact: string | NutritionFact) => {
+              // Type guard to handle both string and object
+              if (typeof fact === 'string') return null;
+              return (
+                <div
+                  key={fact?.label}
+                  className="bg-brand-latte rounded-lg p-4 text-center"
                 >
-                  {fact?.value}
-                </p>
-                <p className="font-label text-xs text-gray-500 uppercase tracking-wider">
-                  {fact?.label}
-                </p>
-              </div>
-            ))}
+                  <p
+                    className="font-headline text-xl text-brand-brown mb-1"
+                    style={{ fontWeight: 600 }}
+                  >
+                    {fact?.value}
+                  </p>
+                  <p className="font-label text-xs text-gray-500 uppercase tracking-wider">
+                    {fact?.label}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </motion.section>
 
@@ -458,7 +473,9 @@ const variantOptions = useMemo(() => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {product?.reviews?.map((review: Record<string, unknown>) => (
+            {product?.reviews?.map((review: string | Review) => {
+              if (typeof review === 'string') return null;
+              return (
               <div
                 key={review?.id}
                 className="bg-white rounded-lg border border-gray-200 p-6"
@@ -500,7 +517,8 @@ const variantOptions = useMemo(() => {
                   {review?.comment}
                 </p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </motion.section>
 

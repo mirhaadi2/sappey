@@ -6,6 +6,7 @@ import {
     Clock, WarningCircle, Handshake,
     MapPin, ArrowCounterClockwise, Prohibit
 } from "@phosphor-icons/react";
+import { OrderItemDetail } from "../api/orders";
 
 // --- Extended Type Definition ---
 type OrderStatus = 
@@ -14,7 +15,7 @@ type OrderStatus =
     | "RTO" | "CANCELLED" | "FAILED";
 
 interface OrderItemCardProps {
-    item: Record<string, unknown>;
+    item: OrderItemDetail;
     index?: number;
     onRemove?: (id: string) => void;
     onQuantityChange?: (id: string, quantity: number) => void;
