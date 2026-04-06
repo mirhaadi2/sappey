@@ -2,44 +2,41 @@ import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    ArrowLeft,
-    Package,
-    MapPin,
-    CreditCard,
-    Truck,
-    Clock,
-    CheckCircle,
-    XCircle,
-    Warning,
-    Printer,
-    DownloadSimple,
-    Phone,
-    Copy,
-    CheckFat,
-    Prohibit,
-    Receipt,
+    ArrowLeft, Package, MapPin, CreditCard, Truck, Clock, 
+    CheckCircle, XCircle, Warning, Printer, DownloadSimple, 
+    Phone, Copy, CheckFat, Prohibit, Receipt, SealCheck, 
+    Handshake, WarningCircle, ArrowCounterClockwise
 } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useAuth } from "../context/AuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
 
-// --- Types & Constants ---
-type OrderStatus = "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED";
+// --- Types ---
+type OrderStatus = 
+    | "PENDING" | "CONFIRMED" | "PROCESSING" | "PACKED" | "HANDOVER" 
+    | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "DELIVERY_FAILED" 
+    | "RTO" | "CANCELLED" | "FAILED";
 
+// --- UI Theme Mapping (Synchronized with your STATUS_CONFIG) ---
 const STATUS_THEME: Record<OrderStatus, { bg: string; text: string; border: string; icon: any }> = {
-    PENDING: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100", icon: Clock },
-    CONFIRMED: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", icon: CheckCircle },
-    PROCESSING: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-100", icon: Package },
+    PENDING: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-100", icon: Clock },
+    CONFIRMED: { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-100", icon: SealCheck },
+    PROCESSING: { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-100", icon: Package },
+    PACKED: { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-100", icon: Package },
+    HANDOVER: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", icon: Handshake },
     SHIPPED: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-100", icon: Truck },
+    OUT_FOR_DELIVERY: { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-100", icon: MapPin },
     DELIVERED: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", icon: CheckCircle },
-    CANCELLED: { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200", icon: Prohibit },
-    FAILED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", icon: XCircle },
+    DELIVERY_FAILED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-100", icon: WarningCircle },
+    RTO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-100", icon: ArrowCounterClockwise },
+    CANCELLED: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", icon: Prohibit },
+    FAILED: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200", icon: WarningCircle },
 };
 
 const TIMELINE_STEPS = [
     { status: "PENDING", label: "Order Placed", icon: Receipt },
-    { status: "CONFIRMED", label: "Confirmed", icon: CheckCircle },
+    { status: "CONFIRMED", label: "Confirmed", icon: SealCheck },
     { status: "PROCESSING", label: "Processing", icon: Package },
     { status: "SHIPPED", label: "In Transit", icon: Truck },
     { status: "DELIVERED", label: "Delivered", icon: CheckFat },
@@ -54,8 +51,8 @@ const OrderDetailsPage: React.FC = () => {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-    // --- Logic ---
     const copyToClipboard = (text: string, field: string) => {
+        if (!text) return;
         navigator.clipboard.writeText(text);
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
@@ -63,25 +60,30 @@ const OrderDetailsPage: React.FC = () => {
 
     const timelineData = useMemo(() => {
         if (!order) return [];
-        const statusOrder: OrderStatus[] = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"];
-        const currentIndex = statusOrder.indexOf(order.status as OrderStatus);
+        const statusOrder: string[] = TIMELINE_STEPS.map(s => s.status);
+        
+        // Logical mapping for internal steps (PACKED/HANDOVER fall under PROCESSING in the visual timeline)
+        let mappedStatus = order.status;
+        if (["PACKED", "HANDOVER"].includes(order.status)) mappedStatus = "PROCESSING";
+        if (["OUT_FOR_DELIVERY"].includes(order.status)) mappedStatus = "SHIPPED";
+
+        const currentIndex = statusOrder.indexOf(mappedStatus);
 
         return TIMELINE_STEPS.map((step, idx) => ({
             ...step,
-            isCompleted: idx < currentIndex,
-            isActive: idx === currentIndex,
+            isCompleted: idx < currentIndex || (order.status === "DELIVERED" && idx === currentIndex),
+            isActive: idx === currentIndex && order.status !== "DELIVERED",
             isUpcoming: idx > currentIndex
         }));
     }, [order]);
 
-    // --- Render States ---
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="text-center p-8 bg-white rounded-3xl shadow-xl border border-slate-200 max-w-sm">
                     <Warning size={48} weight="duotone" className="mx-auto text-amber-500 mb-4" />
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Authentication Required</h2>
-                    <p className="text-slate-500 mb-6">Please log in to your account to track enterprise shipments.</p>
+                    <p className="text-slate-500 mb-6">Please log in to track enterprise shipments.</p>
                     <button onClick={() => navigate("/")} className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition">Return to Login</button>
                 </div>
             </div>
@@ -92,8 +94,8 @@ const OrderDetailsPage: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-                    <p className="font-bold text-slate-400 animate-pulse uppercase tracking-widest text-xs">Fetching Transaction Details</p>
+                    <div className="w-12 h-12 border-4 border-slate-200 border-t-[#9a5d2e] rounded-full animate-spin" />
+                    <p className="font-bold text-slate-400 animate-pulse uppercase tracking-widest text-xs">Fetching Ledger Data</p>
                 </div>
             </div>
         );
@@ -105,7 +107,6 @@ const OrderDetailsPage: React.FC = () => {
                 <div className="text-center max-w-md bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
                     <XCircle size={64} weight="duotone" className="mx-auto text-rose-500 mb-4" />
                     <h2 className="text-2xl font-black text-slate-900 mb-2">Order Not Located</h2>
-                    <p className="text-slate-500 mb-8 font-medium">The order reference provided does not match our current records or has been archived.</p>
                     <button onClick={() => navigate("/orders")} className="inline-flex items-center gap-2 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-200">
                         <ArrowLeft weight="bold" /> Back to Ledger
                     </button>
@@ -114,20 +115,15 @@ const OrderDetailsPage: React.FC = () => {
         );
     }
 
-    const currentTheme = STATUS_THEME[order.status as OrderStatus] || STATUS_THEME.PENDING;
-    const StatusIcon = currentTheme.icon;
-
     return (
         <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-8">
             <div className="max-w-6xl mx-auto">
-
-                {/* Navigation & Actions Header */}
+                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <button onClick={() => navigate("/orders")} className="group flex items-center gap-2 text-slate-500 hover:text-[#9a5d2e] font-bold transition-all text-sm uppercase tracking-wider">
                         <ArrowLeft size={20} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
                         Back to All Orders
                     </button>
-
                     <div className="flex items-center gap-3">
                         <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 transition shadow-sm">
                             <Printer size={18} weight="bold" /> Print Record
@@ -138,214 +134,127 @@ const OrderDetailsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Primary Status Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-[2rem] border-2 p-6 px-10 mb-8 bg-white border-brand-brown/5 shadow-sm"
-                >
-                    {/* Background Accent - Very subtle leaf or pattern feel */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cream/20 rounded-bl-full -z-0" />
-
+                {/* Status Card */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[2rem] border-2 p-6 px-10 mb-8 bg-white border-brand-brown/5 shadow-sm">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-6">
                         <div>
                             <div className="flex items-center gap-3 mb-3">
-                                <span className="font-label text-[10px] font-black uppercase tracking-[0.3em] text-brand-brown/40">
-                                    Harvest Tracking Info
-                                </span>
+                                <span className="font-label text-[10px] font-black uppercase tracking-[0.3em] text-brand-brown/40">Tracking Reference</span>
                                 <div className={`w-2 h-2 rounded-full animate-pulse ${order.status === 'DELIVERED' ? 'bg-emerald-500' : 'bg-orange-500'}`} />
                             </div>
-
-                            <h1 className="font-headline text-3xl font-black text-brand-brown tracking-tighter mb-2 ">
-                                Order Number: {order.orderNumber}
-                            </h1>
-
-                            <p className="font-sans text-slate-500 font-bold text-sm flex items-center gap-2">
+                            <h1 className="text-3xl font-black text-brand-brown tracking-tighter mb-2">#{order.orderNumber}</h1>
+                            <p className="text-slate-500 font-bold text-sm flex items-center gap-2">
                                 <Clock weight="bold" className="text-brand-brown/30" />
-                                Confirmed on {new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: 'full' })}
+                                {new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: 'full' })}
                             </p>
                         </div>
-
-                        {/* Status Badge Wrapper - Made it look like a "Seal of Quality" */}
-                        <div className="flex items-center p-1.5 rounded-full bg-brand-cream/30 border border-brand-brown/5 shadow-inner">
-                            <OrderStatusBadge
-                                status={order.status as OrderStatus}
-                                size="lg"
-                                showIcon
-                                animated
-                            />
-                        </div>
+                        <OrderStatusBadge status={order.status as OrderStatus} size="lg" showIcon animated />
                     </div>
                 </motion.div>
 
-                {/* Dynamic Timeline Component */}
-                <div className="bg-white rounded-3xl border border-slate-200 p-4 mb-8 shadow-sm">
+                {/* Timeline Progress */}
+                <div className="bg-white rounded-3xl border border-slate-200 p-8 mb-8 shadow-sm">
                     <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 text-center">Fulfillment Lifecycle</h3>
-                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-0">
-                        {/* Horizontal Line (Desktop) */}
+                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-0 px-4">
                         <div className="hidden md:block absolute top-7 left-0 w-full h-[2px] bg-slate-100 -z-0" />
-
-                        {timelineData.map((step, idx) => (
+                        {timelineData.map((step) => (
                             <div key={step.status} className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 flex-1">
-                                <div className={`
-                  w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 border-2
-                  ${step.isCompleted ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100' :
-                                        step.isActive ? 'bg-[#9a5d2e] border-none text-white shadow-lg shadow-indigo-100 scale-110' :
-                                            'bg-white border-slate-200 text-slate-300'}
-                `}>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 
+                                    ${step.isCompleted ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100' : 
+                                      step.isActive ? 'bg-[#9a5d2e] border-none text-white scale-110 shadow-lg' : 
+                                      'bg-white border-slate-200 text-slate-300'}`}>
                                     {step.isCompleted ? <CheckFat size={24} weight="fill" /> : <step.icon size={24} weight={step.isActive ? "bold" : "regular"} />}
                                 </div>
                                 <div className="text-left md:text-center">
                                     <p className={`text-xs font-black uppercase tracking-tighter ${step.isUpcoming ? 'text-slate-300' : 'text-slate-900'}`}>{step.label}</p>
-                                    {step.isActive && <p className="text-[10px] font-bold text-indigo-500 uppercase mt-1 animate-pulse">In Progress</p>}
+                                    {step.isActive && <p className="text-[10px] font-bold text-[#9a5d2e] uppercase mt-1 animate-pulse">In Progress</p>}
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Content Grid */}
+                {/* Grid Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Order Ledger (Items) */}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                             <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-3">
-                                    <Package size={24} weight="duotone" className="text-[#9a5d2e]" />
-                                    Consignment Items
+                                    <Package size={24} weight="duotone" className="text-[#9a5d2e]" /> Consignment Items
                                 </h2>
                                 <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-slate-500 uppercase">
                                     {order.items?.length || 0} Units
                                 </span>
                             </div>
-
                             <div className="divide-y divide-slate-100">
                                 {order.items?.map((item: any, idx: number) => (
-                                    <div key={item.id} className="p-8">
-                                        <OrderItemCard
-                                            item={item}
-                                            index={idx}
-                                            isOrderItem={true}
-                                        />
+                                    <div key={item.id || idx} className="p-8">
+                                        <OrderItemCard item={item} index={idx} isOrderItem={true} />
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Financial Summary Overlay */}
                             <div className="p-8 bg-[#9a5d2e] text-brand-cream rounded-b-3xl">
-                                <div className="space-y-3 mb-6">
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
-                                        <span className="text-brand-cream">Subtotal</span>
-                                        <span className="text-white">₹{parseFloat(order.totalAmount).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
-                                        <span className="text-brand-cream">Shipping & Handling</span>
-                                        <span className="text-white">₹{parseFloat(order?.shippingCost || '0').toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
-                                        <span className="text-brand-cream">Applicable Tax</span>
-                                        <span className="text-white">₹{parseFloat(order?.taxAmount || '0').toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
+                                <div className="pt-6 border-t border-brand-cream/20 flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">Grand Total</p>
-                                        <h3 className="text-4xl font-black tracking-tighter">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
+                                        <h3 className="text-4xl font-black tracking-tighter text-white">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Currency</p>
-                                        <p className="font-bold ">INR (Indian Rupee)</p>
+                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Method</p>
+                                        <p className="font-bold text-white uppercase">{order.paymentMethod}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Sidebar: Delivery & Payment Details */}
                     <div className="space-y-6">
-                        {/* Delivery Details */}
+                        {/* Delivery Info */}
                         <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
                             <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <MapPin size={20} weight="duotone" className="text-[#9a5d2e]" /> Delivery Protocol
+                                <MapPin size={20} weight="duotone" className="text-[#9a5d2e]" /> Destination
                             </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Recipient</p>
-                                    <p className="text-sm font-black text-slate-900 uppercase">{user.name}</p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="font-label text-[10px] font-black text-brand-brown/40 uppercase tracking-[0.2em]">
-                                        Destination Address
-                                    </p>
-                                    <p className="font-sans text-sm font-bold text-brand-brown leading-relaxed max-w-[240px]">
-                                        {order?.shippingAddressLine1},
-                                        {order?.shippingAddressLine2 && ` ${order?.shippingAddressLine2},`}
-                                        <br />
-                                        <span className="text-slate-500 font-medium">
-                                            {order?.shippingCity}, {order?.shippingState} — {order?.shippingPostalCode}
-                                        </span>
-                                        <br />
-                                        <span className="text-orange-500 uppercase text-[11px] tracking-widest font-black">
-                                            {order?.shippingCountry}
-                                        </span>
-                                    </p>
-                                </div>
-                                {order?.shippingPhone && (
-                                    <button
-                                        onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")}
-                                        className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all group"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <Phone size={18} className="text-slate-400" />
-                                            <span className="text-sm font-bold text-slate-700">{order?.shippingPhone}</span>
-                                        </div>
-                                        {copiedField === 'phone' ? <CheckFat className="text-emerald-500" weight="fill" /> : <Copy className="text-slate-300 group-hover:text-slate-500" />}
-                                    </button>
-                                )}
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Recipient</p>
+                            <p className="text-sm font-black text-slate-900 uppercase mb-4">{user.name}</p>
+                            <p className="text-sm font-bold text-slate-700 leading-relaxed mb-4">
+                                {order?.shippingAddressLine1}, {order?.shippingCity}<br />
+                                {order?.shippingState} — {order?.shippingPostalCode}
+                            </p>
+                            {order?.shippingPhone && (
+                                <button onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")} className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all group">
+                                    <div className="flex items-center gap-3">
+                                        <Phone size={18} className="text-slate-400" />
+                                        <span className="text-sm font-bold text-slate-700">{order?.shippingPhone}</span>
+                                    </div>
+                                    {copiedField === 'phone' ? <CheckFat className="text-emerald-500" weight="fill" /> : <Copy className="text-slate-300" />}
+                                </button>
+                            )}
+                        </div>
 
-
+                        {/* Payment Info */}
+                        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                                <CreditCard size={20} weight="duotone" className="text-[#9a5d2e]" /> Settlement
+                            </h3>
+                            <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl mb-3">
+                                <span className="text-xs font-bold text-slate-500">Status</span>
+                                <span className={`text-[10px] font-black px-2 py-1 rounded-md ${order.paymentStatus === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                    {order.paymentStatus}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Payment Details */}
-                        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <CreditCard size={20} weight="duotone" className="text-[#9a5d2e]" /> Financial Clearance
-                            </h3>
-                            <div className="space-y-5">
-                                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-xs font-bold text-slate-500">Method</span>
-                                    <span className="text-xs font-black uppercase text-slate-900">{order.paymentMethod || "Internal Credit"}</span>
-                                </div>
-                                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-xs font-bold text-slate-500">Status</span>
-                                    <span className={`text-[10px] font-black px-2 py-1 rounded-md ${order.paymentStatus === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                        {order.paymentStatus}
-                                    </span>
-                                </div>
-                                {order.paymentStatus !== 'COMPLETED' && (
-                                    <button className="w-full py-3 bg-[#9a5d2e] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
-                                        Authorize Payment
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Destructive Actions */}
+                        {/* Cancellation Logic */}
                         {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
-                            <button
-                                onClick={() => setShowCancelConfirm(true)}
-                                className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all duration-300"
-                            >
-                                Terminate Order
+                            <button onClick={() => setShowCancelConfirm(true)} className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                                Terminate Transaction
                             </button>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Confirmation Modal */}
+            {/* Modals */}
             <AnimatePresence>
                 {showCancelConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -354,11 +263,11 @@ const OrderDetailsPage: React.FC = () => {
                             <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6">
                                 <Warning size={32} weight="duotone" />
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-2">Request Cancellation?</h3>
-                            <p className="text-slate-500 font-medium mb-8 leading-relaxed">This will immediately halt the logistics pipeline. This action is logged and irreversible.</p>
+                            <h3 className="text-2xl font-black text-slate-900 mb-2">Confirm Cancellation?</h3>
+                            <p className="text-slate-500 font-medium mb-8">This action will halt the logistics flow and is logged for audit purposes.</p>
                             <div className="grid grid-cols-2 gap-4">
-                                <button onClick={() => setShowCancelConfirm(false)} className="py-3 bg-slate-100 text-slate-900 rounded-xl font-black text-xs uppercase hover:bg-slate-200 transition">Abort</button>
-                                <button onClick={() => { setShowCancelConfirm(false); console.log("Cancel Order", orderId); }} className="py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase hover:bg-rose-700 transition shadow-lg shadow-rose-100">Confirm</button>
+                                <button onClick={() => setShowCancelConfirm(false)} className="py-3 bg-slate-100 text-slate-900 rounded-xl font-black text-xs uppercase">Abort</button>
+                                <button onClick={() => { setShowCancelConfirm(false); console.log("Cancel Request for:", orderId); }} className="py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase shadow-lg shadow-rose-100">Confirm</button>
                             </div>
                         </motion.div>
                     </div>
