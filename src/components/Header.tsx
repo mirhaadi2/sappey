@@ -8,6 +8,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useProducts } from "../api/products";
 import { useHomepageData } from "../api/homepage";
 import { useHomepagePromotions } from "../api/promotions";
+import { Product } from "../types";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
@@ -16,56 +17,55 @@ const navLinks = [
     { label: "Contact", href: "/#contact" },
 ];
 
-import { Product } from "../types";
-
 const Header: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    
     const { totalItems, dispatch } = useCart();
     const { user, signOut, openAuthModal } = useAuth();
     const { wishlistCount } = useWishlist();
+    
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
     const activeCategory = searchParams.get("category") || "all";
-    //   const searchQuery = searchParams.get("search") || "";
-
-    // Fetch products from API with optional category filter
     const { products } = useProducts(
-        activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
+        activeCategory !== "all" ? { categoryId: activeCategory } : undefined
     );
-
-    // Fetch homepage data for banner
     const { data: homepageData } = useHomepageData();
+    const { data: promotions } = useHomepagePromotions();
+
+    const activeBanner = homepageData?.banners?.find((b) => b?.isActive);
+    const activePromotion = promotions?.[0];
+    const hasTopBanner = !!(activePromotion || activeBanner);
 
     const searchResults = useMemo(() => {
-        return (searchQuery?.trim?.()?.length ?? 0) > 0
-            ? (products ?? []).filter((p: Product) =>
-                p?.name?.toLowerCase?.().includes(searchQuery?.toLowerCase?.()) ||
-                p?.category?.toLowerCase?.().includes(searchQuery?.toLowerCase?.())
-            )?.slice(0, 6)
-            : [];
+        const query = searchQuery?.trim()?.toLowerCase();
+        if (!query || query.length < 2) return [];
+        
+        return (products ?? [])
+            .filter((p: Product) =>
+                p?.name?.toLowerCase().includes(query) ||
+                p?.category?.toLowerCase().includes(query)
+            )
+            .slice(0, 6);
     }, [searchQuery, products]);
 
     const openSearch = useCallback(() => {
         setSearchOpen(true);
-        setTimeout(() => inputRef.current?.focus(), 50);
+        setTimeout(() => inputRef.current?.focus(), 100);
     }, []);
 
     const closeSearch = useCallback(() => {
         setSearchOpen(false);
         setSearchQuery("");
     }, []);
-
-    const handleSearchSelect = useCallback((productId: string) => {
-        closeSearch();
-        navigate(`/product/${productId}`);
-    }, [navigate, closeSearch]);
 
     const handleSearchSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault();
@@ -75,31 +75,21 @@ const Header: React.FC = () => {
         }
     }, [searchQuery, navigate, closeSearch]);
 
-    // Handle scroll state for header styling
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
+        const handleScroll = () => setScrolled(window.scrollY > 10);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     useEffect(() => {
-        const handler = (e: MouseEvent) => {
+        const handleClickOutside = (e: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
                 closeSearch();
             }
         };
-        if (searchOpen) document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, [searchOpen]);
-
-    useEffect(() => {
-        setMobileOpen(false);
-    }, [location.pathname]);
-
-    const isActive = useCallback((href: string) => {
-        if (href === "/shop") return location.pathname === "/shop";
-        return false;
-    }, [location.pathname]);
+        if (searchOpen) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [searchOpen, closeSearch]);
 
     const handleNavClick = useCallback((href: string) => {
         setMobileOpen(false);
@@ -117,275 +107,159 @@ const Header: React.FC = () => {
             navigate(href);
         }
     }, [location.pathname, navigate]);
-    const activeBanner = homepageData?.banners?.find?.(b => b?.isActive);
-    
-    // Fetch active promotions for dynamic banner
-    const { data: promotions } = useHomepagePromotions();
-    const activePromotion = promotions?.[0];
+
     return (
         <>
-            {/* Fixed Dynamic Banner - Promotion or Regular Banner */}
-            {(activePromotion || activeBanner) && (
-                <motion.div 
-                    className="fixed top-0 left-0 right-0 z-50 bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase w-full"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    {activePromotion?.bannerText ?? activeBanner?.text ?? ''}
-                </motion.div>
-            )}
+            {/* 1. Promo Banner - Height is h-8 (32px) */}
+            <AnimatePresence>
+                {hasTopBanner && (
+                    <motion.div 
+                        className="fixed top-0 left-0 right-0 z-50 bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-[10px] tracking-[0.2em] uppercase w-full h-8"
+                        initial={{ opacity: 0, y: -32 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -32 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {activePromotion?.bannerText ?? activeBanner?.text}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
+            {/* 2. Main Header - Height is h-16 (64px) */}
             <header
-                className={`sticky transition-all duration-300 z-40 ${(activePromotion || activeBanner) ? "top-8" : "top-0"} ${scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"
+                className={`fixed left-0 right-0 transition-all duration-300 z-40 h-16 
+                    ${hasTopBanner ? "top-8" : "top-0"} 
+                    ${scrolled 
+                        ? "bg-brand-cream/95 backdrop-blur-md border-b border-gray-300 shadow-sm" 
+                        : "bg-brand-cream border-b border-transparent"
                     }`}
             >
-                <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-16">
-                    <Link
-                        to="/"
-                        className="font-headline font-700 text-2xl text-brand-brown tracking-tight hover:text-brand-cocoa transition-colors duration-200"
-                        style={{ fontWeight: 700, letterSpacing: "-0.025em" }}
-                    >
-                        Sappey
-                    </Link>
+                <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-full">
+                    
+                    {/* ZONE 1: LOGO */}
+                    <div className="flex-1">
+                        <Link
+                            to="/"
+                            className="font-headline font-bold text-2xl text-brand-brown tracking-tighter hover:opacity-80 transition-opacity"
+                        >
+                            Sappey
+                        </Link>
+                    </div>
 
-                    <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
-                        {navLinks.map((item) => (
+                    {/* ZONE 2: CENTER NAV */}
+                    <nav className="hidden md:flex items-center gap-1">
+                        {navLinks.map((link) => (
                             <button
-                                key={item.href}
-                                onClick={() => handleNavClick(item.href)}
-                                className={`font-label text-sm px-5 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive(item.href) ?
-                                    "text-brand-brown font-500 bg-brand-latte" :
-                                    "text-brand-brown hover:text-brand-cocoa hover:bg-brand-latte"
+                                key={link.href}
+                                onClick={() => handleNavClick(link.href)}
+                                className={`font-label text-xs uppercase tracking-widest px-5 py-2 rounded-full transition-all duration-300
+                                    ${location.pathname === link.href 
+                                        ? "text-brand-brown font-bold bg-brand-latte" 
+                                        : "text-brand-brown hover:bg-brand-latte/60"
                                     }`}
-                                style={{ fontWeight: isActive(item.href) ? 500 : 400 }}
                             >
-                                {item.label}
+                                {link.label}
                             </button>
                         ))}
                     </nav>
 
-                    <div className="flex items-center gap-2">
-                        <div ref={searchRef} className="relative">
-                            <AnimatePresence>
+                    {/* ZONE 3: ACTIONS */}
+                    <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+                        
+                        {/* Search */}
+                        <div ref={searchRef} className="relative flex items-center">
+                            <AnimatePresence mode="wait">
                                 {searchOpen ? (
                                     <motion.form
-                                        key="search-box"
+                                        key="search-active"
                                         onSubmit={handleSearchSubmit}
-                                        initial={{ width: 40, opacity: 0 }}
-                                        animate={{ width: 200, opacity: 1 }}
-                                        exit={{ width: 40, opacity: 0 }}
-                                        transition={{ duration: 0.25, ease: "easeOut" }}
-                                        className="flex items-center bg-brand-latte border border-gray-200 rounded-lg overflow-hidden"
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: 240, opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        className="flex items-center bg-white border border-gray-400 rounded-full overflow-hidden shadow-inner"
                                     >
-                                        <MagnifyingGlass className="ml-3 text-gray-400 flex-shrink-0" size={16} />
+                                        <MagnifyingGlass className="ml-3 text-brand-brown" size={16} />
                                         <input
                                             ref={inputRef}
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Search products..."
-                                            className="flex-1 bg-transparent font-label text-sm text-brand-brown placeholder-gray-400 px-2 py-2 focus:outline-none"
+                                            placeholder="Search collection..."
+                                            className="flex-1 bg-transparent font-label text-xs text-brand-brown font-medium placeholder-gray-500 px-2 py-2 focus:outline-none"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={closeSearch}
-                                            className="p-2 text-gray-400 hover:text-brand-brown transition-colors"
-                                            aria-label="Close search"
-                                        >
+                                        <button type="button" onClick={closeSearch} className="p-2 text-brand-brown hover:text-black">
                                             <X size={14} />
                                         </button>
                                     </motion.form>
                                 ) : (
                                     <motion.button
-                                        key="search-icon"
+                                        key="search-trigger"
                                         onClick={openSearch}
-                                        className="p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                        aria-label="Open search"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
+                                        className="p-2 text-brand-brown hover:bg-brand-latte rounded-full transition-colors"
                                     >
-                                        <MagnifyingGlass size={20} weight="regular" />
+                                        <MagnifyingGlass size={22} weight="bold" />
                                     </motion.button>
                                 )}
                             </AnimatePresence>
-
-                            <AnimatePresence>
-                                {searchOpen && searchResults.length > 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -8 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -8 }}
-                                        transition={{ duration: 0.18 }}
-                                        className="absolute top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden"
-                                    >
-                                        {searchResults.map((result: Product) => (
-                                            <button
-                                                onClick={() => handleSearchSelect(result.id)}
-                                                className="flex items-center gap-3 w-full px-4 py-3 hover:bg-brand-latte transition-colors text-left"
-                                                key={result.id}
-                                            >
-                                                <img
-                                                    src={result.image}
-                                                    alt={result.name}
-                                                    className="w-10 h-10 object-cover rounded-lg flex-shrink-0"
-                                                />
-                                                <div className="min-w-0">
-                                                    <div className="font-label text-sm text-brand-brown truncate">{result.name}</div>
-                                                    <div className="font-sans text-xs text-gray-400 capitalize">{result.category}</div>
-                                                </div>
-                                                <span className="ml-auto font-label text-sm text-brand-brown font-medium flex-shrink-0">
-                                                    ${(result?.price ?? 0)?.toFixed(2)}
-                                                </span>
-                                            </button>
-                                        ))}
-                                        <button
-                                            onClick={() => { closeSearch(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); }}
-                                            className="w-full px-4 py-3 bg-brand-latte font-label text-xs text-brand-cocoa hover:text-brand-brown transition-colors text-center border-t border-gray-100"
-                                        >
-                                            See all results for "<span className="font-medium">{searchQuery}</span>"
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
                         </div>
-                        {user ? (
-                            <div className="relative flex items-center gap-1">
-                                <button
-                                    onClick={() => navigate('/orders')}
-                                    className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                    title="My Orders"
-                                >
-                                    <List size={18} weight="regular" />
-                                    <span className="font-label text-sm font-medium">Orders</span>
-                                </button>
-                                <button
-                                    onClick={() => navigate('/profile')}
-                                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-latte text-brand-brown hover:bg-brand-brown hover:text-white transition-colors duration-200 cursor-pointer"
-                                    title="Profile"
-                                >
-                                    <User size={18} weight="fill" />
-                                    <span className="hidden sm:inline font-label text-sm font-medium capitalize">
-                                        {user?.name ?? (user?.email?.split?.("@")?.[0] ?? 'User')}
-                                    </span>
-                                </button>
-                                <button
-                                    onClick={() => signOut()}
-                                    className="p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                    aria-label="Sign out"
-                                    title="Sign out"
-                                >
-                                    <SignOut size={18} weight="regular" />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="hidden md:flex items-center gap-1">
-                                <button
-                                    onClick={() => {
-                                        console.log('hello header')
-                                        openAuthModal("signin")
-                                    }}
-                                    className="font-label text-sm px-4 py-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                >
-                                    Sign In
-                                </button>
-                                <button
-                                    onClick={() => openAuthModal("signup")}
-                                    className="font-label text-sm px-4 py-2 rounded-lg bg-brand-brown text-brand-cream hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer"
-                                >
-                                    Sign Up
-                                </button>
-                            </div>
-                        )}
 
-                        {!user && (
-                            <button
-                                className="md:hidden p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                aria-label="Account"
-                                onClick={() => openAuthModal("signin")}
-                            >
-                                <User size={20} weight="regular" />
+                        {/* Account */}
+                        <div className="hidden sm:flex items-center border-l border-gray-300 ml-2 pl-4">
+                            {user ? (
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => navigate('/profile')}
+                                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-latte text-brand-brown hover:bg-brand-brown hover:text-brand-cream transition-all duration-300"
+                                    >
+                                        <User size={18} weight="fill" />
+                                        <span className="text-[10px] uppercase tracking-widest font-black">
+                                            {user?.name?.split(" ")[0] || "Profile"}
+                                        </span>
+                                    </button>
+                                    <button onClick={() => signOut()} className="p-2 text-brand-brown hover:opacity-70 transition-colors">
+                                        <SignOut size={18} weight="bold" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => openAuthModal("signin")}
+                                    className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-brown hover:opacity-60 transition-opacity"
+                                >
+                                    Login
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Wishlist & Cart */}
+                        <div className="flex items-center gap-1">
+                            <button onClick={() => navigate("/wishlist")} className="relative p-2 text-brand-brown hover:bg-brand-latte rounded-full">
+                                <Heart size={22} weight={wishlistCount > 0 ? "fill" : "bold"} className={wishlistCount > 0 ? "text-red-600" : ""} />
                             </button>
-                        )}
 
-                        <button
-                            onClick={() => navigate("/wishlist")}
-                            className="relative p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                            aria-label={`Wishlist, ${wishlistCount} items`}
-                            title="Go to wishlist"
-                        >
-                            <Heart size={20} weight="regular" />
-                            {wishlistCount > 0 && (
-                                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-label rounded-full w-4 h-4 flex items-center justify-center leading-none">
-                                    {wishlistCount}
-                                </span>
-                            )}
-                        </button>
+                            <button onClick={() => dispatch({ type: "OPEN_CART" })} className="relative p-2 text-brand-brown hover:bg-brand-latte rounded-full">
+                                <ShoppingCart size={22} weight="bold" />
+                                {totalItems > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-brown text-brand-cream text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-brand-cream shadow-md">
+                                        {totalItems}
+                                    </span>
+                                )}
+                            </button>
 
-                        <button
-                            onClick={() => dispatch({ type: "OPEN_CART" })}
-                            className="relative p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                            aria-label={`Cart, ${totalItems} items`}
-                        >
-                            <ShoppingCart size={20} weight="regular" />
-                            {totalItems > 0 && (
-                                <span className="absolute top-1 right-1 bg-brand-brown text-brand-cream text-xs font-label rounded-full w-4 h-4 flex items-center justify-center leading-none">
-                                    {totalItems}
-                                </span>
-                            )}
-                        </button>
-
-                        <button
-                            className="md:hidden p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                            onClick={() => setMobileOpen(!mobileOpen)}
-                            aria-label="Toggle menu"
-                            aria-expanded={mobileOpen}
-                        >
-                            {mobileOpen ? <X size={20} weight="regular" /> : <List size={20} weight="regular" />}
-                        </button>
+                            <button className="md:hidden p-2 text-brand-brown" onClick={() => setMobileOpen(!mobileOpen)}>
+                                {mobileOpen ? <X size={24} weight="bold" /> : <List size={24} weight="bold" />}
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <AnimatePresence>
-                    {mobileOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.25, ease: "easeInOut" }}
-                            className="md:hidden bg-brand-cream border-t border-gray-200 overflow-hidden"
-                        >
-                            <nav className="flex flex-col px-8 py-4 gap-1" aria-label="Mobile navigation">
-                                {navLinks?.map((link) => (
-                                    <button
-                                        key={link.href}
-                                        onClick={() => handleNavClick(link.href)}
-                                        className={`font-label text-sm px-4 py-3 rounded-lg text-left transition-all duration-200 cursor-pointer ${isActive(link?.href)
-                                            ? "text-brand-brown font-500 bg-brand-latte"
-                                            : "text-brand-brown hover:bg-brand-latte"
-                                            }`}
-                                    >
-                                        {link?.label}
-                                    </button>
-                                ))}
-                                {user && (
-                                    <>
-                                        <div className="border-t border-gray-200 my-4"></div>
-                                        <button
-                                            onClick={() => { navigate('/orders'); setMobileOpen(false); }}
-                                            className="font-label text-sm px-4 py-3 rounded-lg text-left text-brand-brown hover:bg-brand-latte transition-all duration-200 cursor-pointer flex items-center gap-2"
-                                        >
-                                            <List size={16} />
-                                            My Orders
-                                        </button>
-                                    </>
-                                )}
-                            </nav>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </header>
+            
+            {/* 3. Spacer - Prevents layout jumping */}
+            {/* Transition duration matches the header slide duration */}
+            <div 
+                className={`transition-all duration-300 ${hasTopBanner ? "h-24" : "h-16"}`} 
+            />
         </>
     );
 };
