@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { motion } from "framer-motion";
 import { 
     Trash, Minus, Plus, Package, 
@@ -185,4 +185,4 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
     );
 };
 
-export default OrderItemCard;
+export default memo(OrderItemCard);

@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FunnelSimple, GridFour, SquaresFour, Rows } from "@phosphor-icons/react";
 import { useCategories, useInfiniteProducts } from "../api/exports";
 import ProductCard from "../components/ProductCard";
+import { ShopPageSkeleton } from "../components/Skeletons";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "rating" | "newest";
 type ViewMode = "grid-4" | "grid-3" | "grid-2";
@@ -54,7 +55,7 @@ const ShopPage: React.FC = () => {
   // Fetch categories from API
   const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
 
-  const setCategory = (cat: string) => {
+  const setCategory = useCallback((cat: string) => {
     const newParams = new URLSearchParams(searchParams);
     if (cat === "all") {
       newParams.delete("category");
@@ -62,7 +63,7 @@ const ShopPage: React.FC = () => {
       newParams.set("category", cat);
     }
     setSearchParams(newParams);
-  };
+  }, [searchParams, setSearchParams]);
 
   const sortedProducts = useMemo(() => {
     const result = [...(products ?? [])];
@@ -115,6 +116,10 @@ const ShopPage: React.FC = () => {
       : viewMode === "grid-3"
         ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         : "grid-cols-1 sm:grid-cols-2";
+
+  if (isLoading && sortedProducts.length === 0) {
+    return <ShopPageSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-brand-latte text-foreground">

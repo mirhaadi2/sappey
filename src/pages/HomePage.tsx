@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
@@ -15,6 +15,7 @@ import {
 import ProductCard from "../components/ProductCard";
 import { useHomepageData, Hero } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
+import { HomeSkeleton } from "../components/Skeletons";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -145,11 +146,7 @@ const HomePage: React.FC = () => {
         newArrivalsLoading;
 
     if (isAnyLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-brand-brown"></div>
-            </div>
-        );
+        return <HomeSkeleton />;
     }
 
     const errorToShow =

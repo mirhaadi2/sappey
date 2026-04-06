@@ -19,6 +19,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { ORDER_STATUS_CONFIG, getStatusConfig, getStatusLabel } from "../utils/orderStatusMapper";
+import { OrderListingSkeleton } from "../components/Skeletons";
 
 // --- Types ---
 type OrderStatus =
@@ -40,7 +41,7 @@ interface OrderFilter {
 const OrderListingPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { orders = [], isLoading, error, refetch } = useOrders();
+    const { orders = [], isLoading } = useOrders();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState<SortBy>("date-newest");
@@ -141,6 +142,10 @@ const OrderListingPage: React.FC = () => {
                 </div>
             </div>
         );
+    }
+
+    if (isLoading) {
+        return <OrderListingSkeleton />;
     }
 
     return (

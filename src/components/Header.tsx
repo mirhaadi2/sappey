@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut } from "@phosphor-icons/react";
@@ -40,35 +40,37 @@ const Header: React.FC = () => {
     // Fetch homepage data for banner
     const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
 
-    const searchResults = (searchQuery?.trim?.()?.length ?? 0) > 0
-        ? (products ?? []).filter((p: any) =>
-            p?.name?.toLowerCase?.().includes(searchQuery?.toLowerCase?.()) ||
-            p?.category?.toLowerCase?.().includes(searchQuery?.toLowerCase?.())
-        )?.slice(0, 6)
-        : [];
+    const searchResults = useMemo(() => {
+        return (searchQuery?.trim?.()?.length ?? 0) > 0
+            ? (products ?? []).filter((p: any) =>
+                p?.name?.toLowerCase?.().includes(searchQuery?.toLowerCase?.()) ||
+                p?.category?.toLowerCase?.().includes(searchQuery?.toLowerCase?.())
+            )?.slice(0, 6)
+            : [];
+    }, [searchQuery, products]);
 
-    const openSearch = () => {
+    const openSearch = useCallback(() => {
         setSearchOpen(true);
         setTimeout(() => inputRef.current?.focus(), 50);
-    };
+    }, []);
 
-    const closeSearch = () => {
+    const closeSearch = useCallback(() => {
         setSearchOpen(false);
         setSearchQuery("");
-    };
+    }, []);
 
-    const handleSearchSelect = (productId: string) => {
+    const handleSearchSelect = useCallback((productId: string) => {
         closeSearch();
         navigate(`/product/${productId}`);
-    };
+    }, [navigate, closeSearch]);
 
-    const handleSearchSubmit = (e: React.FormEvent) => {
+    const handleSearchSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
             closeSearch();
             navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
         }
-    };
+    }, [searchQuery, navigate, closeSearch]);
 
     // Handle scroll state for header styling
     useEffect(() => {
@@ -91,12 +93,12 @@ const Header: React.FC = () => {
         setMobileOpen(false);
     }, [location.pathname]);
 
-    const isActive = (href: string) => {
+    const isActive = useCallback((href: string) => {
         if (href === "/shop") return location.pathname === "/shop";
         return false;
-    };
+    }, [location.pathname]);
 
-    const handleNavClick = (href: string) => {
+    const handleNavClick = useCallback((href: string) => {
         setMobileOpen(false);
         if (href.startsWith('/#')) {
             const sectionId = href.replace('/#', "");
@@ -111,7 +113,7 @@ const Header: React.FC = () => {
         } else {
             navigate(href);
         }
-    };
+    }, [location.pathname, navigate]);
     const activeBanner = homepageData?.banners?.find?.(b => b?.isActive);
 
     return (
@@ -362,4 +364,4 @@ const Header: React.FC = () => {
     );
 };
 
-export default Header;
+export default memo(Header);

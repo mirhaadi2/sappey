@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart } from "@phosphor-icons/react";
@@ -146,4 +146,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     );
 };
 
-export default ProductCard;
+export default memo(ProductCard);

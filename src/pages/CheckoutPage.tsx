@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart, getVariantKey } from "../context/CardContext";
@@ -36,21 +36,23 @@ const CheckoutPage: React.FC = () => {
   const [errorDismissed, setErrorDismissed] = useState(false);
 
   // Calculate order summary
-  const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
-  const isFreeDelivery = paymentMethod === "cod";
-
-  const orderSummary: OrderSummary = {
-    items: state?.items?.length ?? 0,
-    subtotal: (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
+  const orderSummary = useMemo(() => {
+    const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
+    const isFreeDelivery = paymentMethod === "cod";
+    const subtotal = (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
       ? item.variant.price
-      : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0),
-    tax: 0,
-    shipping: isFreeDelivery ? 0 : originalShipping,
-    total: 0,
-  };
-
-  orderSummary.tax = parseFloat((orderSummary.subtotal * 0.08).toFixed(2));
-  orderSummary.total = parseFloat((orderSummary.subtotal + orderSummary.tax + orderSummary.shipping).toFixed(2));
+      : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0);
+    const tax = parseFloat((subtotal * 0.08).toFixed(2));
+    const shipping = isFreeDelivery ? 0 : originalShipping;
+    
+    return {
+      items: state?.items?.length ?? 0,
+      subtotal,
+      tax,
+      shipping,
+      total: parseFloat((subtotal + tax + shipping).toFixed(2)),
+    };
+  }, [state?.items, shippingMethod, paymentMethod]);
 
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {

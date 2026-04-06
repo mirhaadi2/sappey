@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProduct, useProducts } from "../api/exports";
 import { useCart } from "../context/CardContext";
 import ProductCard from "../components/ProductCard";
+import { ProductDetailSkeleton } from "../components/Skeletons";
 import {
   Star,
   Minus,
@@ -28,7 +29,7 @@ const ProductDetailPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const variantOptions = React.useMemo(() => {
+const variantOptions = useMemo(() => {
     if (!product) return [];
 
     const options: any[] = [];
@@ -53,7 +54,7 @@ const ProductDetailPage: React.FC = () => {
     return options.sort((a, b) => a.weight - b.weight);
   }, [product]);
 
-  const selectedVariantData = React.useMemo(() => {
+  const selectedVariantData = useMemo(() => {
     if (!variantOptions || variantOptions.length === 0) return null;
     const found = variantOptions.find(
       (item: any) => item.id === selectedVariant,
@@ -76,14 +77,7 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   if (productLoading || productsLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-brand-latte px-8">
-        <div className="text-center">
-          <div className="animate-spin w-10 h-10 border-4 border-brand-brown border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading product details...</p>
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product && productLoading) {

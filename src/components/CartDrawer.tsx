@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../context/CardContext";
@@ -11,7 +11,7 @@ const CartDrawer: React.FC = () => {
     const { user, openAuthModal } = useAuth();
     const navigate = useNavigate();
 
-    const handleCheckout = () => {
+    const handleCheckout = useCallback(() => {
         if (!user) {
             dispatch({ type: "CLOSE_CART" });
             openAuthModal("signin");
@@ -19,7 +19,7 @@ const CartDrawer: React.FC = () => {
         }
         dispatch({ type: "CLOSE_CART" });
         navigate("/checkout");
-    };
+    }, [user, dispatch, navigate, openAuthModal]);
 
     return (
         <AnimatePresence>
@@ -213,4 +213,4 @@ const CartDrawer: React.FC = () => {
     );
 };
 
-export default CartDrawer;
+export default memo(CartDrawer);

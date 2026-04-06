@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
 import {TIMELINE_STEPS } from "../utils/orderStatusMapper";
+import { OrderDetailsSkeleton } from "../components/Skeletons";
 
 // --- Types ---
 type OrderStatus = 
@@ -27,12 +28,12 @@ const OrderDetailsPage: React.FC = () => {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-    const copyToClipboard = (text: string, field: string) => {
+    const copyToClipboard = useCallback((text: string, field: string) => {
         if (!text) return;
         navigator.clipboard.writeText(text);
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
-    };
+    }, []);
 
     const timelineData = useMemo(() => {
         if (!order) return [];
@@ -67,14 +68,7 @@ const OrderDetailsPage: React.FC = () => {
     }
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-slate-200 border-t-[#9a5d2e] rounded-full animate-spin" />
-                    <p className="font-bold text-slate-400 animate-pulse uppercase tracking-widest text-xs">Fetching Ledger Data</p>
-                </div>
-            </div>
-        );
+        return <OrderDetailsSkeleton />;
     }
 
     if (error || !order) {
