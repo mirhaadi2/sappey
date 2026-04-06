@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart, getVariantKey } from "../context/CardContext";
@@ -8,19 +8,10 @@ import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions, formatPromotionDescription } from "../hooks/useCheckoutPromotions";
 import { useHomepagePromotions } from "../api/promotions";
 import { PromotionList } from "../components/PromotionCard";
-import { Promotion } from "../api/promotions";
 import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle,
   Plus, Package, Info, Tag
 } from "@phosphor-icons/react";
-
-interface OrderSummary {
-  items: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  total: number;
-}
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,16 +20,15 @@ const CheckoutPage: React.FC = () => {
   const { addresses } = useAddresses();
   const { placeOrder, isCreatingOrder, createError } = useOrders();
 
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    addresses.find((a) => a.isDefault)?.id || null
+  const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>(
+    addresses.find((a) => a.isDefault)?.id
   );
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("cod");
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
-  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [errorDismissed, setErrorDismissed] = useState(false);
-  const [selectedPromotionId, setSelectedPromotionId] = useState<string | null>(null);
+  const [selectedPromotionId, setSelectedPromotionId] = useState<string | undefined>(undefined);
 
   // Check if there's an active promotion banner to adjust header position
   const { data: promotionBanners = [] } = useHomepagePromotions();
@@ -548,7 +538,6 @@ const CheckoutPage: React.FC = () => {
                           }))}
                           selectedPromotionId={selectedPromotionId}
                           onSelectPromotion={(promo) => setSelectedPromotionId(promo.id)}
-                          showDetails={true}
                         />
                       </motion.div>
                     )}
