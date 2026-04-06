@@ -151,15 +151,15 @@ const variantOptions = useMemo(() => {
   };
 
   return (
-    <div className={`min-h-screen bg-brand-latte text-foreground pt-2 ${hasBanner ? "pt-4" : ""}`}>
-      <div className="bg-white border-b border-gray-200 px-8 py-4 mt-4">
+    <div className={`min-h-screen bg-brand-latte text-foreground pt-0 ${hasBanner ? "pt-2" : ""}`}>
+      <div className="bg-white border-b border-gray-200">
         {/* Image Gallery */}
-        <div className="max-w-7xl mx-auto flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center gap-2">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 font-label text-xs text-gray-500 hover:text-brand-brown transition-colors duration-200 cursor-pointer"
+            className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors font-medium text-sm"
           >
-            <ArrowLeft size={14} weight="regular" />
+            <ArrowLeft size={20} weight="bold" />
             Shop
           </button>
           <span className="text-gray-300">/</span>

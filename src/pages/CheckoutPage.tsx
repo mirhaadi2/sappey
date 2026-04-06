@@ -196,19 +196,19 @@ const CheckoutPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
       <div className={`bg-white border-b border-gray-100 sticky z-40 ${headerTopPosition}`}>
-        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
           <button
             onClick={() => navigate("/shop")}
-            className="flex items-center gap-2 text-gray-600 hover:text-brand-brown transition mb-4"
+            className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors font-medium"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} weight="bold" />
             Continue Shopping
           </button>
           <h1 className="text-2xl font-bold text-brand-brown">Checkout</h1>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Steps */}
           <div className="lg:col-span-2 space-y-6">

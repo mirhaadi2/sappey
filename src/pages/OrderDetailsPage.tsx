@@ -146,18 +146,17 @@ const OrderDetailsPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-8">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-[#F8FAFC]">
+            <div className="max-w-6xl mx-auto px-6 md:px-12 pt-6 pb-12">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <button
                         onClick={() => navigate("/orders")}
-                        className="group flex items-center gap-2 text-slate-500 hover:text-[#9a5d2e] font-bold transition-all text-sm uppercase tracking-wider"
+                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa font-medium transition-colors"
                     >
                         <ArrowLeft
                             size={20}
                             weight="bold"
-                            className="group-hover:-translate-x-1 transition-transform"
                         />
                         Back to All Orders
                     </button>

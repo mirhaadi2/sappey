@@ -135,21 +135,19 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
-      <div className="sticky top-20 z-40">
-        <div className="max-w-6xl mx-auto px-6 pt-6">
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-600 hover:text-brand-brown transition mb-4"
-          >
-            <ArrowLeft size={20} />
-            Back
-          </button>
-          {/* <h1 className="text-4xl font-bold text-brand-brown">My Profile</h1>
+      <div className="max-w-6xl mx-auto px-6 md:px-12 pt-6 pb-6">
+        <button
+          onClick={() => navigate("/")}
+          className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa font-medium transition-colors mb-6"
+        >
+          <ArrowLeft size={20} weight="bold" />
+          Back
+        </button>
+        {/* <h1 className="text-4xl font-bold text-brand-brown">My Profile</h1>
           <p className="text-gray-500 mt-2">Manage your account and addresses</p> */}
-        </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-6">
+      <main className="max-w-6xl mx-auto px-6 md:px-12 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Profile Card */}

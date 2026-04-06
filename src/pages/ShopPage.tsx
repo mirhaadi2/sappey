@@ -124,7 +124,7 @@ const ShopPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-latte text-foreground">
       {/* Page Header */}
-      <div className="bg-gradient-1 py-16 px-8">
+      <div className="bg-gradient-1 py-16 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -144,7 +144,7 @@ const ShopPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-12">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
         {/* Filters Bar */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-8">
           <div className="flex flex-wrap items-center gap-4">

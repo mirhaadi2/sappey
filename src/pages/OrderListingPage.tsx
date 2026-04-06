@@ -148,8 +148,8 @@ const OrderListingPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-700 pb-20">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-12">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-700">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-20">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                     <motion.div

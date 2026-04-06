@@ -144,8 +144,8 @@ const WishlistPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen pt-4 pb-20 bg-gradient-to-b from-slate-50 to-white">
-            <div className="max-w-7xl mx-auto px-6 md:px-12">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-20">
                 {/* Header */}
                 <motion.div
                     variants={fadeInVariants}
@@ -155,10 +155,10 @@ const WishlistPage: React.FC = () => {
                 >
                     <button
                         onClick={() => navigate(-1)}
-                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors mb-6"
+                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors font-medium mb-6"
                     >
                         <ArrowLeft size={20} weight="bold" />
-                        <span className="font-medium">Back</span>
+                        Back
                     </button>
 
                     <div className="flex items-center justify-between">
