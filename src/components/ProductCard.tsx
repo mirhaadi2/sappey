@@ -11,35 +11,35 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     const variantOptions = React.useMemo(() => {
-        if (!Array.isArray(product.variants) || product.variants.length === 0) return [];
+        if (!Array.isArray(product?.variants) || (product?.variants?.length ?? 0) === 0) return [];
 
-        const options = product.variants.map((variant: any) => {
+        const options = (product?.variants ?? []).map((variant: any) => {
             if (typeof variant === 'string') {
                 return {
                     id: variant,
                     label: variant,
-                    price: Number(product.basePrice ?? product.price ?? 0),
+                    price: Number(product?.basePrice ?? product?.price ?? 0),
                 };
             }
             return {
-                id: variant.id || variant.sku,
-                label: `${Math.floor(Number(variant.weight))}g`, // Display as "500g" without decimals
-                weight: Number(variant.weight),
-                price: Number(variant.price),
-                sku: variant.sku,
+                id: variant?.id ?? variant?.sku,
+                label: `${Math.floor(Number(variant?.weight ?? 0))}g`, // Display as "500g" without decimals
+                weight: Number(variant?.weight ?? 0),
+                price: Number(variant?.price ?? 0),
+                sku: variant?.sku,
             };
         });
 
         // Sort by weight ascending (lowest g first)
-        return options.sort((a: any, b: any) => (a.weight || 0) - (b.weight || 0));
+        return options.sort((a: any, b: any) => (a?.weight ?? 0) - (b?.weight ?? 0));
     }, [product]);
 
     const priceRange = React.useMemo(() => {
-        if (variantOptions.length === 0) {
-            const basePrice = Number(product.basePrice ?? product.price ?? 0);
+        if ((variantOptions?.length ?? 0) === 0) {
+            const basePrice = Number(product?.basePrice ?? product?.price ?? 0);
             return { min: basePrice, max: basePrice };
         }
-        const prices = variantOptions.map((v: any) => Number(v.price));
+        const prices = (variantOptions ?? []).map((v: any) => Number(v?.price ?? 0));
         return { min: Math.min(...prices), max: Math.max(...prices) };
     }, [product, variantOptions]);
 
@@ -54,15 +54,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
                 <div className="relative aspect-square overflow-hidden bg-gray-50">
                     <img
-                        src={product.images?.[0] || "https://via.placeholder.com/300?text=No+Image"}
-                        alt={product.name}
+                        src={product?.images?.[0] ?? "https://via.placeholder.com/300?text=No+Image"}
+                        alt={product?.name ?? 'Product'}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
                     <div className="absolute top-3 left-3 flex flex-col gap-2">
-                        {product.badge && (
-                            <span className={`${product?.isNew ? "bg-brand-plum" : "bg-brand-brown"} text-brand-cream text-[10px] font-label uppercase tracking-widest px-2 py-1 rounded-md`}>
-                                {product.badge}
+                        {product?.badge && (
+                            <span className={`${(product?.isNew ?? false) ? "bg-brand-plum" : "bg-brand-brown"} text-brand-cream text-[10px] font-label uppercase tracking-widest px-2 py-1 rounded-md`}>
+                                {product?.badge}
                             </span>
                         )}
                     </div>
@@ -98,41 +98,41 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     </div> */}
 
                     <h3 className="font-headline text-brand-brown text-lg mb-1 line-clamp-1 group-hover:text-brand-cocoa transition-colors">
-                        {product.name}
+                        {product?.name ?? 'Product'}
                     </h3>
 
                     {/* <p className="text-xs text-gray-500 font-sans mb-2">
-                        {product.weight ? `${product.weight}g` : `${variantOptions.length} weight options`}
+                        {product?.weight ? `${product.weight}g` : `${(variantOptions?.length ?? 0)} weight options`}
                     </p> */}
 
-                    {product.discountedPercent && (
+                    {(product?.discountedPercent ?? 0) > 0 && (
                         <div className="mb-2">
                             <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-label uppercase tracking-wider">
-                                {product.discountedPercent.toFixed(0)}% OFF
+                                {(product?.discountedPercent ?? 0).toFixed(0)}% OFF
                             </span>
                         </div>
                     )}
 
                     <div className="mt-auto flex items-center justify-between">
                         <div className="flex flex-col">
-                            {product.discountedPrice ? (
+                            {product?.discountedPrice ? (
                                 <>
                                     <span className="text-lg font-bold text-brand-brown">
-                                        ₹{Number(product.discountedPrice).toFixed(0)}
+                                        ₹{Number(product?.discountedPrice ?? 0).toFixed(0)}
                                     </span>
                                     <span className="text-xs text-gray-400 line-through">
-                                        ₹{Number(product.basePrice || product.price).toFixed(0)}
+                                        ₹{Number(product?.basePrice ?? product?.price ?? 0).toFixed(0)}
                                     </span>
                                 </>
                             ) : (
                                 <span className="text-lg font-bold text-brand-brown">
-                                    {priceRange.min === priceRange.max
-                                        ? `₹${priceRange.min.toFixed(0)}`
-                                        : `₹${priceRange.min.toFixed(0)} - ₹${priceRange.max.toFixed(0)}`}
+                                    {(priceRange?.min ?? 0) === (priceRange?.max ?? 0)
+                                        ? `₹${(priceRange?.min ?? 0).toFixed(0)}`
+                                        : `₹${(priceRange?.min ?? 0).toFixed(0)} - ₹${(priceRange?.max ?? 0).toFixed(0)}`}
                                 </span>
                             )}
                             <span className="text-xs text-gray-400 mt-1">
-                                {variantOptions.length} weight options
+                                {(variantOptions?.length ?? 0)} weight options
                             </span>
                         </div>
 

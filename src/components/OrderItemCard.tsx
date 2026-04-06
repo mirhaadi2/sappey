@@ -31,16 +31,16 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
     isOrderItem = false,
 }) => {
     // --- Data Sanitization ---
-    const price = Number(item.price || item.unitPrice || 0);
-    const discountedPrice = Number(item.discountedPrice || price);
-    const discount = Number(item.discountedPercent || 0);
-    const itemTotal = Number(isOrderItem ? (item.subtotal || price * item.quantity) : (discountedPrice * item.quantity) || 0);
-    
-    const productImage = item.productImage || null;
-    const productName = item.productName || `Item #${item.sku || 'N/A'}`;
-    const sku = item.sku || null;
-    const status = (item.status as OrderStatus) || null;
-    const itemId = item.id || item.productId;
+    const price = Number(item?.price ?? item?.unitPrice ?? 0);
+    const discountedPrice = Number(item?.discountedPrice ?? price);
+    const discount = Number(item?.discountedPercent ?? 0);
+    const itemTotal = Number(isOrderItem ? (item?.subtotal ?? price * (item?.quantity ?? 0)) : (discountedPrice * (item?.quantity ?? 0))) ?? 0;
+
+    const productImage = item?.productImage ?? null;
+    const productName = item?.productName ?? `Item #${item?.sku ?? 'N/A'}`;
+    const sku = item?.sku ?? null;
+    const status = (item?.status as OrderStatus) ?? null;
+    const itemId = item?.id ?? item?.productId;
 
     // --- Comprehensive Logistics Status Mapping ---
     const STATUS_COLORS: Record<OrderStatus, { bg: string; text: string; icon: any }> = {
@@ -119,7 +119,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                         {discount > 0 && (
                             <div className="flex items-center gap-2">
                                 <span className="text-xs line-through text-slate-400">
-                                    ₹{price.toFixed(2)}
+                                    ₹{(price ?? 0).toFixed(2)}
                                 </span>
                                 <span className="text-[10px] font-black px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded">
                                     -{discount}%
@@ -147,15 +147,15 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                     {actionable && !isOrderItem && (
                         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shadow-inner">
                             <button
-                                onClick={() => onQuantityChange?.(itemId, item.quantity - 1)}
-                                disabled={item.quantity <= 1}
+                                onClick={() => onQuantityChange?.(itemId, (item?.quantity ?? 0) - 1)}
+                                disabled={(item?.quantity ?? 0) <= 1}
                                 className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-lg transition disabled:opacity-30"
                             >
                                 <Minus size={12} weight="bold" />
                             </button>
-                            <span className="w-6 text-center text-xs font-black text-slate-900">{item.quantity}</span>
+                            <span className="w-6 text-center text-xs font-black text-slate-900">{item?.quantity ?? 0}</span>
                             <button
-                                onClick={() => onQuantityChange?.(itemId, item.quantity + 1)}
+                                onClick={() => onQuantityChange?.(itemId, (item?.quantity ?? 0) + 1)}
                                 className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-lg transition"
                             >
                                 <Plus size={12} weight="bold" />
@@ -167,7 +167,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                 <div className="mt-auto">
                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Subtotal</p>
                     <div className={`${isOrderItem ? 'text-xl font-black text-[#9a5d2e]' : 'text-lg font-bold text-slate-900'} tracking-tighter`}>
-                        ₹{itemTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        ₹{(itemTotal ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                     
                     {actionable && onRemove && !isOrderItem && (

@@ -58,25 +58,25 @@ const OrderListingPage: React.FC = () => {
         let result = [...orders];
 
         if (filters.status !== "ALL") {
-            result = result.filter((o) => o.status === filters.status);
+            result = result.filter((o) => o?.status === filters.status);
         }
 
         if (filters.dateFrom) {
             const fromDate = new Date(filters.dateFrom);
-            result = result.filter((o) => new Date(o.createdAt) >= fromDate);
+            result = result.filter((o) => new Date(o?.createdAt ?? new Date()) >= fromDate);
         }
         if (filters.dateTo) {
             const toDate = new Date(filters.dateTo);
             toDate.setHours(23, 59, 59, 999);
-            result = result.filter((o) => new Date(o.createdAt) <= toDate);
+            result = result.filter((o) => new Date(o?.createdAt ?? new Date()) <= toDate);
         }
 
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             result = result.filter(
                 (o) =>
-                    o.orderNumber.toLowerCase().includes(q) ||
-                    o.id.toLowerCase().includes(q),
+                    o?.orderNumber?.toLowerCase?.()?.includes(q) ||
+                    o?.id?.toLowerCase?.()?.includes(q),
             );
         }
 
@@ -111,12 +111,12 @@ const OrderListingPage: React.FC = () => {
     }, [processedOrders, currentPage]);
 
     const stats = useMemo(() => {
-        const totalSpent = orders.reduce(
-            (sum, o) => sum + Number(o.finalAmount || 0),
+        const totalSpent = (orders ?? []).reduce(
+            (sum, o) => sum + Number(o?.finalAmount ?? 0),
             0,
         );
-        const delivered = orders.filter((o) => o.status === "DELIVERED").length;
-        return { totalSpent, delivered, count: orders.length };
+        const delivered = (orders ?? []).filter((o) => o?.status === "DELIVERED").length;
+        return { totalSpent, delivered, count: (orders ?? []).length };
     }, [orders]);
 
     if (!user) {
@@ -294,7 +294,7 @@ const OrderListingPage: React.FC = () => {
                                             className="w-full bg-slate-50 border-slate-100 rounded-lg text-sm font-bold p-2.5 focus:border-indigo-500 outline-none"
                                         >
                                             <option value="ALL">All Orders</option>
-                                            {Object.keys(ORDER_STATUS_CONFIG).map((s) => (
+                                            {Object.keys(ORDER_STATUS_CONFIG ?? {}).map((s) => (
                                                 <option key={s} value={s}>
                                                     {getStatusLabel(s)}
                                                 </option>
@@ -396,9 +396,9 @@ const OrderListingPage: React.FC = () => {
                                                         </div>
                                                         <div>
                                                             <p className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
-                                                                {order.orderNumber}
+                                                                {order?.orderNumber ?? 'N/A'}
                                                             </p>
-                                                            {/* <p className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">#{order.id.slice(0, 12)}</p> */}
+                                                            {/* <p className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">#{order?.id?.slice(0, 12) ?? ''}</p> */}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -408,7 +408,7 @@ const OrderListingPage: React.FC = () => {
                                                             size={16}
                                                             className="text-slate-400"
                                                         />
-                                                        {new Date(order.createdAt).toLocaleDateString(
+                                                        {new Date(order?.createdAt ?? new Date()).toLocaleDateString(
                                                             "en-US",
                                                             {
                                                                 month: "short",
@@ -419,7 +419,7 @@ const OrderListingPage: React.FC = () => {
                                                     </div>
                                                     <p className="text-[10px] font-bold text-slate-400 ml-6">
                                                         Recorded at{" "}
-                                                        {new Date(order.createdAt).toLocaleTimeString([], {
+                                                        {new Date(order?.createdAt ?? new Date()).toLocaleTimeString([], {
                                                             hour: "2-digit",
                                                             minute: "2-digit",
                                                         })}
@@ -437,23 +437,23 @@ const OrderListingPage: React.FC = () => {
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <p className="text-sm font-bold text-slate-900">
-                                                        {order.itemsCount}{" "}
-                                                        {Number(order.itemsCount) === 1 ? "item" : "items"}
+                                                        {order?.itemsCount ?? 0}{" "}
+                                                        {Number(order?.itemsCount ?? 0) === 1 ? "item" : "items"}
                                                     </p>
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <p className="text-base font-black text-slate-950">
                                                         ₹
                                                         {parseFloat(
-                                                            order?.finalAmount || "0",
+                                                            order?.finalAmount ?? "0",
                                                         ).toLocaleString(undefined, {
                                                             minimumFractionDigits: 2,
                                                         })}
                                                     </p>
                                                     <p
-                                                        className={`text-[9px] font-black uppercase tracking-tighter ${order.paymentStatus === "COMPLETED" ? "text-emerald-500" : "text-amber-500"}`}
+                                                        className={`text-[9px] font-black uppercase tracking-tighter ${(order?.paymentStatus === "COMPLETED") ? "text-emerald-500" : "text-amber-500"}`}
                                                     >
-                                                        {order.paymentStatus}
+                                                        {order?.paymentStatus ?? 'PENDING'}
                                                     </p>
                                                 </td>
                                                 <td className="px-8 py-6 text-center">

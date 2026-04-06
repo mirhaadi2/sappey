@@ -40,10 +40,10 @@ const Header: React.FC = () => {
     // Fetch homepage data for banner
     const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
 
-    const searchResults = searchQuery?.trim()?.length > 0
-        ? products?.filter((p: any) =>
-            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.category.toLowerCase().includes(searchQuery.toLowerCase())
+    const searchResults = (searchQuery?.trim?.()?.length ?? 0) > 0
+        ? (products ?? []).filter((p: any) =>
+            p?.name?.toLowerCase?.().includes(searchQuery?.toLowerCase?.()) ||
+            p?.category?.toLowerCase?.().includes(searchQuery?.toLowerCase?.())
         )?.slice(0, 6)
         : [];
 
@@ -112,14 +112,14 @@ const Header: React.FC = () => {
             navigate(href);
         }
     };
-    const activeBanner = homepageData?.banners?.find(b => b.isActive);
+    const activeBanner = homepageData?.banners?.find?.(b => b?.isActive);
 
     return (
         <>
             {/* Dynamic Banner */}
             {activeBanner && (
                 <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
-                    {activeBanner?.text}
+                    {activeBanner?.text ?? ''}
                 </div>
             )}
 
@@ -222,7 +222,7 @@ const Header: React.FC = () => {
                                                     <div className="font-sans text-xs text-gray-400 capitalize">{result.category}</div>
                                                 </div>
                                                 <span className="ml-auto font-label text-sm text-brand-brown font-medium flex-shrink-0">
-                                                    ${result?.price?.toFixed(2)}
+                                                    ${(result?.price ?? 0)?.toFixed(2)}
                                                 </span>
                                             </button>
                                         ))}
@@ -253,7 +253,7 @@ const Header: React.FC = () => {
                                 >
                                     <User size={18} weight="fill" />
                                     <span className="hidden sm:inline font-label text-sm font-medium capitalize">
-                                        {user?.name || user?.email?.split("@")?.[0]}
+                                        {user?.name ?? (user?.email?.split?.("@")?.[0] ?? 'User')}
                                     </span>
                                 </button>
                                 <button

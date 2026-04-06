@@ -34,16 +34,16 @@ const ProductDetailPage: React.FC = () => {
     const options: any[] = [];
 
     // 1. Add additional variants if they exist
-    if (Array.isArray(product.variants)) {
-      product.variants.forEach((variant: any) => {
+    if (Array.isArray(product?.variants)) {
+      product?.variants?.forEach?.((variant: any) => {
         options.push({
-          id: variant.id,
-          productId: variant.productId,
-          label: `${Math.floor(Number(variant.weight))} ${variant.weightUnit || "Grams"}`,
-          weight: `${Math.floor(Number(variant.weight))} ${variant.weightUnit || "Grams"}`,
-          price: Number(variant.price),
-          sku: variant.sku,
-          status: variant.status,
+          id: variant?.id,
+          productId: variant?.productId,
+          label: `${Math.floor(Number(variant?.weight ?? 0))} ${variant?.weightUnit ?? "Grams"}`,
+          weight: `${Math.floor(Number(variant?.weight ?? 0))} ${variant?.weightUnit ?? "Grams"}`,
+          price: Number(variant?.price ?? 0),
+          sku: variant?.sku,
+          status: variant?.status,
           isMaster: false,
         });
       });
@@ -106,8 +106,8 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const relatedProducts = product
-    ? products
-      .filter((p: any) => p.category === product?.category && p.id !== product.id)
+    ? (products ?? [])
+      .filter((p: any) => p?.category === product?.category && p?.id !== product?.id)
       .slice(0, 4)
     : [];
 
@@ -222,7 +222,7 @@ const ProductDetailPage: React.FC = () => {
               {product?.badge && (
                 <span
                   className={`font-label text-xs uppercase tracking-widest px-2 py-1 rounded-full 
-                  ${product.badge === "Bestseller"
+                  ${(product?.badge === "Bestseller")
                       ? "bg-brand-brown text-brand-cream"
                       : "bg-brand-plum text-brand-cream"
                     }`}
@@ -255,7 +255,7 @@ const ProductDetailPage: React.FC = () => {
                 ))}
               </div>
               <span className="font-sans text-sm text-gray-600">
-                {product?.rating} ({product?.reviewCount ?? 0} reviews)
+                {product?.rating ?? 0} ({(product?.reviewCount ?? 0)} reviews)
               </span>
             </div>
 

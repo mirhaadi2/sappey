@@ -90,14 +90,14 @@ const CartDrawer: React.FC = () => {
                                 </div>
                             ) : (
                                 <ul className="space-y-4">
-                                    {state?.items.map((item: any) => (
+                                    {(state?.items ?? []).map((item: any) => (
                                         <li
-                                            key={`${item.product.id}-${getVariantKey(item.variant)}`}
+                                            key={`${item?.product?.id ?? 'unknown'}-${getVariantKey(item?.variant)}`}
                                             className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200"
                                         >
                                             <img
-                                                src={item.product.images?.[0] || "/placeholder.png"}
-                                                alt={item.product.name}
+                                                src={item?.product?.images?.[0] ?? "/placeholder.png"}
+                                                alt={item?.product?.name ?? 'Product'}
                                                 className="w-16 h-16 object-cover rounded-lg"
                                             />
                                             <div className="flex-1 min-w-0">
@@ -105,10 +105,10 @@ const CartDrawer: React.FC = () => {
                                                     className="font-label text-sm text-brand-brown font-500 truncate"
                                                     style={{ fontWeight: 500 }}
                                                 >
-                                                    {item.product.name}
+                                                    {item?.product?.name ?? 'Product'}
                                                 </h3>
                                                 <p className="font-sans text-xs text-gray-500 mb-2">
-                                                    Weight: {item.variant?.label || "Standard"}
+                                                    Weight: {item?.variant?.label ?? "Standard"}
                                                 </p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
@@ -117,35 +117,35 @@ const CartDrawer: React.FC = () => {
                                                                 dispatch({
                                                                     type: "UPDATE_QUANTITY",
                                                                     payload: {
-                                                                        productId: item.product.id,
-                                                                        variant: item.variant,
-                                                                        quantity: item.quantity - 1,
+                                                                        productId: item?.product?.id ?? '',
+                                                                        variant: item?.variant,
+                                                                        quantity: (item?.quantity ?? 0) - 1,
                                                                     },
                                                                 })
                                                             }
-                                                            disabled={item.quantity <= 1}
+                                                            disabled={(item?.quantity ?? 0) <= 1}
                                                             className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                                            aria-label={`Decrease quantity of ${item.product.name}`}
-                                                            title={item.quantity <= 1 ? "Quantity cannot be less than 1" : "Decrease quantity"}
+                                                            aria-label={`Decrease quantity of ${item?.product?.name ?? 'Product'}`}
+                                                            title={(item?.quantity ?? 0) <= 1 ? "Quantity cannot be less than 1" : "Decrease quantity"}
                                                         >
                                                             <Minus size={12} weight="bold" />
                                                         </button>
                                                         <span className="font-label text-sm text-brand-brown w-6 text-center">
-                                                            {item.quantity}
+                                                            {item?.quantity ?? 0}
                                                         </span>
                                                         <button
                                                             onClick={() =>
                                                                 dispatch({
                                                                     type: "UPDATE_QUANTITY",
                                                                     payload: {
-                                                                        productId: item.product.id,
-                                                                        variant: item.variant,
-                                                                        quantity: item.quantity + 1,
+                                                                        productId: item?.product?.id ?? '',
+                                                                        variant: item?.variant,
+                                                                        quantity: (item?.quantity ?? 0) + 1,
                                                                     },
                                                                 })
                                                             }
                                                             className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                                                            aria-label={`Increase quantity of ${item.product.name}`}
+                                                            aria-label={`Increase quantity of ${item?.product?.name ?? 'Product'}`}
                                                         >
                                                             <Plus size={12} weight="bold" />
                                                         </button>
@@ -154,9 +154,9 @@ const CartDrawer: React.FC = () => {
                                                         className="font-label text-sm text-brand-brown font-500"
                                                         style={{ fontWeight: 500 }}
                                                     >
-                                                        ₹{(((typeof item.variant === 'object' && item.variant.price)
-                                                            ? item.variant.price
-                                                            : item.product.price) * item.quantity).toFixed(2)}
+                                                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price)
+                                                            ? item?.variant?.price
+                                                            : item?.product?.price ?? 0) * (item?.quantity ?? 0)).toFixed(2)}
                                                     </span>
                                                 </div>
                                             </div>
@@ -165,8 +165,8 @@ const CartDrawer: React.FC = () => {
                                                     dispatch({
                                                         type: "REMOVE_ITEM",
                                                         payload: {
-                                                            productId: item.product.id,
-                                                            variant: item.variant,
+                                                            productId: item?.product?.id ?? '',
+                                                            variant: item?.variant,
                                                         },
                                                     })
                                                 }

@@ -107,14 +107,14 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleEditAddress = (addressId: string) => {
-    const address = addresses.find((a) => a.id === addressId);
+    const address = (addresses ?? []).find((a) => a?.id === addressId);
     if (address) {
       Object.entries(address).forEach(([key, value]) => {
-        if (key !== "id" && key !== "userId" && key !== "type" && key !== "createdAt" && key !== "updatedAt" && key !== "isDefault") {
-          setValue(key as keyof AddressFormData, value as string);
+        if (!["id", "userId", "type", "createdAt", "updatedAt", "isDefault"].includes(key)) {
+          setValue(key as keyof AddressFormData, (value ?? '') as string);
         }
       });
-      setSelectedAddressType(address.type || "HOME");
+      setSelectedAddressType(address?.type ?? "HOME");
       setEditingAddressId(addressId);
       setShowAddressForm(true);
     }
@@ -156,20 +156,20 @@ const ProfilePage: React.FC = () => {
                 <div className="w-20 h-20 bg-gradient-to-br from-brand-brown/20 to-brand-cocoa/20 rounded-full flex items-center justify-center mb-6">
                   <User size={40} className="text-brand-brown" weight="fill" />
                 </div>
-                <h2 className="text-2xl font-bold text-brand-brown mb-1">{user?.name ?? user.email?.split("@")[0]}</h2>
-                {/* <p className="text-gray-500 text-sm mb-6">{user.email}</p> */}
+                <h2 className="text-2xl font-bold text-brand-brown mb-1">{user?.name ?? (user?.email?.split?.("@")?.[0] ?? 'User')}</h2>
+                {/* <p className="text-gray-500 text-sm mb-6">{user?.email}</p> */}
                 <div className="w-full space-y-3 pt-6 border-t border-gray-100">
                   <div className="flex items-center gap-3 text-gray-700 text-sm">
                     <Envelope size={18} className="text-brand-brown" />
-                    <span className="truncate">{user.email}</span>
+                    <span className="truncate">{user?.email ?? 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-700 text-sm">
                     <Phone size={18} className="text-brand-brown" />
-                    <span className="capitalize">{user.phone || "Not provided"}</span>
+                    <span className="capitalize">{user?.phone ?? "Not provided"}</span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-700 text-sm">
                     <User size={18} className="text-brand-brown" />
-                    <span className="capitalize">{user.role || "Customer"}</span>
+                    <span className="capitalize">{user?.role ?? "Customer"}</span>
                   </div>
 
                   {/* Orders Button */}

@@ -40,15 +40,15 @@ const OrderDetailsPage: React.FC = () => {
         
         // Logical mapping for internal steps (PACKED/HANDOVER fall under PROCESSING in the visual timeline)
         let mappedStatus = order.status;
-        if (["PACKED", "HANDOVER"].includes(order.status)) mappedStatus = "PROCESSING";
-        if (["OUT_FOR_DELIVERY"].includes(order.status)) mappedStatus = "SHIPPED";
+        if (["PACKED", "HANDOVER"].includes(order?.status ?? '')) mappedStatus = "PROCESSING";
+        if (["OUT_FOR_DELIVERY"].includes(order?.status ?? '')) mappedStatus = "SHIPPED";
 
         const currentIndex = statusOrder.indexOf(mappedStatus);
 
         return TIMELINE_STEPS.map((step, idx) => ({
             ...step,
-            isCompleted: idx < currentIndex || (order.status === "DELIVERED" && idx === currentIndex),
-            isActive: idx === currentIndex && order.status !== "DELIVERED",
+            isCompleted: idx < currentIndex || (order?.status === "DELIVERED" && idx === currentIndex),
+            isActive: idx === currentIndex && order?.status !== "DELIVERED",
             isUpcoming: idx > currentIndex
         }));
     }, [order]);
@@ -116,15 +116,15 @@ const OrderDetailsPage: React.FC = () => {
                         <div>
                             <div className="flex items-center gap-3 mb-3">
                                 <span className="font-label text-[10px] font-black uppercase tracking-[0.3em] text-brand-brown/40">Tracking Reference</span>
-                                <div className={`w-2 h-2 rounded-full animate-pulse ${order.status === 'DELIVERED' ? 'bg-emerald-500' : 'bg-orange-500'}`} />
+                                <div className={`w-2 h-2 rounded-full animate-pulse ${order?.status === 'DELIVERED' ? 'bg-emerald-500' : 'bg-orange-500'}`} />
                             </div>
-                            <h1 className="text-3xl font-black text-brand-brown tracking-tighter mb-2">#{order.orderNumber}</h1>
+                            <h1 className="text-3xl font-black text-brand-brown tracking-tighter mb-2">#{order?.orderNumber}</h1>
                             <p className="text-slate-500 font-bold text-sm flex items-center gap-2">
                                 <Clock weight="bold" className="text-brand-brown/30" />
-                                {new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: 'full' })}
+                                {new Date(order?.createdAt ?? new Date()).toLocaleDateString("en-US", { dateStyle: 'full' })}
                             </p>
                         </div>
-                        <OrderStatusBadge status={order.status as OrderStatus} size="lg" showIcon animated />
+                        <OrderStatusBadge status={(order?.status as OrderStatus) ?? 'PENDING'} size="lg" showIcon animated />
                     </div>
                 </motion.div>
 
@@ -159,12 +159,12 @@ const OrderDetailsPage: React.FC = () => {
                                     <Package size={24} weight="duotone" className="text-[#9a5d2e]" /> Consignment Items
                                 </h2>
                                 <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-slate-500 uppercase">
-                                    {order.items?.length || 0} Units
+                                    {order?.items?.length ?? 0} Units
                                 </span>
                             </div>
                             <div className="divide-y divide-slate-100">
-                                {order.items?.map((item: any, idx: number) => (
-                                    <div key={item.id || idx} className="p-8">
+                                {order?.items?.map((item: any, idx: number) => (
+                                    <div key={item?.id ?? idx} className="p-8">
                                         <OrderItemCard item={item} index={idx} isOrderItem={true} />
                                     </div>
                                 ))}
@@ -173,21 +173,21 @@ const OrderDetailsPage: React.FC = () => {
                                 <div className="space-y-3 mb-6">
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Subtotal</span>
-                                        <span className="text-white">₹{parseFloat(order.totalAmount).toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order?.totalAmount ?? '0').toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Shipping & Handling</span>
-                                        <span className="text-white">₹{parseFloat(order?.shippingCost || '0').toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order?.shippingCost ?? '0').toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-400 font-bold text-sm">
                                         <span className="text-brand-cream">Applicable Tax</span>
-                                        <span className="text-white">₹{parseFloat(order?.taxAmount || '0').toFixed(2)}</span>
+                                        <span className="text-white">₹{parseFloat(order?.taxAmount ?? '0').toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">Grand Total</p>
-                                        <h3 className="text-4xl font-black tracking-tighter">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
+                                        <h3 className="text-4xl font-black tracking-tighter">₹{parseFloat(order?.finalAmount ?? '0').toFixed(2)}</h3>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Currency</p>
@@ -205,10 +205,10 @@ const OrderDetailsPage: React.FC = () => {
                                 <MapPin size={20} weight="duotone" className="text-[#9a5d2e]" /> Destination
                             </h3>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Recipient</p>
-                            <p className="text-sm font-black text-slate-900 uppercase mb-4">{user.name}</p>
+                            <p className="text-sm font-black text-slate-900 uppercase mb-4">{user?.name ?? 'N/A'}</p>
                             <p className="text-sm font-bold text-slate-700 leading-relaxed mb-4">
-                                {order?.shippingAddressLine1}, {order?.shippingCity}<br />
-                                {order?.shippingState} — {order?.shippingPostalCode}
+                                {order?.shippingAddressLine1 ?? ''}, {order?.shippingCity ?? ''}<br />
+                                {order?.shippingState ?? ''} — {order?.shippingPostalCode ?? ''}
                             </p>
                             {order?.shippingPhone && (
                                 <button onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")} className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all group">
@@ -228,14 +228,14 @@ const OrderDetailsPage: React.FC = () => {
                             </h3>
                             <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl mb-3">
                                 <span className="text-xs font-bold text-slate-500">Status</span>
-                                <span className={`text-[10px] font-black px-2 py-1 rounded-md ${order.paymentStatus === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                    {order.paymentStatus}
+                                <span className={`text-[10px] font-black px-2 py-1 rounded-md ${(order?.paymentStatus === 'COMPLETED') ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                    {order?.paymentStatus ?? 'PENDING'}
                                 </span>
                             </div>
                         </div>
 
                         {/* Cancellation Logic */}
-                        {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
+                        {(order?.status !== "DELIVERED" && order?.status !== "CANCELLED") && (
                             <button onClick={() => setShowCancelConfirm(true)} className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all">
                                 Terminate Transaction
                             </button>

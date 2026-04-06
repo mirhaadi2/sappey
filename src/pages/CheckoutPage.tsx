@@ -40,10 +40,10 @@ const CheckoutPage: React.FC = () => {
   const isFreeDelivery = paymentMethod === "cod";
 
   const orderSummary: OrderSummary = {
-    items: state.items.length,
-    subtotal: state.items.reduce((sum, item) => sum + ((typeof item.variant === 'object' && item.variant.price)
+    items: state?.items?.length ?? 0,
+    subtotal: (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
       ? item.variant.price
-      : item.product.price) * item.quantity, 0),
+      : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0),
     tax: 0,
     shipping: isFreeDelivery ? 0 : originalShipping,
     total: 0,
@@ -60,16 +60,16 @@ const CheckoutPage: React.FC = () => {
 
     try {
       // ✅ Map cart items to order items with correct payload structure
-      const orderItems = state.items.map((item) => {
-        const variantData = typeof item.variant === 'object' ? item.variant : {};
+      const orderItems = (state?.items ?? []).map((item) => {
+        const variantData = typeof item?.variant === 'object' ? (item?.variant ?? {}) : {};
         return {
-          productId: item.product.id,
-          productVariantId: variantData.id || item.product.id,
-          sku: variantData.sku || '',
-          quantity: item.quantity,
-          price: variantData.price || item.product.price || 0,
-          discountedPrice: variantData.discountedPrice || variantData.price || item.product.price || 0,
-          discountedPercent: variantData.discountedPercent || 0,
+          productId: item?.product?.id ?? '',
+          productVariantId: variantData?.id ?? item?.product?.id ?? '',
+          sku: variantData?.sku ?? '',
+          quantity: item?.quantity ?? 0,
+          price: variantData?.price ?? item?.product?.price ?? 0,
+          discountedPrice: variantData?.discountedPrice ?? variantData?.price ?? item?.product?.price ?? 0,
+          discountedPercent: variantData?.discountedPercent ?? 0,
         };
       });
 
@@ -97,18 +97,18 @@ const CheckoutPage: React.FC = () => {
       // Navigate to success page with order details
       navigate("/order-success", {
         state: {
-          orderId: newOrder.id,
-          orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder.id}`,
+          orderId: newOrder?.id ?? '',
+          orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder?.id ?? 'Unknown'}`,
           orderTotal: orderSummary.total,
           estimatedDelivery: new Date(
             Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
           ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           shippingMethod,
           paymentMethod,
-          address: addresses.find((a) => a.id === selectedAddressId)
-            ? `${addresses.find((a) => a.id === selectedAddressId)?.name}, ${addresses.find((a) => a.id === selectedAddressId)?.city}`
+          address: (addresses ?? []).find((a) => a?.id === selectedAddressId)
+            ? `${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.name ?? 'N/A'}, ${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.city ?? 'N/A'}`
             : undefined,
-          itemCount: state.items.length,
+          itemCount: state?.items?.length ?? 0,
         },
       });
 
@@ -135,7 +135,7 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  if (state.items?.length === 0) {
+  if ((state?.items?.length ?? 0) === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
         <div className="text-center">
@@ -152,7 +152,7 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+  const selectedAddress = (addresses ?? []).find((a) => a?.id === selectedAddressId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">

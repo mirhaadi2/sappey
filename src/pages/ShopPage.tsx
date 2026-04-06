@@ -65,20 +65,20 @@ const ShopPage: React.FC = () => {
   };
 
   const sortedProducts = useMemo(() => {
-    const result = [...products];
+    const result = [...(products ?? [])];
 
     switch (sortBy) {
       case "price-asc":
-        result.sort((a, b) => Number(a.basePrice) - Number(b.basePrice));
+        result.sort((a, b) => Number(a?.basePrice ?? 0) - Number(b?.basePrice ?? 0));
         break;
       case "price-desc":
-        result.sort((a, b) => Number(b.basePrice) - Number(a.basePrice));
+        result.sort((a, b) => Number(b?.basePrice ?? 0) - Number(a?.basePrice ?? 0));
         break;
       case "rating":
         // TODO: Add rating field to API response
         break;
       case "newest":
-        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        result.sort((a, b) => new Date(b?.createdAt ?? new Date()).getTime() - new Date(a?.createdAt ?? new Date()).getTime());
         break;
       default:
         break;
@@ -151,16 +151,16 @@ const ShopPage: React.FC = () => {
               {categoriesLoading ? (
                 <div className="text-xs text-gray-500">Loading...</div>
               ) : (
-                [{ id: "all", name: "All" }, ...apiCategories].map((cat) => (
+                ([{ id: "all", name: "All" }, ...(apiCategories ?? [])]).map((cat) => (
                   <button
-                    key={cat.id}
-                    onClick={() => setCategory(cat.id)}
-                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${activeCategory === cat.id
+                    key={cat?.id}
+                    onClick={() => setCategory(cat?.id ?? 'all')}
+                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${(activeCategory === (cat?.id ?? 'all'))
                         ? "bg-brand-brown text-brand-cream"
                         : "bg-brand-latte text-brand-brown hover:bg-gray-200"
                       }`}
                   >
-                    {cat.name}
+                    {cat?.name ?? 'Category'}
                   </button>
                 ))
               )}
