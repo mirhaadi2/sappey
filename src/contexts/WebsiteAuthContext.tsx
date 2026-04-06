@@ -66,8 +66,10 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setTimeout(() => {
         window.location.href = '/';
       }, 500);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+    } catch (err: unknown) {
+      const errorMessage = (err instanceof Object && 'response' in err && typeof (err as any).response?.data?.message === 'string') 
+        ? (err as any).response.data.message 
+        : 'Login failed';
       setError(errorMessage);
       throw err;
     } finally {
@@ -87,8 +89,10 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setTimeout(() => {
         window.location.href = '/profile';
       }, 500);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+    } catch (err: unknown) {
+      const errorMessage = (err instanceof Object && 'response' in err && typeof (err as any).response?.data?.message === 'string') 
+        ? (err as any).response.data.message 
+        : 'Registration failed';
       setError(errorMessage);
       throw err;
     } finally {
@@ -108,8 +112,10 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setTimeout(() => {
         window.location.href = '/';
       }, 500);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Logout failed';
+    } catch (err: unknown) {
+      const errorMessage = (err instanceof Object && 'response' in err && typeof (err as any).response?.data?.message === 'string') 
+        ? (err as any).response.data.message 
+        : 'Logout failed';
       setError(errorMessage);
       throw err;
     } finally {

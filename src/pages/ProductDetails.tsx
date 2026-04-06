@@ -39,11 +39,11 @@ const ProductDetailPage: React.FC = () => {
 const variantOptions = useMemo(() => {
     if (!product) return [];
 
-    const options: any[] = [];
+    const options: Record<string, unknown>[] = [];
 
     // 1. Add additional variants if they exist
     if (Array.isArray(product?.variants)) {
-      product?.variants?.forEach?.((variant: any) => {
+      (product?.variants as Array<string | ProductVariant>)?.forEach?.((variant: string | ProductVariant) => {
         options.push({
           id: variant?.id,
           productId: variant?.productId,
@@ -64,7 +64,7 @@ const variantOptions = useMemo(() => {
   const selectedVariantData = useMemo(() => {
     if (!variantOptions || variantOptions.length === 0) return null;
     const found = variantOptions.find(
-      (item: any) => item.id === selectedVariant,
+      (item: Record<string, unknown>) => item.id === selectedVariant,
     );
     return found || variantOptions[0];
   }, [selectedVariant, variantOptions]);
@@ -108,7 +108,7 @@ const variantOptions = useMemo(() => {
 
   const relatedProducts = product
     ? (products ?? [])
-      .filter((p: any) => p?.category === product?.category && p?.id !== product?.id)
+      .filter((p: Product) => p?.category === product?.category && p?.id !== product?.id)
       .slice(0, 4)
     : [];
 
@@ -289,7 +289,7 @@ const variantOptions = useMemo(() => {
                   "Free shipping on orders above $49",
                   "Use SAPPEY10 for 10% off your first order",
                   "Buy 2 get 5% off | Buy 3 get 10% off",
-                ]?.map((offer: any) => (
+                ]?.map((offer: Record<string, unknown>) => (
                   <li key={offer} className="flex items-start gap-2">
                     <Check
                       size={14}
@@ -310,7 +310,7 @@ const variantOptions = useMemo(() => {
               </h3>
 
               <div className="flex flex-wrap gap-2">
-                {variantOptions.map((variant: any) => (
+                {variantOptions.map((variant: Record<string, unknown>) => (
                   <button
                     key={variant.id}
                     onClick={() => setSelectedVariant(variant.id)}
@@ -423,7 +423,7 @@ const variantOptions = useMemo(() => {
             Per 100g serving
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {product?.nutrition?.map((fact: any) => (
+            {product?.nutrition?.map((fact: Record<string, unknown>) => (
               <div
                 key={fact?.label}
                 className="bg-brand-latte rounded-lg p-4 text-center"
@@ -458,7 +458,7 @@ const variantOptions = useMemo(() => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {product?.reviews?.map((review: any) => (
+            {product?.reviews?.map((review: Record<string, unknown>) => (
               <div
                 key={review?.id}
                 className="bg-white rounded-lg border border-gray-200 p-6"
@@ -519,7 +519,7 @@ const variantOptions = useMemo(() => {
               You May Also Like
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts?.map((p: any) => (
+              {relatedProducts?.map((p: Product) => (
                 <ProductCard key={p?.id} product={p} />
               ))}
             </div>

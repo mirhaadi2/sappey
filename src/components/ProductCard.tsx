@@ -1,8 +1,8 @@
-import React, { useMemo, memo } from "react";
+import React, { memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart } from "@phosphor-icons/react";
-import { Product } from "../types";
+import { Product, ProductVariant } from "../types";
 
 interface ProductCardProps {
     product: Product;
@@ -13,7 +13,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const variantOptions = React.useMemo(() => {
         if (!Array.isArray(product?.variants) || (product?.variants?.length ?? 0) === 0) return [];
 
-        const options = (product?.variants ?? []).map((variant: any) => {
+        const options = (product?.variants ?? []).map((variant: string | ProductVariant) => {
             if (typeof variant === 'string') {
                 return {
                     id: variant,
@@ -31,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         });
 
         // Sort by weight ascending (lowest g first)
-        return options.sort((a: any, b: any) => (a?.weight ?? 0) - (b?.weight ?? 0));
+        return options.sort((a: Record<string, unknown>, b: Record<string, unknown>) => (Number(a?.weight ?? 0)) - (Number(b?.weight ?? 0)));
     }, [product]);
 
     const priceRange = React.useMemo(() => {
@@ -39,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             const basePrice = Number(product?.basePrice ?? product?.price ?? 0);
             return { min: basePrice, max: basePrice };
         }
-        const prices = (variantOptions ?? []).map((v: any) => Number(v?.price ?? 0));
+        const prices = (variantOptions ?? []).map((v: Record<string, unknown>) => Number(v?.price ?? 0));
         return { min: Math.min(...prices), max: Math.max(...prices) };
     }, [product, variantOptions]);
 

@@ -27,7 +27,7 @@ const ShopPage: React.FC = () => {
 
   const limit = 12;
 
-  const productFilters: any = React.useMemo(() => ({
+  const productFilters: Record<string, unknown> = React.useMemo(() => ({
     ...(activeCategory !== "all" ? { categoryId: activeCategory } : {}),
     ...(searchQuery ? { search: searchQuery } : {}),
     ...(isBestsellerFilter ? { isBestseller: true } : {}),

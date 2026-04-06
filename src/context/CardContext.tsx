@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
-import { Product, CartItem } from "../types";
+import { Product, CartItem, ProductVariant } from "../types";
 
 interface CartState {
     items: CartItem[];
@@ -7,18 +7,20 @@ interface CartState {
 }
 
 type CartAction = 
-    | { type: "ADD_ITEM", payload: { product: Product; variant: any; quantity: number }}
-    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: any }}
-    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: any; quantity: number }}
+    | { type: "ADD_ITEM", payload: { product: Product; variant: ProductVariant | string | null; quantity: number }}
+    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: ProductVariant | string | null }}
+    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: ProductVariant | string | null; quantity: number }}
     | { type: "TOGGLE_CART" }
     | { type: "OPEN_CART" }
     | { type: "CLOSE_CART" } 
     | { type: "CLEAR_CART" }
 
 // Helper function to get consistent variant identifier
-export const getVariantKey = (variant: any): string => {
+export const getVariantKey = (variant: ProductVariant | string | null): string => {
     if (!variant) return "no-variant";
-    // Use variant.id as primary key, fallback to sku, then label
+    // If it's a string, just return it
+    if (typeof variant === 'string') return variant;
+    // Otherwise it should be a ProductVariant object
     if (variant.id) return variant.id;
     if (variant.sku) return variant.sku;
     if (variant.label) return variant.label;

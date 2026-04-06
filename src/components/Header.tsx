@@ -15,6 +15,8 @@ const navLinks = [
     { label: "Contact", href: "/#contact" },
 ];
 
+import { Product } from "../types";
+
 const Header: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -26,24 +28,22 @@ const Header: React.FC = () => {
     const { user, signOut, openAuthModal } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [sortBy, setSortBy] = useState<any>("default");
-    const [viewMode, setViewMode] = useState<any>("grid-4");
+    const [searchParams] = useSearchParams();
 
     const activeCategory = searchParams.get("category") || "all";
     //   const searchQuery = searchParams.get("search") || "";
 
     // Fetch products from API with optional category filter
-    const { products, isLoading, error } = useProducts(
+    const { products } = useProducts(
         activeCategory !== "all" ? { categoryId: activeCategory } : undefined,
     );
 
     // Fetch homepage data for banner
-    const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
+    const { data: homepageData } = useHomepageData();
 
     const searchResults = useMemo(() => {
         return (searchQuery?.trim?.()?.length ?? 0) > 0
-            ? (products ?? []).filter((p: any) =>
+            ? (products ?? []).filter((p: Product) =>
                 p?.name?.toLowerCase?.().includes(searchQuery?.toLowerCase?.()) ||
                 p?.category?.toLowerCase?.().includes(searchQuery?.toLowerCase?.())
             )?.slice(0, 6)
@@ -218,7 +218,7 @@ const Header: React.FC = () => {
                                         transition={{ duration: 0.18 }}
                                         className="absolute top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden"
                                     >
-                                        {searchResults.map((result: any) => (
+                                        {searchResults.map((result: Product) => (
                                             <button
                                                 onClick={() => handleSearchSelect(result.id)}
                                                 className="flex items-center gap-3 w-full px-4 py-3 hover:bg-brand-latte transition-colors text-left"

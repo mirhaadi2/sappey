@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
@@ -15,6 +15,7 @@ import {
 import ProductCard from "../components/ProductCard";
 import { useHomepageData, Hero } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
+import { Product } from "../types";
 import { HomeSkeleton } from "../components/Skeletons";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -55,7 +56,7 @@ export const formatSectionTitle = (slug: string | undefined): string => {
         .trim();
 };
 
-const formatHeroTitle = (title: any) => {
+const formatHeroTitle = (title: string | undefined) => {
     if (!title) return null;
 
     const words = title.split(" ");
@@ -175,9 +176,9 @@ const HomePage: React.FC = () => {
 
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
     console.log(hero, 'hero');
-    const sections = Array.isArray(homepageData?.sections) ? homepageData.sections?.filter((section: any) => section?.isActive) : [];
-    const testimonials = Array.isArray(homepageData?.testimonials) ? homepageData.testimonials?.filter((testimony: any) => testimony?.isActive) : [];
-    const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? homepageData.instagramPosts?.filter((post: any) => post?.isActive) : [];
+    const sections = Array.isArray(homepageData?.sections) ? (homepageData.sections as unknown as Record<string, unknown>[])?.filter((section: Record<string, unknown>) => section?.isActive) : [];
+    const testimonials = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as unknown as Record<string, unknown>[])?.filter((testimony: Record<string, unknown>) => testimony?.isActive) : [];
+    const instagramPosts = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as unknown as Record<string, unknown>[])?.filter((post: Record<string, unknown>) => post?.isActive) : [];
 
     const collections = Array.isArray(collectionProducts) ? collectionProducts : [];
     const bestsellers = Array.isArray(bestsellersProducts) ? bestsellersProducts : [];
@@ -221,19 +222,30 @@ const HomePage: React.FC = () => {
     ];
 
     const dynamicSections = sections
-        .filter((s) => !knownSectionTypes.includes(s.sectionType) && s.isActive)
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+        .filter((s) => !knownSectionTypes.includes(String(s.sectionType)) && s.isActive)
+        .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-    const renderDynamicSection = (s: any) => (
-        <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
+    const renderDynamicSection = (s: Record<string, unknown>) => {
+        const sectionId = String(s.id ?? '');
+        const sectionType = String(s.sectionType ?? '');
+        const title = String(s.title ?? '');
+        const subtitle = String(s.subtitle ?? '');
+        const content = String(s.content ?? '');
+        const buttonLink = String(s.buttonLink ?? '');
+        const buttonText = String(s.buttonText ?? '');
+        const backgroundImageUrl = String(s.backgroundImageUrl ?? '');
+        const imageUrl = String(s.imageUrl ?? '');
+        
+        return (
+        <section key={sectionId} className="relative overflow-hidden" aria-label={`${sectionType} banner`}>
             <div className="relative h-80 md:h-96">
                 <img
                     src={
-                        s.backgroundImageUrl ||
-                        s?.imageUrl ||
+                        backgroundImageUrl ||
+                        imageUrl ||
                         "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
                     }
-                    alt={`${s.sectionType} banner`}
+                    alt={`${sectionType} banner`}
                     className="w-full h-full object-cover"
                     loading="lazy"
                 />
@@ -248,23 +260,23 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                         >
                             <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                {formatSectionTitle(s.sectionType)}
+                                {formatSectionTitle(sectionType)}
                             </span>
                             <h2
                                 className="font-headline text-4xl text-brand mb-4 text-brand-cream"
                                 style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                             >
-                                {s.title || formatSectionTitle(s.sectionType)}
+                                {title || formatSectionTitle(sectionType)}
                             </h2>
                             <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                {s.subtitle || s.content || "Discover more about our premium products."}
+                                {subtitle || content || "Discover more about our premium products."}
                             </p>
-                            {s.buttonLink && s.buttonText && (
+                            {buttonLink && buttonText && (
                                 <button
-                                    onClick={() => navigate(s.buttonLink)}
+                                    onClick={() => navigate(buttonLink)}
                                     className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
                                 >
-                                    {s.buttonText}
+                                    {buttonText}
                                 </button>
                             )}
                         </motion.div>
@@ -273,6 +285,7 @@ const HomePage: React.FC = () => {
             </div>
         </section>
     );
+    };
 
     return (
         <div className="text-foreground">
@@ -417,7 +430,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                         >
-                            {(collections.length > 0 ? collections : []).map((product: any) => (
+                            {(collections.length > 0 ? collections : []).map((product: Product) => (
                                 <motion.div key={product.id} variants={fadeUpVariants}>
                                     <ProductCard product={product} />
                                 </motion.div>
@@ -470,7 +483,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                         >
-                            {bestsellers?.map((product: any) => (
+                            {bestsellers?.map((product: Product) => (
                                 <motion.div key={product?.id} variants={fadeUpVariants}>
                                     <ProductCard product={product} />
                                 </motion.div>
@@ -572,7 +585,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                         >
-                            {newArrivals?.map((product: any) => (
+                            {newArrivals?.map((product: Product) => (
                                 <motion.div key={product?.id} variant={fadeUpVariants}>
                                     <ProductCard product={product} />
                                 </motion.div>
@@ -662,7 +675,7 @@ const HomePage: React.FC = () => {
                         </motion.div>
 
                         <div className="relative min-h-48">
-                            {testimonials?.map((t: any, i: any) => (
+                            {testimonials?.map((t: Record<string, unknown>, i: number) => (
                                 <motion.div
                                     key={t.id}
                                     initial={{ opacity: 0 }}
@@ -719,7 +732,7 @@ const HomePage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-center gap-2 mt-16">
-                            {testimonials?.map((_: any, i: any) => (
+                            {testimonials?.map((_: Record<string, unknown>, i: number) => (
                                 <button
                                     key={i}
                                     onClick={() => setTestimonialIndex(i)}
@@ -767,7 +780,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
                         >
-                            {instagramPosts?.map((post: any, i: number) => (
+                            {instagramPosts?.map((post: Record<string, unknown>, i: number) => (
                                 <motion.a
                                     key={post.id}
                                     href={post.postUrl || "https://instagram.com"}

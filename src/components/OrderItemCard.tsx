@@ -14,7 +14,7 @@ type OrderStatus =
     | "RTO" | "CANCELLED" | "FAILED";
 
 interface OrderItemCardProps {
-    item: any;
+    item: Record<string, unknown>;
     index?: number;
     onRemove?: (id: string) => void;
     onQuantityChange?: (id: string, quantity: number) => void;
@@ -34,16 +34,19 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
     const price = Number(item?.price ?? item?.unitPrice ?? 0);
     const discountedPrice = Number(item?.discountedPrice ?? price);
     const discount = Number(item?.discountedPercent ?? 0);
-    const itemTotal = Number(isOrderItem ? (item?.subtotal ?? price * (item?.quantity ?? 0)) : (discountedPrice * (item?.quantity ?? 0))) ?? 0;
+    const itemQuantity = Number(item?.quantity ?? 0);
+    const itemTotal = Number(isOrderItem ? (item?.subtotal ?? price * itemQuantity) : (discountedPrice * itemQuantity)) ?? 0;
 
-    const productImage = item?.productImage ?? null;
-    const productName = item?.productName ?? `Item #${item?.sku ?? 'N/A'}`;
-    const sku = item?.sku ?? null;
+    const productImage = (item?.productImage ?? null) as string | null;
+    const productName = (item?.productName ?? `Item #${item?.sku ?? 'N/A'}`) as string;
+    const sku = (item?.sku ?? null) as string | null;
     const status = (item?.status as OrderStatus) ?? null;
-    const itemId = item?.id ?? item?.productId;
+    const itemId = (item?.id ?? item?.productId) as string;
+    const itemWeight = (item?.weight ?? null) as string | null;
+    const itemVariantLabel = (item?.variantLabel ?? null) as string | null;
 
     // --- Comprehensive Logistics Status Mapping ---
-    const STATUS_COLORS: Record<OrderStatus, { bg: string; text: string; icon: any }> = {
+    const STATUS_COLORS: Record<OrderStatus, { bg: string; text: string; icon: React.ComponentType }> = {
         PENDING: { bg: "bg-orange-50", text: "text-orange-600", icon: Clock },
         CONFIRMED: { bg: "bg-sky-50", text: "text-sky-600", icon: SealCheck },
         PROCESSING: { bg: "bg-amber-50", text: "text-amber-700", icon: Package },
@@ -99,14 +102,14 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                         </h4>
                         
                         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                            {item.weight && (
+                            {itemWeight && (
                                 <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded uppercase">
-                                    {item.weight}
+                                    {itemWeight}
                                 </span>
                             )}
-                            {item.variantLabel && (
+                            {itemVariantLabel && (
                                 <span className="text-[10px] font-bold text-slate-500 italic">
-                                    {item.variantLabel}
+                                    {itemVariantLabel}
                                 </span>
                             )}
                         </div>
@@ -136,7 +139,11 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                     {/* Enhanced Status Badge */}
                     {isOrderItem && statusConfig && (
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig.bg}`}>
-                            <statusConfig.icon size={12} className={statusConfig.text} weight="bold" />
+                            {React.createElement(statusConfig.icon as React.ComponentType<{ size: number; className: string; weight: string }>, { 
+                                size: 12, 
+                                className: statusConfig.text, 
+                                weight: "bold" 
+                            })}
                             <span className={`text-[10px] font-black ${statusConfig.text} uppercase tracking-wider`}>
                                 {status?.replace(/_/g, " ")}
                             </span>
@@ -147,15 +154,15 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                     {actionable && !isOrderItem && (
                         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shadow-inner">
                             <button
-                                onClick={() => onQuantityChange?.(itemId, (item?.quantity ?? 0) - 1)}
-                                disabled={(item?.quantity ?? 0) <= 1}
+                                onClick={() => onQuantityChange?.(itemId, itemQuantity - 1)}
+                                disabled={itemQuantity <= 1}
                                 className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-lg transition disabled:opacity-30"
                             >
                                 <Minus size={12} weight="bold" />
                             </button>
-                            <span className="w-6 text-center text-xs font-black text-slate-900">{item?.quantity ?? 0}</span>
+                            <span className="w-6 text-center text-xs font-black text-slate-900">{itemQuantity}</span>
                             <button
-                                onClick={() => onQuantityChange?.(itemId, (item?.quantity ?? 0) + 1)}
+                                onClick={() => onQuantityChange?.(itemId, itemQuantity + 1)}
                                 className="w-7 h-7 flex items-center justify-center hover:bg-white rounded-lg transition"
                             >
                                 <Plus size={12} weight="bold" />

@@ -157,7 +157,7 @@ const OrderDetailsPage: React.FC = () => {
                                 </span>
                             </div>
                             <div className="divide-y divide-slate-100">
-                                {order?.items?.map((item: any, idx: number) => (
+                                {order?.items?.map((item: Record<string, unknown>, idx: number) => (
                                     <div key={item?.id ?? idx} className="p-8">
                                         <OrderItemCard item={item} index={idx} isOrderItem={true} />
                                     </div>

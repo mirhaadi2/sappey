@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../context/CardContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { CartItem } from "../types";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
@@ -90,7 +91,7 @@ const CartDrawer: React.FC = () => {
                                 </div>
                             ) : (
                                 <ul className="space-y-4">
-                                    {(state?.items ?? []).map((item: any) => (
+                                    {(state?.items ?? []).map((item: CartItem) => (
                                         <li
                                             key={`${item?.product?.id ?? 'unknown'}-${getVariantKey(item?.variant)}`}
                                             className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200"

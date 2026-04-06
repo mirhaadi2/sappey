@@ -41,7 +41,7 @@ export interface PromotionResponse {
 /**
  * Fetch active promotions applicable to current cart value
  */
-export const fetchApplicablePromotions = async (cartValue: number = 0) => {
+export const fetchApplicablePromotions = async (cartValue: number = 0): Promise<Promotion[]> => {
     const response = await apiClient.get<PromotionResponse>(
         `/website/promotions/active${cartValue > 0 ? `?cartValue=${cartValue}` : ''}`
     );
@@ -51,7 +51,7 @@ export const fetchApplicablePromotions = async (cartValue: number = 0) => {
 /**
  * Fetch all active promotions
  */
-export const fetchActivePromotions = async () => {
+export const fetchActivePromotions = async (): Promise<Promotion[]> => {
     const response = await apiClient.get<PromotionResponse>('/website/promotions/active');
     return Array.isArray(response.data.data) ? response.data.data : [response.data.data];
 };
@@ -60,11 +60,10 @@ export const fetchActivePromotions = async () => {
  * Hook to get active promotions
  */
 export const usePromotions = () => {
-    return useQuery({
-        queryKey: ['promotions', 'active'],
+    return useQuery<Promotion[], Error>({
+        queryKey: ['promotions', 'active'] as const,
         queryFn: fetchActivePromotions,
         staleTime: 5 * 60 * 1000, // 5 minutes
-        cacheTime: 10 * 60 * 1000, // 10 minutes
     });
 };
 
@@ -72,18 +71,17 @@ export const usePromotions = () => {
  * Hook to get applicable promotions based on cart value
  */
 export const useApplicablePromotions = (cartValue: number = 0) => {
-    const query = useQuery({
-        queryKey: ['promotions', 'applicable', cartValue],
+    const query = useQuery<Promotion[], Error>({
+        queryKey: ['promotions', 'applicable', cartValue] as const,
         queryFn: () => fetchApplicablePromotions(cartValue),
         staleTime: cartValue > 0 ? 30 * 1000 : 5 * 60 * 1000, // 30s if calc, 5m if static
-        cacheTime: 10 * 60 * 1000, // 10 minutes
         enabled: true,
     });
 
     // Memoize the data to prevent unnecessary re-renders
     const applicablePromotions = useMemo(() => {
         if (!query.data) return [];
-        return query.data?.filter((promo: any) => {
+        return query.data?.filter((promo: Promotion) => {
             // Check if cart value qualifies
             if (promo.minOrderValue && cartValue < promo.minOrderValue) return false;
             if (promo.maxOrderValue && cartValue > promo.maxOrderValue) return false;
@@ -102,14 +100,13 @@ export const useApplicablePromotions = (cartValue: number = 0) => {
  * Get homepage banner promotions
  */
 export const useHomepagePromotions = () => {
-    return useQuery({
-        queryKey: ['promotions', 'homepage'],
+    return useQuery<Promotion[], Error>({
+        queryKey: ['promotions', 'homepage'] as const,
         queryFn: async () => {
             const promos = await fetchActivePromotions();
             return promos.filter(p => p.displayOnHomepage);
         },
         staleTime: 10 * 60 * 1000, // 10 minutes
-        cacheTime: 20 * 60 * 1000, // 20 minutes
     });
 };
 

@@ -15,9 +15,9 @@ interface AuthContextType {
     signUpLoading: boolean;
     signOutLoading: boolean;
     // Error states
-    signInError: any;
-    signUpError: any;
-    signOutError: any;
+    signInError: Error | null;
+    signUpError: Error | null;
+    signOutError: Error | null;
 }
 
 // ✅ Default context value - always available (prevents undefined errors)
@@ -33,9 +33,9 @@ const defaultAuthValue: AuthContextType = {
     signInLoading: false,
     signUpLoading: false,
     signOutLoading: false,
-    signInError: null,
-    signUpError: null,
-    signOutError: null,
+    signInError: null as Error | null,
+    signUpError: null as Error | null,
+    signOutError: null as Error | null,
 };
 
 const AuthContext = createContext<AuthContextType>(defaultAuthValue);
@@ -52,7 +52,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loginMutation,
         registerMutation,
         logoutMutation,
-        profileQuery,
     } = useAuthApi();
 
     const signIn = (email: string, password: string) => {
