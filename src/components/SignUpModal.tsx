@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   WarningCircle,
   CaretRight,
+  Eye,
+  EyeSlash,
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +52,8 @@ const SignUpModal: React.FC = () => {
   const [otpValue, setOtpValue] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -227,16 +231,16 @@ const SignUpModal: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-brand-brown/20 backdrop-blur-xl"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={closeAuthModal}
           />
 
           <motion.div
             layout
-            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.98 }}
-            className="relative w-full max-w-md bg-white border border-white/20 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-8 overflow-hidden"
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-8 overflow-hidden"
           >
             {/* Header */}
             <div className="flex justify-between items-start mb-10">
@@ -442,12 +446,19 @@ const SignUpModal: React.FC = () => {
                         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
                       />
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
+                        className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                      >
+                        {showPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+                      </button>
                     </div>
 
                     <div className="relative group">
@@ -456,12 +467,19 @@ const SignUpModal: React.FC = () => {
                         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
                       />
                       <input
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm Password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
+                        className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                      >
+                        {showConfirmPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+                      </button>
                     </div>
 
                     <div className="px-1">

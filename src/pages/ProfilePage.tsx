@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { ProfilePageSkeleton } from "../components/Skeletons";
 import {
   User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check,
   CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag
@@ -37,6 +39,7 @@ const ProfilePage: React.FC = () => {
   const { user } = useAuth();
   const {
     addresses,
+    isLoading,
     createAddress,
     updateAddress,
     deleteAddress,
@@ -124,6 +127,10 @@ const ProfilePage: React.FC = () => {
     deleteAddress(addressId);
     setDeleteConfirm(null);
   };
+
+  if (isLoading) {
+    return <ProfilePageSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
@@ -476,34 +483,6 @@ const ProfilePage: React.FC = () => {
                         )}
 
                         <div className="relative">
-                          <AnimatePresence>
-                            {deleteConfirm === address.id && (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                className="absolute right-0 top-full mt-2 bg-white border-2 border-red-200 rounded-lg p-3 shadow-lg z-10 min-w-max"
-                              >
-                                <p className="text-xs text-gray-700 font-semibold mb-2">Delete this address?</p>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleDeleteAddress(address.id)}
-                                    disabled={isDeleting}
-                                    className="px-3 py-1 bg-red-500 text-white text-xs rounded font-semibold hover:bg-red-600 transition disabled:opacity-50"
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    onClick={() => setDeleteConfirm(null)}
-                                    className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded font-semibold hover:bg-gray-300 transition"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -525,6 +504,24 @@ const ProfilePage: React.FC = () => {
           </motion.div>
         </div>
       </main>
+
+      {/* Delete Address Confirmation Modal */}
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        onCancel={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            handleDeleteAddress(deleteConfirm);
+            setDeleteConfirm(null);
+          }
+        }}
+        type="danger"
+        title="Delete Address?"
+        description="This address will be permanently removed from your profile. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Keep Address"
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

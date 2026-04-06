@@ -1,9 +1,10 @@
 import React, { memo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, X } from "@phosphor-icons/react";
+import { Heart } from "@phosphor-icons/react";
 import { Product, ProductVariant } from "../types";
 import { useWishlist, WishlistItem } from "../context/WishlistContext";
+import Modal from "./Modal";
 
 interface ProductCardProps {
     product: Product;
@@ -204,64 +205,51 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </motion.div>
             </Link>
 
-            {/* Variant Selection Modal - Outside Link */}
-            {showVariantModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowVariantModal(false)}>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
-                        onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-brand-brown">Select Weight</h2>
+            {/* Variant Selection Modal - Using Consistent Modal Component */}
+            <Modal
+                isOpen={showVariantModal}
+                onClose={() => setShowVariantModal(false)}
+                title="Select Weight"
+                maxWidth="max-w-md"
+            >
+                <p className="text-sm text-slate-600 mb-4">{product.name}</p>
+
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {variantOptions.map((variant) => {
+                        const isSelected = isInWishlist(product.id, variant.id);
+                        return (
                             <button
-                                onClick={() => setShowVariantModal(false)}
-                                className="p-1 hover:bg-slate-100 rounded-lg transition-colors"
+                                key={variant.id}
+                                onClick={() => handleVariantSelect(variant)}
+                                className={`w-full p-3 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
+                                    isSelected
+                                        ? 'border-brand-brown bg-amber-50'
+                                        : 'border-slate-200 hover:border-brand-brown bg-white hover:bg-slate-50'
+                                }`}
                             >
-                                <X size={20} className="text-slate-600" />
+                                <div>
+                                    <div className="font-semibold text-brand-brown">{variant.label}</div>
+                                    <div className="text-sm text-slate-600">₹{Number(variant.price).toFixed(0)}</div>
+                                </div>
+                                {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-brand-brown flex items-center justify-center">
+                                        <span className="text-white text-xs">✓</span>
+                                    </div>
+                                )}
                             </button>
-                        </div>
-
-                        <p className="text-sm text-slate-600 mb-4">{product.name}</p>
-
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {variantOptions.map((variant) => {
-                                const isSelected = isInWishlist(product.id, variant.id);
-                                return (
-                                    <button
-                                        key={variant.id}
-                                        onClick={() => handleVariantSelect(variant)}
-                                        className={`w-full p-3 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
-                                            isSelected
-                                                ? 'border-red-500 bg-red-50'
-                                                : 'border-slate-200 hover:border-brand-brown'
-                                        }`}
-                                    >
-                                        <div>
-                                            <div className="font-semibold text-brand-brown">{variant.label}</div>
-                                            <div className="text-sm text-slate-600">₹{Number(variant.price).toFixed(0)}</div>
-                                        </div>
-                                        {isSelected && (
-                                            <div className="w-4 h-4 rounded-full bg-red-500" />
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <div className="mt-6 flex gap-3">
-                            <button
-                                onClick={() => setShowVariantModal(false)}
-                                className="max-w-[60%] mx-auto flex-1 px-4 py-2 border-2 border-slate-200 rounded-lg hover:border-slate-300 transition-colors font-medium text-slate-700"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </motion.div>
+                        );
+                    })}
                 </div>
-            )}
+
+                <div className="mt-6 flex gap-3">
+                    <button
+                        onClick={() => setShowVariantModal(false)}
+                        className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-xl transition-colors"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </Modal>
         </>
     );
 };

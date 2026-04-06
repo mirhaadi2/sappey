@@ -208,3 +208,66 @@ export const HomeSkeleton: React.FC = () => {
     </div>
   );
 };
+
+export const WishlistPageSkeleton: React.FC = () => {
+  const skeletonAnimation = {
+    initial: { opacity: 0.6 },
+    animate: { opacity: 1 },
+    transition: { duration: 1.5, repeat: Infinity, repeatType: "reverse" as const },
+  };
+
+  return (
+    <div className="min-h-screen pt-32 pb-20 bg-gradient-to-b from-slate-50 to-white">
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        {/* Header */}
+        <div className="mb-8">
+          <motion.div {...skeletonAnimation} className="h-6 w-20 bg-slate-200 rounded mb-6" />
+          <div className="flex items-center justify-between">
+            <div>
+              <motion.div {...skeletonAnimation} className="h-12 w-64 bg-slate-200 rounded mb-2" />
+              <motion.div {...skeletonAnimation} className="h-5 w-48 bg-slate-200 rounded" />
+            </div>
+            <motion.div {...skeletonAnimation} className="hidden md:block h-12 w-12 bg-slate-200 rounded-full" />
+          </div>
+        </div>
+
+        {/* Products Grid and Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Products Grid */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  {...skeletonAnimation}
+                  className="bg-white rounded-2xl border border-slate-100 overflow-hidden flex flex-col"
+                >
+                  <div className="relative aspect-square overflow-hidden bg-slate-200" />
+                  <div className="p-4 space-y-3 flex-1">
+                    <motion.div {...skeletonAnimation} className="h-4 w-full bg-slate-200 rounded" />
+                    <motion.div {...skeletonAnimation} className="h-4 w-3/4 bg-slate-200 rounded" />
+                    <motion.div {...skeletonAnimation} className="h-6 w-20 bg-slate-200 rounded" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary Section */}
+          <motion.div {...skeletonAnimation} className="bg-white rounded-2xl border border-slate-100 p-6 h-fit">
+            <motion.div {...skeletonAnimation} className="h-6 w-32 bg-slate-200 rounded mb-6" />
+            <div className="space-y-4 mb-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex justify-between">
+                  <motion.div {...skeletonAnimation} className="h-4 w-24 bg-slate-200 rounded" />
+                  <motion.div {...skeletonAnimation} className="h-4 w-20 bg-slate-200 rounded" />
+                </div>
+              ))}
+            </div>
+            <motion.div {...skeletonAnimation} className="h-12 w-full bg-slate-200 rounded-lg" />
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};

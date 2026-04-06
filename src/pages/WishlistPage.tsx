@@ -6,6 +6,8 @@ import { useWishlist, WishlistItem } from '../context/WishlistContext';
 import { useCart } from '../context/CardContext';
 import { Product, ProductVariant } from '../types';
 import { productsClient } from '../api/products/client';
+import { WishlistPageSkeleton } from '../components/Skeletons';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 interface WishlistProductWithVariant extends Product {
     selectedVariant?: ProductVariant;
@@ -23,6 +25,8 @@ const WishlistPage: React.FC = () => {
     const { dispatch } = useCart();
     const [wishlistProducts, setWishlistProducts] = useState<WishlistProductWithVariant[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showRemoveAllConfirm, setShowRemoveAllConfirm] = useState(false);
+    const [isRemovingAll, setIsRemovingAll] = useState(false);
 
     // Fetch wishlist products from API with their variants
     useEffect(() => {
@@ -105,6 +109,20 @@ const WishlistPage: React.FC = () => {
         removeFromWishlist(productId, variantId);
     };
 
+    const handleRemoveAll = async () => {
+        setIsRemovingAll(true);
+        try {
+            // Remove all items from context and local state
+            wishlistItems.forEach((item) => {
+                removeFromWishlist(item.productId, item.variantId);
+            });
+            setWishlistProducts([]);
+        } finally {
+            setIsRemovingAll(false);
+            setShowRemoveAllConfirm(false);
+        }
+    };
+
     const handleNavigateToProduct = (productId: string) => {
         navigate(`/products/${productId}`);
     };
@@ -122,18 +140,11 @@ const WishlistPage: React.FC = () => {
     }, [wishlistProducts]);
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center pt-32 pb-20">
-                <div className="text-center">
-                    <Heart size={48} className="mx-auto mb-4 text-brand-brown animate-pulse" />
-                    <h2 className="text-xl font-semibold text-slate-900 mb-2">Loading your wishlist...</h2>
-                </div>
-            </div>
-        );
+        return <WishlistPageSkeleton />;
     }
 
     return (
-        <div className="min-h-screen pt-32 pb-20 bg-gradient-to-b from-slate-50 to-white">
+        <div className="min-h-screen pt-4 pb-20 bg-gradient-to-b from-slate-50 to-white">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
                 <motion.div
@@ -320,11 +331,32 @@ const WishlistPage: React.FC = () => {
                                         handleAddToCart(product);
                                     });
                                 }}
-                                className="w-full border-2 border-brand-brown text-brand-brown py-3 rounded-lg hover:bg-brand-brown/5 transition-colors font-semibold"
+                                className="w-full border-2 border-brand-brown text-brand-brown py-3 rounded-lg hover:bg-brand-brown/5 transition-colors font-semibold mb-3"
                             >
                                 Add All to Cart
                             </button>
+
+                            <button
+                                onClick={() => setShowRemoveAllConfirm(true)}
+                                className="w-full border-2 border-red-500 text-red-500 py-3 rounded-lg hover:bg-red-50 transition-colors font-semibold flex items-center justify-center gap-2"
+                            >
+                                <Trash size={16} weight="bold" />
+                                Remove All
+                            </button>
                         </motion.div>
+
+                        {/* Remove All Confirmation Dialog */}
+                        <ConfirmDialog
+                            isOpen={showRemoveAllConfirm}
+                            type="danger"
+                            title="Remove All from Wishlist?"
+                            description="Are you sure you want to remove all items from your wishlist? This action cannot be undone."
+                            confirmText="Remove All"
+                            cancelText="Cancel"
+                            isLoading={isRemovingAll}
+                            onConfirm={handleRemoveAll}
+                            onCancel={() => setShowRemoveAllConfirm(false)}
+                        />
                     </div>
                 )}
             </div>

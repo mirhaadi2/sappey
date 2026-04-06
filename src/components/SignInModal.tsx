@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X, Envelope, Lock, WarningCircle, SignIn
+  X, Envelope, Lock, WarningCircle, SignIn, Eye, EyeSlash
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,7 @@ type LoginData = z.infer<typeof loginSchema>;
 const SignInModal: React.FC = () => {
   const { authModal, closeAuthModal, signIn, signInLoading, signInError, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isOpen = authModal === "signin";
   const { register, handleSubmit, formState: { errors }, reset } = useForm<LoginData>({
@@ -70,16 +71,16 @@ const SignInModal: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-brand-brown/20 backdrop-blur-xl"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={closeAuthModal}
           />
 
           <motion.div
             layout
-            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.98 }}
-            className="relative w-full max-w-md bg-white border border-white/20 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-8 overflow-hidden"
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-8 overflow-hidden"
           >
             {/* Header Area */}
             <div className="flex justify-between items-start mb-10">
@@ -130,10 +131,17 @@ const SignInModal: React.FC = () => {
                 </div>
                 <input
                   {...register("password")}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all placeholder:text-gray-400 font-medium"
+                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all placeholder:text-gray-400 font-medium"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+                </button>
                 {errors.password && (
                   <p className="text-xs text-red-500 mt-1.5 ml-1 font-semibold tracking-wide">
                     {errors.password.message}

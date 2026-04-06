@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     ArrowLeft,
     Package,
@@ -19,6 +19,7 @@ import { useOrder } from "../api/orders/hooks";
 import { useAuth } from "../context/AuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";
 import { OrderItemDetail } from "../api/orders";
@@ -412,53 +413,19 @@ const OrderDetailsPage: React.FC = () => {
             </div>
 
             {/* Modals */}
-            <AnimatePresence>
-                {showCancelConfirm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowCancelConfirm(false)}
-                            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl"
-                        >
-                            <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6">
-                                <Warning size={32} weight="duotone" />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-2">
-                                Confirm Cancellation?
-                            </h3>
-                            <p className="text-slate-500 font-medium mb-8">
-                                This action will halt the logistics flow and is logged for audit
-                                purposes.
-                            </p>
-                            <div className="grid grid-cols-2 gap-4">
-                                <button
-                                    onClick={() => setShowCancelConfirm(false)}
-                                    className="py-3 bg-slate-100 text-slate-900 rounded-xl font-black text-xs uppercase"
-                                >
-                                    Abort
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setShowCancelConfirm(false);
-                                        console.log("Cancel Request for:", orderId);
-                                    }}
-                                    className="py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase shadow-lg shadow-rose-100"
-                                >
-                                    Confirm
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <ConfirmDialog
+                isOpen={showCancelConfirm}
+                onCancel={() => setShowCancelConfirm(false)}
+                onConfirm={() => {
+                    setShowCancelConfirm(false);
+                    console.log("Cancel Request for:", orderId);
+                }}
+                type="danger"
+                title="Cancel Order?"
+                description="This action will halt the logistics flow and is logged for audit purposes. This cannot be undone."
+                confirmText="Cancel Order"
+                cancelText="Keep Order"
+            />
         </div>
     );
 };
