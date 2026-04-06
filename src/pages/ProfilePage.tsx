@@ -128,7 +128,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
-      <div className="sticky top-16 z-40">
+      <div className="sticky top-20 z-40">
         <div className="max-w-6xl mx-auto px-6 pt-6">
           <button
             onClick={() => navigate("/")}

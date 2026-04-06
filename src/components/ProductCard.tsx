@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart } from "@phosphor-icons/react";
@@ -9,6 +9,13 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const [isWishlisted, setIsWishlisted] = useState(false);
+
+    // Initialize wishlist state from localStorage
+    useEffect(() => {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        setIsWishlisted(wishlist.includes(product.id));
+    }, [product.id]);
 
     const variantOptions = React.useMemo(() => {
         if (!Array.isArray(product?.variants) || (product?.variants?.length ?? 0) === 0) return [];
@@ -43,6 +50,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         return { min: Math.min(...prices), max: Math.max(...prices) };
     }, [product, variantOptions]);
 
+    const handleWishlistToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        
+        if (isWishlisted) {
+            // Remove from wishlist
+            const updatedWishlist = wishlist.filter((id: string) => id !== product.id);
+            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+            setIsWishlisted(false);
+        } else {
+            // Add to wishlist
+            if (!wishlist.includes(product.id)) {
+                wishlist.push(product.id);
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                setIsWishlisted(true);
+            }
+        }
+    };
+
     return (
         <Link to={`/products/${product.id}`} className="w-full h-full">
             <motion.div
@@ -68,13 +94,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     </div>
 
                     <button
-                        className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full text-brand-brown opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-brand-brown hover:text-brand-cream cursor-pointer"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            // Wishlist logic here
-                        }}
+                        className={`absolute top-3 right-3 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer ${
+                            isWishlisted
+                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                : 'bg-white/80 backdrop-blur-sm text-brand-brown hover:bg-brand-brown hover:text-brand-cream'
+                        }`}
+                        onClick={handleWishlistToggle}
+                        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                     >
-                        <Heart size={18} />
+                        <Heart size={18} weight={isWishlisted ? "fill" : "regular"} />
                     </button>
 
                 </div>

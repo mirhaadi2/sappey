@@ -109,18 +109,21 @@ const HomePage: React.FC = () => {
 
     const {
         products: collectionProducts,
+        total: collectionTotal,
         isLoading: collectionLoading,
         error: collectionError,
     } = useProducts(collectionFilters);
 
     const {
         products: bestsellersProducts,
+        total: bestsellersTotal,
         isLoading: bestsellersLoading,
         error: bestsellersError,
     } = useProducts(bestsellersFilters);
 
     const {
         products: newArrivalsProducts,
+        total: newArrivalsTotal,
         isLoading: newArrivalsLoading,
         error: newArrivalsError,
     } = useProducts(newArrivalsFilters);
@@ -401,7 +404,8 @@ const HomePage: React.FC = () => {
                                 </p>
                             </div>
 
-                            {/* Right Side: View All Button */}
+                            {/* Right Side: View All Button - Only show if there are more items */}
+                            {collectionTotal > 4 && (
                             <div className="shrink-0">
                                 <button
                                     onClick={() => navigate(`/shop${activeCollectionCategory ? `?category=${activeCollectionCategory}` : ''}`)}
@@ -410,6 +414,7 @@ const HomePage: React.FC = () => {
                                     View All <ArrowRight size={16} weight="regular" />
                                 </button>
                             </div>
+                            )}
                         </motion.div>
 
                         <motion.div
@@ -457,12 +462,14 @@ const HomePage: React.FC = () => {
                                 </h2>
                             </div>
 
+                            {bestsellersTotal > 4 && (
                             <button
                                 onClick={() => navigate("/shop?isBestseller=true")}
                                 className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
                             >
                                 View All <ArrowRight size={16} weight="regular" />
                             </button>
+                            )}
                         </motion.div>
 
                         <motion.div
@@ -559,12 +566,14 @@ const HomePage: React.FC = () => {
                                         "Discover Our Newest Additions"}
                                 </h2>
                             </div>
+                            {newArrivalsTotal > 4 && (
                             <button
                                 onClick={() => navigate("/shop?isNew=true")}
                                 className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
                             >
                                 View All <ArrowRight size={16} weight="regular" />
                             </button>
+                            )}
                         </motion.div>
 
                         <motion.div

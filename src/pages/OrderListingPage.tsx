@@ -170,9 +170,9 @@ const OrderListingPage: React.FC = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="flex items-center gap-3"
                     >
-                        <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
+                        {/* <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
                             <DownloadSimple weight="bold" /> Export Ledger
-                        </button>
+                        </button> */}
                         <button
                             onClick={() => navigate("/shop")}
                             className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#9a5d2e] rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
