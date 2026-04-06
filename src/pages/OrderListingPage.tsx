@@ -9,12 +9,11 @@ import {
     Eye,
     CalendarBlank,
     Receipt,
-    DownloadSimple,
-    TrendUp,
     Warning,
     CaretLeft,
     CaretRight,
-    CurrencyInr
+    CurrencyInr,
+    TrendUp
 } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../api/orders/hooks";

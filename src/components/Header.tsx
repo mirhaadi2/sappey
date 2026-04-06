@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut } from "@phosphor-icons/react";
+import { MagnifyingGlass, User, ShoppingCart, List, X, SignOut, Heart } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import { useProducts } from "../api/products";
 import { useHomepageData } from "../api/homepage";
 import { useHomepagePromotions } from "../api/promotions";
@@ -26,6 +27,7 @@ const Header: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { totalItems, dispatch } = useCart();
     const { user, signOut, openAuthModal } = useAuth();
+    const { wishlistCount } = useWishlist();
     const location = useLocation();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -306,6 +308,20 @@ const Header: React.FC = () => {
                                 <User size={20} weight="regular" />
                             </button>
                         )}
+
+                        <button
+                            onClick={() => navigate("/wishlist")}
+                            className="relative p-3 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
+                            aria-label={`Wishlist, ${wishlistCount} items`}
+                            title="Go to wishlist"
+                        >
+                            <Heart size={20} weight="regular" />
+                            {wishlistCount > 0 && (
+                                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-label rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                                    {wishlistCount}
+                                </span>
+                            )}
+                        </button>
 
                         <button
                             onClick={() => dispatch({ type: "OPEN_CART" })}

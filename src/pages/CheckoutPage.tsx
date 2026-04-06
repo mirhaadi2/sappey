@@ -12,6 +12,7 @@ import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle,
   Plus, Package, Info, Tag
 } from "@phosphor-icons/react";
+import { Gift } from "lucide-react";
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -195,7 +196,7 @@ const CheckoutPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
       <div className={`bg-white border-b border-gray-100 sticky z-40 ${headerTopPosition}`}>
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
           <button
             onClick={() => navigate("/shop")}
             className="flex items-center gap-2 text-gray-600 hover:text-brand-brown transition mb-4"
@@ -528,7 +529,8 @@ const CheckoutPage: React.FC = () => {
                             Available Offers
                           </h3>
                           <p className="text-sm text-gray-600 mb-4">
-                            💰 Great news! You qualify for {allApplicablePromotions.length} offer{allApplicablePromotions.length !== 1 ? 's' : ''}
+                            <Gift size={20} className="inline-block mr-2" />
+                            Great news! You qualify for {allApplicablePromotions.length} offer{allApplicablePromotions.length !== 1 ? 's' : ''}
                           </p>
                         </div>
                         <PromotionList
@@ -663,7 +665,7 @@ const CheckoutPage: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 truncate text-sm">{item.product.name}</p>
                         <p className="font-sans text-xs text-gray-500 mt-1">
-                          Weight: {item.variant?.label || "Standard"}
+                          Weight: {item.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
                         </p>
                         <p className="text-gray-600 text-xs mt-1">Qty: {item.quantity}</p>
                         <p className="font-bold text-brand-brown text-sm mt-1">

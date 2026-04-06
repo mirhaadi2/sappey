@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Gift, Package, Warning } from '@phosphor-icons/react';
+import { Calendar, CheckCircle, Gift, Package, Warning } from '@phosphor-icons/react';
 import { Promotion } from '../api/promotions';
 import { formatPromotionDescription, getPromotionBadgeStyle } from '../hooks/useCheckoutPromotions';
 
@@ -85,7 +85,7 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({
 
         {/* Validity Information */}
         <div className="mt-3 text-xs text-gray-500 space-y-1">
-          <p>📅 Valid until: {new Date(promotion.validUntil).toLocaleDateString('en-IN')}</p>
+          <p><Calendar size={20} className="inline-block mr-1" /> Valid until: {new Date(promotion.validUntil).toLocaleDateString('en-IN')}</p>
           {promotion.usageLimit && (
             <p>
               📊 Uses: {promotion.currentUsage || 0}/{promotion.usageLimit}

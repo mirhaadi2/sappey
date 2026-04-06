@@ -8,6 +8,7 @@ import { CartItem } from "../types";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
+    console.log(state,'ste')
 
     const { user, openAuthModal } = useAuth();
     const navigate = useNavigate();
@@ -109,7 +110,7 @@ const CartDrawer: React.FC = () => {
                                                     {item?.product?.name ?? 'Product'}
                                                 </h3>
                                                 <p className="font-sans text-xs text-gray-500 mb-2">
-                                                    Weight: {item?.variant?.label ?? "Standard"}
+                                                    Weight: {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
                                                 </p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">

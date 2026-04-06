@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import {
-  User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check, X,
+  User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check,
   CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";

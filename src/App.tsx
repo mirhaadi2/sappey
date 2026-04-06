@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
 import { AuthProvider } from "./context/AuthContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -18,6 +19,7 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderListingPage from "./pages/OrderListingPage";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
 import PageContent from "./pages/PageContent";
+import WishlistPage from "./pages/WishlistPage";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -51,6 +53,7 @@ const AppContent: React.FC = () => {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/shop" element={<ShopPage />} />
                     <Route path="/products/:id" element={<ProductDetailsPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
                     <Route
                         path="/profile"
                         element={
@@ -114,9 +117,11 @@ const App: React.FC = () => {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <CartProvider>
-                    <BrowserRouter>
-                        <AppContent />
-                    </BrowserRouter>
+                    <WishlistProvider>
+                        <BrowserRouter>
+                            <AppContent />
+                        </BrowserRouter>
+                    </WishlistProvider>
                 </CartProvider>
             </AuthProvider>
         </QueryClientProvider>
