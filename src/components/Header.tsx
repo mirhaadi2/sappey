@@ -119,8 +119,7 @@ const Header: React.FC = () => {
     
     // Fetch active promotions for dynamic banner
     const { data: promotions } = useHomepagePromotions();
-    const activePromotion = promotions?.[0]; // Show highest priority promotion
-    console.log('Active promotion:', activePromotion);
+    const activePromotion = promotions?.[0];
     return (
         <>
             {/* Fixed Dynamic Banner - Promotion or Regular Banner */}

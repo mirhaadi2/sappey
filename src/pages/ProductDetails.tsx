@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProduct, useProducts } from "../api/exports";
 import { useCart } from "../context/CardContext";
+import { useHomepagePromotions } from "../api/promotions";
 import ProductCard from "../components/ProductCard";
 import { ProductDetailSkeleton } from "../components/Skeletons";
 import {
@@ -28,6 +29,12 @@ const ProductDetailPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<any>(0);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [addedToCart, setAddedToCart] = useState(false);
+
+  // Check if there's an active promotion banner to adjust layout
+  const { data: promotionBanners = [] } = useHomepagePromotions();
+  const hasBanner = promotionBanners && promotionBanners.length > 0;
+  // Add padding-top to account for fixed header: Banner(32px) + Header(64px) = 96px when banner present
+  const topPadding = hasBanner ? "pt-24" : "pt-16";
 
 const variantOptions = useMemo(() => {
     if (!product) return [];
@@ -133,8 +140,8 @@ const variantOptions = useMemo(() => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-latte text-foreground">
-      <div className="bg-white border-b border-gray-200 px-8 py-4">
+    <div className={`min-h-screen bg-brand-latte text-foreground ${topPadding}`}>
+      <div className="bg-white border-b border-gray-200 px-8 py-4 mt-4">
         {/* Image Gallery */}
         <div className="max-w-7xl mx-auto flex items-center gap-2">
           <button

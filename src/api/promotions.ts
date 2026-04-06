@@ -43,7 +43,7 @@ export interface PromotionResponse {
  */
 export const fetchApplicablePromotions = async (cartValue: number = 0) => {
     const response = await apiClient.get<PromotionResponse>(
-        `/api/website/promotions/active${cartValue > 0 ? `?cartValue=${cartValue}` : ''}`
+        `/website/promotions/active${cartValue > 0 ? `?cartValue=${cartValue}` : ''}`
     );
     return Array.isArray(response.data.data) ? response.data.data : [response.data.data];
 };

@@ -26,6 +26,13 @@ export interface CreateOrderData {
   shippingCost?: number;
   shippingAddressId: string;
   paymentMethod: 'card' | 'cod' | 'upi' | 'netbanking';
+  promotionId?: string;
+  promotionDetails?: {
+    id: string;
+    title: string;
+    type: string;
+    discount: number;
+  };
 }
 
 export interface Order {

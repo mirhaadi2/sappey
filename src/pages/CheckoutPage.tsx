@@ -5,9 +5,13 @@ import { useCart, getVariantKey } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useAddresses } from "../api/address/hooks";
 import { useOrders } from "../api/orders/hooks";
+import { useCheckoutPromotions, formatPromotionDescription } from "../hooks/useCheckoutPromotions";
+import { useHomepagePromotions } from "../api/promotions";
+import { PromotionList } from "../components/PromotionCard";
+import { Promotion } from "../api/promotions";
 import {
   ArrowLeft, MapPin, Truck, CreditCard, CheckCircle,
-  Plus, Package, Info
+  Plus, Package, Info, Tag
 } from "@phosphor-icons/react";
 
 interface OrderSummary {
@@ -34,25 +38,57 @@ const CheckoutPage: React.FC = () => {
   const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [errorDismissed, setErrorDismissed] = useState(false);
+  const [selectedPromotionId, setSelectedPromotionId] = useState<string | null>(null);
+
+  // Check if there's an active promotion banner to adjust header position
+  const { data: promotionBanners = [] } = useHomepagePromotions();
+  const hasBanner = promotionBanners && promotionBanners.length > 0;
+  console.log(hasBanner, 'hasBanner', promotionBanners,'p')
+  // Header positioning: Banner(32px) + Header(64px) = 96px = top-24 when banner present, else just Header(64px) = top-16
+  const headerTopPosition = hasBanner ? "top-24" : "top-16";
+  // Sidebar positioned below header with spacing
+  const sidebarTopPosition = hasBanner ? "top-40" : "top-32";
 
   // Calculate order summary
-  const orderSummary = useMemo(() => {
-    const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
-    const isFreeDelivery = paymentMethod === "cod";
-    const subtotal = (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
+  const baseSubtotal = useMemo(() => {
+    return (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
       ? item.variant.price
       : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0);
+  }, [state?.items]);
+
+  // Get applicable promotions
+  
+  const { bestPromotion, allApplicablePromotions } = useCheckoutPromotions(baseSubtotal);
+  console.log(bestPromotion, 'best', allApplicablePromotions,'all')
+  // Calculate shipping cost based on shipping method
+  const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
+
+  // Calculate order summary with promotion discount
+  const orderSummary = useMemo(() => {
+    const subtotal = baseSubtotal;
     const tax = parseFloat((subtotal * 0.08).toFixed(2));
-    const shipping = isFreeDelivery ? 0 : originalShipping;
-    
+
+    // Get selected promotion
+    const selectedPromo = selectedPromotionId 
+      ? allApplicablePromotions.find((p) => p.promotion.id === selectedPromotionId)
+      : bestPromotion;
+
+    // Check if promotion offers free shipping
+    const isFreeShippingPromo = selectedPromo?.promotion?.type === 'free_shipping';
+    const shipping = isFreeShippingPromo ? 0 : originalShipping;
+    const promotionDiscount = selectedPromo?.discountAmount ?? 0;
+
     return {
       items: state?.items?.length ?? 0,
       subtotal,
       tax,
       shipping,
-      total: parseFloat((subtotal + tax + shipping).toFixed(2)),
+      promotionDiscount,
+      selectedPromotion: selectedPromo?.promotion || null,
+      total: parseFloat((subtotal - promotionDiscount + tax + shipping).toFixed(2)),
+      totalBeforePromo: parseFloat((subtotal + tax + shipping).toFixed(2)),
     };
-  }, [state?.items, shippingMethod, paymentMethod]);
+  }, [baseSubtotal, selectedPromotionId, allApplicablePromotions, bestPromotion, originalShipping]);
 
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
@@ -79,11 +115,18 @@ const CheckoutPage: React.FC = () => {
         items: orderItems,
         subtotal: orderSummary.subtotal,
         totalAmount: orderSummary.total,
-        discountAmount: 0,
+        discountAmount: orderSummary.promotionDiscount,
         taxAmount: orderSummary.tax,
         shippingCost: orderSummary.shipping,
         shippingAddressId: selectedAddressId,
         paymentMethod,
+        promotionId: orderSummary.selectedPromotion?.id,
+        promotionDetails: orderSummary.selectedPromotion ? {
+          id: orderSummary.selectedPromotion.id,
+          title: orderSummary.selectedPromotion.title,
+          type: orderSummary.selectedPromotion.type,
+          discount: orderSummary.promotionDiscount,
+        } : undefined,
       };
 
       console.log("📤 Sending order data to API:", orderData);
@@ -111,6 +154,8 @@ const CheckoutPage: React.FC = () => {
             ? `${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.name ?? 'N/A'}, ${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.city ?? 'N/A'}`
             : undefined,
           itemCount: state?.items?.length ?? 0,
+          promotionApplied: orderSummary.selectedPromotion?.title,
+          promotionSavings: orderSummary.promotionDiscount,
         },
       });
 
@@ -159,7 +204,7 @@ const CheckoutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-40">
+      <div className={`bg-white border-b border-gray-100 sticky z-40 ${headerTopPosition}`}>
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <button
             onClick={() => navigate("/shop")}
@@ -475,9 +520,36 @@ const CheckoutPage: React.FC = () => {
                           <div className="text-sm">
                             <p className="font-semibold text-amber-900 mb-1">Cash on Delivery</p>
                             <p className="text-amber-800">Pay ₹{orderSummary.total.toFixed(2)} when your order arrives at your doorstep.</p>
-                            <p className="font-semibold text-green-600 mt-2">✨ FREE Delivery - Launch Offer</p>
                           </div>
                         </div>
+                      </motion.div>
+                    )}
+
+                    {/* 🎁 Promotions Section */}
+                    {allApplicablePromotions && allApplicablePromotions.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6"
+                      >
+                        <div className="mb-4">
+                          <h3 className="text-lg font-bold text-brand-brown flex items-center gap-2 mb-4">
+                            <Tag size={24} />
+                            Available Offers
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-4">
+                            💰 Great news! You qualify for {allApplicablePromotions.length} offer{allApplicablePromotions.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                        <PromotionList
+                          promotions={allApplicablePromotions.map((p) => ({
+                            ...p.promotion,
+                            discountAmount: p.discountAmount,
+                          }))}
+                          selectedPromotionId={selectedPromotionId}
+                          onSelectPromotion={(promo) => setSelectedPromotionId(promo.id)}
+                          showDetails={true}
+                        />
                       </motion.div>
                     )}
 
@@ -528,16 +600,13 @@ const CheckoutPage: React.FC = () => {
                       <h3 className="font-bold text-gray-900">Shipping Method:</h3>
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-gray-700">{shippingMethod.charAt(0).toUpperCase() + shippingMethod.slice(1)}</p>
-                        {isFreeDelivery && (
+                        {orderSummary?.shipping === 0 && (
                           <div className="flex items-center gap-2">
                             <span className="text-gray-400 line-through text-xs">₹{originalShipping.toFixed(2)}</span>
                             <span className="text-green-600 font-bold text-xs">FREE</span>
                           </div>
                         )}
                       </div>
-                      {isFreeDelivery && (
-                        <p className="text-xs text-green-600 font-semibold">✨ FREE Delivery - Launch Offer</p>
-                      )}
                     </div>
 
                     <div className="space-y-4 pb-6 border-b border-gray-200">
@@ -588,7 +657,7 @@ const CheckoutPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="lg:col-span-1"
             >
-              <div className="sticky top-32 bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
+              <div className={`sticky bg-white rounded-3xl p-8 border border-gray-100 shadow-lg ${sidebarTopPosition}`}>
                 <h3 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
                   <Package size={24} />
                   Order Summary
@@ -630,7 +699,7 @@ const CheckoutPage: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Shipping</span>
                     <div className="flex items-center gap-2">
-                      {isFreeDelivery ? (
+                      {orderSummary?.shipping === 0 ? (
                         <>
                           <span className="text-gray-400 line-through text-sm">₹{originalShipping.toFixed(2)}</span>
                           <span className="text-green-600 font-bold text-sm">FREE</span>
@@ -640,14 +709,43 @@ const CheckoutPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  {isFreeDelivery && orderStep !== "shipping" && (
-                    <div className="text-center py-2 bg-green-50 rounded-lg">
-                      <p className="text-green-600 text-xs font-bold">✨ FREE Delivery - Launch Offer</p>
+
+                  {/* 🎁 Promotion Discount */}
+                  {orderSummary?.promotionDiscount > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex justify-between items-center pt-2 border-t border-gray-200"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Tag size={16} className="text-green-600" />
+                        <span className="text-green-600 font-bold text-sm">Promotion</span>
+                      </div>
+                      <span className="text-green-600 font-bold">-₹{orderSummary?.promotionDiscount?.toFixed(2)}</span>
+                    </motion.div>
+                  )}
+
+                  {orderSummary?.selectedPromotion && (
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <p className="text-xs text-green-700 font-medium">
+                        ✨ {orderSummary.selectedPromotion.title}
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {formatPromotionDescription(orderSummary.selectedPromotion)}
+                      </p>
                     </div>
                   )}
+
                   <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
+                    <div className="text-right">
+                      {orderSummary?.promotionDiscount > 0 && (
+                        <div className="text-gray-400 line-through text-sm">
+                          ₹{orderSummary?.totalBeforePromo?.toFixed(2)}
+                        </div>
+                      )}
+                      <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
