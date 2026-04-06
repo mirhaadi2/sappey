@@ -2,45 +2,21 @@ import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    ArrowLeft, Package, MapPin, CreditCard, Truck, Clock, 
-    CheckCircle, XCircle, Warning, Printer, DownloadSimple, 
-    Phone, Copy, CheckFat, Prohibit, Receipt, SealCheck, 
-    Handshake, WarningCircle, ArrowCounterClockwise
+    ArrowLeft, Package, MapPin, CreditCard, Clock, 
+    XCircle, Warning, Printer, DownloadSimple, 
+    Phone, Copy, CheckFat
 } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useAuth } from "../context/AuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
+import {TIMELINE_STEPS } from "../utils/orderStatusMapper";
 
 // --- Types ---
 type OrderStatus = 
     | "PENDING" | "CONFIRMED" | "PROCESSING" | "PACKED" | "HANDOVER" 
     | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "DELIVERY_FAILED" 
-    | "RTO" | "CANCELLED" | "FAILED";
-
-// --- UI Theme Mapping (Synchronized with your STATUS_CONFIG) ---
-const STATUS_THEME: Record<OrderStatus, { bg: string; text: string; border: string; icon: any }> = {
-    PENDING: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-100", icon: Clock },
-    CONFIRMED: { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-100", icon: SealCheck },
-    PROCESSING: { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-100", icon: Package },
-    PACKED: { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-100", icon: Package },
-    HANDOVER: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", icon: Handshake },
-    SHIPPED: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-100", icon: Truck },
-    OUT_FOR_DELIVERY: { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-100", icon: MapPin },
-    DELIVERED: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", icon: CheckCircle },
-    DELIVERY_FAILED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-100", icon: WarningCircle },
-    RTO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-100", icon: ArrowCounterClockwise },
-    CANCELLED: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", icon: Prohibit },
-    FAILED: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200", icon: WarningCircle },
-};
-
-const TIMELINE_STEPS = [
-    { status: "PENDING", label: "Order Placed", icon: Receipt },
-    { status: "CONFIRMED", label: "Confirmed", icon: SealCheck },
-    { status: "PROCESSING", label: "Processing", icon: Package },
-    { status: "SHIPPED", label: "In Transit", icon: Truck },
-    { status: "DELIVERED", label: "Delivered", icon: CheckFat },
-];
+    | "RTO" | "CANCELLED" | "FAILED" | "REFUNDED";
 
 const OrderDetailsPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
@@ -194,14 +170,28 @@ const OrderDetailsPage: React.FC = () => {
                                 ))}
                             </div>
                             <div className="p-8 bg-[#9a5d2e] text-brand-cream rounded-b-3xl">
-                                <div className="pt-6 border-t border-brand-cream/20 flex justify-between items-end">
+                                <div className="space-y-3 mb-6">
+                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
+                                        <span className="text-brand-cream">Subtotal</span>
+                                        <span className="text-white">₹{parseFloat(order.totalAmount).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
+                                        <span className="text-brand-cream">Shipping & Handling</span>
+                                        <span className="text-white">₹{parseFloat(order?.shippingCost || '0').toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
+                                        <span className="text-brand-cream">Applicable Tax</span>
+                                        <span className="text-white">₹{parseFloat(order?.taxAmount || '0').toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">Grand Total</p>
-                                        <h3 className="text-4xl font-black tracking-tighter text-white">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
+                                        <h3 className="text-4xl font-black tracking-tighter">₹{parseFloat(order?.finalAmount || '0').toFixed(2)}</h3>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Method</p>
-                                        <p className="font-bold text-white uppercase">{order.paymentMethod}</p>
+                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">Currency</p>
+                                        <p className="font-bold ">INR (Indian Rupee)</p>
                                     </div>
                                 </div>
                             </div>

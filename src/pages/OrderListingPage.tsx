@@ -4,29 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     MagnifyingGlass,
     FunnelSimple,
-    Clock,
     CheckCircle,
-    Truck,
-    Package,
     ArrowRight,
     Eye,
-    XCircle,
     CalendarBlank,
     Receipt,
     DownloadSimple,
     TrendUp,
-    CurrencyDollar,
     Warning,
     CaretLeft,
     CaretRight,
-    CurrencyInr,
-    Handshake,
-    MapPin,
-    ArrowCounterClockwise,
-    SealCheck,
+    CurrencyInr
 } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../api/orders/hooks";
+import { ORDER_STATUS_CONFIG, getStatusConfig, getStatusLabel } from "../utils/orderStatusMapper";
 
 // --- Types ---
 type OrderStatus =
@@ -44,96 +36,6 @@ interface OrderFilter {
     dateFrom: string;
     dateTo: string;
 }
-
-const STATUS_CONFIG: Record<
-    string,
-    { bg: string; text: string; icon: any; label: string; dot: string }
-> = {
-    PENDING: {
-        bg: "bg-amber-50 border-amber-100",
-        text: "text-amber-700",
-        dot: "bg-amber-500",
-        icon: Clock,
-        label: "Pending",
-    },
-    CONFIRMED: {
-        bg: "bg-sky-50 border-sky-100",
-        text: "text-sky-700",
-        dot: "bg-sky-500",
-        icon: SealCheck,
-        label: "Confirmed",
-    },
-    PROCESSING: {
-        bg: "bg-indigo-50 border-indigo-100",
-        text: "text-indigo-700",
-        dot: "bg-indigo-500",
-        icon: Package,
-        label: "Processing",
-    },
-    PACKED: {
-        bg: "bg-violet-50 border-violet-100",
-        text: "text-violet-700",
-        dot: "bg-violet-500",
-        icon: Package,
-        label: "Ready to Ship",
-    },
-    HANDOVER: {
-        bg: "bg-blue-50 border-blue-100",
-        text: "text-blue-700",
-        dot: "bg-blue-500",
-        icon: Handshake,
-        label: "Handed Over",
-    },
-    SHIPPED: {
-        bg: "bg-blue-50 border-blue-100",
-        text: "text-blue-700",
-        dot: "bg-blue-500",
-        icon: Truck,
-        label: "In Transit",
-    },
-    OUT_FOR_DELIVERY: {
-        bg: "bg-cyan-50 border-cyan-100",
-        text: "text-cyan-700",
-        dot: "bg-cyan-500",
-        icon: MapPin,
-        label: "Out for Delivery",
-    },
-    DELIVERED: {
-        bg: "bg-emerald-50 border-emerald-100",
-        text: "text-emerald-700",
-        dot: "bg-emerald-500",
-        icon: CheckCircle,
-        label: "Delivered",
-    },
-    DELIVERY_FAILED: {
-        bg: "bg-rose-50 border-rose-100",
-        text: "text-rose-700",
-        dot: "bg-rose-500",
-        icon: Warning,
-        label: "Delivery Failed",
-    },
-    RTO: {
-        bg: "bg-orange-50 border-orange-100",
-        text: "text-orange-700",
-        dot: "bg-orange-500",
-        icon: ArrowCounterClockwise,
-        label: "RTO Initiated",
-    },
-    CANCELLED: {
-        bg: "bg-slate-100 border-slate-200",
-        text: "text-slate-600",
-        dot: "bg-slate-400",
-        icon: XCircle,
-        label: "Cancelled",
-    },
-    FAILED: {
-        bg: "bg-red-50 border-red-100",
-        text: "text-red-700",
-        dot: "bg-red-600",
-        icon: Warning,
-        label: "System Failed",
-    },
-};
 
 const OrderListingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -392,9 +294,9 @@ const OrderListingPage: React.FC = () => {
                                             className="w-full bg-slate-50 border-slate-100 rounded-lg text-sm font-bold p-2.5 focus:border-indigo-500 outline-none"
                                         >
                                             <option value="ALL">All Orders</option>
-                                            {Object.keys(STATUS_CONFIG).map((s) => (
+                                            {Object.keys(ORDER_STATUS_CONFIG).map((s) => (
                                                 <option key={s} value={s}>
-                                                    {s}
+                                                    {getStatusLabel(s)}
                                                 </option>
                                             ))}
                                         </select>
@@ -478,7 +380,7 @@ const OrderListingPage: React.FC = () => {
                                     </tr>
                                 ) : (
                                     paginatedOrders.map((order, idx) => {
-                                        const config = STATUS_CONFIG[order.status];
+                                        const config = getStatusConfig(order.status);
                                         return (
                                             <motion.tr
                                                 key={order.id}
