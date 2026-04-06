@@ -6,6 +6,7 @@ import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useProducts } from "../api/products";
 import { useHomepageData } from "../api/homepage";
+import { useHomepagePromotions } from "../api/promotions";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
@@ -115,18 +116,28 @@ const Header: React.FC = () => {
         }
     }, [location.pathname, navigate]);
     const activeBanner = homepageData?.banners?.find?.(b => b?.isActive);
-
+    
+    // Fetch active promotions for dynamic banner
+    const { data: promotions } = useHomepagePromotions();
+    const activePromotion = promotions?.[0]; // Show highest priority promotion
+    console.log('Active promotion:', activePromotion);
     return (
         <>
-            {/* Dynamic Banner */}
-            {activeBanner && (
-                <div className="bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase">
-                    {activeBanner?.text ?? ''}
-                </div>
+            {/* Fixed Dynamic Banner - Promotion or Regular Banner */}
+            {(activePromotion || activeBanner) && (
+                <motion.div 
+                    className="fixed top-0 left-0 right-0 z-50 bg-brand-brown text-brand-cream text-center py-2 px-4 font-label text-xs tracking-widest uppercase w-full"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {activePromotion?.bannerText ?? activeBanner?.text ?? ''}
+                </motion.div>
             )}
 
             <header
-                className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"
+                className={`sticky transition-all duration-300 z-40 ${(activePromotion || activeBanner) ? "top-8" : "top-0"} ${scrolled ? "bg-brand-cream border-b border-gray-200 shadow-sm" : "bg-brand-cream"
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-16">
