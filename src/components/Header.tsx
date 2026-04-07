@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    MagnifyingGlass, User, ShoppingCart, List, X, Heart
+    MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
-import { useProducts } from "../api/products";
+import { useProductSearch } from "../api/products";
 import { useHomepageData } from "../api/homepage";
 import { useHomepagePromotions } from "../api/promotions";
 import { Product } from "../types";
@@ -24,19 +24,23 @@ const Header: React.FC = () => {
     const [scrolled, setScrolled] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+    const [profileOpen, setProfileOpen] = useState(false);
 
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const profileRef = useRef<HTMLDivElement>(null);
 
     const { totalItems, dispatch } = useCart();
-    const { user, openAuthModal } = useAuth();
+    const { user, openAuthModal, signOut } = useAuth();
     const { wishlistCount } = useWishlist();
 
     const location = useLocation();
     const navigate = useNavigate();
 
-    // API Hooks - Fetch ALL products for search (not filtered by category)
-    const { products: allProducts } = useProducts(); // No category filter for search
+    // API Hooks - Search from backend using PostgreSQL Full-Text Search
+    const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
     const { data: homepageData } = useHomepageData();
     const { data: promotions } = useHomepagePromotions();
 
@@ -45,19 +49,29 @@ const Header: React.FC = () => {
     const activePromotion = promotions?.[0];
     const hasTopBanner = !!(activePromotion || activeBanner);
 
-    // Search Filtering - Search across ALL products, not just category
-    const searchResults = useMemo(() => {
-        const query = searchQuery?.trim()?.toLowerCase();
-        if (!query || query.length < 2) return [];
+    // Debounce search query (300ms delay) to avoid excessive API calls
+    useEffect(() => {
+        // Clear previous timer
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
 
-        return (allProducts ?? [])
-            .filter((p: Product) =>
-                p?.name?.toLowerCase().includes(query) ||
-                p?.description?.toLowerCase().includes(query) ||
-                p?.category?.toLowerCase().includes(query)
-            )
-            .slice(0, 8); // Show 8 results
-    }, [searchQuery, allProducts]);
+        // Set new timer only if search query has at least 2 characters
+        if (searchQuery.trim().length >= 2) {
+            debounceTimer.current = setTimeout(() => {
+                setDebouncedSearchQuery(searchQuery.trim());
+            }, 300); // 300ms debounce delay
+        } else {
+            // Clear search if query is too short
+            setDebouncedSearchQuery("");
+        }
+
+        return () => {
+            if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current);
+            }
+        };
+    }, [searchQuery]);
 
     // Handlers
     const openSearch = useCallback(() => {
@@ -107,10 +121,20 @@ const Header: React.FC = () => {
             if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
                 closeSearch();
             }
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+                setProfileOpen(false);
+            }
         };
-        if (searchOpen) document.addEventListener("mousedown", handleClickOutside);
+        if (searchOpen || profileOpen) document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [searchOpen, closeSearch]);
+    }, [searchOpen, profileOpen, closeSearch]);
+
+    // Handle logout
+    const handleLogout = useCallback(() => {
+        signOut();
+        setProfileOpen(false);
+        navigate("/");
+    }, [signOut, navigate]);
 
     return (
         <>
@@ -239,9 +263,9 @@ const Header: React.FC = () => {
                                 )}
                             </AnimatePresence>
 
-                            {/* Search Results Dropdown */}
+                            {/* Search Results Dropdown with Loading State */}
                             <AnimatePresence>
-                                {searchOpen && searchResults.length > 0 && (
+                                {searchOpen && debouncedSearchQuery && (
                                     <motion.div
                                         key="search-results"
                                         initial={{ opacity: 0, y: -10 }}
@@ -250,55 +274,57 @@ const Header: React.FC = () => {
                                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                         className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-2xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-80"
                                     >
-                                        {searchResults.map((product: Product) => (
-                                            <motion.button
-                                                key={product.id}
-                                                onClick={() => {
-                                                    navigate(`/products/${product?.id}`);
-                                                    closeSearch();
-                                                }}
-                                                whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
-                                                className="w-full px-4 py-3 text-left flex items-center gap-3 border-b border-brand-brown/5 last:border-0 transition-colors"
-                                            >
-                                                <img
-                                                    src={product.images?.[0] || "/placeholder.png"}
-                                                    alt={product.name}
-                                                    className="w-10 h-10 rounded-lg object-cover"
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-brand-brown truncate">{product.name}</p>
-                                                    <p className="text-[10px] text-brand-brown/60 truncate">{product.category}</p>
-                                                </div>
-                                                <p className="text-xs font-black text-brand-brown whitespace-nowrap">₹{product.price?.toFixed(2)}</p>
-                                            </motion.button>
-                                        ))}
+                                        {/* Loading State */}
+                                        {isSearching && (
+                                            <div className="px-4 py-8 flex items-center justify-center gap-2">
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                >
+                                                    <SpinnerGap size={18} weight="bold" className="text-brand-brown" />
+                                                </motion.div>
+                                                <p className="text-xs font-semibold text-brand-brown/60">Searching...</p>
+                                            </div>
+                                        )}
+
+                                        {/* Results State */}
+                                        {!isSearching && searchResults.length > 0 && (
+                                            <>
+                                                {searchResults.slice(0, 8).map((product: Product) => (
+                                                    <motion.button
+                                                        key={product.id}
+                                                        onClick={() => {
+                                                            navigate(`/products/${product?.id}`);
+                                                            closeSearch();
+                                                        }}
+                                                        whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
+                                                        className="w-full px-4 py-3 text-left flex items-center gap-3 border-b border-brand-brown/5 last:border-0 transition-colors"
+                                                    >
+                                                        <img
+                                                            src={product.images?.[0] || "/placeholder.png"}
+                                                            alt={product.name}
+                                                            className="w-10 h-10 rounded-lg object-cover"
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs font-bold text-brand-brown truncate">{product.name}</p>
+                                                            <p className="text-[10px] text-brand-brown/60 truncate">{product.category}</p>
+                                                        </div>
+                                                        <p className="text-xs font-black text-brand-brown whitespace-nowrap">₹{product.price?.toFixed(2)}</p>
+                                                    </motion.button>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* No Results State */}
+                                        {!isSearching && searchResults.length === 0 && (
+                                            <div className="px-4 py-6 text-center">
+                                                <p className="text-xs font-semibold text-brand-brown/60">No products found</p>
+                                                <p className="text-[10px] text-brand-brown/40 mt-1">Try different keywords</p>
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
-                        </div>
-
-                        {/* Profile/Account Button */}
-                        <div className="hidden sm:flex items-center">
-                            {user ? (
-                                <button
-                                    onClick={() => navigate('/profile')}
-                                    className="group flex items-center gap-2 pl-1 pr-4 py-1 rounded-full bg-white border border-brand-brown/10 hover:border-brand-brown transition-all duration-300"
-                                >
-                                    <div className="w-7 h-7 rounded-full bg-brand-latte flex items-center justify-center text-brand-brown group-hover:bg-brand-brown group-hover:text-white transition-colors">
-                                        <User size={14} weight="fill" />
-                                    </div>
-                                    <span className="text-[10px] uppercase tracking-widest font-black text-brand-brown">
-                                        {user?.name?.split(" ")[0]}
-                                    </span>
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => openAuthModal("signin")}
-                                    className="px-5 py-2 rounded-xl text-[10px] uppercase tracking-[0.2em] font-black text-brand-brown border border-brand-brown/10 hover:bg-brand-brown hover:text-white transition-all duration-300"
-                                >
-                                    Sign In
-                                </button>
-                            )}
                         </div>
 
                         {/* Icons Stack */}
@@ -320,6 +346,68 @@ const Header: React.FC = () => {
                             <button className="md:hidden p-2 text-brand-brown ml-1" onClick={() => setMobileOpen(!mobileOpen)}>
                                 {mobileOpen ? <X size={26} weight="bold" /> : <List size={26} weight="bold" />}
                             </button>
+                        </div>
+
+                        {/* Profile/Account Button with Dropdown */}
+                        <div className="hidden sm:flex items-center relative" ref={profileRef}>
+                            {user ? (
+                                <>
+                                    <button
+                                        onClick={() => setProfileOpen(!profileOpen)}
+                                        className="group flex items-center gap-2 pl-1 pr-4 py-1 rounded-full bg-white border border-brand-brown/10 hover:border-brand-brown transition-all duration-300"
+                                    >
+                                        <div className="w-7 h-7 rounded-full bg-brand-latte flex items-center justify-center text-brand-brown group-hover:bg-brand-brown group-hover:text-white transition-colors">
+                                            <User size={14} weight="fill" />
+                                        </div>
+                                        <span className="text-[10px] uppercase tracking-widest font-black text-brand-brown">
+                                            {user?.name?.split(" ")[0]}
+                                        </span>
+                                    </button>
+
+                                    {/* Profile Dropdown Menu */}
+                                    <AnimatePresence>
+                                        {profileOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                                className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-48"
+                                            >
+                                                {/* Profile Option */}
+                                                <motion.button
+                                                    whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
+                                                    onClick={() => {
+                                                        navigate('/profile');
+                                                        setProfileOpen(false);
+                                                    }}
+                                                    className="w-full px-4 py-2.5 text-left flex items-center gap-3 border-b border-brand-brown/5 transition-colors"
+                                                >
+                                                    <User size={16} weight="bold" className="text-brand-brown" />
+                                                    <span className="text-xs font-semibold text-brand-brown">My Profile</span>
+                                                </motion.button>
+
+                                                {/* Logout Option */}
+                                                <motion.button
+                                                    whileHover={{ backgroundColor: "rgba(220, 38, 38, 0.05)" }}
+                                                    onClick={handleLogout}
+                                                    className="w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors"
+                                                >
+                                                    <SignOut size={16} weight="bold" className="text-red-600" />
+                                                    <span className="text-xs font-semibold text-red-600">Logout</span>
+                                                </motion.button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => openAuthModal("signin")}
+                                    className="px-5 py-2 rounded-xl text-[10px] uppercase tracking-[0.2em] font-black text-brand-brown border border-brand-brown/10 hover:bg-brand-brown hover:text-white transition-all duration-300"
+                                >
+                                    Sign In
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

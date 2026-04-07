@@ -186,7 +186,7 @@ const ShopPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
         {/* Filters Bar */}
-        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-4 mb-8">
+        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_10px_50px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-4 mb-8">
           <div className="flex flex-wrap items-center gap-4">
             {/* Category Filter */}
             <div className="flex items-center gap-2 flex-wrap">
@@ -275,19 +275,19 @@ const ShopPage: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        <p className="font-sans text-sm text-gray-500 mb-6">
+        <p className="font-semibold text-sm text-gray-500 mb-6">
           {isLoading ? (
             "Loading products..."
           ) : (
             <>
               Showing{" "}
               <span
-                className="text-brand-brown font-medium"
+                className="text-brand-brown font-bold"
                 style={{ fontWeight: 500 }}
               >
                 {sortedProducts.length}
               </span>{" "}
-              products
+              Products
               {activeCategory !== "all" && (
                 <span>
                   {" "}

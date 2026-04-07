@@ -9,7 +9,7 @@ interface UseLazyLoadOptions {
 }
 
 interface UseLazyLoadReturn {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: (element?: Element | null) => void;
   inView: boolean;
   isLoading: boolean;
   error: Error | null;
