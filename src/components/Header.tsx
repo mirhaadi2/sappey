@@ -254,7 +254,7 @@ const Header: React.FC = () => {
                                             <motion.button
                                                 key={product.id}
                                                 onClick={() => {
-                                                    navigate(`/product/${product.id}`);
+                                                    navigate(`/products/${product?.id}`);
                                                     closeSearch();
                                                 }}
                                                 whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
@@ -269,7 +269,7 @@ const Header: React.FC = () => {
                                                     <p className="text-xs font-bold text-brand-brown truncate">{product.name}</p>
                                                     <p className="text-[10px] text-brand-brown/60 truncate">{product.category}</p>
                                                 </div>
-                                                <p className="text-xs font-black text-brand-brown whitespace-nowrap">SAR {product.price?.toFixed(2)}</p>
+                                                <p className="text-xs font-black text-brand-brown whitespace-nowrap">₹{product.price?.toFixed(2)}</p>
                                             </motion.button>
                                         ))}
                                     </motion.div>

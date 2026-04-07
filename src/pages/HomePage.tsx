@@ -16,7 +16,9 @@ import ProductCard from "../components/ProductCard";
 import { useHomepageData, Hero, Section, Testimonial, InstagramPost } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
 import { Product } from "../types";
-import { HomeSkeleton } from "../components/Skeletons";
+import { HomeSkeleton, ProductGridSkeleton, ReviewSkeleton, CategoryGridSkeleton } from "../components/Skeletons";
+import LazySection from "../components/LazySection";
+import LazyErrorBoundary from "../components/LazyErrorBoundary";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -229,53 +231,53 @@ const HomePage: React.FC = () => {
 
     const renderDynamicSection = (s: Section): React.ReactNode => {
         return (
-        <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
-            <div className="relative h-80 md:h-96">
-                <img
-                    src={
-                        s.backgroundImageUrl ||
-                        s.imageUrl ||
-                        "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
-                    }
-                    alt={`${s.sectionType} banner`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
+            <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
+                <div className="relative h-80 md:h-96">
+                    <img
+                        src={
+                            s.backgroundImageUrl ||
+                            s.imageUrl ||
+                            "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"
+                        }
+                        alt={`${s.sectionType} banner`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
 
-                <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
-                    <div className="max-w-lg">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                {formatSectionTitle(s.sectionType)}
-                            </span>
-                            <h2
-                                className="font-headline text-4xl text-brand mb-4 text-brand-cream"
-                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                    <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
+                        <div className="max-w-lg">
+                            <motion.div
+                                variants={fadeUpVariants}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
                             >
-                                {s.title}
-                            </h2>
-                            <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                {s.subtitle || s.content || "Discover more about our premium products."}
-                            </p>
-                            {s.buttonLink && s.buttonText && (
-                                <button
-                                    onClick={() => navigate(s.buttonLink!)}
-                                    className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
+                                <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
+                                    {formatSectionTitle(s.sectionType)}
+                                </span>
+                                <h2
+                                    className="font-headline text-4xl text-brand mb-4 text-brand-cream"
+                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                                 >
-                                    {s.buttonText}
-                                </button>
-                            )}
-                        </motion.div>
+                                    {s.title}
+                                </h2>
+                                <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
+                                    {s.subtitle || s.content || "Discover more about our premium products."}
+                                </p>
+                                {s.buttonLink && s.buttonText && (
+                                    <button
+                                        onClick={() => navigate(s.buttonLink!)}
+                                        className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
+                                    >
+                                        {s.buttonText}
+                                    </button>
+                                )}
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
         );
     };
 
@@ -379,114 +381,125 @@ const HomePage: React.FC = () => {
             </section>
 
             {collectionsSection && (
-                <section id="collections" className="py-16 px-8 bg-brand-latte">
-                    <div className="max-w-7xl mx-auto">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            // Added flex, items-end (to align button with bottom of text), and justify-between
-                            className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
-                        >
-                            {/* Left Side: Title and Subtitle */}
-                            <div className="max-w-2xl">
-                                <h2
-                                    className="font-headline text-4xl text-brand-brown mb-4"
-                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                <LazyErrorBoundary>
+                    <LazySection
+                        fallback={<div className="py-16 px-8"><CategoryGridSkeleton count={4} /></div>}
+                        rootMargin="300px 0px"
+                    >
+                        <section id="collections" className="py-16 px-8 bg-brand-latte">
+                            <div className="max-w-7xl mx-auto">
+                                <motion.div
+                                    variants={fadeUpVariants}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
                                 >
-                                    {collectionsSection?.title || "Shop by Category"}
-                                </h2>
+                                    <div className="max-w-2xl">
+                                        <h2
+                                            className="font-headline text-4xl text-brand-brown mb-4"
+                                            style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                        >
+                                            {collectionsSection?.title || "Shop by Category"}
+                                        </h2>
 
-                                <p className="font-sans text-slate-600">
-                                    {collectionsSection?.subtitle ||
-                                        "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
-                                </p>
-                            </div>
+                                        <p className="font-sans text-slate-600">
+                                            {collectionsSection?.subtitle ||
+                                                "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
+                                        </p>
+                                    </div>
 
-                            {/* Right Side: View All Button - Only show if there are more items */}
-                            {collectionTotal > 4 && (
-                            <div className="shrink-0">
-                                <button
-                                    onClick={() => navigate(`/shop${activeCollectionCategory ? `?category=${activeCollectionCategory}` : ''}`)}
-                                    className="inline-flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200"
-                                >
-                                    View All <ArrowRight size={16} weight="regular" />
-                                </button>
-                            </div>
-                            )}
-                        </motion.div>
-
-                        <motion.div
-                            variants={staggerContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                        >
-                            {(collections.length > 0 ? collections : []).map((product: Product) => (
-                                <motion.div key={product.id} variants={fadeUpVariants}>
-                                    <ProductCard product={product} />
+                                    {collectionTotal > 4 && (
+                                        <div className="shrink-0">
+                                            <button
+                                                onClick={() => navigate(`/shop${activeCollectionCategory ? `?category=${activeCollectionCategory}` : ''}`)}
+                                                className="inline-flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200"
+                                            >
+                                                View All <ArrowRight size={16} weight="regular" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </motion.div>
-                            ))}
 
-                            {collections.length === 0 && (
-                                <div className="col-span-full text-center text-slate-500" role="status">
-                                    No collection products available yet.
-                                </div>
-                            )}
-                        </motion.div>
-                    </div>
-                </section>
+                                <motion.div
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                                >
+                                    {(collections.length > 0 ? collections : []).map((product: Product) => (
+                                        <motion.div key={product.id} variants={fadeUpVariants}>
+                                            <ProductCard product={product} />
+                                        </motion.div>
+                                    ))}
+
+                                    {collections.length === 0 && (
+                                        <div className="col-span-full text-center text-slate-500" role="status">
+                                            No collection products available yet.
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
+                        </section>
+                    </LazySection>
+                </LazyErrorBoundary>
             )}
 
             {bestsellersSection && bestsellers?.length > 0 && (
-                <section className="py-16 px-8 bg-white">
-                    <div className="max-w-7xl mx-auto">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="flex items-end justify-between mb-12"
-                        >
-                            <div>
-                                <span className="font-label text-xs uppercase tracking-widest text-brand-cocoa block mb-2">
-                                    {bestsellersSection?.title || "Our Bestsellers"}
-                                </span>
-                                <h2
-                                    className="font-headline text-4xl text-brand-brown"
-                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                <LazyErrorBoundary>
+                    <LazySection
+                        fallback={<div className="py-16 px-8"><ProductGridSkeleton count={4} /></div>}
+                        rootMargin="300px 0px"
+                    >
+                        <section className="py-16 px-8 bg-white">
+                            <div className="max-w-7xl mx-auto">
+                                <motion.div
+                                    variants={fadeUpVariants}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="flex items-end justify-between mb-12"
                                 >
-                                    {bestsellersSection?.subtitle || "Customer Favorites"}
-                                </h2>
-                            </div>
+                                    <div>
+                                        <span className="font-label text-xs uppercase tracking-widest text-brand-cocoa block mb-2">
+                                            {bestsellersSection?.title || "Our Bestsellers"}
+                                        </span>
+                                        <h2
+                                            className="font-headline text-4xl text-brand-brown"
+                                            style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                        >
+                                            {bestsellersSection?.subtitle || "Customer Favorites"}
+                                        </h2>
+                                    </div>
 
-                            {bestsellersTotal > 4 && (
-                            <button
-                                onClick={() => navigate("/shop?isBestseller=true")}
-                                className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
-                            >
-                                View All <ArrowRight size={16} weight="regular" />
-                            </button>
-                            )}
-                        </motion.div>
-
-                        <motion.div
-                            variants={staggerContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                        >
-                            {bestsellers?.map((product: Product) => (
-                                <motion.div key={product?.id} variants={fadeUpVariants}>
-                                    <ProductCard product={product} />
+                                    {bestsellersTotal > 4 && (
+                                        <button
+                                            onClick={() => navigate("/shop?isBestseller=true")}
+                                            className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
+                                        >
+                                            View All <ArrowRight size={16} weight="regular" />
+                                        </button>
+                                    )}
                                 </motion.div>
-                            ))}
-                        </motion.div>
-                    </div>
-                </section>
+
+                                <motion.div
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                                >
+                                    {bestsellers?.map((product: Product) => (
+                                        <motion.div key={product?.id} variants={fadeUpVariants}>
+                                            <ProductCard product={product} />
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            </div>
+                        </section>
+                    </LazySection>
+                </LazyErrorBoundary>
             )}
 
             {healthWellnessSection && (
@@ -545,52 +558,59 @@ const HomePage: React.FC = () => {
             )}
 
             {newArrivalsSection && newArrivals?.length > 0 && (
-                <section className="py-16 px-8 bg-brand-latte">
-                    <div className="max-w-7xl mx-auto">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="flex items-end justify-between mb-12"
-                        >
-                            <div>
-                                <span className="font-label text-xs uppercase tracking-widest text-brand-plum block mb-2">
-                                    {newArrivalsSection?.title || "Just Landed"}
-                                </span>
-                                <h2
-                                    className="font-headline text-4xl text-brand-brown"
-                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                <LazyErrorBoundary>
+                    <LazySection
+                        fallback={<div className="py-16 px-8"><ProductGridSkeleton count={4} /></div>}
+                        rootMargin="300px 0px"
+                    >
+                        <section className="py-16 px-8 bg-brand-latte">
+                            <div className="max-w-7xl mx-auto">
+                                <motion.div
+                                    variants={fadeUpVariants}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="flex items-end justify-between mb-12"
                                 >
-                                    {newArrivalsSection?.subtitle ||
-                                        "Discover Our Newest Additions"}
-                                </h2>
-                            </div>
-                            {newArrivalsTotal > 4 && (
-                            <button
-                                onClick={() => navigate("/shop?isNew=true")}
-                                className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
-                            >
-                                View All <ArrowRight size={16} weight="regular" />
-                            </button>
-                            )}
-                        </motion.div>
-
-                        <motion.div
-                            variants={staggerContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                        >
-                            {newArrivals?.map((product: Product) => (
-                                <motion.div key={product?.id} variant={fadeUpVariants}>
-                                    <ProductCard product={product} />
+                                    <div>
+                                        <span className="font-label text-xs uppercase tracking-widest text-brand-plum block mb-2">
+                                            {newArrivalsSection?.title || "Just Landed"}
+                                        </span>
+                                        <h2
+                                            className="font-headline text-4xl text-brand-brown"
+                                            style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                        >
+                                            {newArrivalsSection?.subtitle ||
+                                                "Discover Our Newest Additions"}
+                                        </h2>
+                                    </div>
+                                    {newArrivalsTotal > 4 && (
+                                        <button
+                                            onClick={() => navigate("/shop?isNew=true")}
+                                            className="hidden md:flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200 cursor-pointer"
+                                        >
+                                            View All <ArrowRight size={16} weight="regular" />
+                                        </button>
+                                    )}
                                 </motion.div>
-                            ))}
-                        </motion.div>
-                    </div>
-                </section>
+
+                                <motion.div
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                                >
+                                    {newArrivals?.map((product: Product) => (
+                                        <motion.div key={product?.id} variant={fadeUpVariants}>
+                                            <ProductCard product={product} />
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            </div>
+                        </section>
+                    </LazySection>
+                </LazyErrorBoundary>
             )}
 
             {storySection && (
@@ -653,153 +673,167 @@ const HomePage: React.FC = () => {
             )}
 
             {testimonialsSection && testimonials?.length > 0 && (
-                <section className="py-16 px-8 bg-gradient-1">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-2">
-                                {testimonialsSection?.title || "Testimonials"}
-                            </span>
-                            <h2
-                                className="font-headline text-4xl text-brand-cream mb-12"
-                                style={{ fontWeight: 500, letterSpacing: "-0.0.25em" }}
-                            >
-                                {testimonialsSection?.subtitle || "What Our Customers Are Saying"}
-                            </h2>
-                        </motion.div>
-
-                        <div className="relative min-h-48">
-                            {testimonials?.map((t: Testimonial, i: number) => (
+                <LazyErrorBoundary>
+                    <LazySection
+                        fallback={<div className="py-16 px-8"><ReviewSkeleton count={1} /></div>}
+                        rootMargin="250px 0px"
+                    >
+                        <section className="py-16 px-8 bg-gradient-1">
+                            <div className="max-w-4xl mx-auto text-center">
                                 <motion.div
-                                    key={t.id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: i === testimonialIndex ? 1 : 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className={`absolute inset-0 flex flex-col items-center ${i === testimonialIndex
-                                        ? "pointer-events-auto"
-                                        : "pointer-events-none"
-                                        }`}
+                                    variants={fadeUpVariants}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
                                 >
-                                    <Quotes
-                                        size={32}
-                                        weight="fill"
-                                        className="text-brand-cream opacity-40 mb-4"
-                                    />
-                                    <p className="font-sans text-lg text-brand-cream opacity-95 leading-relaxed mb-6 max-w-2xl">
-                                        "{t.content}"
-                                    </p>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-brand-cocoa flex items-center justify-center">
-                                            <span
-                                                className="font-label text-sm text-brand-cream font-500"
-                                                style={{ fontWeight: 500 }}
-                                            >
-                                                {t.name?.charAt(0)?.toUpperCase() || "U"}
-                                            </span>
-                                        </div>
-
-                                        <div className="text-left">
-                                            <p
-                                                className="font-label text-sm  text-brand-cream"
-                                                style={{ fontWeight: 500 }}
-                                            >
-                                                {t.name}
-                                            </p>
-                                            <p className="font-sans text-xs text-brand-cream opacity-70">
-                                                {t.role || "Customer"}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center gap-1 ml-2">
-                                            {Array.from({ length: t.rating })?.map((_, i: number) => (
-                                                <Star
-                                                    key={i}
-                                                    size={14}
-                                                    weight="fill"
-                                                    className="text-warning"
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
+                                    <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-2">
+                                        {testimonialsSection?.title || "Testimonials"}
+                                    </span>
+                                    <h2
+                                        className="font-headline text-4xl text-brand-cream mb-12"
+                                        style={{ fontWeight: 500, letterSpacing: "-0.0.25em" }}
+                                    >
+                                        {testimonialsSection?.subtitle || "What Our Customers Are Saying"}
+                                    </h2>
                                 </motion.div>
-                            ))}
-                        </div>
 
-                        <div className="flex items-center justify-center gap-2 mt-16">
-                            {testimonials?.map((_: Testimonial, i: number) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setTestimonialIndex(i)}
-                                    className={`rounded-full transition-all duration-300 cursor-pointer ${i === testimonialIndex
-                                        ? "w-6 h-2 bg-brand-cream"
-                                        : "w-2 h-2 bg-brand-cream opacity-40 hover:opacity-70"
-                                        }`}
-                                    aria-label={`Go to testimonial ${i + 1}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                                <div className="relative min-h-48">
+                                    {testimonials?.map((t: Testimonial, i: number) => (
+                                        <motion.div
+                                            key={t.id}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: i === testimonialIndex ? 1 : 0 }}
+                                            transition={{ duration: 0.5 }}
+                                            className={`absolute inset-0 flex flex-col items-center ${i === testimonialIndex
+                                                ? "pointer-events-auto"
+                                                : "pointer-events-none"
+                                                }`}
+                                        >
+                                            <Quotes
+                                                size={32}
+                                                weight="fill"
+                                                className="text-brand-cream opacity-40 mb-4"
+                                            />
+                                            <p className="font-sans text-lg text-brand-cream opacity-95 leading-relaxed mb-6 max-w-2xl">
+                                                "{t.content}"
+                                            </p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-brand-cocoa flex items-center justify-center">
+                                                    <span
+                                                        className="font-label text-sm text-brand-cream font-500"
+                                                        style={{ fontWeight: 500 }}
+                                                    >
+                                                        {t.name?.charAt(0)?.toUpperCase() || "U"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="text-left">
+                                                    <p
+                                                        className="font-label text-sm  text-brand-cream"
+                                                        style={{ fontWeight: 500 }}
+                                                    >
+                                                        {t.name}
+                                                    </p>
+                                                    <p className="font-sans text-xs text-brand-cream opacity-70">
+                                                        {t.role || "Customer"}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex items-center gap-1 ml-2">
+                                                    {Array.from({ length: t.rating })?.map((_, i: number) => (
+                                                        <Star
+                                                            key={i}
+                                                            size={14}
+                                                            weight="fill"
+                                                            className="text-warning"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center justify-center gap-2 mt-16">
+                                    {testimonials?.map((_: Testimonial, i: number) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setTestimonialIndex(i)}
+                                            className={`rounded-full transition-all duration-300 cursor-pointer ${i === testimonialIndex
+                                                ? "w-6 h-2 bg-brand-cream"
+                                                : "w-2 h-2 bg-brand-cream opacity-40 hover:opacity-70"
+                                                }`}
+                                            aria-label={`Go to testimonial ${i + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    </LazySection>
+                </LazyErrorBoundary>
             )}
 
             {instagramSection && instagramPosts?.length > 0 && (
-                <section id="recipes" className="py-16 px-8 bg-brand-latte">
-                    <div>
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="text-center mb-12"
-                        >
-                            <span className="font-label text-xs tracking-widest text-brand-cocoa block mb-2">
-                                {instagramSection?.title || "Follow Us"}
-                            </span>
-                            <h2
-                                className="font-headline text-4xl text-brand-brown mb-4"
-                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                            >
-                                {instagramSection?.subtitle ||
-                                    "See Our Latest Posts on Instagram"}
-                            </h2>
-                            <p className="font-sans text-slate-600">
-                                Join our community of health enthusiasts on Instagram
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            variants={staggerContainer}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
-                        >
-                            {instagramPosts?.map((post: InstagramPost, i: number) => (
-                                <motion.a
-                                    key={post.id}
-                                    href={post.postUrl || "https://instagram.com"}
-                                    target="_blank"
-                                    rel="noopener  noreferrer"
+                <LazyErrorBoundary>
+                    <LazySection
+                        fallback={<div className="py-16 px-8"><CategoryGridSkeleton count={6} /></div>}
+                        rootMargin="250px 0px"
+                    >
+                        <section id="recipes" className="py-16 px-8 bg-brand-latte">
+                            <div>
+                                <motion.div
                                     variants={fadeUpVariants}
-                                    className="relative aspect-square rounded-[24px] overflow-hidden group block border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
-                                    aria-label={`Instagram post ${i + 1}`}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="text-center mb-12"
                                 >
-                                    <img
-                                        src={post.imageUrl}
-                                        alt={post.caption || `Instagram post ${i + 1}`}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-brand-brown opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                                </motion.a>
-                            ))}
-                        </motion.div>
-                    </div>
-                </section>
+                                    <span className="font-label text-xs tracking-widest text-brand-cocoa block mb-2">
+                                        {instagramSection?.title || "Follow Us"}
+                                    </span>
+                                    <h2
+                                        className="font-headline text-4xl text-brand-brown mb-4"
+                                        style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                    >
+                                        {instagramSection?.subtitle ||
+                                            "See Our Latest Posts on Instagram"}
+                                    </h2>
+                                    <p className="font-sans text-slate-600">
+                                        Join our community of health enthusiasts on Instagram
+                                    </p>
+                                </motion.div>
+
+                                <motion.div
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
+                                >
+                                    {instagramPosts?.map((post: InstagramPost, i: number) => (
+                                        <motion.a
+                                            key={post.id}
+                                            href={post.postUrl || "https://instagram.com"}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            variants={fadeUpVariants}
+                                            className="relative aspect-square rounded-[24px] overflow-hidden group block border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
+                                            aria-label={`Instagram post ${i + 1}`}
+                                        >
+                                            <img
+                                                src={post.imageUrl}
+                                                alt={post.caption || `Instagram post ${i + 1}`}
+                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                loading="lazy"
+                                            />
+                                            <div className="absolute inset-0 bg-brand-brown opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+                                        </motion.a>
+                                    ))}
+                                </motion.div>
+                            </div>
+                        </section>
+                    </LazySection>
+                </LazyErrorBoundary>
             )}
 
             {dynamicSections.map((section) => renderDynamicSection(section))}

@@ -6,6 +6,9 @@ import { useCart } from "../context/CardContext";
 import { useHomepagePromotions } from "../api/promotions";
 import ProductCard from "../components/ProductCard";
 import { ProductDetailSkeleton } from "../components/Skeletons";
+import LazySection from "../components/LazySection";
+import LazyErrorBoundary from "../components/LazyErrorBoundary";
+import { SectionSkeleton, ReviewSkeleton, ProductGridSkeleton } from "../components/Skeletons";
 import { Product, ProductVariant, NutritionFact, Review } from "../types";
 import {
   Star,
@@ -416,132 +419,153 @@ const variantOptions = useMemo(() => {
           </motion.div>
         </div>
 
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-8 mb-12"
-          aria-label="Nutritional information"
-        >
-          <h2
-            className="font-headline text-2xl text-brand-brown mb-6"
-            style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+        <LazyErrorBoundary>
+          <LazySection
+            fallback={<div className="py-8"><SectionSkeleton count={6} /></div>}
+            rootMargin="300px 0px"
           >
-            Nutritional Facts
-          </h2>
-          <p className="font-sans text-xs text-slate-500 mb-4">
-            Per 100g serving
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {product?.nutrition?.map((fact: string | NutritionFact) => {
-              // Type guard to handle both string and object
-              if (typeof fact === 'string') return null;
-              return (
-                <div
-                  key={fact?.label}
-                  className="bg-brand-latte rounded-lg p-4 text-center"
-                >
-                  <p
-                    className="font-headline text-xl text-brand-brown mb-1"
-                    style={{ fontWeight: 600 }}
-                  >
-                    {fact?.value}
-                  </p>
-                  <p className="font-label text-xs text-slate-500 uppercase tracking-wider">
-                    {fact?.label}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-12"
-          aria-label="Customer reviews"
-        >
-          <h2
-            className="font-headline text-2xl text-brand-brown mb-6"
-            style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-          >
-            Customer Reviews
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {product?.reviews?.map((review: string | Review) => {
-              if (typeof review === 'string') return null;
-              return (
-              <div
-                key={review?.id}
-                className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-6"
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-8 mb-12"
+              aria-label="Nutritional information"
+            >
+              <h2
+                className="font-headline text-2xl text-brand-brown mb-6"
+                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-brand-brown flex items-center justify-center">
-                      <span
-                        className="font-label text-xs text-brand-cream"
-                        style={{ fontWeight: 500 }}
-                      >
-                        {review?.author?.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
+                Nutritional Facts
+              </h2>
+              <p className="font-sans text-xs text-slate-500 mb-4">
+                Per 100g serving
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {product?.nutrition?.map((fact: string | NutritionFact) => {
+                  // Type guard to handle both string and object
+                  if (typeof fact === 'string') return null;
+                  return (
+                    <div
+                      key={fact?.label}
+                      className="bg-brand-latte rounded-lg p-4 text-center"
+                    >
                       <p
-                        className="font-label text-sm text-brand-brown"
-                        style={{ fontWeight: 500 }}
+                        className="font-headline text-xl text-brand-brown mb-1"
+                        style={{ fontWeight: 600 }}
                       >
-                        {review?.author}
+                        {fact?.value}
                       </p>
-                      <p className="font-sans text-xs text-slate-400">
-                        {review?.date}
+                      <p className="font-label text-xs text-slate-500 uppercase tracking-wider">
+                        {fact?.label}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: review?.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        weight="fill"
-                        className="text-warning"
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p className="font-sans text-sm text-slate-600 leading-relaxed">
-                  {review?.comment}
-                </p>
+                  );
+                })}
               </div>
-              );
-            })}
-          </div>
-        </motion.section>
+            </motion.section>
+          </LazySection>
+        </LazyErrorBoundary>
+
+        <LazyErrorBoundary>
+          <LazySection
+            fallback={<div className="py-8"><ReviewSkeleton count={2} /></div>}
+            rootMargin="300px 0px"
+          >
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-12"
+              aria-label="Customer reviews"
+            >
+              <h2
+                className="font-headline text-2xl text-brand-brown mb-6"
+                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+              >
+                Customer Reviews
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {product?.reviews?.map((review: string | Review) => {
+                  if (typeof review === 'string') return null;
+                  return (
+                  <div
+                    key={review?.id}
+                    className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-6"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-brand-brown flex items-center justify-center">
+                          <span
+                            className="font-label text-xs text-brand-cream"
+                            style={{ fontWeight: 500 }}
+                          >
+                            {review?.author?.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <p
+                            className="font-label text-sm text-brand-brown"
+                            style={{ fontWeight: 500 }}
+                          >
+                            {review?.author}
+                          </p>
+                          <p className="font-sans text-xs text-slate-400">
+                            {review?.date}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: review?.rating }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            weight="fill"
+                            className="text-warning"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="font-sans text-sm text-slate-600 leading-relaxed">
+                      {review?.comment}
+                    </p>
+                  </div>
+                  );
+                })}
+              </div>
+            </motion.section>
+          </LazySection>
+        </LazyErrorBoundary>
 
         {relatedProducts.length > 0 && (
-          <motion.section
-            initial={{ opactiy: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            aria-label="Related products"
-          >
-            <h2
-              className="font-headline text-2xl text-brand-brown mb-6"
-              style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+          <LazyErrorBoundary>
+            <LazySection
+              fallback={<div className="py-8"><ProductGridSkeleton count={4} /></div>}
+              rootMargin="300px 0px"
             >
-              You May Also Like
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts?.map((p: Product) => (
-                <ProductCard key={p?.id} product={p} />
-              ))}
-            </div>
-          </motion.section>
+              <motion.section
+                initial={{ opactiy: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                aria-label="Related products"
+              >
+                <h2
+                  className="font-headline text-2xl text-brand-brown mb-6"
+                  style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                >
+                  You May Also Like
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {relatedProducts?.map((p: Product) => (
+                    <ProductCard key={p?.id} product={p} />
+                  ))}
+                </div>
+              </motion.section>
+            </LazySection>
+          </LazyErrorBoundary>
         )}
       </div>
     </div>
