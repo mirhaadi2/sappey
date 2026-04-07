@@ -201,11 +201,10 @@ const ShopPage: React.FC = () => {
                     <button
                       key={cat?.id}
                       onClick={() => setCategory(cat?.id ?? "all")}
-                      className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
-                        activeCategory === (cat?.id ?? "all")
+                      className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${activeCategory === (cat?.id ?? "all")
                           ? "bg-brand-brown text-brand-cream"
                           : "bg-brand-latte text-brand-brown hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {cat?.name ?? "Category"}
                     </button>
@@ -227,18 +226,14 @@ const ShopPage: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className={`font-label text-xs rounded-lg px-3 py-2 focus:outline-none cursor-pointer transition-all ${
-                    sortBy !== "default"
-                      ? "bg-brand-brown text-brand-cream border border-brand-brown font-bold"
-                      : "bg-brand-latte text-brand-brown border border-gray-200 focus:border-brand-brown"
-                  }`}
+                  className="font-label text-xs rounded-lg px-3 py-2 focus:outline-none cursor-pointer transition-all bg-white text-slate-700 border border-slate-200 hover:border-brand-brown focus:border-brand-brown appearance-none"
                   aria-label="Sort products"
                 >
-                  <option value="default">Sort: Default</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Most Popular</option>
-                  <option value="newest">Newest First</option>
+                  <option value="default" className="text-slate-900 bg-white">Sort: Default</option>
+                  <option value="price-asc" className="text-slate-900 bg-white">Price: Low to High</option>
+                  <option value="price-desc" className="text-slate-900 bg-white">Price: High to Low</option>
+                  <option value="rating" className="text-slate-900 bg-white">Most Popular</option>
+                  <option value="newest" className="text-slate-900 bg-white">Newest First</option>
                 </select>
               </div>
 
@@ -246,33 +241,30 @@ const ShopPage: React.FC = () => {
               <div className="hidden md:flex items-center gap-1 bg-brand-latte rounded-lg p-1">
                 <button
                   onClick={() => setViewMode("grid-4")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-4"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-4"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="4 column grid"
                 >
                   <GridFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-3")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-3"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-3"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="3 column grid"
                 >
                   <SquaresFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-2")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
-                    viewMode === "grid-2"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-2"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                  }`}
+                    }`}
                   aria-label="2 column grid"
                 >
                   <Rows size={16} weight="regular" />
