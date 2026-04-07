@@ -207,7 +207,7 @@ const OrderDetailsPage: React.FC = () => {
                 </motion.div>
 
                 {/* Timeline Progress */}
-                <div className="bg-white rounded-3xl border border-slate-200 p-8 mb-8 shadow-sm">
+                <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-8 mb-8">
                     <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 text-center">
                         Fulfillment Lifecycle
                     </h3>
@@ -256,7 +256,7 @@ const OrderDetailsPage: React.FC = () => {
                 {/* Grid Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden">
                             <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-3">
                                     <Package
@@ -278,7 +278,7 @@ const OrderDetailsPage: React.FC = () => {
                                 ))}
                             </div>
                             {order?.metadata?.promotion && (
-                                <div className="mx-8 mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-4">
+                                <div className="mx-8 mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-[24px] flex items-center gap-4">
                                     <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
                                         <Package size={24} weight="fill" />
                                     </div>

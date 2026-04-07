@@ -146,7 +146,7 @@ const ShopPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
         {/* Filters Bar */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-8">
+        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-4 mb-8">
           <div className="flex flex-wrap items-center gap-4">
             {/* Category Filter */}
             <div className="flex items-center gap-2 flex-wrap">
@@ -277,7 +277,7 @@ const ShopPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300"
+            className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200"
           >
             <div className="max-w-md mx-auto">
               <div className="w-20 h-20 bg-brand-latte rounded-full flex items-center justify-center mx-auto mb-6">

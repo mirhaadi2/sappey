@@ -33,7 +33,7 @@ const CartDrawer: React.FC = () => {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.25 }}
                         onClick={() => dispatch({ type: "CLOSE_CART" })}
-                        className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50"
+                        className="fixed inset-0 bg-gray-900 bg-opacity-50 z-1000"
                         aria-hidden="true"
                     />
 

@@ -77,7 +77,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 10 }}
             transition={{ type: 'spring', duration: 0.3 }}
-            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
+            className="relative w-full max-w-md bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 overflow-hidden"
           >
             {/* Close Button */}
             <button
@@ -90,7 +90,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             {/* Content */}
             <div className="p-8">
               {/* Icon */}
-              <div className={`w-16 h-16 ${config.bgColor} ${config.textColor} rounded-2xl flex items-center justify-center mb-6 mx-auto`}>
+              <div className={`w-16 h-16 ${config.bgColor} ${config.textColor} rounded-[24px] flex items-center justify-center mb-6 mx-auto`}>
                 <Icon size={32} weight="duotone" />
               </div>
 

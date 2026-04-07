@@ -83,7 +83,7 @@ const OrderSuccessPage: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Status Stepper */}
-            <section className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+            <section className="bg-white border border-brand-brown/10 rounded-[24px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
               <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Order Status</h2>
               <div className="relative flex justify-between">
                 <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-100 -z-0" />
@@ -102,7 +102,7 @@ const OrderSuccessPage: React.FC = () => {
             </section>
 
             {/* Information Grid */}
-            <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+            <section className="bg-white border border-brand-brown/10 rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
               <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-4 text-slate-400">

@@ -71,12 +71,12 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             className={`group flex items-start gap-5 py-5 transition-all ${
-                isOrderItem ? 'hover:bg-slate-50/50 px-4 -mx-4 rounded-2xl' : 'border-b border-slate-100'
+                isOrderItem ? 'hover:bg-brand-brown/5 px-4 -mx-4 rounded-[24px]' : 'border-b border-slate-100'
             } last:border-0`}
         >
             {/* Image Section */}
             <div className="relative flex-shrink-0">
-                <div className="w-24 h-24 rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm flex items-center justify-center group-hover:border-[#9a5d2e]/30 transition-colors">
+                <div className="w-24 h-24 rounded-[24px] bg-white border border-brand-brown/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex items-center justify-center group-hover:border-brand-brown/30 transition-all duration-500 group-hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)]">
                     {productImage ? (
                         <img
                             src={productImage}

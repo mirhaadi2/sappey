@@ -240,7 +240,7 @@ const SignUpModal: React.FC = () => {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-8 overflow-hidden"
+            className="relative w-full max-w-md bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 p-8 overflow-hidden"
           >
             {/* Header */}
             <div className="flex justify-between items-start mb-10">

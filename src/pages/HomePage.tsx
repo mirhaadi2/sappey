@@ -159,7 +159,7 @@ const HomePage: React.FC = () => {
     if (errorToShow) {
         return (
             <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
-                <div className="text-center bg-white border border-slate-200 rounded-xl p-8 shadow-sm max-w-sm">
+                <div className="text-center bg-white border border-brand-brown/10 rounded-[24px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 max-w-sm">
                     <h2 className="text-xl font-semibold text-slate-900 mb-2">
                         Unable to load products
                     </h2>
@@ -398,7 +398,7 @@ const HomePage: React.FC = () => {
                                     {collectionsSection?.title || "Shop by Category"}
                                 </h2>
 
-                                <p className="font-sans text-gray-600">
+                                <p className="font-sans text-slate-600">
                                     {collectionsSection?.subtitle ||
                                         "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
                                 </p>
@@ -431,7 +431,7 @@ const HomePage: React.FC = () => {
                             ))}
 
                             {collections.length === 0 && (
-                                <div className="col-span-full text-center text-gray-500" role="status">
+                                <div className="col-span-full text-center text-slate-500" role="status">
                                     No collection products available yet.
                                 </div>
                             )}
@@ -613,7 +613,7 @@ const HomePage: React.FC = () => {
                                 {storySection?.title || "From Our Farms to Your Table"}
                             </h2>
 
-                            <p className="font-sans text-gray-600 max-w-xl mx-auto">
+                            <p className="font-sans text-slate-600 max-w-xl mx-auto">
                                 {storySection?.subtitle ||
                                     "Founded in 2026, our mission has been to provide the highest quality dry fruits and nuts while supporting sustainable farming practices. We work directly with farmers to ensure fair wages and ethical sourcing, so you can feel good about every bite."}
                             </p>
@@ -624,7 +624,7 @@ const HomePage: React.FC = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="relative rounded-lg overflow-hidden max-w-4xl mx-auto"
+                            className="relative rounded-2xl overflow-hidden max-w-4xl mx-auto"
                             style={{ aspectRatio: "16/9" }}
                         >
                             <motion.video
@@ -766,7 +766,7 @@ const HomePage: React.FC = () => {
                                 {instagramSection?.subtitle ||
                                     "See Our Latest Posts on Instagram"}
                             </h2>
-                            <p className="font-sans text-gray-600">
+                            <p className="font-sans text-slate-600">
                                 Join our community of health enthusiasts on Instagram
                             </p>
                         </motion.div>
@@ -785,7 +785,7 @@ const HomePage: React.FC = () => {
                                     target="_blank"
                                     rel="noopener  noreferrer"
                                     variants={fadeUpVariants}
-                                    className="relative aspect-square rounded-lg overflow-hidden group block"
+                                    className="relative aspect-square rounded-[24px] overflow-hidden group block border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
                                     aria-label={`Instagram post ${i + 1}`}
                                 >
                                     <img
@@ -819,7 +819,7 @@ const HomePage: React.FC = () => {
                             >
                                 {contactSection?.title || "Get in Touch"}
                             </h2>
-                            <p className="font-sans text-gray-600 mb-8">
+                            <p className="font-sans text-slate-600 mb-8">
                                 {contactSection?.subtitle ||
                                     "Have questions or feedback? We'd love to hear from you! Fill out the form below and we'll get back to you as soon as possible."}
                             </p>
@@ -828,18 +828,18 @@ const HomePage: React.FC = () => {
                                     <input
                                         type="text"
                                         placeholder="Your Name"
-                                        className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-4 rounded-lg border border-gray-200 focus:outline-none focus:border-brown transition-colors duration-200"
+                                        className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-4 rounded-lg border border-slate-200 focus:outline-none focus:border-brown transition-colors duration-200"
                                     />
                                     <input
                                         type="email"
                                         placeholder="Your Email"
-                                        className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-4 rounded-lg border border-gray-200 focus:outline-none focus:border-brown transition-colors duration-200"
+                                        className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-4 rounded-lg border border-slate-200 focus:outline-none focus:border-brown transition-colors duration-200"
                                     />
                                 </div>
                                 <textarea
                                     placeholder="Your Message"
                                     rows={4}
-                                    className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-brown transition-colors duration-200"
+                                    className="bg-brand-latte text-brand-brown font-sans text-sm px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:border-brown transition-colors duration-200"
                                 />
                                 <button
                                     type="submit"

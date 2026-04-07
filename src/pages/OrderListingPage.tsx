@@ -122,7 +122,7 @@ const OrderListingPage: React.FC = () => {
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center max-w-sm">
+                <div className="bg-white p-8 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 text-center max-w-sm transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
                     <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Warning size={32} weight="duotone" />
                     </div>
@@ -218,7 +218,7 @@ const OrderListingPage: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white/60 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm border-b-4 border-b-slate-100"
+                            className="bg-white/60 backdrop-blur-md border border-white p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border-b-4 border-b-slate-100 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
                         >
                             <div className="flex items-center justify-between mb-3">
                                 <div className={`p-2 rounded-lg ${item.bg} ${item.color}`}>
@@ -238,7 +238,7 @@ const OrderListingPage: React.FC = () => {
 
                 {/* Global Search & Control Bar */}
                 <div className="sticky top-6 z-40 mb-8">
-                    <div className="bg-white/80 backdrop-blur-xl border border-white p-3 rounded-2xl shadow-xl shadow-slate-200/50 flex flex-col lg:flex-row gap-3">
+                    <div className="bg-white/80 backdrop-blur-xl border border-white p-3 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-3 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
                         <div className="relative flex-1 group">
                             <MagnifyingGlass
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"
@@ -282,7 +282,7 @@ const OrderListingPage: React.FC = () => {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-white border border-slate-200 mt-2 p-6 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="bg-white border border-brand-brown/10 mt-2 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
                                     <div>
                                         <label className="text-[11px] font-black uppercase text-slate-400 mb-2 block">
                                             Status Filter

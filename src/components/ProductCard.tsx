@@ -109,7 +109,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 }
                     }}
-                    className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full"
+                    className="group bg-white rounded-[24px] border border-brand-brown/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 flex flex-col h-full"
                 >
                     <div className="relative aspect-square overflow-hidden bg-gray-50">
                         <img

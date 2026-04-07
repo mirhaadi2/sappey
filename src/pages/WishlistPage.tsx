@@ -208,7 +208,7 @@ const WishlistPage: React.FC = () => {
                                         initial="hidden"
                                         animate="visible"
                                         transition={{ delay: index * 0.1 }}
-                                        className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
+                                        className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden flex flex-col"
                                     >
                                         {/* Image */}
                                         <div className="relative aspect-square overflow-hidden bg-slate-100 cursor-pointer group">
@@ -302,7 +302,7 @@ const WishlistPage: React.FC = () => {
                             initial="hidden"
                             animate="visible"
                             transition={{ delay: 0.2 }}
-                            className="h-fit bg-white rounded-2xl border border-slate-100 p-6 shadow-sm sticky top-32"
+                            className="h-fit bg-white rounded-[24px] border border-brand-brown/10 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] sticky top-32"
                         >
                             <h3 className="font-headline text-xl text-brand-brown mb-6">Wishlist Summary</h3>
 

@@ -152,7 +152,7 @@ const variantOptions = useMemo(() => {
 
   return (
     <div className={`min-h-screen bg-brand-latte text-foreground pt-0 ${hasBanner ? "pt-2" : ""}`}>
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         {/* Image Gallery */}
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center gap-2">
           <button
@@ -162,12 +162,12 @@ const variantOptions = useMemo(() => {
             <ArrowLeft size={20} weight="bold" />
             Shop
           </button>
-          <span className="text-gray-300">/</span>
+          <span className="text-slate-300">/</span>
           <span className="font-label text-xs text-brand-brown capitalize">
             {product?.category}
           </span>
-          <span className="text-gray-300">/</span>
-          <span className="font-label text-xs text-gray-500 truncate max-w-xs">
+          <span className="text-slate-300">/</span>
+          <span className="font-label text-xs text-slate-500 truncate max-w-xs">
             {product?.name}
           </span>
         </div>
@@ -207,7 +207,7 @@ const variantOptions = useMemo(() => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${selectedImage === index ? "border-brand-brown" : "border-gray-200 hover:border-brand-cocoa"}`}
+                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer ${selectedImage === index ? "border-brand-brown" : "border-slate-200 hover:border-brand-cocoa"}`}
                   aria-label={`View ${product?.name} - image ${index + 1}`}
                 >
                   <img
@@ -261,12 +261,12 @@ const variantOptions = useMemo(() => {
                     className={
                       i < (product?.rating ? Math.floor(product?.rating) : 0)
                         ? "text-warning"
-                        : "text-gray-300"
+                        : "text-slate-300"
                     }
                   />
                 ))}
               </div>
-              <span className="font-sans text-sm text-gray-600">
+              <span className="font-sans text-sm text-slate-600">
                 {product?.rating ?? 0} ({(product?.reviewCount ?? 0)} reviews)
               </span>
             </div>
@@ -278,16 +278,16 @@ const variantOptions = useMemo(() => {
               >
                 ₹{displayPrice.toFixed(2)}
               </span>
-              <span className="font-label text-sm uppercase tracking-widest text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              <span className="font-label text-sm uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
                 {displayWeight}
               </span>
             </div>
 
-            <p className="font-sans text-gray-600 leading-relaxed mb-6">
+            <p className="font-sans text-slate-600 leading-relaxed mb-6">
               {product?.description}
             </p>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+            {/* <div className="bg-white rounded-2xl border border-slate-100 shadow-lg p-4 mb-6">
               <h3
                 className="font-label text-xs uppercase tracking-wider text-brand brown mb-3"
                 style={{ fontWeight: 500 }}
@@ -307,13 +307,13 @@ const variantOptions = useMemo(() => {
                       weight="bold"
                       className="text-success mt-0.5 flex-shrink-0"
                     />
-                    <span className="font-sans text-xs text-gray-600">
+                    <span className="font-sans text-xs text-slate-600">
                       {offer}
                     </span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
             <div className="mb-6">
               <h3 className="font-label text-xs uppercase tracking-wider text-brand-brown mb-3">
@@ -327,7 +327,7 @@ const variantOptions = useMemo(() => {
                     onClick={() => setSelectedVariant(String(variant.id))}
                     className={`px-6 py-3 border-2 rounded-lg text-sm font-label transition-all duration-200 ${selectedVariant === variant.id
                         ? "border-brand-brown bg-brand-brown text-brand-cream"
-                        : "border-gray-200 bg-white text-brand-brown hover:border-brand-cocoa"
+                        : "border-slate-200 bg-white text-brand-brown hover:border-brand-cocoa"
                       }`}
                   >
                     <div className="font-semibold">{variant.label}</div>
@@ -347,7 +347,7 @@ const variantOptions = useMemo(() => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-lg bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer border border-gray-200"
+                  className="w-10 h-10 rounded-xl bg-slate-50 text-brand-brown flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 cursor-pointer border border-slate-200"
                   aria-label="Decrease quantity"
                 >
                   <Minus size={16} weight="regular" />
@@ -355,7 +355,7 @@ const variantOptions = useMemo(() => {
                 <span className="font-sans text-lg font-bold">{quantity}</span>
                 <button
                   onClick={() => setQuantity((q) => q + 1)}
-                  className="w-10 h-10 rounded-lg bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer border border-gray-200"
+                  className="w-10 h-10 rounded-xl bg-slate-50 text-brand-brown flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 cursor-pointer border border-slate-200"
                   aria-label="Increase quantity"
                 >
                   <Plus size={16} weight="regular" />
@@ -394,7 +394,7 @@ const variantOptions = useMemo(() => {
               </button>
             </div>
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-slate-600">
                 <Truck
                   size={20}
                   weight="regular"
@@ -404,7 +404,7 @@ const variantOptions = useMemo(() => {
                   Free delivery above $49
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-slate-600">
                 <Package
                   size={20}
                   weight="regular"
@@ -421,7 +421,7 @@ const variantOptions = useMemo(() => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-white rounded-lg border border-gray-200 p-8 mb-12"
+          className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-8 mb-12"
           aria-label="Nutritional information"
         >
           <h2
@@ -430,7 +430,7 @@ const variantOptions = useMemo(() => {
           >
             Nutritional Facts
           </h2>
-          <p className="font-sans text-xs text-gray-500 mb-4">
+          <p className="font-sans text-xs text-slate-500 mb-4">
             Per 100g serving
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -448,7 +448,7 @@ const variantOptions = useMemo(() => {
                   >
                     {fact?.value}
                   </p>
-                  <p className="font-label text-xs text-gray-500 uppercase tracking-wider">
+                  <p className="font-label text-xs text-slate-500 uppercase tracking-wider">
                     {fact?.label}
                   </p>
                 </div>
@@ -478,7 +478,7 @@ const variantOptions = useMemo(() => {
               return (
               <div
                 key={review?.id}
-                className="bg-white rounded-lg border border-gray-200 p-6"
+                className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-6"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -497,7 +497,7 @@ const variantOptions = useMemo(() => {
                       >
                         {review?.author}
                       </p>
-                      <p className="font-sans text-xs text-gray-400">
+                      <p className="font-sans text-xs text-slate-400">
                         {review?.date}
                       </p>
                     </div>
@@ -513,7 +513,7 @@ const variantOptions = useMemo(() => {
                     ))}
                   </div>
                 </div>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
+                <p className="font-sans text-sm text-slate-600 leading-relaxed">
                   {review?.comment}
                 </p>
               </div>
