@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    MagnifyingGlass, User, ShoppingCart, List, X, SignOut, Heart
+    MagnifyingGlass, User, ShoppingCart, List, X, Heart
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
@@ -29,18 +29,14 @@ const Header: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const { totalItems, dispatch } = useCart();
-    const { user, signOut, openAuthModal } = useAuth();
+    const { user, openAuthModal } = useAuth();
     const { wishlistCount } = useWishlist();
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
 
-    // API Hooks
-    const activeCategory = searchParams.get("category") || "all";
-    const { products } = useProducts(
-        activeCategory !== "all" ? { categoryId: activeCategory } : undefined
-    );
+    // API Hooks - Fetch ALL products for search (not filtered by category)
+    const { products: allProducts } = useProducts(); // No category filter for search
     const { data: homepageData } = useHomepageData();
     const { data: promotions } = useHomepagePromotions();
 
@@ -49,18 +45,19 @@ const Header: React.FC = () => {
     const activePromotion = promotions?.[0];
     const hasTopBanner = !!(activePromotion || activeBanner);
 
-    // Search Filtering
+    // Search Filtering - Search across ALL products, not just category
     const searchResults = useMemo(() => {
         const query = searchQuery?.trim()?.toLowerCase();
         if (!query || query.length < 2) return [];
 
-        return (products ?? [])
+        return (allProducts ?? [])
             .filter((p: Product) =>
                 p?.name?.toLowerCase().includes(query) ||
+                p?.description?.toLowerCase().includes(query) ||
                 p?.category?.toLowerCase().includes(query)
             )
-            .slice(0, 6);
-    }, [searchQuery, products]);
+            .slice(0, 8); // Show 8 results
+    }, [searchQuery, allProducts]);
 
     // Handlers
     const openSearch = useCallback(() => {
@@ -239,6 +236,43 @@ const Header: React.FC = () => {
                                     >
                                         <MagnifyingGlass size={18} weight="bold" />
                                     </motion.button>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Search Results Dropdown */}
+                            <AnimatePresence>
+                                {searchOpen && searchResults.length > 0 && (
+                                    <motion.div
+                                        key="search-results"
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                        className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-2xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-80"
+                                    >
+                                        {searchResults.map((product: Product) => (
+                                            <motion.button
+                                                key={product.id}
+                                                onClick={() => {
+                                                    navigate(`/product/${product.id}`);
+                                                    closeSearch();
+                                                }}
+                                                whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
+                                                className="w-full px-4 py-3 text-left flex items-center gap-3 border-b border-brand-brown/5 last:border-0 transition-colors"
+                                            >
+                                                <img
+                                                    src={product.images?.[0] || "/placeholder.png"}
+                                                    alt={product.name}
+                                                    className="w-10 h-10 rounded-lg object-cover"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-bold text-brand-brown truncate">{product.name}</p>
+                                                    <p className="text-[10px] text-brand-brown/60 truncate">{product.category}</p>
+                                                </div>
+                                                <p className="text-xs font-black text-brand-brown whitespace-nowrap">SAR {product.price?.toFixed(2)}</p>
+                                            </motion.button>
+                                        ))}
+                                    </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>

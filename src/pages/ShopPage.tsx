@@ -1,7 +1,18 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FunnelSimple, GridFour, SquaresFour, Rows } from "@phosphor-icons/react";
+import {
+  FunnelSimple,
+  GridFour,
+  SquaresFour,
+  Rows,
+} from "@phosphor-icons/react";
 import { useCategories, useInfiniteProducts } from "../api/exports";
 import ProductCard from "../components/ProductCard";
 import { ShopPageSkeleton } from "../components/Skeletons";
@@ -23,26 +34,31 @@ const ShopPage: React.FC = () => {
   const searchQuery = searchParams.get("search") || "";
   const isBestsellerFilter = searchParams.get("isBestseller") === "true";
   const isNewFilter = searchParams.get("isNew") === "true";
-  const isCustomerFavouritesFilter = searchParams.get("isCustomerFavourites") === "true";
+  const isCustomerFavouritesFilter =
+    searchParams.get("isCustomerFavourites") === "true";
 
   const limit = 12;
 
-  const productFilters: Record<string, unknown> = React.useMemo(() => ({
-    ...(activeCategory !== "all" ? { categoryId: activeCategory } : {}),
-    ...(searchQuery ? { search: searchQuery } : {}),
-    ...(isBestsellerFilter ? { isBestseller: true } : {}),
-    ...(isNewFilter ? { isNew: true } : {}),
-    ...(isCustomerFavouritesFilter ? { isCustomerFavourites: true } : {}),
-    limit,
-  }), [
-    activeCategory,
-    searchQuery,
-    isBestsellerFilter,
-    isNewFilter,
-    isCustomerFavouritesFilter,
-    limit,
-  ]);
-
+  const productFilters: Record<string, unknown> = React.useMemo(
+    () => ({
+      ...(activeCategory !== "all" ? { categoryId: activeCategory } : {}),
+      ...(searchQuery ? { search: searchQuery } : {}),
+      ...(isBestsellerFilter ? { isBestseller: true } : {}),
+      ...(isNewFilter ? { isNew: true } : {}),
+      ...(isCustomerFavouritesFilter ? { isCustomerFavourites: true } : {}),
+      sort: sortBy, // <-- Add this line
+      limit,
+    }),
+    [
+      activeCategory,
+      searchQuery,
+      isBestsellerFilter,
+      isNewFilter,
+      isCustomerFavouritesFilter,
+      sortBy, // <-- Add this to dependencies
+      limit,
+    ],
+  );
   // Fetch products from API with optional category or feature filter using infinite scroll + pagination
   const {
     products,
@@ -53,35 +69,58 @@ const ShopPage: React.FC = () => {
     fetchNextPage,
   } = useInfiniteProducts(productFilters);
   // Fetch categories from API
-  const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
+  const { categories: apiCategories, isLoading: categoriesLoading } =
+    useCategories(true);
 
-  const setCategory = useCallback((cat: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (cat === "all") {
-      newParams.delete("category");
-    } else {
-      newParams.set("category", cat);
-    }
-    setSearchParams(newParams);
-  }, [searchParams, setSearchParams]);
+  const setCategory = useCallback(
+    (cat: string) => {
+      const newParams = new URLSearchParams(searchParams);
+      if (cat === "all") {
+        newParams.delete("category");
+      } else {
+        newParams.set("category", cat);
+      }
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
   const sortedProducts = useMemo(() => {
-    const result = [...(products ?? [])];
+    if (!products || products.length === 0) return [];
 
+    // Create a copy to avoid mutating original
+    const result = [...products];
+
+    // Apply sorting based on sortBy state
     switch (sortBy) {
       case "price-asc":
-        result.sort((a, b) => Number(a?.basePrice ?? 0) - Number(b?.basePrice ?? 0));
+        result.sort((a, b) => {
+          const priceA = Number(a?.basePrice ?? 0);
+          const priceB = Number(b?.basePrice ?? 0);
+          return priceA - priceB;
+        });
         break;
       case "price-desc":
-        result.sort((a, b) => Number(b?.basePrice ?? 0) - Number(a?.basePrice ?? 0));
-        break;
-      case "rating":
-        // TODO: Add rating field to API response
+        result.sort((a, b) => {
+          const priceA = Number(a?.basePrice ?? 0);
+          const priceB = Number(b?.basePrice ?? 0);
+          return priceB - priceA;
+        });
         break;
       case "newest":
-        result.sort((a, b) => new Date(b?.createdAt ?? new Date()).getTime() - new Date(a?.createdAt ?? new Date()).getTime());
+        result.sort((a, b) => {
+          const dateA = new Date(b?.createdAt ?? 0).getTime();
+          const dateB = new Date(a?.createdAt ?? 0).getTime();
+          return dateA - dateB;
+        });
         break;
+      case "rating":
+        // Rating sorting - implementation depends on API data
+        result.sort((a, b) => Number(b?.rating ?? 0) - Number(a?.rating ?? 0));
+        break;
+      case "default":
       default:
+        // Keep original order
         break;
     }
 
@@ -100,7 +139,7 @@ const ShopPage: React.FC = () => {
           fetchNextPage();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
 
     observer.observe(loadMoreRef.current);
@@ -138,7 +177,8 @@ const ShopPage: React.FC = () => {
               Shop Premium Dry Fruits & Nuts
             </h1>
             <p className="font-sans text-brand-cream opacity-80 max-w-xl">
-              Discover our full range of carefully sourced, premium quality dry fruits and nuts.
+              Discover our full range of carefully sourced, premium quality dry
+              fruits and nuts.
             </p>
           </motion.div>
         </div>
@@ -156,29 +196,42 @@ const ShopPage: React.FC = () => {
               {categoriesLoading ? (
                 <div className="text-xs text-gray-500">Loading...</div>
               ) : (
-                ([{ id: "all", name: "All" }, ...(apiCategories ?? [])]).map((cat) => (
-                  <button
-                    key={cat?.id}
-                    onClick={() => setCategory(cat?.id ?? 'all')}
-                    className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${(activeCategory === (cat?.id ?? 'all'))
-                        ? "bg-brand-brown text-brand-cream"
-                        : "bg-brand-latte text-brand-brown hover:bg-gray-200"
+                [{ id: "all", name: "All" }, ...(apiCategories ?? [])].map(
+                  (cat) => (
+                    <button
+                      key={cat?.id}
+                      onClick={() => setCategory(cat?.id ?? "all")}
+                      className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                        activeCategory === (cat?.id ?? "all")
+                          ? "bg-brand-brown text-brand-cream"
+                          : "bg-brand-latte text-brand-brown hover:bg-gray-200"
                       }`}
-                  >
-                    {cat?.name ?? 'Category'}
-                  </button>
-                ))
+                    >
+                      {cat?.name ?? "Category"}
+                    </button>
+                  ),
+                )
               )}
             </div>
 
             <div className="ml-auto flex items-center gap-3">
               {/* Sort */}
               <div className="flex items-center gap-2">
-                <FunnelSimple size={16} weight="regular" className="text-gray-500" />
+                <FunnelSimple
+                  size={16}
+                  weight="regular"
+                  className={
+                    sortBy !== "default" ? "text-brand-brown" : "text-gray-500"
+                  }
+                />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="font-label text-xs bg-brand-latte text-brand-brown border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-brown cursor-pointer"
+                  className={`font-label text-xs rounded-lg px-3 py-2 focus:outline-none cursor-pointer transition-all ${
+                    sortBy !== "default"
+                      ? "bg-brand-brown text-brand-cream border border-brand-brown font-bold"
+                      : "bg-brand-latte text-brand-brown border border-gray-200 focus:border-brand-brown"
+                  }`}
                   aria-label="Sort products"
                 >
                   <option value="default">Sort: Default</option>
@@ -193,30 +246,33 @@ const ShopPage: React.FC = () => {
               <div className="hidden md:flex items-center gap-1 bg-brand-latte rounded-lg p-1">
                 <button
                   onClick={() => setViewMode("grid-4")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-4"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
+                    viewMode === "grid-4"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                    }`}
+                  }`}
                   aria-label="4 column grid"
                 >
                   <GridFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-3")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-3"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
+                    viewMode === "grid-3"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                    }`}
+                  }`}
                   aria-label="3 column grid"
                 >
                   <SquaresFour size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid-2")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-2"
+                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${
+                    viewMode === "grid-2"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
-                    }`}
+                  }`}
                   aria-label="2 column grid"
                 >
                   <Rows size={16} weight="regular" />
@@ -232,12 +288,32 @@ const ShopPage: React.FC = () => {
             "Loading products..."
           ) : (
             <>
-              Showing <span className="text-brand-brown font-medium" style={{ fontWeight: 500 }}>{sortedProducts.length}</span> products
+              Showing{" "}
+              <span
+                className="text-brand-brown font-medium"
+                style={{ fontWeight: 500 }}
+              >
+                {sortedProducts.length}
+              </span>{" "}
+              products
               {activeCategory !== "all" && (
-                <span> in <span className="text-brand-brown capitalize">{activeCategory}</span></span>
+                <span>
+                  {" "}
+                  in{" "}
+                  <span className="text-brand-brown capitalize">
+                    {activeCategory}
+                  </span>
+                </span>
               )}
               {searchQuery && (
-                <span> matching "<span className="text-brand-brown font-medium">{searchQuery}</span>"</span>
+                <span>
+                  {" "}
+                  matching "
+                  <span className="text-brand-brown font-medium">
+                    {searchQuery}
+                  </span>
+                  "
+                </span>
               )}
             </>
           )}
@@ -250,7 +326,9 @@ const ShopPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6"
           >
-            <p className="text-red-800">Failed to load products. Please try again.</p>
+            <p className="text-red-800">
+              Failed to load products. Please try again.
+            </p>
           </motion.div>
         )}
 
@@ -258,7 +336,10 @@ const ShopPage: React.FC = () => {
         {isLoading ? (
           <div className="grid gap-6 ${gridClass}">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-96 bg-gray-200 rounded-lg animate-pulse" />
+              <div
+                key={i}
+                className="h-96 bg-gray-200 rounded-lg animate-pulse"
+              />
             ))}
           </div>
         ) : sortedProducts.length > 0 ? (
@@ -268,7 +349,7 @@ const ShopPage: React.FC = () => {
             animate="visible"
             className={`grid gap-6 ${gridClass}`}
           >
-            {sortedProducts.map((product) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </motion.div>
@@ -281,11 +362,18 @@ const ShopPage: React.FC = () => {
           >
             <div className="max-w-md mx-auto">
               <div className="w-20 h-20 bg-brand-latte rounded-full flex items-center justify-center mx-auto mb-6">
-                <FunnelSimple size={32} weight="light" className="text-brand-brown" />
+                <FunnelSimple
+                  size={32}
+                  weight="light"
+                  className="text-brand-brown"
+                />
               </div>
-              <h3 className="font-headline text-2xl text-brand-brown mb-2">No products found</h3>
+              <h3 className="font-headline text-2xl text-brand-brown mb-2">
+                No products found
+              </h3>
               <p className="font-sans text-gray-500 mb-8">
-                We couldn't find any products matching your current filters. Try adjusting your search or category selection.
+                We couldn't find any products matching your current filters. Try
+                adjusting your search or category selection.
               </p>
               <button
                 onClick={() => {

@@ -34,6 +34,8 @@ export interface Product {
     basePrice?: number;
     discountedPrice?: number;
     discountedPercent?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface NutritionFact {
