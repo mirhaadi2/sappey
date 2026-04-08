@@ -257,8 +257,8 @@ const OrderDetailsPage: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden">
-                            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                <h2 className="text-lg font-black text-slate-900 flex items-center gap-3">
+                            <div className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)] border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h2 className="text-[clamp(0.875rem,1.5vw,1.125rem)] font-black text-slate-900 flex items-center gap-3">
                                     <Package
                                         size={24}
                                         weight="duotone"
@@ -266,13 +266,13 @@ const OrderDetailsPage: React.FC = () => {
                                     />{" "}
                                     Consignment Items
                                 </h2>
-                                <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-slate-500 uppercase">
+                                <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[clamp(0.625rem,1vw,0.75rem)] font-black text-slate-500 uppercase">
                                     {order?.items?.length ?? 0} Units
                                 </span>
                             </div>
                             <div className="divide-y divide-slate-100">
                                 {order?.items?.map((item: OrderItemDetail, idx: number) => (
-                                    <div key={String(item?.id ?? idx)} className="p-8">
+                                    <div key={String(item?.id ?? idx)} className="px-[clamp(0.75rem,2vw,2rem)]">
                                         <OrderItemCard item={item} index={idx} isOrderItem={true} />
                                     </div>
                                 ))}
@@ -295,9 +295,9 @@ const OrderDetailsPage: React.FC = () => {
                                     </div>
                                 </div>
                             )}
-                            <div className="p-8 bg-[#9a5d2e] text-brand-cream rounded-b-3xl">
+                            <div className="p-[clamp(1rem,2vw,2rem)] bg-[#9a5d2e] text-brand-cream rounded-b-3xl">
                                 <div className="space-y-3 mb-6">
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
+                                    <div className="flex justify-between text-slate-400 font-bold text-[clamp(0.75rem,1.2vw,0.875rem)]">
                                         <span className="text-brand-cream">Subtotal</span>
                                         <span className="text-white">
                                             ₹{parseFloat(order?.totalAmount ?? "0").toFixed(2)}
@@ -320,15 +320,15 @@ const OrderDetailsPage: React.FC = () => {
                                 </div>
                                 <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
                                     <div>
-                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">
+                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">
                                             Grand Total
                                         </p>
-                                        <h3 className="text-4xl font-black tracking-tighter">
+                                        <h3 className="text-[clamp(2rem,5vw,3rem)] font-black tracking-tighter">
                                             ₹{parseFloat(order?.finalAmount ?? "0").toFixed(2)}
                                         </h3>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-brand-cream uppercase tracking-widest mb-1">
+                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-brand-cream uppercase tracking-widest mb-1">
                                             Currency
                                         </p>
                                         <p className="font-bold ">INR (Indian Rupee)</p>
@@ -340,18 +340,18 @@ const OrderDetailsPage: React.FC = () => {
 
                     <div className="space-y-6">
                         {/* Delivery Info */}
-                        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <div className="bg-white rounded-3xl border border-slate-200 p-[clamp(1rem,2vw,2rem)] shadow-sm">
+                            <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
                                 <MapPin size={20} weight="duotone" className="text-[#9a5d2e]" />{" "}
                                 Destination
                             </h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">
+                            <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-slate-400 uppercase tracking-tighter mb-1">
                                 Recipient
                             </p>
-                            <p className="text-sm font-black text-slate-900 uppercase mb-4">
+                            <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase mb-4">
                                 {user?.name ?? "N/A"}
                             </p>
-                            <p className="text-sm font-bold text-slate-700 leading-relaxed mb-4">
+                            <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700 leading-relaxed mb-4">
                                 {order?.shippingAddressLine1 ?? ""}, {order?.shippingCity ?? ""}
                                 <br />
                                 {order?.shippingState ?? ""} — {order?.shippingPostalCode ?? ""}
@@ -365,7 +365,7 @@ const OrderDetailsPage: React.FC = () => {
                                 >
                                     <div className="flex items-center gap-3">
                                         <Phone size={18} className="text-slate-400" />
-                                        <span className="text-sm font-bold text-slate-700">
+                                        <span className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700">
                                             {order?.shippingPhone}
                                         </span>
                                     </div>
@@ -379,8 +379,8 @@ const OrderDetailsPage: React.FC = () => {
                         </div>
 
                         {/* Payment Info */}
-                        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <div className="bg-white rounded-3xl border border-slate-200 p-[clamp(1rem,2vw,2rem)] shadow-sm">
+                            <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
                                 <CreditCard
                                     size={20}
                                     weight="duotone"
@@ -389,9 +389,9 @@ const OrderDetailsPage: React.FC = () => {
                                 Settlement
                             </h3>
                             <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl mb-3">
-                                <span className="text-xs font-bold text-slate-500">Status</span>
+                                <span className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-slate-500">Status</span>
                                 <span
-                                    className={`text-[10px] font-black px-2 py-1 rounded-md ${order?.paymentStatus === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}
+                                    className={`text-[clamp(0.625rem,1vw,0.75rem)] font-black px-2 py-1 rounded-md ${order?.paymentStatus === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}
                                 >
                                     {order?.paymentStatus ?? "PENDING"}
                                 </span>
@@ -402,7 +402,7 @@ const OrderDetailsPage: React.FC = () => {
                         {order?.status !== "DELIVERED" && order?.status !== "CANCELLED" && (
                             <button
                                 onClick={() => setShowCancelConfirm(true)}
-                                className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all"
+                                className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-[clamp(0.625rem,1vw,0.75rem)] uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all"
                             >
                                 Terminate Transaction
                             </button>

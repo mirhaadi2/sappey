@@ -240,15 +240,15 @@ const SignUpModal: React.FC = () => {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="relative w-full max-w-md bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 p-8 overflow-hidden"
+            className="relative w-full max-w-md bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 p-[clamp(1.5rem,4vw,2rem)] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex justify-between items-start mb-10">
+            <div className="flex justify-between items-start mb-[clamp(1.5rem,3vw,2.5rem)]">
               <div>
-                <h2 className="text-3xl font-extrabold text-brand-brown tracking-tight mb-1">
+                <h2 className="text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold text-brand-brown tracking-tight mb-[clamp(0.75rem,1.5vw,1rem)]">
                   Sappey
                 </h2>
-                <div className="flex gap-1.5 mt-2">
+                <div className="flex gap-[clamp(0.4rem,0.8vw,0.5rem)] mt-[clamp(0.5rem,1vw,0.75rem)]">
                   <div
                     className={`h-1 w-6 rounded-full transition-all duration-300 ${step === "info" ? "bg-brand-brown" : "bg-brand-brown/20"}`}
                   />
@@ -262,9 +262,9 @@ const SignUpModal: React.FC = () => {
               </div>
               <button
                 onClick={closeAuthModal}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+                className="p-[clamp(0.5rem,1vw,0.75rem)] hover:bg-gray-100 rounded-full transition-colors text-gray-400 min-h-10 min-w-10 flex items-center justify-center"
               >
-                <X size={24} weight="bold" />
+                <X size={20} weight="bold" />
               </button>
             </div>
 
@@ -274,10 +274,10 @@ const SignUpModal: React.FC = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="mb-6 bg-red-50 text-red-600 p-4 rounded-2xl flex items-center gap-3 border border-red-100"
+                  className="mb-[clamp(1rem,2vw,1.5rem)] bg-red-50 text-red-600 p-[clamp(0.75rem,1.5vw,1rem)] rounded-2xl flex items-center gap-3 border border-red-100"
                 >
-                  <WarningCircle size={20} weight="fill" />
-                  <span className="text-sm font-medium">{error}</span>
+                  <WarningCircle size={18} weight="fill" />
+                  <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-medium">{error}</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -291,10 +291,10 @@ const SignUpModal: React.FC = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   onSubmit={handleSubmit(handleSendOtp)}
-                  className="space-y-5"
+                  className="space-y-[clamp(1rem,2vw,1.25rem)]"
                 >
-                  <div className="mb-4">
-                    <p className="text-gray-500 font-medium">
+                  <div className="mb-[clamp(0.75rem,1.5vw,1rem)]">
+                    <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-500 font-medium">
                       Create your account to get started.
                     </p>
                   </div>
@@ -302,26 +302,26 @@ const SignUpModal: React.FC = () => {
                   {[
                     {
                       id: "name",
-                      icon: <User size={20} />,
+                      icon: <User size={18} weight="bold" />,
                       placeholder: "Full Name",
                       type: "text",
                     },
                     {
                       id: "email",
-                      icon: <Envelope size={20} />,
+                      icon: <Envelope size={18} weight="bold" />,
                       placeholder: "Email Address",
                       type: "email",
                     },
                     {
                       id: "phone",
-                      icon: <Phone size={20} />,
+                      icon: <Phone size={18} weight="bold" />,
                       placeholder: "Phone Number",
                       type: "tel",
                     },
                   ].map((f) => (
                     <div key={f.id} className="relative group">
                       <div
-                        className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors[f.id as keyof RegisterData] ? "text-red-500" : "text-gray-400 group-focus-within:text-brand-brown"}`}
+                        className={`absolute left-[clamp(0.75rem,1.5vw,1rem)] top-1/2 -translate-y-1/2 transition-colors ${errors[f.id as keyof RegisterData] ? "text-red-500" : "text-gray-400 group-focus-within:text-brand-brown"}`}
                       >
                         {f.icon}
                       </div>
@@ -329,14 +329,14 @@ const SignUpModal: React.FC = () => {
                         {...register(f.id as keyof RegisterData)}
                         type={f.type}
                         placeholder={f.placeholder}
-                        className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all placeholder:text-gray-400 font-medium ${errors[f.id as keyof RegisterData]
+                        className={`w-full pl-[clamp(2.5rem,6vw,3rem)] pr-[clamp(0.75rem,1.5vw,1rem)] py-[clamp(0.75rem,2vw,1rem)] bg-gray-50 border-2 rounded-2xl outline-none transition-all placeholder:text-[clamp(0.625rem,1.5vw,0.75rem)] placeholder:text-gray-400 font-medium text-[clamp(0.875rem,1.5vw,1rem)] ${errors[f.id as keyof RegisterData]
                             ? "border-red-500 focus:ring-red-50"
                             : "border-transparent focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5"
                           }`}
                       />
                       {errors[f.id as keyof RegisterData] && (
-                        <p className="text-[11px] text-red-500 mt-1.5 ml-1 font-bold flex items-center gap-1">
-                          <WarningCircle weight="fill" />{" "}
+                        <p className="text-[clamp(0.625rem,1.5vw,0.75rem)] text-red-500 mt-[clamp(0.4rem,0.8vw,0.5rem)] ml-1 font-bold flex items-center gap-1">
+                          <WarningCircle weight="fill" size={14} />
                           {errors[f.id as keyof RegisterData]?.message}
                         </p>
                       )}
@@ -346,10 +346,10 @@ const SignUpModal: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-brand-brown text-white rounded-2xl font-bold shadow-xl shadow-brand-brown/20 hover:bg-brand-brown/90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-[clamp(0.6rem,1.5vw,0.75rem)] bg-brand-brown text-white rounded-2xl font-bold shadow-xl shadow-brand-brown/20 hover:bg-brand-brown/90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-11 text-[clamp(0.75rem,1.5vw,0.875rem)]"
                   >
                     {loading ? <Spinner /> : "Continue"}
-                    {!loading && <CaretRight weight="bold" />}
+                    {!loading && <CaretRight weight="bold" size={18} />}
                   </button>
                 </motion.form>
               )}
@@ -365,21 +365,21 @@ const SignUpModal: React.FC = () => {
                 >
                   <button
                     onClick={() => setStep("info")}
-                    className="flex items-center gap-2 text-brand-brown font-bold text-sm mb-6 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-2 text-brand-brown font-bold text-[clamp(0.75rem,1.5vw,0.875rem)] mb-[clamp(1rem,2vw,1.5rem)] hover:opacity-70 transition-opacity"
                   >
                     <ArrowLeft size={16} weight="bold" /> Back
                   </button>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  <h3 className="text-[clamp(1.25rem,3vw,1.5rem)] font-bold text-gray-800 mb-[clamp(0.5rem,1vw,0.75rem)]">
                     Check your inbox
                   </h3>
-                  <p className="text-gray-500 mb-10">
+                  <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-500 mb-[clamp(1.5rem,3vw,2rem)]">
                     Verification code sent to <br />
                     <span className="font-bold text-gray-700">
                       {userData.email}
                     </span>
                   </p>
 
-                  <div className="flex justify-between gap-2 mb-10">
+                  <div className="flex justify-between gap-[clamp(0.4rem,1vw,0.5rem)] mb-[clamp(1.5rem,3vw,2rem)]">
                     {otpValue.map((val, i) => (
                       <input
                         key={i}
@@ -387,7 +387,7 @@ const SignUpModal: React.FC = () => {
                         maxLength={1}
                         value={val}
                         onChange={(e) => handleOtpChange(e.target, i)}
-                        className="w-full h-14 text-center text-xl font-bold border-2 border-gray-100 rounded-xl focus:border-brand-brown focus:ring-4 focus:ring-brand-brown/5 outline-none bg-gray-50 transition-all"
+                        className="w-full h-[clamp(2.5rem,8vw,3.5rem)] text-center text-[clamp(1rem,2vw,1.25rem)] font-bold border-2 border-gray-100 rounded-xl focus:border-brand-brown focus:ring-4 focus:ring-brand-brown/5 outline-none bg-gray-50 transition-all"
                       />
                     ))}
                   </div>
@@ -395,14 +395,14 @@ const SignUpModal: React.FC = () => {
                   <button
                     onClick={handleVerifyOtp}
                     disabled={loading || otpValue.join("").length < 6}
-                    className="w-full py-4.5 bg-brand-brown text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-brown/90 shadow-xl shadow-brand-brown/10 disabled:opacity-50 transition-all"
+                    className="w-full py-[clamp(0.75rem,2vw,1rem)] bg-brand-brown text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-brown/90 shadow-xl shadow-brand-brown/10 disabled:opacity-50 transition-all min-h-11 text-[clamp(0.75rem,1.5vw,0.875rem)]"
                   >
                     {loading ? <Spinner /> : "Verify Email"}
                   </button>
 
-                  <div className="mt-8">
+                  <div className="mt-[clamp(1rem,2vw,1.5rem)]">
                     {timer > 0 ? (
-                      <p className="text-sm text-gray-400 font-medium">
+                      <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-400 font-medium">
                         Resend code in{" "}
                         <span className="text-brand-brown font-bold">
                           {timer}s
@@ -413,7 +413,7 @@ const SignUpModal: React.FC = () => {
                         onClick={() => {
                           handleSendOtp(userData);
                         }}
-                        className="text-sm text-brand-brown font-bold hover:underline transition-all"
+                        className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-brand-brown font-bold hover:underline transition-all"
                       >
                         Resend Code
                       </button>
@@ -428,62 +428,64 @@ const SignUpModal: React.FC = () => {
                   key="password"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="space-y-8"
+                  className="space-y-[clamp(1rem,2.5vw,1.5rem)]"
                 >
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    <h3 className="text-[clamp(1.25rem,3vw,1.5rem)] font-bold text-gray-800 mb-[clamp(0.5rem,1vw,0.75rem)]">
                       Secure Account
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-500">
                       Create a password to complete your profile.
                     </p>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-[clamp(0.75rem,1.5vw,1rem)]">
                     <div className="relative group">
                       <Lock
-                        size={20}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
+                        size={18}
+                        weight="bold"
+                        className="absolute left-[clamp(0.75rem,1.5vw,1rem)] top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
                       />
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
+                        className="w-full pl-[clamp(2.5rem,6vw,3rem)] pr-[clamp(2.5rem,6vw,3rem)] py-[clamp(0.75rem,2vw,1rem)] bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium text-[clamp(0.875rem,1.5vw,1rem)] placeholder:text-[clamp(0.625rem,1.5vw,0.75rem)]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                        className="absolute right-[clamp(0.5rem,1vw,0.75rem)] top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors p-[clamp(0.25rem,0.5vw,0.5rem)]"
                       >
-                        {showPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+                        {showPassword ? <Eye size={18} weight="bold" /> : <EyeSlash size={18} weight="bold" />}
                       </button>
                     </div>
 
                     <div className="relative group">
                       <Lock
-                        size={20}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
+                        size={18}
+                        weight="bold"
+                        className="absolute left-[clamp(0.75rem,1.5vw,1rem)] top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-brown"
                       />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm Password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium"
+                        className="w-full pl-[clamp(2.5rem,6vw,3rem)] pr-[clamp(2.5rem,6vw,3rem)] py-[clamp(0.75rem,2vw,1rem)] bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-brown/20 focus:bg-white focus:ring-4 focus:ring-brand-brown/5 outline-none transition-all font-medium text-[clamp(0.875rem,1.5vw,1rem)] placeholder:text-[clamp(0.625rem,1.5vw,0.75rem)]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors"
+                        className="absolute right-[clamp(0.5rem,1vw,0.75rem)] top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-brown transition-colors p-[clamp(0.25rem,0.5vw,0.5rem)]"
                       >
-                        {showConfirmPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+                        {showConfirmPassword ? <Eye size={18} weight="bold" /> : <EyeSlash size={18} weight="bold" />}
                       </button>
                     </div>
 
                     <div className="px-1">
-                      <div className="flex gap-1.5 h-1.5 mb-2">
+                      <div className="flex gap-1 h-[clamp(0.4rem,0.8vw,0.5rem)] mb-[clamp(0.5rem,1vw,0.75rem)]">
                         {[1, 2, 3, 4].map((l) => (
                           <div
                             key={l}
@@ -491,7 +493,7 @@ const SignUpModal: React.FC = () => {
                           />
                         ))}
                       </div>
-                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                      <div className="flex justify-between text-[clamp(0.625rem,1.5vw,0.75rem)] font-bold uppercase tracking-wider">
                         <span className="text-gray-400">Security Strength</span>
                         <span
                           className={
@@ -525,9 +527,9 @@ const SignUpModal: React.FC = () => {
                       password !== confirmPassword ||
                       loading
                     }
-                    className="w-full py-5 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-green-700 shadow-xl shadow-green-100 active:scale-[0.98] transition-all disabled:opacity-40"
+                    className="w-full py-[clamp(0.75rem,2vw,1rem)] bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-green-700 shadow-xl shadow-green-100 active:scale-[0.98] transition-all disabled:opacity-40 min-h-11 text-[clamp(0.75rem,1.5vw,0.875rem)]"
                   >
-                    <ShieldCheck size={24} weight="bold" />
+                    <ShieldCheck size={18} weight="bold" />
                     {loading ? "Finalizing..." : "Complete Registration"}
                   </button>
                 </motion.div>

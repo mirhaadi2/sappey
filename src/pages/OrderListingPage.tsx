@@ -343,22 +343,22 @@ const OrderListingPage: React.FC = () => {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50/80 border-b border-slate-100">
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400">
                                         Order Information
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400">
                                         Date & Timeline
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400">
                                         Status
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 text-right">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400 text-right">
                                         Items
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 text-right">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400 text-right">
                                         Value (INR)
                                     </th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 text-center">
+                                    <th className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.15em] text-slate-400 text-center">
                                         Action
                                     </th>
                                 </tr>
@@ -393,21 +393,21 @@ const OrderListingPage: React.FC = () => {
                                                 transition={{ delay: idx * 0.03 }}
                                                 className="group hover:bg-slate-50/50 transition-colors"
                                             >
-                                                <td className="px-8 py-6">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)]">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:shadow-md transition-all duration-300">
                                                             <Receipt weight="duotone" size={24} />
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                                            <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                                                                 {order?.orderNumber ?? 'N/A'}
                                                             </p>
                                                             {/* <p className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">#{order?.id?.slice(0, 12) ?? ''}</p> */}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)]">
+                                                    <div className="flex items-center gap-2 text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700">
                                                         <CalendarBlank
                                                             size={16}
                                                             className="text-slate-400"
@@ -421,7 +421,7 @@ const OrderListingPage: React.FC = () => {
                                                             },
                                                         )}
                                                     </div>
-                                                    <p className="text-[10px] font-bold text-slate-400 ml-6">
+                                                    <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-slate-400 ml-6">
                                                         Recorded at{" "}
                                                         {new Date(order?.createdAt ?? new Date()).toLocaleTimeString([], {
                                                             hour: "2-digit",
@@ -429,9 +429,9 @@ const OrderListingPage: React.FC = () => {
                                                         })}
                                                     </p>
                                                 </td>
-                                                <td className="px-8 py-6">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)]">
                                                     <div
-                                                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 ${config?.bg} ${config?.text} text-[11px] font-black uppercase tracking-wider`}
+                                                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 ${config?.bg} ${config?.text} text-[clamp(0.625rem,1vw,0.75rem)] font-black uppercase tracking-wider`}
                                                     >
                                                         <div
                                                             className={`w-1.5 h-1.5 rounded-full ${config?.dot ?? config?.dot}`}
@@ -439,14 +439,14 @@ const OrderListingPage: React.FC = () => {
                                                         {config?.label}
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-6 text-right">
-                                                    <p className="text-sm font-bold text-slate-900">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-right">
+                                                    <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-900">
                                                         {order?.itemsCount ?? 0}{" "}
                                                         {Number(order?.itemsCount ?? 0) === 1 ? "item" : "items"}
                                                     </p>
                                                 </td>
-                                                <td className="px-8 py-6 text-right">
-                                                    <p className="text-base font-black text-slate-950">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-right">
+                                                    <p className="text-[clamp(0.875rem,1.5vw,1rem)] font-black text-slate-950">
                                                         ₹
                                                         {parseFloat(
                                                             order?.finalAmount ?? "0",
@@ -455,12 +455,12 @@ const OrderListingPage: React.FC = () => {
                                                         })}
                                                     </p>
                                                     <p
-                                                        className={`text-[9px] font-black uppercase tracking-tighter ${(order?.paymentStatus === "COMPLETED") ? "text-emerald-500" : "text-amber-500"}`}
+                                                        className={`text-[clamp(0.625rem,0.8vw,0.75rem)] font-black uppercase tracking-tighter ${(order?.paymentStatus === "COMPLETED") ? "text-emerald-500" : "text-amber-500"}`}
                                                     >
                                                         {order?.paymentStatus ?? 'PENDING'}
                                                     </p>
                                                 </td>
-                                                <td className="px-8 py-6 text-center">
+                                                <td className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-center">
                                                     <button
                                                         onClick={() => navigate(`/orders/${order.id}`)}
                                                         className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all"
@@ -478,8 +478,8 @@ const OrderListingPage: React.FC = () => {
                     </div>
 
                     {/* Footer / Pagination */}
-                    <div className="bg-slate-50/80 px-8 py-5 border-t border-slate-100 flex justify-between items-center">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <div className="bg-slate-50/80 px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.75rem,1.5vw,1.25rem)] border-t border-slate-100 flex justify-between items-center">
+                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-slate-500 uppercase tracking-widest">
                             Page {currentPage} of {totalPages || 1}
                         </p>
                         <div className="flex gap-2">
