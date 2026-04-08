@@ -315,7 +315,7 @@ const HomePage: React.FC = () => {
                         transition={{ duration: 0.8, delay: 0.3 }}
                     >
                         <h1
-                            className="font-headline text-5xl md:text-7xl text-brand-cream mb-6 leading-tight"
+                            className="font-headline text-[clamp(2rem,6vw,4rem)] text-brand-cream mb-[clamp(1rem,2vw,1.5rem)] leading-tight"
                             style={{
                                 fontWeight: 500,
                                 letterSpacing: "-0.025em",
@@ -325,7 +325,7 @@ const HomePage: React.FC = () => {
                             {formatHeroTitle(hero?.title) ||
                                 "Shop Premium Dry Fruits & Nuts."}
                         </h1>
-                        <p className="font-sans text-lg text-brand-cream opacity-90 mb-10 max-w-2xl mx-auto leading relaxed">
+                        <p className="font-sans text-[clamp(0.875rem,2vw,1.125rem)] text-brand-cream opacity-90 mb-[clamp(1.5rem,3vw,2rem)] max-w-2xl mx-auto leading-relaxed">
                             {hero?.subtitle ||
                                 "Carefully sourced, perfectly packed, and delivered fresh to your doorstep."}
                         </p>
@@ -336,7 +336,7 @@ const HomePage: React.FC = () => {
                                     .getElementById("collections")
                                     ?.scrollIntoView({ behavior: "smooth" });
                             }}
-                            className="bg-brand-cream text-brand-brown font-label text-sm px-10 py-4 rounded-lg hover:bg-brand-latte transition-all duration-300 cursor-pointer uppercase tracking-widest inline-flex items-center gap-3"
+                            className="bg-brand-cream text-brand-brown font-label text-[clamp(0.65rem,1.5vw,0.75rem)] px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.75rem,1.5vw,1rem)] rounded-lg hover:bg-brand-latte transition-all duration-300 cursor-pointer uppercase tracking-widest inline-flex items-center gap-3 min-h-11"
                         >
                             {hero?.buttonText || "Explore Collections"}
                             <ArrowRight size={16} weight="regular" />
@@ -350,7 +350,7 @@ const HomePage: React.FC = () => {
                     transition={{ duration: 0.8, delay: 0.8 }}
                     className="absolute bottom-12 left-0 right-0 z-10"
                 >
-                    <div className="flex flex-wrap items-center justify-center gap-8 px-8">
+                    <div className="flex flex-wrap items-center justify-center gap-[clamp(1rem,2vw,2rem)] px-[clamp(1rem,3vw,2rem)]">
                         {[
                             { icon: <Leaf size={18} weight="fill" />, label: "100% Natural" },
                             {
@@ -371,7 +371,7 @@ const HomePage: React.FC = () => {
                                 className="flex items-center gap-2 text-brand-cream opacity-80"
                             >
                                 <span className="text-brand-cream">{item?.icon}</span>
-                                <span className="font-label text-xs uppercase tracking-wider text-brand-cream">
+                                <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-wider text-brand-cream">
                                     {item?.label}
                                 </span>
                             </div>
@@ -386,18 +386,18 @@ const HomePage: React.FC = () => {
                         fallback={<div className="py-16 px-8"><CategoryGridSkeleton count={4} /></div>}
                         rootMargin="300px 0px"
                     >
-                        <section id="collections" className="py-16 px-8 bg-brand-latte">
+                        <section id="collections" className="py-[clamp(2rem,4vw,3rem)] px-[clamp(1rem,3vw,1.5rem)] bg-brand-latte">
                             <div className="max-w-7xl mx-auto">
                                 <motion.div
                                     variants={fadeUpVariants}
                                     initial="hidden"
                                     whileInView="visible"
                                     viewport={{ once: true }}
-                                    className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+                                    className="flex flex-col md:flex-row md:items-end justify-between gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,3vw,2rem)]"
                                 >
                                     <div className="max-w-2xl">
                                         <h2
-                                            className="font-headline text-4xl text-brand-brown mb-4"
+                                            className="font-headline text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
                                             style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                                         >
                                             {collectionsSection?.title || "Shop by Category"}
