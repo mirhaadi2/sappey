@@ -149,17 +149,17 @@ const OrderListingPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-700">
-            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-20">
+            <div className="max-w-7xl mx-auto px-[clamp(1rem,3vw,1.5rem)] pt-[clamp(1rem,1.5vw,1.5rem)] pb-20">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,2vw,2rem)]">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                     >
-                        <h1 className="text-4xl font-extrabold tracking-tight text-slate-950">
+                        <h1 className="text-[clamp(2rem,5vw,3rem)] font-extrabold tracking-tight text-slate-950">
                             Purchase Orders
                         </h1>
-                        <p className="text-slate-500 mt-1 font-medium">
+                        <p className="text-slate-500 mt-[clamp(0.5rem,1vw,0.75rem)] font-medium text-[clamp(0.875rem,1.5vw,1rem)]">
                             Enterprise Procurement Management
                         </p>
                     </motion.div>
@@ -167,14 +167,14 @@ const OrderListingPage: React.FC = () => {
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]"
                     >
                         {/* <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
                             <DownloadSimple weight="bold" /> Export Ledger
                         </button> */}
                         <button
                             onClick={() => navigate("/shop")}
-                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#9a5d2e] rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                            className="flex items-center gap-2 px-[clamp(1rem,2vw,1.25rem)] py-[clamp(0.5rem,1vw,0.75rem)] text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-white bg-[#9a5d2e] rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 min-h-10"
                         >
                             Create New Order <ArrowRight weight="bold" />
                         </button>
@@ -182,7 +182,7 @@ const OrderListingPage: React.FC = () => {
                 </div>
 
                 {/* Analytics Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,2vw,2rem)]">
                     {[
                         {
                             label: "Total Volume",
@@ -218,18 +218,18 @@ const OrderListingPage: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white/60 backdrop-blur-md border border-white p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border-b-4 border-b-slate-100 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
+                            className="bg-white/60 backdrop-blur-md border border-white p-[clamp(1rem,2vw,1.5rem)] rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border-b-4 border-b-slate-100 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
                         >
-                            <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center justify-between mb-[clamp(0.75rem,1.5vw,1rem)]">
                                 <div className={`p-2 rounded-lg ${item.bg} ${item.color}`}>
                                     <item.icon size={20} weight="duotone" />
                                 </div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span className="text-[clamp(0.625rem,1.2vw,0.75rem)] font-bold uppercase tracking-widest text-slate-400">
                                     Live Data
                                 </span>
                             </div>
-                            <p className="text-sm font-bold text-slate-500">{item.label}</p>
-                            <h3 className="text-2xl font-black text-slate-900 mt-1">
+                            <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-bold text-slate-500">{item.label}</p>
+                            <h3 className="text-[clamp(1.25rem,3vw,1.75rem)] font-black text-slate-900 mt-[clamp(0.5rem,1vw,0.75rem)]">
                                 {item.value}
                             </h3>
                         </motion.div>
@@ -238,7 +238,7 @@ const OrderListingPage: React.FC = () => {
 
                 {/* Global Search & Control Bar */}
                 <div className="sticky top-6 z-40 mb-8">
-                    <div className="bg-white/80 backdrop-blur-xl border border-white p-3 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-3 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
+                    <div className="bg-white/80 backdrop-blur-xl border border-white p-[clamp(0.75rem,1.5vw,1rem)] rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-[clamp(0.75rem,1.5vw,1rem)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
                         <div className="relative flex-1 group">
                             <MagnifyingGlass
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"
@@ -247,7 +247,7 @@ const OrderListingPage: React.FC = () => {
                             <input
                                 type="text"
                                 placeholder="Search by Order #, UUID, or SKU..."
-                                className="w-full bg-slate-50 border-none rounded-xl pl-12 pr-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+                                className="w-full bg-slate-50 border-none rounded-xl pl-12 pr-4 py-[clamp(0.5rem,1vw,0.75rem)] text-[clamp(0.75rem,1.2vw,0.875rem)] font-medium focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -256,7 +256,7 @@ const OrderListingPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-xl transition-all border ${showFilters ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"}`}
+                                className={`flex items-center gap-2 px-[clamp(1rem,1.5vw,1.5rem)] py-[clamp(0.5rem,1vw,0.75rem)] text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold rounded-xl transition-all border min-h-10 ${showFilters ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"}`}
                             >
                                 <FunnelSimple weight="bold" /> Filters
                             </button>
@@ -264,7 +264,7 @@ const OrderListingPage: React.FC = () => {
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value as SortBy)}
-                                className="bg-slate-50 border-none text-sm font-bold text-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
+                                className="bg-slate-50 border-none text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700 rounded-xl px-[clamp(0.75rem,1vw,1rem)] py-[clamp(0.5rem,1vw,0.75rem)] focus:ring-2 focus:ring-indigo-500/20 cursor-pointer min-h-10"
                             >
                                 <option value="date-newest">Sort: Newest</option>
                                 <option value="date-oldest">Sort: Oldest</option>
@@ -282,9 +282,9 @@ const OrderListingPage: React.FC = () => {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-white border border-brand-brown/10 mt-2 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
+                                <div className="bg-white border border-brand-brown/10 mt-2 p-[clamp(1rem,2vw,1.5rem)] rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] grid grid-cols-1 md:grid-cols-3 gap-[clamp(1rem,2vw,1.5rem)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
                                     <div>
-                                        <label className="text-[11px] font-black uppercase text-slate-400 mb-2 block">
+                                        <label className="text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase text-slate-400 mb-2 block">
                                             Status Filter
                                         </label>
                                         <select
@@ -295,7 +295,7 @@ const OrderListingPage: React.FC = () => {
                                                     status: e.target.value as any,
                                                 })
                                             }
-                                            className="w-full bg-slate-50 border-slate-100 rounded-lg text-sm font-bold p-2.5 focus:border-indigo-500 outline-none"
+                                            className="w-full bg-slate-50 border-slate-100 rounded-lg text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold p-2.5 focus:border-indigo-500 outline-none"
                                         >
                                             <option value="ALL">All Orders</option>
                                             {Object.keys(ORDER_STATUS_CONFIG ?? {}).map((s) => (
