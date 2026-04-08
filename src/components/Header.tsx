@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut
+    MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, LockSimple, UserPlus, NavigationArrow
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
@@ -348,8 +348,8 @@ const Header: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* Profile/Account Button with Dropdown */}
-                        <div className="hidden sm:flex items-center relative" ref={profileRef}>
+                        {/* Profile/Account Button with Dropdown - Desktop Only */}
+                        <div className="hidden md:flex items-center relative" ref={profileRef}>
                             {user ? (
                                 <>
                                     <button
@@ -411,6 +411,113 @@ const Header: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* MOBILE MENU */}
+                <AnimatePresence>
+                    {mobileOpen && (
+                        <motion.div
+                            key="mobile-menu"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="md:hidden border-t border-brand-brown/10 bg-white/95 backdrop-blur-xl"
+                        >
+                            <div className="px-6 py-4 space-y-3">
+                                {/* Navigation Links */}
+                                {navLinks.map((link) => (
+                                    <button
+                                        key={link.href}
+                                        onClick={() => handleNavClick(link.href)}
+                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                    >
+                                        <NavigationArrow size={16} weight="bold" className="text-brand-brown/60" />
+                                        {link.label}
+                                    </button>
+                                ))}
+
+                                <div className="border-t border-brand-brown/10 my-3 pt-3">
+                                    {/* Mobile Wishlist Link */}
+                                    <button
+                                        onClick={() => {
+                                            navigate("/wishlist");
+                                            setMobileOpen(false);
+                                        }}
+                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                    >
+                                        <Heart size={16} weight="bold" className="text-red-500" />
+                                        Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                                    </button>
+
+                                    {/* Mobile Cart Link */}
+                                    <button
+                                        onClick={() => {
+                                            dispatch({ type: "OPEN_CART" });
+                                            setMobileOpen(false);
+                                        }}
+                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                    >
+                                        <ShoppingCart size={16} weight="bold" className="text-brand-brown" />
+                                        Cart {totalItems > 0 && `(${totalItems})`}
+                                    </button>
+                                </div>
+
+                                <div className="border-t border-brand-brown/10 pt-3">
+                                    {/* Mobile Auth Section */}
+                                    {user ? (
+                                        <>
+                                            <button
+                                                onClick={() => {
+                                                    navigate("/profile");
+                                                    setMobileOpen(false);
+                                                }}
+                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                            >
+                                                <User size={16} weight="bold" className="text-brand-brown" />
+                                                My Profile
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setMobileOpen(false);
+                                                }}
+                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-red-600 hover:text-red-700 transition-colors py-2 px-3 rounded-lg hover:bg-red-50 mt-2 flex items-center gap-2"
+                                            >
+                                                <SignOut size={16} weight="bold" className="text-red-600" />
+                                                Logout
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={() => {
+                                                    openAuthModal("signin");
+                                                    setMobileOpen(false);
+                                                }}
+                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte mb-2 flex items-center gap-2"
+                                            >
+                                                <LockSimple size={16} weight="bold" className="text-brand-brown" />
+                                                Sign In
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    openAuthModal("signup");
+                                                    setMobileOpen(false);
+                                                }}
+                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown bg-brand-latte hover:bg-brand-brown hover:text-white transition-colors py-2 px-3 rounded-lg font-bold flex items-center gap-2"
+                                            >
+                                                <UserPlus size={16} weight="bold" />
+                                                Sign Up
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </header>
 
             {/* 3. DYNAMIC SPACER 

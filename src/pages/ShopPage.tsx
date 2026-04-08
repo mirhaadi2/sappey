@@ -163,7 +163,7 @@ const ShopPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-latte text-foreground">
       {/* Page Header */}
-      <div className="bg-gradient-1 py-16 px-6 md:px-12">
+      <div className="bg-gradient-1 py-[clamp(2rem,6vw,4rem)] px-[clamp(1rem,5vw,2rem)]">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -171,12 +171,12 @@ const ShopPage: React.FC = () => {
             transition={{ duration: 0.6 }}
           >
             <h1
-              className="font-headline text-5xl text-brand-cream mb-4"
+              className="font-headline text-[clamp(1.75rem,5vw,3rem)] text-brand-cream mb-[clamp(0.75rem,2vw,1rem)]"
               style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
             >
               Shop Premium Dry Fruits & Nuts
             </h1>
-            <p className="font-sans text-brand-cream opacity-80 max-w-xl">
+            <p className="font-sans text-[clamp(0.875rem,2vw,1rem)] text-brand-cream opacity-80 max-w-xl">
               Discover our full range of carefully sourced, premium quality dry
               fruits and nuts.
             </p>
@@ -184,13 +184,13 @@ const ShopPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
+      <div className="max-w-7xl mx-auto px-[clamp(1rem,5vw,2rem)] pt-[clamp(1rem,3vw,1.5rem)] pb-[clamp(1.5rem,4vw,2rem)]">
         {/* Filters Bar */}
-        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_10px_50px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-4 mb-8">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_10px_50px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-[clamp(1rem,2vw,1.25rem)] mb-[clamp(1rem,2vw,1.5rem)]">
+          <div className="flex flex-wrap items-center gap-[clamp(0.75rem,2vw,1rem)]">
             {/* Category Filter */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-label text-xs uppercase tracking-wider text-gray-500 mr-1">
+            <div className="flex items-center gap-[clamp(0.5rem,1.5vw,0.75rem)] flex-wrap">
+              <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-wider text-gray-500 mr-1">
                 Category:
               </span>
               {categoriesLoading ? (
@@ -201,7 +201,7 @@ const ShopPage: React.FC = () => {
                     <button
                       key={cat?.id}
                       onClick={() => setCategory(cat?.id ?? "all")}
-                      className={`font-label text-xs px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${activeCategory === (cat?.id ?? "all")
+                      className={`font-label text-[clamp(0.625rem,1.5vw,0.75rem)] px-[clamp(0.75rem,1.5vw,1rem)] py-[clamp(0.4rem,1vw,0.5rem)] rounded-lg transition-all duration-200 cursor-pointer min-h-10 flex items-center justify-center ${activeCategory === (cat?.id ?? "all")
                           ? "bg-brand-brown text-brand-cream"
                           : "bg-brand-latte text-brand-brown hover:bg-gray-200"
                         }`}
@@ -213,9 +213,9 @@ const ShopPage: React.FC = () => {
               )}
             </div>
 
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
               {/* Sort */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-[clamp(0.4rem,1vw,0.5rem)]">
                 <FunnelSimple
                   size={16}
                   weight="regular"
@@ -226,7 +226,7 @@ const ShopPage: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="font-label text-xs rounded-lg px-3 py-2 focus:outline-none cursor-pointer transition-all bg-white text-slate-700 border border-slate-200 hover:border-brand-brown focus:border-brand-brown appearance-none"
+                  className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] rounded-lg px-[clamp(0.5rem,1vw,0.75rem)] py-[clamp(0.35rem,0.8vw,0.5rem)] focus:outline-none cursor-pointer transition-all bg-white text-slate-700 border border-slate-200 hover:border-brand-brown focus:border-brand-brown appearance-none"
                   aria-label="Sort products"
                 >
                   <option value="default" className="text-slate-900 bg-white">Sort: Default</option>
@@ -241,7 +241,7 @@ const ShopPage: React.FC = () => {
               <div className="hidden md:flex items-center gap-1 bg-brand-latte rounded-lg p-1">
                 <button
                   onClick={() => setViewMode("grid-4")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-4"
+                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-4"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
                     }`}
@@ -251,7 +251,7 @@ const ShopPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setViewMode("grid-3")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-3"
+                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-3"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
                     }`}
@@ -261,7 +261,7 @@ const ShopPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setViewMode("grid-2")}
-                  className={`p-2 rounded-md transition-colors duration-200 cursor-pointer ${viewMode === "grid-2"
+                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-2"
                       ? "bg-brand-brown text-brand-cream"
                       : "text-gray-500 hover:text-brand-brown"
                     }`}
@@ -275,7 +275,7 @@ const ShopPage: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        <p className="font-semibold text-sm text-gray-500 mb-6">
+        <p className="font-semibold text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-500 mb-[clamp(1rem,2vw,1.5rem)]">
           {isLoading ? (
             "Loading products..."
           ) : (
@@ -316,7 +316,7 @@ const ShopPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6"
+            className="bg-red-50 border-l-4 border-red-500 p-[clamp(1rem,2vw,1.25rem)] rounded mb-[clamp(1rem,2vw,1.5rem)]"
           >
             <p className="text-red-800">
               Failed to load products. Please try again.
@@ -339,7 +339,7 @@ const ShopPage: React.FC = () => {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className={`grid gap-6 ${gridClass}`}
+            className={`grid gap-[clamp(1rem,2.5vw,1.5rem)] ${gridClass}`}
           >
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -350,20 +350,20 @@ const ShopPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200"
+            className="text-center py-[clamp(2rem,8vw,5rem)] bg-white rounded-[24px] border-2 border-dashed border-slate-200"
           >
-            <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-brand-latte rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="max-w-md mx-auto px-[clamp(1rem,3vw,1.5rem)]">
+              <div className="w-[clamp(3rem,10vw,5rem)] h-[clamp(3rem,10vw,5rem)] bg-brand-latte rounded-full flex items-center justify-center mx-auto mb-[clamp(1rem,2vw,1.5rem)]">
                 <FunnelSimple
                   size={32}
                   weight="light"
                   className="text-brand-brown"
                 />
               </div>
-              <h3 className="font-headline text-2xl text-brand-brown mb-2">
+              <h3 className="font-headline text-[clamp(1.25rem,3vw,1.75rem)] text-brand-brown mb-[clamp(0.5rem,1vw,0.75rem)]">
                 No products found
               </h3>
-              <p className="font-sans text-gray-500 mb-8">
+              <p className="font-sans text-[clamp(0.875rem,1.5vw,1rem)] text-gray-500 mb-[clamp(1.5rem,3vw,2rem)]">
                 We couldn't find any products matching your current filters. Try
                 adjusting your search or category selection.
               </p>
@@ -372,7 +372,7 @@ const ShopPage: React.FC = () => {
                   setSearchParams({});
                   setSortBy("default");
                 }}
-                className="font-label text-sm bg-brand-brown text-brand-cream px-8 py-3 rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer"
+                className="font-label text-[clamp(0.75rem,1.5vw,0.875rem)] bg-brand-brown text-brand-cream px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.5rem,1.5vw,0.75rem)] rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer min-h-11"
               >
                 Clear All Filters
               </button>
@@ -381,11 +381,11 @@ const ShopPage: React.FC = () => {
         )}
 
         {!isLoading && sortedProducts.length > 0 && hasNextPage && (
-          <div ref={loadMoreRef} className="text-center mt-8">
+          <div ref={loadMoreRef} className="text-center mt-[clamp(1.5rem,3vw,2rem)]">
             <button
               onClick={() => fetchNextPage()}
               disabled={!hasNextPage || isFetchingNextPage}
-              className="font-label text-sm bg-brand-brown text-brand-cream px-8 py-3 rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+              className="font-label text-[clamp(0.75rem,1.5vw,0.875rem)] bg-brand-brown text-brand-cream px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.5rem,1.5vw,0.75rem)] rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none min-h-11"
             >
               {isFetchingNextPage ? "Loading more..." : "Load More"}
             </button>
