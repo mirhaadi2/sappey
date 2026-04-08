@@ -128,50 +128,50 @@ const WishlistPage: React.FC = () => {
         <div className="min-h-screen bg-[#FDFCFB]">
             {/* Minimal Sticky Header */}
             <div className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-slate-100">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-xs font-bold tracking-widest text-slate-500 hover:text-brand-brown transition-all">
+                <div className="max-w-7xl mx-auto px-[clamp(1rem,3vw,1.5rem)] h-16 flex items-center justify-between">
+                    <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-[clamp(0.625rem,1.2vw,0.75rem)] font-bold tracking-widest text-slate-500 hover:text-brand-brown transition-all">
                         <ArrowLeft size={16} weight="bold" className="group-hover:-translate-x-1 transition-transform" /> BACK
                     </button>
-                    <div className="hidden md:block text-xs font-black tracking-[0.2em] text-brand-brown uppercase">
+                    <div className="hidden md:block text-[clamp(0.625rem,1.2vw,0.75rem)] font-black tracking-[0.2em] text-brand-brown uppercase">
                         Secure Wishlist
                     </div>
                     <div className="flex items-center gap-2">
                         <Heart size={18} weight="fill" className="text-brand-brown" />
-                        <span className="text-sm font-bold text-slate-800">{wishlistCount}</span>
+                        <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-bold text-slate-800">{wishlistCount}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-10 pb-24">
+            <div className="max-w-7xl mx-auto px-[clamp(1rem,3vw,1.5rem)] pt-[clamp(1.5rem,3vw,2.5rem)] pb-24">
                 {/* Header Section */}
-                <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="mb-12">
-                    <h1 className="font-headline text-3xl md:text-4xl text-brand-brown mb-3 tracking-tighter" style={{ fontWeight: 600 }}>
+                <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="mb-[clamp(1.5rem,3vw,2rem)]">
+                    <h1 className="font-headline text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)] tracking-tighter" style={{ fontWeight: 600 }}>
                         My Collection
                     </h1>
-                    <div className="h-1 w-20 bg-brand-brown/20 rounded-full mb-4" />
-                    <p className="text-slate-500 text-sm md:text-base font-medium">
+                    <div className="h-1 w-20 bg-brand-brown/20 rounded-full mb-[clamp(0.75rem,1.5vw,1rem)]" />
+                    <p className="text-slate-500 text-[clamp(0.75rem,1.5vw,0.875rem)] font-medium">
                         {wishlistCount === 0 ? 'Your vault is empty' : `Curating ${wishlistCount} premium selection${wishlistCount !== 1 ? 's' : ''}`}
                     </p>
                 </motion.div>
 
                 {wishlistCount === 0 ? (
-                    <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-                        <Heart size={48} className="mx-auto mb-6 text-slate-200" weight="thin" />
-                        <h2 className="text-xl font-bold text-slate-900 mb-2">Nothing saved yet</h2>
-                        <p className="text-slate-400 mb-8 max-w-xs mx-auto text-sm leading-relaxed">
+                    <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="text-center py-[clamp(3rem,8vw,6rem)] bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+                        <Heart size={48} className="mx-auto mb-[clamp(1rem,2vw,1.5rem)] text-slate-200" weight="thin" />
+                        <h2 className="text-[clamp(1.25rem,3vw,1.5rem)] font-bold text-slate-900 mb-2">Nothing saved yet</h2>
+                        <p className="text-slate-400 mb-[clamp(1rem,2vw,1.5rem)] max-w-xs mx-auto text-[clamp(0.75rem,1.5vw,0.875rem)] leading-relaxed">
                             Discover our exclusive range of dry fruits and artisan nuts to fill your collection.
                         </p>
-                        <button onClick={() => navigate('/shop')} className="inline-flex items-center gap-3 bg-brand-brown text-white px-8 py-4 rounded-full hover:shadow-xl hover:shadow-brand-brown/20 transition-all font-bold text-xs uppercase tracking-widest">
+                        <button onClick={() => navigate('/shop')} className="inline-flex items-center gap-3 bg-brand-brown text-white px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.75rem,1.5vw,1rem)] rounded-full hover:shadow-xl hover:shadow-brand-brown/20 transition-all font-bold text-[clamp(0.65rem,1.2vw,0.75rem)] uppercase tracking-widest min-h-11">
                             Start Exploring
                         </button>
                     </motion.div>
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[clamp(1.5rem,3vw,2.5rem)]">
                         {/* Products Grid - Increased Density to 4 columns on larger screens */}
                         <div className="lg:col-span-3">
                             <LazyErrorBoundary>
                                 <LazySection fallback={<ProductGridSkeleton count={6} />} rootMargin="200px 0px">
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-5 md:gap-8">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-[clamp(1rem,2vw,1.25rem)]">
                                         <AnimatePresence mode="popLayout">
                                             {wishlistProducts.map((product, index) => (
                                                 <motion.div
@@ -212,34 +212,34 @@ const WishlistPage: React.FC = () => {
                                                     </div>
 
                                                     {/* Content */}
-                                                    <div className="p-4 md:p-6 flex flex-col flex-1">
+                                                    <div className="p-[clamp(1rem,2vw,1.5rem)] flex flex-col flex-1">
                                                         <div className="mb-auto">
-                                                            <h3 className="text-sm md:text-base font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-brown transition-colors cursor-pointer"
+                                                            <h3 className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-brown transition-colors cursor-pointer"
                                                                 onClick={() => handleNavigateToProduct(product.id)}>
                                                                 {product?.name}
                                                             </h3>
                                                             {product.selectedVariant && (
-                                                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1.5">
+                                                                <p className="text-[clamp(0.625rem,1.2vw,0.75rem)] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1.5">
                                                                     <span className="w-1 h-1 rounded-full bg-slate-300" />
                                                                     {product.selectedVariant.label || `${product.selectedVariant.weight}${product.selectedVariant.weightUnit}`}
                                                                 </p>
                                                             )}
                                                         </div>
 
-                                                        <div className="mt-4 flex items-end justify-between border-t border-slate-50 pt-4">
+                                                        <div className="mt-[clamp(0.75rem,1.5vw,1rem)] flex items-end justify-between border-t border-slate-50 pt-[clamp(0.75rem,1.5vw,1rem)]">
                                                             <div>
-                                                                <p className="text-lg font-black text-slate-900 tracking-tight">
+                                                                <p className="text-[clamp(1rem,2vw,1.25rem)] font-black text-slate-900 tracking-tight">
                                                                     ₹{Number(product.selectedVariant?.discountedPrice ?? product?.discountedPrice ?? product?.price ?? 0).toFixed(0)}
                                                                 </p>
                                                                 {(product.selectedVariant?.discountedPrice ?? product?.discountedPrice) && (
-                                                                    <p className="text-xs text-slate-400 line-through font-medium">
+                                                                    <p className="text-[clamp(0.625rem,1.2vw,0.75rem)] text-slate-400 line-through font-medium">
                                                                         ₹{Number(product.selectedVariant?.price ?? product?.basePrice ?? product?.price ?? 0).toFixed(0)}
                                                                     </p>
                                                                 )}
                                                             </div>
                                                             <button
                                                                 onClick={() => handleAddToCart(product)}
-                                                                className="p-2 bg-brand-brown text-white rounded-full hover:bg-brand-plum transition-all shadow-md active:scale-90"
+                                                                className="p-2 bg-brand-brown text-white rounded-full hover:bg-brand-plum transition-all shadow-md active:scale-90 min-h-10 min-w-10 flex items-center justify-center"
                                                             >
                                                                 <ShoppingBag size={18} weight="bold"  />
                                                             </button>
@@ -256,32 +256,32 @@ const WishlistPage: React.FC = () => {
                         {/* Summary Sidebar - Luxury Card */}
                         <div className="lg:col-span-1">
                             <motion.div variants={fadeInVariants} initial="hidden" animate="visible" transition={{ delay: 0.2 }} className="sticky top-32">
-                                <div                                 className="bg-white rounded-[24px] border border-brand-brown/10 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden flex flex-col">
+                                <div className="bg-white rounded-[24px] border border-brand-brown/10 p-[clamp(1.5rem,3vw,2rem)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden flex flex-col">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-brown/5 rounded-full -mr-16 -mt-16 blur-3xl" />
                                     
-                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Order Summary</h3>
+                                    <h3 className="text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.2em] text-slate-400 mb-[clamp(1rem,2vw,1.5rem)]">Order Summary</h3>
 
-                                    <div className="space-y-5 mb-8">
+                                    <div className="space-y-[clamp(1rem,1.8vw,1.25rem)] mb-[clamp(1rem,2vw,1.5rem)]">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-sm font-medium text-slate-500">Selections</span>
-                                            <span className="text-sm font-bold text-slate-900">{wishlistCount}</span>
+                                            <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-medium text-slate-500">Selections</span>
+                                            <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-bold text-slate-900">{wishlistCount}</span>
                                         </div>
                                         <div className="flex justify-between items-end">
-                                            <span className="text-sm font-medium text-slate-500">Estimated Total</span>
+                                            <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-medium text-slate-500">Estimated Total</span>
                                             <div className="text-right">
-                                                <span className="block text-2xl font-black text-brand-brown">₹{totalValue.toFixed(0)}</span>
+                                                <span className="block text-[clamp(1.25rem,3vw,1.75rem)] font-black text-brand-brown">₹{totalValue.toFixed(0)}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <button onClick={() => wishlistProducts.forEach(p => handleAddToCart(p))} className="w-full bg-brand-brown text-white py-4 rounded-2xl hover:shadow-xl hover:shadow-brand-brown/20 transition-all font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
+                                    <div className="space-y-[clamp(0.75rem,1.5vw,1rem)]">
+                                        <button onClick={() => wishlistProducts.forEach(p => handleAddToCart(p))} className="w-full bg-brand-brown text-white py-[clamp(0.75rem,1.5vw,1rem)] rounded-2xl hover:shadow-xl hover:shadow-brand-brown/20 transition-all font-bold text-[clamp(0.625rem,1.2vw,0.75rem)] uppercase tracking-widest flex items-center justify-center gap-2 min-h-11">
                                             <ShoppingCart size={16} weight="bold" /> Move All to Cart
                                         </button>
-                                        <button onClick={() => navigate('/shop')} className="w-full bg-white border border-slate-200 text-slate-600 py-4 rounded-2xl hover:bg-slate-50 transition-all font-bold text-[11px] uppercase tracking-widest">
+                                        <button onClick={() => navigate('/shop')} className="w-full bg-white border border-slate-200 text-slate-600 py-[clamp(0.75rem,1.5vw,1rem)] rounded-2xl hover:bg-slate-50 transition-all font-bold text-[clamp(0.625rem,1.2vw,0.75rem)] uppercase tracking-widest min-h-11">
                                             Continue Browsing
                                         </button>
-                                        <button onClick={() => setShowRemoveAllConfirm(true)} className="w-full text-red-400 py-3 text-[10px] font-black uppercase tracking-widest hover:text-red-600 transition-colors">
+                                        <button onClick={() => setShowRemoveAllConfirm(true)} className="w-full text-red-400 py-[clamp(0.5rem,1vw,0.75rem)] text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-widest hover:text-red-600 transition-colors">
                                             Clear Entire Wishlist
                                         </button>
                                     </div>
