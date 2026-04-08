@@ -147,12 +147,12 @@ const OrderDetailsPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
-            <div className="max-w-6xl mx-auto px-6 md:px-12 pt-6 pb-12">
+            <div className="max-w-6xl mx-auto px-[clamp(1rem,3vw,1.5rem)] pt-[clamp(1rem,1.5vw,1.5rem)] pb-12">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,2vw,2rem)]">
                     <button
                         onClick={() => navigate("/orders")}
-                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa font-medium transition-colors"
+                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa font-medium transition-colors text-[clamp(0.875rem,1.5vw,1rem)]"
                     >
                         <ArrowLeft
                             size={20}
@@ -160,11 +160,11 @@ const OrderDetailsPage: React.FC = () => {
                         />
                         Back to All Orders
                     </button>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 transition shadow-sm">
+                    <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
+                        <button className="flex items-center gap-2 px-[clamp(1rem,1.5vw,1.25rem)] py-[clamp(0.5rem,1vw,0.75rem)] bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-[clamp(0.75rem,1.2vw,0.875rem)] hover:bg-slate-50 transition shadow-sm min-h-10">
                             <Printer size={18} weight="bold" /> Print Record
                         </button>
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200">
+                        <button className="flex items-center gap-2 px-[clamp(1rem,1.5vw,1.25rem)] py-[clamp(0.5rem,1vw,0.75rem)] bg-slate-900 text-white rounded-xl font-bold text-[clamp(0.75rem,1.2vw,0.875rem)] hover:bg-slate-800 transition shadow-lg shadow-slate-200 min-h-10">
                             <DownloadSimple size={18} weight="bold" /> Get Invoice
                         </button>
                     </div>
@@ -174,22 +174,22 @@ const OrderDetailsPage: React.FC = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-[2rem] border-2 p-6 px-10 mb-8 bg-white border-brand-brown/5 shadow-sm"
+                    className="relative overflow-hidden rounded-[2rem] border-2 p-[clamp(1rem,2vw,1.5rem)] px-[clamp(1rem,2vw,2rem)] mb-[clamp(1rem,2vw,1.5rem)] bg-white border-brand-brown/5 shadow-sm"
                 >
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-[clamp(1rem,2vw,1.5rem)]">
                         <div>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="font-label text-[10px] font-black uppercase tracking-[0.3em] text-brand-brown/40">
+                            <div className="flex items-center gap-3 mb-[clamp(0.75rem,1.5vw,1rem)]">
+                                <span className="font-label text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.3em] text-brand-brown/40">
                                     Tracking Reference
                                 </span>
                                 <div
                                     className={`w-2 h-2 rounded-full animate-pulse ${order?.status === "DELIVERED" ? "bg-emerald-500" : "bg-orange-500"}`}
                                 />
                             </div>
-                            <h1 className="text-3xl font-black text-brand-brown tracking-tighter mb-2">
+                            <h1 className="text-[clamp(1.75rem,4vw,2.25rem)] font-black text-brand-brown tracking-tighter mb-2">
                                 #{order?.orderNumber}
                             </h1>
-                            <p className="text-slate-500 font-bold text-sm flex items-center gap-2">
+                            <p className="text-slate-500 font-bold text-[clamp(0.75rem,1.5vw,0.875rem)] flex items-center gap-2">
                                 <Clock weight="bold" className="text-brand-brown/30" />
                                 {new Date(order?.createdAt ?? new Date()).toLocaleDateString(
                                     "en-US",
@@ -207,8 +207,8 @@ const OrderDetailsPage: React.FC = () => {
                 </motion.div>
 
                 {/* Timeline Progress */}
-                <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-8 mb-8">
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 text-center">
+                <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-[clamp(1.5rem,3vw,2rem)] mb-8">
+                    <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-400 uppercase tracking-widest mb-[clamp(1.5rem,3vw,2rem)] text-center">
                         Fulfillment Lifecycle
                     </h3>
                     <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-0 px-4">
@@ -238,12 +238,12 @@ const OrderDetailsPage: React.FC = () => {
                                 </div>
                                 <div className="text-left md:text-center">
                                     <p
-                                        className={`text-xs font-black uppercase tracking-tighter ${step.isUpcoming ? "text-slate-300" : "text-slate-900"}`}
+                                        className={`text-[clamp(0.75rem,1.2vw,0.875rem)] font-black uppercase tracking-tighter ${step.isUpcoming ? "text-slate-300" : "text-slate-900"}`}
                                     >
                                         {step.label}
                                     </p>
                                     {step.isActive && (
-                                        <p className="text-[10px] font-bold text-[#9a5d2e] uppercase mt-1 animate-pulse">
+                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-[#9a5d2e] uppercase mt-1 animate-pulse">
                                             In Progress
                                         </p>
                                     )}
