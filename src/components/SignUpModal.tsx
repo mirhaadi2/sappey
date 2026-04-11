@@ -47,7 +47,7 @@ const registerSchema = z.object({
 type RegisterData = z.infer<typeof registerSchema>;
 
 const SignUpModal: React.FC = () => {
-  const { authModal, closeAuthModal, user } = useAuth();
+  const { authModal, closeAuthModal, openAuthModal, user } = useAuth();
   const [step, setStep] = useState<"info" | "otp" | "password">("info");
   const [otpValue, setOtpValue] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");
@@ -351,6 +351,20 @@ const SignUpModal: React.FC = () => {
                     {loading ? <Spinner /> : "Continue"}
                     {!loading && <CaretRight weight="bold" size={18} />}
                   </button>
+
+                  {/* Footer - Switch to Sign In */}
+                  <div className="mt-[clamp(1.5rem,3vw,2rem)] pt-[clamp(1rem,2vw,1.5rem)] border-t border-gray-100 text-center">
+                    <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-600 font-medium">
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        onClick={() => openAuthModal("signin")}
+                        className="text-brand-brown font-bold hover:underline transition-all"
+                      >
+                        Sign in
+                      </button>
+                    </p>
+                  </div>
                 </motion.form>
               )}
 
@@ -532,6 +546,19 @@ const SignUpModal: React.FC = () => {
                     <ShieldCheck size={18} weight="bold" />
                     {loading ? "Finalizing..." : "Complete Registration"}
                   </button>
+
+                  {/* Footer - Switch to Sign In */}
+                  <div className="mt-[clamp(1.5rem,3vw,2rem)] pt-[clamp(1rem,2vw,1.5rem)] border-t border-gray-100 text-center">
+                    <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-600 font-medium">
+                      Already have an account?{" "}
+                      <button
+                        onClick={() => openAuthModal("signin")}
+                        className="text-brand-brown font-bold hover:underline transition-all"
+                      >
+                        Sign in
+                      </button>
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

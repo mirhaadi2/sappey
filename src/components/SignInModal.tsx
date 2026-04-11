@@ -24,7 +24,7 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>;
 
 const SignInModal: React.FC = () => {
-  const { authModal, closeAuthModal, signIn, signInLoading, signInError, user } = useAuth();
+  const { authModal, closeAuthModal, openAuthModal, signIn, signInLoading, signInError, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -154,6 +154,19 @@ const SignInModal: React.FC = () => {
                 {!signInLoading && <SignIn weight="bold" size={18} />}
               </button>
             </motion.form>
+
+            {/* Footer - Switch to Sign Up */}
+            <div className="mt-[clamp(1.5rem,3vw,2rem)] pt-[clamp(1rem,2vw,1.5rem)] border-t border-gray-100 text-center">
+              <p className="text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-600 font-medium">
+                Don't have an account?{" "}
+                <button
+                  onClick={() => openAuthModal("signup")}
+                  className="text-brand-brown font-bold hover:underline transition-all"
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
           </motion.div>
         </div>
       )}
