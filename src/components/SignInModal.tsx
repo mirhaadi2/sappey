@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X, Envelope, Lock, WarningCircle, SignIn, Eye, EyeSlash
-} from "@phosphor-icons/react";
+import { X, Envelope, Lock, WarningCircle, SignIn, Eye, EyeSlash } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";

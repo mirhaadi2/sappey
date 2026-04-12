@@ -182,6 +182,7 @@ const HomePage: React.FC = () => {
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
     const sections: Section[] = Array.isArray(homepageData?.sections) ? (homepageData.sections as Section[])?.filter((section: Section) => section?.isActive) : [];
     const testimonials: Testimonial[] = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as Testimonial[])?.filter((testimony: Testimonial) => testimony?.isActive) : [];
+    console.log(testimonials,'t')
     const instagramPosts: InstagramPost[] = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as InstagramPost[])?.filter((post: InstagramPost) => post?.isActive) : [];
 
     const collections = Array.isArray(collectionProducts) ? collectionProducts : [];
@@ -715,7 +716,7 @@ const HomePage: React.FC = () => {
                                                 className="text-brand-cream opacity-40 mb-4"
                                             />
                                             <p className="font-sans text-lg text-brand-cream opacity-95 leading-relaxed mb-6 max-w-2xl">
-                                                "{t.content}"
+                                                "{t.comment}"
                                             </p>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-brand-cocoa flex items-center justify-center">
@@ -723,7 +724,7 @@ const HomePage: React.FC = () => {
                                                         className="font-label text-sm text-brand-cream font-500"
                                                         style={{ fontWeight: 500 }}
                                                     >
-                                                        {t.name?.charAt(0)?.toUpperCase() || "U"}
+                                                        {t.author?.charAt(0)?.toUpperCase() || "U"}
                                                     </span>
                                                 </div>
 
@@ -732,10 +733,10 @@ const HomePage: React.FC = () => {
                                                         className="font-label text-sm  text-brand-cream"
                                                         style={{ fontWeight: 500 }}
                                                     >
-                                                        {t.name}
+                                                        {t.author}
                                                     </p>
                                                     <p className="font-sans text-xs text-brand-cream opacity-70">
-                                                        {t.role || "Customer"}
+                                                        {t.location || "Customer"}
                                                     </p>
                                                 </div>
 

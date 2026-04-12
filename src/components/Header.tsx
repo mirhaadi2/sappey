@@ -163,7 +163,7 @@ const Header: React.FC = () => {
 
             {/* 2. MAIN HEADER NAVIGATION */}
             <header
-                className={`fixed left-0 right-0 transition-all duration-500 z-50 h-16 
+                className={`fixed left-0 right-0 transition-all duration-500 z-50 h-20
                     ${hasTopBanner ? "top-8" : "top-0"} 
                     ${scrolled
                         ? "bg-white/80 backdrop-blur-xl border-b border-brand-brown/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
@@ -178,10 +178,11 @@ const Header: React.FC = () => {
                             to="/"
                             className="group flex items-center gap-2.5 font-headline font-black text-2xl text-brand-brown tracking-tighter transition-all duration-300"
                         >
-                            <div className="w-8 h-8 bg-brand-brown rounded-lg flex items-center justify-center text-brand-cream text-xs group-hover:rotate-6 transition-transform">
+                            {/* <div className="w-8 h-8 bg-brand-brown rounded-lg flex items-center justify-center text-brand-cream text-xs group-hover:rotate-6 transition-transform">
                                 S
                             </div>
-                            <span className="hidden sm:inline-block">Sappey</span>
+                            <span className="hidden sm:inline-block">Sappey</span> */}
+                            <img src="/images/sappey-logo-4.png" alt="SAPPEY Logo" width="120" height="40" />
                         </Link>
                     </div>
 

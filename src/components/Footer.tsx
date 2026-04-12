@@ -19,6 +19,7 @@ const Footer: React.FC = () => {
                         <Link to="/" className="inline-block group">
                             <h2 className="font-headline text-3xl font-black tracking-tighter text-white">
                                 SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-colors">.COM</span>
+                                {/* <img src="/images/sappey-logo.png" alt="SAPPEY Logo" /> */}
                             </h2>
                         </Link>
 
@@ -29,13 +30,13 @@ const Footer: React.FC = () => {
                             your doorstep.
                         </p>
                         <div className="flex items-center gap-4">
-                            <a href="#" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
+                            <a href="https://www.instagram.com/_sappey/" target="_blank" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
                                 <InstagramLogo size={20} />
                             </a>
-                            <a href="#" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
+                            <a href="https://www.facebook.com/sappey" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
                                 <FacebookLogo size={20} />
                             </a>
-                            <a href="#" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
+                            <a href="https://twitter.com/sappey" className="p-2 bg-brand-cream/10 rounded-full hover:bg-brand-cream hover:text-brand-brown transition-all">
                                 <TwitterLogo size={20} />
                             </a>
                         </div>
@@ -69,15 +70,15 @@ const Footer: React.FC = () => {
                         <ul className="space-y-4 font-sans text-sm">
                             <li className="flex items-start gap-3">
                                 <MapPin size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">Delhi, India</span>
+                                <span className="opacity-80">Jammu & Kashmir, India</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">+91 0000000000</span>
+                                <span className="opacity-80">+91 8130524848</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <EnvelopeSimple size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">sappay4@gmail.com</span>
+                                <span className="opacity-80">support@suppey.com</span>
                             </li>
                         </ul>
                     </div>
@@ -87,7 +88,7 @@ const Footer: React.FC = () => {
                 <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
                     {/* Copyright Information */}
                     <p className="font-sans text-xs text-slate-200 font-medium tracking-wide">
-                        © 2026 <span className="text-slate-300">Sappey Premium Harvest.</span> All rights reserved.
+                        © 2026 <span className="text-slate-300">Sappey Foods Private Limited.</span> All rights reserved.
                     </p>
 
                     {/* Legal Links */}

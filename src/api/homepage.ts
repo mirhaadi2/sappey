@@ -52,6 +52,9 @@ export interface Testimonial {
   content: string;
   imageUrl?: string;
   rating: number;
+  comment?: string;
+  author?: string;
+  location?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
