@@ -5,9 +5,9 @@ import { useCart, getVariantKey } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
-import { useHomepagePromotions, useApplicablePromotions } from "../api/promotions";
+import { useHomepagePromotions, useApplicablePromotions, Promotion } from "../api/promotions";
 import { MapPin, Truck, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
-import { useGuestConfig } from "../api/guest";
+import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import CheckoutHeader from "../components/CheckoutHeader";
 import PageContentModal from "../components/PageContentModal";
 import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
@@ -77,6 +77,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           onChange={(e) => onChange({ ...data, lastName: e.target.value })}
           placeholder="Last name"
           className={inputClass}
+          autoComplete="off"
         />
       </div>
 
@@ -86,12 +87,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
         onChange={(e) => onChange({ ...data, address: e.target.value })}
         placeholder="Address"
         className={inputClass}
+        autoComplete="off"
       />
 
       <input
         type="text"
         placeholder="Apartment, suite, etc. (optional)"
         className={inputClass}
+        autoComplete="off"
       />
 
       <div className="grid grid-cols-3 gap-4">
@@ -101,6 +104,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           onChange={(e) => onChange({ ...data, city: e.target.value })}
           placeholder="City"
           className={inputClass}
+          autoComplete="off"
         />
         <select
           value={data.state}
@@ -118,6 +122,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           onChange={(e) => onChange({ ...data, pinCode: e.target.value })}
           placeholder="PIN code"
           className={inputClass}
+          autoComplete="off"
         />
       </div>
 
@@ -128,6 +133,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           onChange={(e) => onChange({ ...data, phone: e.target.value })}
           placeholder={phoneLabel}
           className={inputClass}
+          autoComplete="off"
         />
         <QuestionIcon
           size={20}
@@ -199,10 +205,31 @@ const CheckoutPage: React.FC = () => {
   const [isGuestVerified, setIsGuestVerified] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
+  const [existingCustomer, setExistingCustomer] = useState<{
+    id: string;
+    email?: string;
+    phone?: string;
+    whatsapp?: string;
+    name?: string;
+    orderCount: number;
+  } | null>(null);
+  const [existingAddresses, setExistingAddresses] = useState<Array<any>>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [customerLookupError, setCustomerLookupError] = useState<string | null>(null);
   const placeOrderPendingRef = useRef(false);
+
+  const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
 
   const { data: promotionBanners = [] } = useHomepagePromotions();
   const hasBanner = promotionBanners && promotionBanners.length > 0;
+
+  const isReturningCustomer = existingCustomer?.orderCount > 0;
+  const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
+
+  const isWelcomePromotion = (promotion: Promotion) => {
+    const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
+    return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
+  };
 
   // Calculate base subtotal
   const baseSubtotal = useMemo(() => {
@@ -214,7 +241,19 @@ const CheckoutPage: React.FC = () => {
   // Fetch applicable promotions based on cart value using the hook
   const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
 
-  const { bestPromotion } = useCheckoutPromotions(baseSubtotal);
+  const filteredPromotions = useMemo(() => {
+    if (isReturningCustomer) {
+      return [];
+    }
+
+    if (isFirstOrderEligible) {
+      return applicablePromotions.filter((promotion) => isWelcomePromotion(promotion));
+    }
+
+    return applicablePromotions;
+  }, [applicablePromotions, isReturningCustomer, isFirstOrderEligible]);
+
+  const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
   const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
 
   const orderSummary = useMemo(() => {
@@ -243,6 +282,69 @@ const CheckoutPage: React.FC = () => {
       handlePlaceOrder();
     }
   }, [isGuestVerified]);
+
+  useEffect(() => {
+    if (customerLookupServiceError) {
+      setCustomerLookupError(customerLookupServiceError);
+    }
+  }, [customerLookupServiceError]);
+
+  const runCustomerLookup = async (
+    contact: string,
+    type: 'email' | 'phone' | 'whatsapp'
+  ) => {
+    if (!contact?.trim()) {
+      setExistingCustomer(null);
+      setExistingAddresses([]);
+      setSelectedAddressId(null);
+      setCustomerLookupError(null);
+      return;
+    }
+
+    try {
+      setCustomerLookupError(null);
+      const result = await findCustomerByContact(contact.trim(), type);
+
+      if (result && result.customer) {
+        setExistingCustomer({ ...result.customer, orderCount: result.orderCount ?? 0 });
+        setExistingAddresses(result.addresses || []);
+        setSelectedAddressId(null);
+      } else {
+        setExistingCustomer(null);
+        setExistingAddresses([]);
+        setSelectedAddressId(null);
+      }
+    } catch (error) {
+      setExistingCustomer(null);
+      setExistingAddresses([]);
+      setSelectedAddressId(null);
+      setCustomerLookupError((error as Error).message || 'Unable to lookup customer');
+    }
+  };
+
+  const applySavedAddress = (address: any) => {
+    setSelectedAddressId(address.id);
+    setDeliveryData((prev) => ({
+      ...prev,
+      firstName: address.name?.split(' ')?.[0] || prev.firstName,
+      lastName: address.name?.split(' ')?.slice(1).join(' ') || prev.lastName,
+      address: address.addressLine1 || prev.address,
+      city: address.city || prev.city,
+      state: address.state || prev.state,
+      pinCode: address.postalCode || prev.pinCode,
+      country: address.country || prev.country,
+      phone: address.phone || prev.phone,
+    }));
+  };
+
+  const toggleSavedAddress = (address: any) => {
+    if (selectedAddressId === address.id) {
+      setSelectedAddressId(null);
+      return;
+    }
+
+    applySavedAddress(address);
+  };
 
   const handlePlaceOrder = async () => {
     // Validation
@@ -286,6 +388,7 @@ const CheckoutPage: React.FC = () => {
         taxAmount: orderSummary.tax,
         shippingCost: orderSummary.shipping,
         paymentMethod,
+        shippingAddressId: selectedAddressId || undefined,
         shippingAddress: {
           name: `${deliveryData.firstName} ${deliveryData.lastName}`,
           phone: deliveryData?.phone || contactData.phone || contactData.whatsapp,
@@ -424,8 +527,9 @@ const CheckoutPage: React.FC = () => {
                               [type]: e.target.value,
                             }))
                           }
+                          onBlur={() => runCustomerLookup(contactData[type as 'email' | 'phone' | 'whatsapp'], type as 'email' | 'phone' | 'whatsapp')}
                           placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none transition"
+                          className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none transition"
                         />
                       </div>
                     </div>
@@ -439,6 +543,69 @@ const CheckoutPage: React.FC = () => {
                     />
                     <span className="text-sm text-slate-700">Email me with news and offers</span>
                   </label>
+
+                  {customerLookupLoading && (
+                    <div className="text-sm text-slate-500 mt-4">Checking for saved customer and addresses...</div>
+                  )}
+
+                  {existingCustomer && (
+                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 mt-4">
+                      <p className="text-sm text-slate-700 mb-3">
+                        We found an existing customer profile for{' '}
+                        <span className="font-semibold text-slate-900">
+                          {existingCustomer.email || existingCustomer.phone || existingCustomer.whatsapp}
+                        </span>.
+                        Choose one of the saved addresses below, or enter a different shipping address.
+                      </p>
+
+                      {existingAddresses.length > 0 ? (
+                        <div className="space-y-3">
+                          {existingAddresses.map((address) => (
+                            <button
+                              key={address.id}
+                              type="button"
+                              onClick={() => toggleSavedAddress(address)}
+                              className={`w-full text-left p-4 rounded-2xl border transition ${
+                                selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-4">
+                                <div>
+                                  <p className="font-semibold text-slate-900">{address.name || 'Shipping address'}</p>
+                                  <p className="text-sm text-slate-600">
+                                    {address.addressLine1}, {address.city}, {address.state} {address.postalCode}
+                                  </p>
+                                  <p className="text-sm text-slate-600">{address.country}</p>
+                                  {selectedAddressId === address.id && (
+                                    <p className="text-xs text-slate-500 mt-2">Click again to deselect and enter a different address.</p>
+                                  )}
+                                </div>
+                                {selectedAddressId === address.id && (
+                                  <span className="text-xs font-semibold text-brand-brown">Selected</span>
+                                )}
+                              </div>
+                            </button>
+                          ))}
+
+                          {selectedAddressId && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedAddressId(null)}
+                              className="text-sm text-brand-brown font-semibold mt-2"
+                            >
+                              Use a different address
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-600">No saved shipping addresses found. Please enter a new address below.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {customerLookupError && (
+                    <p className="text-sm text-red-600 mt-3">{customerLookupError}</p>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -645,9 +812,9 @@ const CheckoutPage: React.FC = () => {
               </div>
 
               {/* Applicable Promotions */}
-              {applicablePromotions.length > 0 && (
+              {filteredPromotions.length > 0 ? (
                 <div className="space-y-2 pt-3">
-                  {applicablePromotions.map((promo: any) => {
+                  {filteredPromotions.map((promo: any) => {
                     let discountAmount = 0;
                     let isFreeShipping = false;
 
@@ -671,7 +838,11 @@ const CheckoutPage: React.FC = () => {
                     );
                   })}
                 </div>
-              )}
+              ) : isReturningCustomer ? (
+                <p className="text-xs italic text-slate-500 pt-3">
+                  This customer has placed previous orders, so promotional offers are not available.
+                </p>
+              ) : null}
 
               {/* Totals */}
               <div className="space-y-2 pt-4 border-t border-slate-200">

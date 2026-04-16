@@ -19,6 +19,7 @@ export interface GuestConfig {
 
 export interface SendOTPRequest {
   contact: string;
+  type: 'email' | 'phone' | 'whatsapp';
 }
 
 export interface SendOTPResponse {
@@ -30,12 +31,42 @@ export interface SendOTPResponse {
 export interface VerifyOTPRequest {
   contact: string;
   otp: string;
+  type: 'email' | 'phone' | 'whatsapp';
 }
 
 export interface VerifyOTPResponse {
   success: boolean;
   guestToken: string;
   message: string;
+}
+
+export interface FindCustomerByContactRequest {
+  contact: string;
+  type: 'email' | 'phone' | 'whatsapp';
+}
+
+export interface FindCustomerByContactResponse {
+  success: boolean;
+  customer: {
+    id: string;
+    email?: string;
+    phone?: string;
+    whatsapp?: string;
+    name?: string;
+    orderCount: number;
+  } | null;
+  addresses: Array<{
+    id: string;
+    name?: string;
+    phone: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    isDefault: boolean;
+  }>;
 }
 
 export interface GuestShippingAddress {

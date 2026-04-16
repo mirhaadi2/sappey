@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useApplicablePromotions } from '../api/promotions';
 import { Promotion } from '../api/promotions';
 
 interface PromotionApplicability {
@@ -12,10 +11,7 @@ interface PromotionApplicability {
  * Professional promotion calculation hook for checkout
  * Evaluates promotion conditions and calculates discounts
  */
-export const useCheckoutPromotions = (subtotal: number) => {
-    // Fetch promotions applicable to current cart value
-    const { data: applicablePromotions = [] } = useApplicablePromotions(subtotal);
-
+export const useCheckoutPromotions = (subtotal: number, applicablePromotions: Promotion[] = []) => {
     // Calculate the best promotion (highest discount)
     const bestPromotion = useMemo<PromotionApplicability | null>(() => {
         if (!applicablePromotions || applicablePromotions.length === 0) {

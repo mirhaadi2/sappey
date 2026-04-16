@@ -6,6 +6,8 @@ import {
   SendOTPResponse,
   VerifyOTPRequest,
   VerifyOTPResponse,
+  FindCustomerByContactRequest,
+  FindCustomerByContactResponse,
 } from './types';
 import { guestApiEndpoints } from './endpoints';
 
@@ -55,6 +57,22 @@ export const guestApiClient = {
     } catch (error) {
       const axiosError = error as AxiosError<any>;
       const errorMessage = axiosError.response?.data?.message || 'Failed to verify OTP';
+      throw new Error(errorMessage);
+    }
+  },
+
+  async findCustomerByContact(request: FindCustomerByContactRequest): Promise<FindCustomerByContactResponse> {
+    try {
+      const response = await api.get(guestApiEndpoints.lookupCustomer, {
+        params: {
+          contact: request.contact,
+          type: request.type,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<any>;
+      const errorMessage = axiosError.response?.data?.message || 'Failed to lookup customer';
       throw new Error(errorMessage);
     }
   },

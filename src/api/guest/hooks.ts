@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { guestApiClient } from './client';
-import { GuestConfig, SendOTPResponse, VerifyOTPResponse } from './types';
+import {
+  GuestConfig,
+  SendOTPResponse,
+  VerifyOTPResponse,
+  FindCustomerByContactRequest,
+  FindCustomerByContactResponse,
+} from './types';
 
 /**
  * Hook to get guest checkout configuration
@@ -24,7 +30,8 @@ export const useGuestConfig = () => {
         setConfig({
           notificationChannel: 'email',
           contactType: 'email',
-          label: 'Email Address',
+          enabledContactTypes: { email: true },
+          labels: { email: 'Email Address' },
         });
       } finally {
         setLoading(false);
@@ -46,13 +53,13 @@ export const useSendOTP = () => {
   const [success, setSuccess] = useState(false);
   const [expiresIn, setExpiresIn] = useState<number | null>(null);
 
-  const sendOTP = async (contact: string): Promise<boolean> => {
+  const sendOTP = async (contact: string, type: 'email' | 'phone' | 'whatsapp'): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
       setSuccess(false);
 
-      const response = await guestApiClient.sendOTP({ contact });
+      const response = await guestApiClient.sendOTP({ contact, type });
       setSuccess(response.success);
       setExpiresIn(response.expiresIn);
 
@@ -85,13 +92,17 @@ export const useVerifyOTP = () => {
   const [error, setError] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
-  const verifyOTP = async (contact: string, otp: string): Promise<string | null> => {
+  const verifyOTP = async (
+    contact: string,
+    otp: string,
+    type: 'email' | 'phone' | 'whatsapp'
+  ): Promise<string | null> => {
     try {
       setLoading(true);
       setError(null);
       setGuestToken(null);
 
-      const response = await guestApiClient.verifyOTP({ contact, otp });
+      const response = await guestApiClient.verifyOTP({ contact, otp, type });
 
       if (response.success) {
         setGuestToken(response.guestToken);
@@ -115,4 +126,28 @@ export const useVerifyOTP = () => {
   };
 
   return { verifyOTP, loading, error, guestToken, reset };
+};
+
+export const useFindCustomerByContact = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const findCustomerByContact = async (
+    contact: string,
+    type: 'email' | 'phone' | 'whatsapp'
+  ): Promise<FindCustomerByContactResponse | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await guestApiClient.findCustomerByContact({ contact, type });
+    } catch (err) {
+      const errorMessage = (err as Error).message || 'Failed to lookup customer';
+      setError(errorMessage);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { findCustomerByContact, loading, error };
 };

@@ -88,7 +88,7 @@ export const GuestContactForm: React.FC<GuestContactFormProps> = ({ onOTPSent, o
       return;
     }
 
-    await sendOTP(contacts[selectedContactType]);
+    await sendOTP(contacts[selectedContactType], selectedContactType);
   };
 
   if (configLoading) {
