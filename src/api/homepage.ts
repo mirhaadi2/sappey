@@ -75,6 +75,7 @@ export interface WebsitePage {
   slug: string;
   title: string;
   content: string;
+  body?: string;
   metaTitle?: string;
   metaDescription?: string;
   isPublished: boolean;

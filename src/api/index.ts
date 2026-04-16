@@ -50,14 +50,14 @@ export const apiMethods = {
   get: <T = any>(url: string, params?: any): Promise<AxiosResponse<T>> =>
     api.get(url, { params }),
 
-  post: <T = any>(url: string, data?: any): Promise<AxiosResponse<T>> =>
-    api.post(url, data),
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+    api.post(url, data, config),
 
-  put: <T = any>(url: string, data?: any): Promise<AxiosResponse<T>> =>
-    api.put(url, data),
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+    api.put(url, data, config),
 
-  patch: <T = any>(url: string, data?: any): Promise<AxiosResponse<T>> =>
-    api.patch(url, data),
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+    api.patch(url, data, config),
 
   delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     api.delete(url, config),

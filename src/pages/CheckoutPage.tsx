@@ -1,51 +1,226 @@
-import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart, getVariantKey } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
-import { useAddresses } from "../api/address/hooks";
 import { useOrders } from "../api/orders/hooks";
-import { useCheckoutPromotions, formatPromotionDescription } from "../hooks/useCheckoutPromotions";
-import { useHomepagePromotions } from "../api/promotions";
-import { PromotionList } from "../components/PromotionCard";
-import { ArrowLeft, MapPin, Truck, CreditCard, CheckCircle, Plus, Package, Info, Tag } from "@phosphor-icons/react";
-import { Gift } from "lucide-react";
+import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
+import { useHomepagePromotions, useApplicablePromotions } from "../api/promotions";
+import { MapPin, Truck, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
+import { useGuestConfig } from "../api/guest";
+import CheckoutHeader from "../components/CheckoutHeader";
+import PageContentModal from "../components/PageContentModal";
+import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
+import OtpVerificationModal from "../components/OtpVerificationModal";
+
+const indianStates = [
+  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Delhi", "Dadra and Nagar Haveli", "Daman and Diu", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
+  "Jammu and Kashmir", "Jharkhand", "Karnataka",
+  "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+];
+
+interface AddressFormProps {
+  data: {
+    firstName: string;
+    lastName: string;
+    address: string;
+    city: string;
+    state: string;
+    phone: string;
+    pinCode: string;
+    country: string;
+  };
+  onChange: (data: any) => void;
+  showSaveInfo?: boolean;
+  saveInfo?: boolean;
+  onSaveInfoChange?: (value: boolean) => void;
+  phoneLabel?: string;
+}
+
+const AddressForm: React.FC<AddressFormProps> = ({
+  data,
+  onChange,
+  showSaveInfo = false,
+  saveInfo = true,
+  onSaveInfoChange,
+  phoneLabel = "Phone"
+}) => {
+  // Common styles for all inputs to ensure consistency
+  const inputClass = "w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none focus:ring-0 transition";
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <select
+          value={data.country}
+          onChange={(e) => onChange({ ...data, country: e.target.value })}
+          className={inputClass}
+        >
+          <option>India</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <input
+          type="text"
+          value={data.firstName}
+          onChange={(e) => onChange({ ...data, firstName: e.target.value })}
+          placeholder="First name"
+          className={inputClass}
+        />
+        <input
+          type="text"
+          value={data.lastName}
+          onChange={(e) => onChange({ ...data, lastName: e.target.value })}
+          placeholder="Last name"
+          className={inputClass}
+        />
+      </div>
+
+      <input
+        type="text"
+        value={data.address}
+        onChange={(e) => onChange({ ...data, address: e.target.value })}
+        placeholder="Address"
+        className={inputClass}
+      />
+
+      <input
+        type="text"
+        placeholder="Apartment, suite, etc. (optional)"
+        className={inputClass}
+      />
+
+      <div className="grid grid-cols-3 gap-4">
+        <input
+          type="text"
+          value={data.city}
+          onChange={(e) => onChange({ ...data, city: e.target.value })}
+          placeholder="City"
+          className={inputClass}
+        />
+        <select
+          value={data.state}
+          onChange={(e) => onChange({ ...data, state: e.target.value })}
+          className={inputClass}
+        >
+          <option value="">Select State</option>
+          {indianStates.map((state) => (
+            <option key={state} value={state}>{state}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          value={data.pinCode}
+          onChange={(e) => onChange({ ...data, pinCode: e.target.value })}
+          placeholder="PIN code"
+          className={inputClass}
+        />
+      </div>
+
+      <div className="relative group flex items-center">
+        <input
+          type="text"
+          value={data.phone}
+          onChange={(e) => onChange({ ...data, phone: e.target.value })}
+          placeholder={phoneLabel}
+          className={inputClass}
+        />
+        <QuestionIcon
+          size={20}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-help"
+        />
+        <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block transition-opacity duration-200">
+          <div className="bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg whitespace-nowrap">
+            In case we need to contact you about your order
+            <div className="absolute top-full right-5 -mt-1 border-4 border-transparent border-t-slate-800"></div>
+          </div>
+        </div>
+      </div>
+
+      {showSaveInfo && (
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={saveInfo}
+            onChange={(e) => onSaveInfoChange?.(e.target.checked)}
+            className="w-5 h-5 text-brand-brown rounded border-slate-300 focus:ring-0"
+          />
+          <span className="text-sm text-slate-700">Save this information for next time</span>
+        </label>
+      )}
+    </div>
+  );
+};
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const { state, dispatch } = useCart();
-  const { addresses } = useAddresses();
-  const { placeOrder, isCreatingOrder, createError } = useOrders();
+  const { placeOrder, isCreatingOrder } = useOrders();
+  const { config: guestConfig } = useGuestConfig();
 
-  const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>(
-    addresses.find((a) => a.isDefault)?.id
-  );
+  // Form state
+  const [contactData, setContactData] = useState({
+    email: '',
+    phone: '',
+    whatsapp: '',
+  });
+  const [deliveryData, setDeliveryData] = useState({
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    state: '',
+    pinCode: '',
+    phone: '',
+    country: 'India',
+  });
+  const [billingData, setBillingData] = useState({
+    sameAsShipping: true,
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    state: '',
+    pinCode: '',
+    country: 'India',
+  });
+
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | "upi" | "netbanking">("cod");
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | "upi" | "netbanking">("cod");
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [orderStep, setOrderStep] = useState<"shipping" | "payment" | "review" | "confirmation">("shipping");
-  const [errorDismissed, setErrorDismissed] = useState(false);
-  const [selectedPromotionId, setSelectedPromotionId] = useState<string | undefined>(undefined);
+  const [newsletter, setNewsletter] = useState(true);
+  const [saveInfo, setSaveInfo] = useState(true);
+  const [openModal, setOpenModal] = useState<string | null>(null);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isGuestVerified, setIsGuestVerified] = useState(false);
+  const [guestToken, setGuestToken] = useState<string | null>(null);
+  const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
+  const placeOrderPendingRef = useRef(false);
+
   const { data: promotionBanners = [] } = useHomepagePromotions();
   const hasBanner = promotionBanners && promotionBanners.length > 0;
-  const headerTopPosition = hasBanner ? "top-24" : "top-16";
-  const sidebarTopPosition = hasBanner ? "top-40" : "top-32";
+
+  // Calculate base subtotal
   const baseSubtotal = useMemo(() => {
     return (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
       ? item.variant.price
       : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0);
   }, [state?.items]);
-  const { bestPromotion, allApplicablePromotions } = useCheckoutPromotions(baseSubtotal);
+
+  // Fetch applicable promotions based on cart value using the hook
+  const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
+
+  const { bestPromotion } = useCheckoutPromotions(baseSubtotal);
   const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
+
   const orderSummary = useMemo(() => {
     const subtotal = baseSubtotal;
     const tax = parseFloat((subtotal * 0.08).toFixed(2));
-    const selectedPromo = selectedPromotionId 
-      ? allApplicablePromotions.find((p) => p.promotion.id === selectedPromotionId)
-      : bestPromotion;
-
-    // Check if promotion offers free shipping
+    const selectedPromo = bestPromotion;
     const isFreeShippingPromo = selectedPromo?.promotion?.type === 'free_shipping';
     const shipping = isFreeShippingPromo ? 0 : originalShipping;
     const promotionDiscount = selectedPromo?.discountAmount ?? 0;
@@ -60,47 +235,71 @@ const CheckoutPage: React.FC = () => {
       total: parseFloat((subtotal - promotionDiscount + tax + shipping).toFixed(2)),
       totalBeforePromo: parseFloat((subtotal + tax + shipping).toFixed(2)),
     };
-  }, [baseSubtotal, selectedPromotionId, allApplicablePromotions, bestPromotion, originalShipping]);
+  }, [baseSubtotal, bestPromotion, originalShipping]);
+
+  useEffect(() => {
+    if (placeOrderPendingRef.current && isGuestVerified) {
+      placeOrderPendingRef.current = false;
+      handlePlaceOrder();
+    }
+  }, [isGuestVerified]);
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId) {
-      alert("Please select a delivery address");
+    // Validation
+    if (!deliveryData.firstName || !deliveryData.address || !deliveryData.city) {
+      alert("Please fill in all delivery address fields");
       return;
     }
 
-    try {
-      const orderItems = (state?.items ?? []).map((item) => {
-        const variantData = typeof item?.variant === 'object' ? (item?.variant ?? {}) : {};
-        return {
-          productId: item?.product?.id ?? '',
-          productVariantId: variantData?.id ?? item?.product?.id ?? '',
-          sku: variantData?.sku ?? '',
-          quantity: item?.quantity ?? 0,
-          price: variantData?.price ?? item?.product?.price ?? 0,
-          discountedPrice: variantData?.discountedPrice ?? variantData?.price ?? item?.product?.price ?? 0,
-          discountedPercent: variantData?.discountedPercent ?? 0,
-        };
-      });
+    // For guest users, require OTP verification
+    if (!user) {
+      if (!contactData.email && !contactData.phone && !contactData.whatsapp) {
+        alert("Please provide at least one contact method (email, phone, or WhatsApp)");
+        return;
+      }
 
+      if (!isGuestVerified) {
+        placeOrderPendingRef.current = true;
+        setShowOtpModal(true);
+        return;
+      }
+    }
+
+    try {
+      console.log(deliveryData, 'deliveryData');
       const orderData = {
-        items: orderItems,
+        items: (state?.items ?? []).map((item) => {
+          const variantData = typeof item?.variant === 'object' ? (item?.variant ?? {}) : {};
+          return {
+            productId: item?.product?.id ?? '',
+            productVariantId: variantData?.id ?? item?.product?.id ?? '',
+            sku: variantData?.sku ?? '',
+            quantity: item?.quantity ?? 0,
+            price: variantData?.price ?? item?.product?.price ?? 0,
+            discountedPrice: variantData?.discountedPrice ?? variantData?.price ?? item?.product?.price ?? 0,
+            discountedPercent: variantData?.discountedPercent ?? 0,
+          };
+        }),
         subtotal: orderSummary.subtotal,
         totalAmount: orderSummary.total,
         discountAmount: orderSummary.promotionDiscount,
         taxAmount: orderSummary.tax,
         shippingCost: orderSummary.shipping,
-        shippingAddressId: selectedAddressId,
         paymentMethod,
+        shippingAddress: {
+          name: `${deliveryData.firstName} ${deliveryData.lastName}`,
+          phone: deliveryData?.phone || contactData.phone || contactData.whatsapp,
+          email: contactData.email,
+          addressLine1: deliveryData.address,
+          city: deliveryData.city,
+          state: deliveryData.state,
+          postalCode: deliveryData.pinCode,
+          country: deliveryData.country,
+        },
         promotionId: orderSummary.selectedPromotion?.id,
-        promotionDetails: orderSummary.selectedPromotion ? {
-          id: orderSummary.selectedPromotion.id,
-          title: orderSummary.selectedPromotion.title,
-          type: orderSummary.selectedPromotion.type,
-          discount: orderSummary.promotionDiscount,
-        } : undefined,
       };
 
-      const newOrder = await placeOrder(orderData);
+      const newOrder = await placeOrder(orderData, guestToken ?? undefined);
       dispatch({ type: "CLEAR_CART" });
       navigate("/order-success", {
         state: {
@@ -112,36 +311,17 @@ const CheckoutPage: React.FC = () => {
           ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           shippingMethod,
           paymentMethod,
-          address: (addresses ?? []).find((a) => a?.id === selectedAddressId)
-            ? `${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.name ?? 'N/A'}, ${(addresses ?? []).find((a) => a?.id === selectedAddressId)?.city ?? 'N/A'}`
-            : undefined,
+          address: `${deliveryData.firstName}, ${deliveryData.city}`,
           itemCount: state?.items?.length ?? 0,
           promotionApplied: orderSummary.selectedPromotion?.title,
           promotionSavings: orderSummary.promotionDiscount,
         },
       });
-
     } catch (err) {
       console.error("✗ Failed to place order:", err);
+      alert("Failed to place order. Please try again.");
     }
   };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
-        <div className="text-center">
-          <Package size={48} className="mx-auto text-slate-400 mb-4" />
-          <p className="text-slate-600 text-lg mb-2">Please sign in to checkout</p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-8 py-3 bg-brand-brown text-white rounded-xl hover:bg-brand-cocoa transition font-semibold"
-          >
-            Sign In & Continue
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if ((state?.items?.length ?? 0) === 0) {
     return (
@@ -160,440 +340,414 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  const selectedAddress = (addresses ?? []).find((a) => a?.id === selectedAddressId);
+  const enabledContactTypes = guestConfig?.enabledContactTypes || { email: true };
+  const contactFields = [];
+  if (enabledContactTypes.email) contactFields.push('email');
+  if (enabledContactTypes.phone) contactFields.push('phone');
+  if (enabledContactTypes.whatsapp) contactFields.push('whatsapp');
+
+  const getContactIcon = (type: 'email' | 'phone' | 'whatsapp') => {
+    switch (type) {
+      case 'email':
+        return <Envelope size={20} />;
+      case 'phone':
+        return <Phone size={20} />;
+      case 'whatsapp':
+        return <ChatCircle size={20} />;
+    }
+  };
+
+  const getContactPlaceholder = (type: 'email' | 'phone' | 'whatsapp') => {
+    switch (type) {
+      case 'email':
+        return 'Enter email address';
+      case 'phone':
+        return 'Enter phone number';
+      case 'whatsapp':
+        return 'Enter WhatsApp number';
+    }
+  };
+
+  const getContactLabel = (type: 'email' | 'phone' | 'whatsapp') => {
+    if (guestConfig?.labels?.[type]) return guestConfig.labels[type];
+    switch (type) {
+      case 'email':
+        return 'Email Address';
+      case 'phone':
+        return 'Phone Number';
+      case 'whatsapp':
+        return 'WhatsApp Number';
+    }
+  };
+
+  console.log(state?.items, 'state?.items')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
-      <div className={`bg-white border-b border-slate-100 sticky z-40 ${headerTopPosition}`}>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
-          <button
-            onClick={() => navigate("/shop")}
-            className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors font-medium"
-          >
-            <ArrowLeft size={20} weight="bold" />
-            Continue Shopping
-          </button>
-          <h1 className="text-2xl font-bold text-brand-brown">Checkout</h1>
-        </div>
-      </div>
-      <main className="max-w-7xl mx-auto px-6 md:px-12 pt-6 pb-12">
+    <div className="min-h-screen bg-brand-latte">
+      <CheckoutHeader />
+
+      <main className="max-w-7xl mx-auto px-6 md:px-12 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Side - Forms */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="flex justify-between mb-8">
-              {(["shipping", "payment", "review", "confirmation"] as const).map((step, idx) => (
-                <div key={step} className="flex items-center flex-1">
-                  <motion.div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition ${orderStep === step
-                        ? "bg-brand-brown text-white"
-                        : idx < (["shipping", "payment", "review", "confirmation"] as const).indexOf(orderStep)
-                          ? "bg-green-500 text-white"
-                          : "bg-slate-200 text-slate-600"
-                      }`}
-                  >
-                    {idx + 1}
-                  </motion.div>
-                  {idx < 3 && (
-                    <div
-                      className={`flex-1 h-1 mx-2 transition ${idx < (["shipping", "payment", "review", "confirmation"] as const).indexOf(orderStep)
-                          ? "bg-green-500"
-                          : "bg-slate-300"
-                        }`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            {createError && !errorDismissed && (
+            {/* Contact Section - Only for non-logged-in users */}
+            {!user && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border-l-4 border-red-500 p-4 rounded flex gap-3 mb-6"
+                className="bg-white rounded-2xl p-8 border border-brand-brown/10"
               >
-                <Info size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-semibold text-red-900">Order Error</p>
-                  <p className="text-red-800">{(createError as any)?.message || 'Failed to place order'}</p>
-                  <button
-                    onClick={() => setErrorDismissed(true)}
-                    className="text-red-700 underline mt-2 text-xs font-semibold"
-                  >
-                    Dismiss
-                  </button>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-brand-brown">Contact</h2>
+                  <div>
+                    <button
+                      onClick={() => openAuthModal("signin")}
+                      className="w-full text-right text-brand-brown font-semibold text-sm hover:underline"
+                    >
+                      Sign In
+                    </button>
+                  </div>
                 </div>
-              </motion.div>
-            )}
-            <AnimatePresence mode="wait">
-              {orderStep === "shipping" && (
-                <motion.div
-                  key="shipping"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-white rounded-[24px] p-8 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
-                    <h2 className="text-2xl font-bold text-brand-brown flex items-center gap-3 mb-6">
-                      <MapPin size={28} />
-                      Delivery Address
-                    </h2>
-                    <div className="space-y-4 mb-6">
-                      {addresses.length === 0 ? (
-                        <div className="text-center py-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                          <MapPin size={32} className="mx-auto text-slate-400 mb-2" />
-                          <p className="text-slate-600 font-medium">No addresses saved yet</p>
+                <div className="space-y-4">
+                  {contactFields.map((type) => (
+                    <div key={type}>
+                      <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown opacity-60">
+                          {getContactIcon(type as 'email' | 'phone' | 'whatsapp')}
                         </div>
-                      ) : (
-                        addresses.map((address) => (
-                          <motion.label
-                            key={address.id}
-                            className="flex items-start gap-4 p-4 rounded-2xl border-2 cursor-pointer transition hover:border-brand-brown hover:bg-brand-brown/5"
-                            style={{
-                              borderColor: selectedAddressId === address.id ? "var(--color-brand-brown)" : "#e5e7eb",
-                              backgroundColor: selectedAddressId === address.id ? "rgba(var(--color-brand-brown), 0.05)" : "white",
-                            }}
-                          >
-                            <input
-                              type="radio"
-                              name="address"
-                              value={address.id}
-                              checked={selectedAddressId === address.id}
-                              onChange={(e) => setSelectedAddressId(e.target.value)}
-                              className="mt-1 w-5 h-5 accent-brand-brown cursor-pointer"
-                            />
-                            <div className="flex-1">
-                              <p className="font-bold text-slate-900">{address.name}</p>
-                              <p className="text-slate-700 text-sm mt-1">
-                                {address.addressLine1}
-                                {address.addressLine2 && `, ${address.addressLine2}`}
-                              </p>
-                              <p className="text-slate-600 text-sm">
-                                {address.city}, {address.state} {address.postalCode}
-                              </p>
-                              <p className="text-slate-600 text-sm">{address.country}</p>
-                              <p className="text-slate-500 text-xs mt-2">{address.phone}</p>
-                              {address.isDefault && (
-                                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                                  Default Address
-                                </span>
-                              )}
-                            </div>
-                          </motion.label>
-                        ))
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setShowAddressForm(!showAddressForm)}
-                      className="flex items-center gap-2 px-4 py-3 text-brand-brown border-2 border-brand-brown/20 rounded-xl hover:bg-brand-brown/5 transition font-semibold w-full justify-center"
-                    >
-                      <Plus size={20} />
-                      Add New Address
-                    </button>
-                  </div>
-                  <div className="bg-white rounded-[24px] p-8 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
-                    <h3 className="text-xl font-bold text-brand-brown flex items-center gap-3 mb-6">
-                      <Truck size={24} />
-                      Shipping Method
-                    </h3>
-                    <div className="space-y-4">
-                      {[
-                        { id: "standard", name: "Standard", time: "5-7 days", price: 9.99 },
-                        { id: "express", name: "Express", time: "2-3 days", price: 24.99 },
-                        { id: "overnight", name: "Overnight", time: "Next day", price: 49.99 },
-                      ].map((method) => (
-                        <motion.label
-                          key={method.id}
-                          className="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition hover:border-brand-brown hover:bg-brand-brown/5"
-                          style={{
-                            borderColor: shippingMethod === method.id ? "var(--color-brand-brown)" : "#e5e7eb",
-                            backgroundColor: shippingMethod === method.id ? "rgba(var(--color-brand-brown), 0.05)" : "white",
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name="shipping"
-                            value={method.id}
-                            checked={shippingMethod === method.id as any}
-                            onChange={(e) => setShippingMethod(e.target.value as any)}
-                            className="w-5 h-5 accent-brand-brown cursor-pointer"
-                          />
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900">{method.name}</p>
-                            <p className="text-slate-600 text-sm">{method.time}</p>
-                          </div>
-                          <p className="font-bold text-brand-brown">₹{method.price.toFixed(2)}</p>
-                        </motion.label>
-                      ))}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setOrderStep("payment")}
-                    disabled={!selectedAddressId}
-                    className="w-full py-4 bg-brand-brown text-white rounded-xl hover:bg-brand-cocoa disabled:opacity-50 disabled:cursor-not-allowed transition font-bold text-lg"
-                  >
-                    Continue to Payment
-                  </button>
-                </motion.div>
-              )}
-              {orderStep === "payment" && (
-                <motion.div
-                  key="payment"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-white rounded-[24px] p-8 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
-                    <h2 className="text-2xl font-bold text-brand-brown flex items-center gap-3 mb-6">
-                      <CreditCard size={28} />
-                      Payment Method
-                    </h2>
-                    <div className="space-y-4 mb-8">
-                      {[{ id: "cod", name: "Cash on Delivery", icon: Package, desc: "Pay when you receive" },].map((method) => (
-                        <motion.label
-                          key={method.id}
-                          className="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition hover:border-brand-brown hover:bg-brand-brown/5"
-                          style={{
-                            borderColor: paymentMethod === method.id ? "var(--color-brand-brown)" : "#e5e7eb",
-                            backgroundColor: paymentMethod === method.id ? "rgba(var(--color-brand-brown), 0.05)" : "white",
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value={method.id}
-                            checked={paymentMethod === method.id as any}
-                            onChange={(e) => setPaymentMethod(e.target.value as any)}
-                            className="w-5 h-5 accent-brand-brown cursor-pointer"
-                          />
-                          <method.icon size={24} className="text-brand-brown flex-shrink-0" weight={paymentMethod === method.id ? "fill" : "regular"} />
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900">{method.name}</p>
-                            <p className="text-slate-600 text-sm">{method.desc}</p>
-                          </div>
-                        </motion.label>
-                      ))}
-                    </div>
-                    {paymentMethod === "cod" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6"
-                      >
-                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded flex gap-3">
-                          <Info size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-semibold text-amber-900 mb-1">Cash on Delivery</p>
-                            <p className="text-amber-800">Pay ₹{orderSummary.total.toFixed(2)} when your order arrives at your doorstep.</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                    {allApplicablePromotions && allApplicablePromotions.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6"
-                      >
-                        <div className="mb-4">
-                          <h3 className="text-lg font-bold text-brand-brown flex items-center gap-2 mb-4">
-                            <Tag size={24} />
-                            Available Offers
-                          </h3>
-                          <p className="text-sm text-slate-600 mb-4">
-                            <Gift size={20} className="inline-block mr-2" />
-                            Great news! You qualify for {allApplicablePromotions.length} offer{allApplicablePromotions.length !== 1 ? 's' : ''}
-                          </p>
-                        </div>
-                        <PromotionList
-                          promotions={allApplicablePromotions.map((p) => ({
-                            ...p.promotion,
-                            discountAmount: p.discountAmount,
-                          }))}
-                          selectedPromotionId={selectedPromotionId}
-                          onSelectPromotion={(promo) => setSelectedPromotionId(promo.id)}
+                        <input
+                          type={type === 'email' ? 'email' : 'tel'}
+                          value={contactData[type as 'email' | 'phone' | 'whatsapp']}
+                          onChange={(e) =>
+                            setContactData((prev) => ({
+                              ...prev,
+                              [type]: e.target.value,
+                            }))
+                          }
+                          placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none transition"
                         />
-                      </motion.div>
-                    )}
-                    <button
-                      onClick={() => setOrderStep("review")}
-                      className="w-full py-4 bg-brand-brown text-white rounded-xl hover:bg-brand-cocoa transition font-bold text-lg"
-                    >
-                      Review Order
-                    </button>
-                    <button
-                      onClick={() => setOrderStep("shipping")}
-                      className="w-full mt-3 py-4 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition font-bold"
-                    >
-                      Back
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-              {orderStep === "review" && (
-                <motion.div
-                  key="review"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-white rounded-[24px] p-8 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">
-                    <h2 className="text-2xl font-bold text-brand-brown mb-6">Order Review</h2>
-                    <div className="space-y-4 mb-6 pb-6 border-b border-slate-200">
-                      <h3 className="font-bold text-slate-900">Delivery to:</h3>
-                      {selectedAddress && (
-                        <div className="text-sm text-slate-700 bg-slate-50 p-4 rounded-lg">
-                          <p className="font-semibold">{selectedAddress.name}</p>
-                          <p>{selectedAddress.addressLine1}</p>
-                          {selectedAddress.addressLine2 && <p>{selectedAddress.addressLine2}</p>}
-                          <p>
-                            {selectedAddress.city}, {selectedAddress.state} {selectedAddress.postalCode}
-                          </p>
-                          <p>{selectedAddress.country}</p>
-                          <p className="mt-2 text-slate-600">{selectedAddress.phone}</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-4 pb-6 border-b border-slate-200">
-                      <h3 className="font-bold text-slate-900">Shipping Method:</h3>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-slate-700">{shippingMethod.charAt(0).toUpperCase() + shippingMethod.slice(1)}</p>
-                        {orderSummary?.shipping === 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-slate-400 line-through text-xs">₹{originalShipping.toFixed(2)}</span>
-                            <span className="text-green-600 font-bold text-xs">FREE</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="space-y-4 pb-6 border-b border-slate-200">
-                      <h3 className="font-bold text-slate-900">Payment Method:</h3>
-                      <p className="text-sm text-slate-700 capitalize">
-                        {paymentMethod === "cod" && "Cash on Delivery"}
-                        {paymentMethod === "card" && "Credit/Debit Card"}
-                        {paymentMethod === "upi" && "UPI"}
-                        {paymentMethod === "netbanking" && "Net Banking"}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handlePlaceOrder}
-                      disabled={isCreatingOrder}
-                      className="w-full py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isCreatingOrder ? (
-                        <><div className="animate-spin">⏳</div>Processing...</>
-                      ) : (
-                        <><CheckCircle size={24} />Place Order</>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setOrderStep("payment")}
-                      className="w-full mt-3 py-4 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition font-bold"
-                    >
-                      Back
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          {orderStep !== "confirmation" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-1"
-            >
-              <div className={`sticky bg-white rounded-[24px] p-8 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] ${sidebarTopPosition}`}>
-                <h3 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
-                  <Package size={24} />
-                  Order Summary
-                </h3>
-                <div className="space-y-4 mb-6 pb-6 border-b border-slate-200 max-h-80 overflow-y-auto">
-                  {state.items?.map((item) => (
-                    <div key={`${item.product.id}-${getVariantKey(item.variant)}`} className="flex items-start gap-4">
-                      <img
-                        src={item.product.images?.[0] || "https://via.placeholder.com/150"}
-                        alt={item.product.name}
-                        className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 truncate text-sm">{item.product.name}</p>
-                        <p className="font-sans text-xs text-slate-500 mt-1">
-                          Weight: {item.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
-                        </p>
-                        <p className="text-slate-600 text-xs mt-1">Qty: {item.quantity}</p>
-                        <p className="font-bold text-brand-brown text-sm mt-1">
-                          ₹{(((typeof item.variant === 'object' && item.variant.price)
-                            ? item.variant.price
-                            : item.product.price) * item.quantity).toFixed(2)}
-                        </p>
                       </div>
                     </div>
                   ))}
+                  <label className="flex items-center gap-3 cursor-pointer mt-4">
+                    <input
+                      type="checkbox"
+                      checked={newsletter}
+                      onChange={(e) => setNewsletter(e.target.checked)}
+                      className="w-5 h-5 text-brand-brown rounded"
+                    />
+                    <span className="text-sm text-slate-700">Email me with news and offers</span>
+                  </label>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Subtotal</span>
-                    <span>₹{orderSummary?.subtotal?.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Tax</span>
-                    <span>₹{orderSummary?.tax?.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Shipping</span>
-                    <div className="flex items-center gap-2">
-                      {orderSummary?.shipping === 0 ? (
-                        <>
-                          <span className="text-slate-400 line-through text-sm">₹{originalShipping.toFixed(2)}</span>
-                          <span className="text-green-600 font-bold text-sm">FREE</span>
-                        </>
-                      ) : (
-                        <span className="text-slate-600">₹{orderSummary?.shipping?.toFixed(2)}</span>
-                      )}
+              </motion.div>
+            )}
+
+            {/* Delivery Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+            >
+              <h2 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
+                <MapPin size={24} />
+                Delivery
+              </h2>
+              <AddressForm
+                data={deliveryData}
+                onChange={setDeliveryData}
+                showSaveInfo={true}
+                saveInfo={saveInfo}
+                onSaveInfoChange={setSaveInfo}
+                phoneLabel="Phone"
+              />
+            </motion.div>
+
+            {/* Shipping Method Section */}
+            {/* <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+            >
+              <h2 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
+                <Truck size={24} />
+                Shipping method
+              </h2>
+              <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+                <p className="text-sm text-amber-800">
+                  Enter your shipping address to view available shipping methods.
+                </p>
+              </div>
+            </motion.div> */}
+
+            {/* Payment Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+            >
+              <h2 className="text-xl font-bold text-brand-brown mb-4 flex items-center gap-2">
+                <CreditCard size={24} />
+                Payment
+              </h2>
+              {/* <p className="text-sm text-slate-600 mb-6">All transactions are secure and encrypted.</p> */}
+
+              <div className="space-y-3">
+                {[
+                  // { id: 'razorpay', label: 'Razorpay Secure (UPI, Cards, Int\'l Cards, Wallets)' },
+                  // { id: 'cashfree', label: 'Cashfree Payments (UPI,Cards,Int\'l cards,Wallets)' },
+                  { id: 'cod', label: 'Cash on Delivery (COD)' },
+                ].map((method) => (
+                  <label key={method.id} className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-brand-brown transition"
+                    style={{
+                      borderColor: paymentMethod === method.id ? '#6B4423' : '#E5E7EB',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={method.id}
+                      checked={paymentMethod === method.id as any}
+                      onChange={(e) => setPaymentMethod(e.target.value as any)}
+                      className="w-5 h-5 accent-brand-brown"
+                    />
+                    <span className="text-sm font-medium text-slate-700">{method.label}</span>
+                  </label>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Billing Address Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+            >
+              <h2 className="text-xl font-bold text-brand-brown mb-6">Billing address</h2>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                >
+                  <input
+                    type="radio"
+                    name="billing"
+                    checked={billingData.sameAsShipping}
+                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                    className="w-5 h-5 accent-brand-brown"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Same as shipping address</span>
+                </label>
+
+                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                >
+                  <input
+                    type="radio"
+                    name="billing"
+                    checked={!billingData.sameAsShipping}
+                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                    className="w-5 h-5 accent-brand-brown"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Use a different billing address</span>
+                </label>
+              </div>
+
+              {!billingData.sameAsShipping && (
+                <div className="mt-6">
+                  <AddressForm
+                    data={deliveryData}
+                    onChange={setDeliveryData}
+                    showSaveInfo={true}
+                    saveInfo={saveInfo}
+                    onSaveInfoChange={setSaveInfo}
+                    phoneLabel="Phone (Optional)"
+                  />
+                </div>
+              )}
+            </motion.div>
+
+            {/* Pay Now Button */}
+            <motion.button
+              onClick={handlePlaceOrder}
+              disabled={isCreatingOrder}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCreatingOrder ? "Processing..." : "Complete order"}
+            </motion.button>
+
+            {/* Footer Links */}
+            <div className="flex justify-center gap-6 text-sm text-slate-600 flex-wrap">
+              <button onClick={() => setOpenModal('returns-and-refunds')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Refund policy</button>
+              <button onClick={() => setOpenModal('shipping-policy')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Shipping</button>
+              <button onClick={() => setOpenModal('privacy-policy')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Privacy policy</button>
+              <button onClick={() => setOpenModal('terms-and-conditions')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Terms of service</button>
+              <button onClick={() => setOpenModal('about-sappey')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Contact</button>
+            </div>
+          </div>
+
+          {/* Right Side - Order Summary */}
+          <div className="lg:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl p-6 border border-brand-brown/10 sticky top-32 space-y-4"
+            >
+              {/* Items */}
+              <div className="space-y-4 pb-4 border-b border-slate-200 max-h-64 overflow-y-auto px-2 pt-2">
+                {(state?.items ?? []).map((item, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    {/* Product Image Container */}
+                    <div className="relative w-20 h-20 bg-slate-100 rounded-xl flex-shrink-0">
+                      <img
+                        src={item?.product?.images?.[0] || ''}
+                        alt={item?.product?.name}
+                        className="w-full h-full object-cover rounded-xl overflow-hidden border border-slate-100"
+                      />
+
+                      {/* Quantity Badge - Now has 'breathing room' because of the parent's padding */}
+                      <span className="absolute -top-2 -right-2 bg-brand-brown text-white text-[11px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-md z-20">
+                        {item?.quantity}
+                      </span>
                     </div>
-                  </div>
-                  {orderSummary?.promotionDiscount > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex justify-between items-center pt-2 border-t border-slate-200"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Tag size={16} className="text-green-600" />
-                        <span className="text-green-600 font-bold text-sm">Promotion</span>
-                      </div>
-                      <span className="text-green-600 font-bold">-₹{orderSummary?.promotionDiscount?.toFixed(2)}</span>
-                    </motion.div>
-                  )}
-                  {orderSummary?.selectedPromotion && (
-                    <div className="bg-green-50 p-3 rounded-lg">
-                      <p className="text-xs text-green-700 font-medium">
-                        ✨ {orderSummary.selectedPromotion.title}
+
+                    {/* Product Details */}
+                    <div className="flex-1 pt-1">
+                      <p className="text-sm font-medium text-slate-700 line-clamp-2 mb-1">
+                        {item?.product?.name}
                       </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {formatPromotionDescription(orderSummary.selectedPromotion)}
+                      <p className="text-sm font-medium text-slate-700 line-clamp-2 mb-1">
+                        {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit || 'g'}` : ''}
+                      </p>
+
+                      <p className="text-sm font-bold text-slate-900">
+                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price)
+                          ? item.variant.price
+                          : item?.product?.price ?? 0) * (item?.quantity ?? 1)).toLocaleString('en-IN')}
                       </p>
                     </div>
-                  )}
-                  <div className="border-t border-slate-200 pt-3 flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <div className="text-right">
-                      {orderSummary?.promotionDiscount > 0 && (
-                        <div className="text-slate-400 line-through text-sm">
-                          ₹{orderSummary?.totalBeforePromo?.toFixed(2)}
-                        </div>
-                      )}
-                      <span className="text-brand-brown">₹{orderSummary?.total?.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Discount Code */}
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Discount code"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:border-brand-brown focus:outline-none text-sm"
+                />
+                <button className="w-full text-right text-brand-brown font-semibold text-sm hover:underline">
+                  Apply
+                </button>
+              </div>
+
+              {/* Applicable Promotions */}
+              {applicablePromotions.length > 0 && (
+                <div className="space-y-2 pt-3">
+                  {applicablePromotions.map((promo: any) => {
+                    let discountAmount = 0;
+                    let isFreeShipping = false;
+
+                    if (promo.type === 'fixed_discount' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
+                      discountAmount = promo.discountValue || 0;
+                    } else if (promo.type === 'percentage_discount' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
+                      discountAmount = (orderSummary.subtotal * (promo.discountValue || 0)) / 100;
+                    } else if (promo.type === 'free_shipping' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
+                      isFreeShipping = true;
+                      discountAmount = orderSummary.shipping;
+                    }
+
+                    return (
+                      <CheckoutPromotionBadge
+                        key={promo.id}
+                        promotion={promo}
+                        cartValue={orderSummary.subtotal}
+                        discount={discountAmount}
+                        isFreeShipping={isFreeShipping}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Totals */}
+              <div className="space-y-2 pt-4 border-t border-slate-200">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Subtotal</span>
+                  <span className="font-semibold">₹{orderSummary.subtotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Shipping</span>
+                  <span className="font-semibold text-brand-brown">Enter shipping address</span>
+                </div>
+                <div className="pt-2 border-t border-slate-200 flex justify-between text-lg font-bold">
+                  <span>Total</span>
+                  <div className="text-right">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm text-slate-600">INR</span>
+                      <span className="text-2xl">₹{orderSummary.total.toLocaleString('en-IN')}</span>
                     </div>
+                    <p className="text-xs text-slate-600">
+                      Including ₹{orderSummary.tax.toFixed(2)} in taxes
+                    </p>
                   </div>
                 </div>
               </div>
             </motion.div>
-          )}
+          </div>
         </div>
       </main>
+
+      {/* Page Content Modals */}
+      <PageContentModal
+        isOpen={openModal === 'returns-and-refunds'}
+        onClose={() => setOpenModal(null)}
+        slug="returns-refunds"
+        title="Refund Policy"
+      />
+      <PageContentModal
+        isOpen={openModal === 'shipping-policy'}
+        onClose={() => setOpenModal(null)}
+        slug="shipping-policy"
+        title="Shipping Policy"
+      />
+      <PageContentModal
+        isOpen={openModal === 'privacy-policy'}
+        onClose={() => setOpenModal(null)}
+        slug="privacy-policy"
+        title="Privacy Policy"
+      />
+      <PageContentModal
+        isOpen={openModal === 'terms-and-conditions'}
+        onClose={() => setOpenModal(null)}
+        slug="terms-and-conditions"
+        title="Terms & Conditions"
+      />
+      <PageContentModal
+        isOpen={openModal === 'about-sappey'}
+        onClose={() => setOpenModal(null)}
+        slug="about-sappey"
+        title="About Us"
+      />
+
+      {/* OTP Verification Modal for Guest Checkout */}
+      <OtpVerificationModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onVerified={(data) => {
+          setVerifiedGuest({ contact: data.contact, type: data.type });
+          setGuestToken(data.guestToken);
+          setIsGuestVerified(true);
+          setShowOtpModal(false);
+        }}
+        contactData={contactData}
+        defaultType={contactData.email ? 'email' : contactData.phone ? 'phone' : 'whatsapp'}
+      />
     </div>
   );
 };
+
 export default CheckoutPage;

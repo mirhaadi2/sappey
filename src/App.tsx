@@ -44,10 +44,11 @@ const queryClient = new QueryClient({
 const AppContent: React.FC = () => {
     const location = useLocation();
     const isPageContentRoute = ["/about-us", "/shipping-policy", "/returns-refunds", "/faqs", "/privacy-policy", "/terms-and-conditions", "/sitemap"].includes(location.pathname) || location.pathname.startsWith("/pages/");
+    const isCheckoutRoute = location.pathname === "/checkout";
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
-            {!isPageContentRoute && <Header />}
+            {!isPageContentRoute && !isCheckoutRoute && <Header />}
             <main className="flex-1">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
@@ -64,19 +65,11 @@ const AppContent: React.FC = () => {
                     />
                     <Route
                         path="/checkout"
-                        element={
-                            <ProtectedRoute>
-                                <CheckoutPage />
-                            </ProtectedRoute>
-                        }
+                        element={<CheckoutPage />}
                     />
                     <Route
                         path="/order-success"
-                        element={
-                            <ProtectedRoute>
-                                <OrderSuccessPage />
-                            </ProtectedRoute>
-                        }
+                        element={<OrderSuccessPage />}
                     />
                     <Route
                         path="/orders"
@@ -104,7 +97,7 @@ const AppContent: React.FC = () => {
                     <Route path="/pages/:slug" element={<PageContent />} />
                 </Routes>
             </main>
-            {!isPageContentRoute && <Footer />}
+            {!isPageContentRoute && !isCheckoutRoute && <Footer />}
             <CartDrawer />
             <SignInModal />
             <SignUpModal />

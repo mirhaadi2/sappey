@@ -182,7 +182,6 @@ const HomePage: React.FC = () => {
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
     const sections: Section[] = Array.isArray(homepageData?.sections) ? (homepageData.sections as Section[])?.filter((section: Section) => section?.isActive) : [];
     const testimonials: Testimonial[] = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as Testimonial[])?.filter((testimony: Testimonial) => testimony?.isActive) : [];
-    console.log(testimonials,'t')
     const instagramPosts: InstagramPost[] = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as InstagramPost[])?.filter((post: InstagramPost) => post?.isActive) : [];
 
     const collections = Array.isArray(collectionProducts) ? collectionProducts : [];

@@ -3,25 +3,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../context/CardContext";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { CartItem } from "../types";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
     console.log(state,'ste')
 
-    const { user, openAuthModal } = useAuth();
     const navigate = useNavigate();
 
     const handleCheckout = useCallback(() => {
-        if (!user) {
-            dispatch({ type: "CLOSE_CART" });
-            openAuthModal("signin");
-            return;
-        }
         dispatch({ type: "CLOSE_CART" });
         navigate("/checkout");
-    }, [user, dispatch, navigate, openAuthModal]);
+    }, [dispatch, navigate]);
 
     return (
         <AnimatePresence>

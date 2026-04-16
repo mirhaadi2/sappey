@@ -17,7 +17,8 @@ export const useOrders = (enabled = true) => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateOrderData) => ordersClient.placeOrder(data),
+    mutationFn: (params: { data: CreateOrderData; guestToken?: string }) =>
+      ordersClient.placeOrder(params.data, params.guestToken),
     onSuccess: (response: any) => {
       const newOrder = response?.data || response;
       if (!newOrder?.id) {
@@ -110,7 +111,8 @@ export const useOrders = (enabled = true) => {
     refetch: query.refetch,
 
     // Mutations
-    placeOrder: (data: CreateOrderData) => createMutation.mutateAsync(data),
+    placeOrder: (data: CreateOrderData, guestToken?: string) =>
+      createMutation.mutateAsync({ data, guestToken }),
     cancelOrder: (id: string, reason: string) =>
       cancelMutation.mutateAsync({ id, reason }),
     confirmPayment: (id: string) => confirmPaymentMutation.mutateAsync(id),

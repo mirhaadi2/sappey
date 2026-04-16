@@ -48,6 +48,7 @@ const Header: React.FC = () => {
     const activeBanner = homepageData?.banners?.find((b) => b?.isActive);
     const activePromotion = promotions?.[0];
     const hasTopBanner = !!(activePromotion || activeBanner);
+    console.log(activePromotion, 'activePromotion')
 
     // Debounce search query (300ms delay) to avoid excessive API calls
     useEffect(() => {

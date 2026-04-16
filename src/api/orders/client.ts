@@ -2,11 +2,16 @@ import { apiMethods } from '../index';
 import { CreateOrderData, Order, OrderResponse, OrdersListResponse } from './types';
 
 export const ordersClient = {
-  // Place a new order
-  placeOrder: async (data: CreateOrderData): Promise<Order> => {
+  // Place a new order (supports both authenticated and guest users)
+  placeOrder: async (data: CreateOrderData, guestToken?: string): Promise<Order> => {
+    const config = guestToken
+      ? { headers: { Authorization: `Bearer ${guestToken}` } }
+      : {};
+    
     const response = await apiMethods.post<OrderResponse>(
       '/orders',
-      data
+      data,
+      config
     );
     return response.data.data;
   },
