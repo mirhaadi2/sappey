@@ -16,7 +16,7 @@ import {
     CheckFat,
 } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -43,7 +43,7 @@ type OrderStatus =
 const OrderDetailsPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { currentUser } = useWebsiteAuth();
     const { order, isLoading, error } = useOrder(orderId || "", !!orderId);
 
     const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -92,7 +92,7 @@ const OrderDetailsPage: React.FC = () => {
         }));
     }, [order]);
 
-    if (!user) {
+    if (!currentUser) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="text-center p-8 bg-white rounded-3xl shadow-xl border border-slate-200 max-w-sm">
@@ -349,7 +349,7 @@ const OrderDetailsPage: React.FC = () => {
                                 Recipient
                             </p>
                             <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase mb-4">
-                                {user?.name ?? "N/A"}
+                                {currentUser?.name ?? "N/A"}
                             </p>
                             <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700 leading-relaxed mb-4">
                                 {order?.shippingAddressLine1 ?? ""}, {order?.shippingCity ?? ""}

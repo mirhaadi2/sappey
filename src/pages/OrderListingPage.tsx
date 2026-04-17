@@ -15,7 +15,7 @@ import {
     CurrencyInr,
     TrendUp
 } from "@phosphor-icons/react";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { ORDER_STATUS_CONFIG, getStatusConfig, getStatusLabel } from "../utils/orderStatusMapper";
 import { OrderListingSkeleton } from "../components/Skeletons";
@@ -39,7 +39,7 @@ interface OrderFilter {
 
 const OrderListingPage: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { currentUser } = useWebsiteAuth();
     const { orders = [], isLoading } = useOrders();
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -119,7 +119,7 @@ const OrderListingPage: React.FC = () => {
         return { totalSpent, delivered, count: (orders ?? []).length };
     }, [orders]);
 
-    if (!user) {
+    if (!currentUser) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className="bg-white p-8 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 text-center max-w-sm transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1">

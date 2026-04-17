@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useAddresses } from "../api/address/hooks";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { ProfilePageSkeleton } from "../components/Skeletons";
@@ -63,7 +63,7 @@ const FloatingLabelInput = ({ label, register, error, placeholder, ...props }: {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { currentUser, isLoading: authLoading } = useWebsiteAuth();
   const {
     addresses,
     isLoading,
@@ -91,7 +91,11 @@ const ProfilePage: React.FC = () => {
     resolver: zodResolver(addressSchema),
   });
 
-  if (!user) {
+  if (authLoading) {
+    return <ProfilePageSkeleton />;
+  }
+
+  if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -205,12 +209,12 @@ const ProfilePage: React.FC = () => {
 
                   <div className="flex flex-col min-w-0">
                     <h2 className="text-xl font-black text-brand-brown truncate leading-tight">
-                      {user?.name ?? 'User'}
+                      {currentUser?.name ?? 'User'}
                     </h2>
                     <div className="flex items-center gap-1.5 mt-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       <span className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-brown/40">
-                        {user?.role ?? "Member"}
+                        {currentUser?.role ?? "Member"}
                       </span>
                     </div>
                   </div>
@@ -219,8 +223,8 @@ const ProfilePage: React.FC = () => {
                 {/* Info Rows: More compact layout */}
                 <div className="space-y-2 mb-6">
                   {[
-                    { icon: <Envelope size={16} />, value: user?.email },
-                    { icon: <Phone size={16} />, value: user?.phone || "No phone linked" },
+                    { icon: <Envelope size={16} />, value: currentUser?.email },
+                    { icon: <Phone size={16} />, value: currentUser?.phone || "No phone linked" },
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-brand-latte/20 border border-brand-brown/5 hover:bg-brand-latte/40 transition-colors">
                       <div className="text-brand-brown/60">{item.icon}</div>

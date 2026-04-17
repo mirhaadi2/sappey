@@ -1,6 +1,5 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 
 interface ProtectedRouteProps {
@@ -12,10 +11,9 @@ interface ProtectedRouteProps {
  * Redirects to home page if user is not logged in
  */
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, isGuestAuthenticated } = useAuth();
-  const { user: customerUser, isLoading: customerLoading } = useWebsiteAuth();
+  const { currentUser, isGuestAuthenticated, isLoading } = useWebsiteAuth();
 
-  if (loading || customerLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
         <div className="animate-spin w-12 h-12 border-4 border-brand-brown/20 border-t-brand-brown rounded-full" />
@@ -24,7 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // Allow access if user is authenticated via any method
-  if (!user && !customerUser && !isGuestAuthenticated) {
+  if (!currentUser && !isGuestAuthenticated) {
     return <Navigate to="/" replace />;
   }
 

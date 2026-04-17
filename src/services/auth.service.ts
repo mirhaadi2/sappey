@@ -11,6 +11,7 @@ const USER_KEY = 'WEBSITE_user';
 export interface AuthUser {
   id: string;
   email: string;
+  phone?: string;
   name: string;
   role: 'USER';
 }

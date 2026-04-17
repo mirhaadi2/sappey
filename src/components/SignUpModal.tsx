@@ -16,7 +16,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { authApi } from "../api/authentication/client";
 
 const Spinner = () => (
@@ -47,7 +47,7 @@ const registerSchema = z.object({
 type RegisterData = z.infer<typeof registerSchema>;
 
 const SignUpModal: React.FC = () => {
-  const { authModal, closeAuthModal, openAuthModal, user } = useAuth();
+  const { authModal, closeAuthModal, openAuthModal, user } = useWebsiteAuth();
   const [step, setStep] = useState<"info" | "otp" | "password">("info");
   const [otpValue, setOtpValue] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");

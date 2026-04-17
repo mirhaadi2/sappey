@@ -5,7 +5,6 @@ import {
     MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, LockSimple, UserPlus, NavigationArrow
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
-import { useAuth } from "../context/AuthContext";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useProductSearch } from "../api/products";
@@ -34,15 +33,21 @@ const Header: React.FC = () => {
     const profileRef = useRef<HTMLDivElement>(null);
 
     const { totalItems, dispatch } = useCart();
-    const { user, openAuthModal, signOut, isGuestAuthenticated, guestDisplayName } = useAuth();
-    const { logout: customerLogout, user: customerUser } = useWebsiteAuth();
+    const {
+        currentUser,
+        isGuestAuthenticated,
+        guestDisplayName,
+        openAuthModal,
+        signOut,
+        logout: customerLogout
+    } = useWebsiteAuth();
     const { wishlistCount } = useWishlist();
 
     const location = useLocation();
     const navigate = useNavigate();
 
-    const isLoggedIn = Boolean(user || isGuestAuthenticated || customerUser);
-    const displayName = customerUser?.name?.split(" ")[0] || user?.name?.split(" ")[0] || guestDisplayName || "Guest";
+    const isLoggedIn = Boolean(currentUser || isGuestAuthenticated);
+    const displayName = currentUser?.name?.split(" ")[0] || guestDisplayName || "Guest";
 
     // API Hooks - Search from backend using PostgreSQL Full-Text Search
     const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
@@ -53,7 +58,6 @@ const Header: React.FC = () => {
     const activeBanner = homepageData?.banners?.find((b) => b?.isActive);
     const activePromotion = promotions?.[0];
     const hasTopBanner = !!(activePromotion || activeBanner);
-    console.log(activePromotion, 'activePromotion')
 
     // Debounce search query (300ms delay) to avoid excessive API calls
     useEffect(() => {
@@ -136,15 +140,15 @@ const Header: React.FC = () => {
     }, [searchOpen, profileOpen, closeSearch]);
 
     // Handle logout
-    const handleLogout = useCallback(() => {
-        if (customerUser) {
-            customerLogout();
+    const handleLogout = useCallback(async () => {
+        if (currentUser) {
+            await customerLogout();
         } else {
-            signOut();
+            await signOut();
         }
         setProfileOpen(false);
         navigate("/");
-    }, [customerUser, customerLogout, signOut, navigate]);
+    }, [currentUser, customerLogout, signOut, navigate]);
 
     return (
         <>
@@ -380,7 +384,7 @@ const Header: React.FC = () => {
                                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                                 className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-48"
                                             >
-                                                {(user || customerUser) && (
+                                                {(currentUser) && (
                                                     <motion.button
                                                         whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
                                                         onClick={() => {

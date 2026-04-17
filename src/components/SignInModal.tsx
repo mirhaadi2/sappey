@@ -4,7 +4,7 @@ import { X, Envelope, Lock, WarningCircle, SignIn, Eye, EyeSlash } from "@phosph
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 
 const Spinner = () => (
   <motion.div
@@ -22,7 +22,7 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>;
 
 const SignInModal: React.FC = () => {
-  const { authModal, closeAuthModal, openAuthModal, signIn, signInLoading, signInError, user } = useAuth();
+  const { authModal, closeAuthModal, openAuthModal, signIn, signInLoading, signInError, user } = useWebsiteAuth();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 

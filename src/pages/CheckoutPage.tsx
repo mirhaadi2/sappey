@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart, getVariantKey } from "../context/CardContext";
-import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { useHomepagePromotions, useApplicablePromotions, Promotion } from "../api/promotions";
@@ -164,7 +164,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, openAuthModal } = useAuth();
+  const { currentUser, openAuthModal } = useWebsiteAuth();
   const { state, dispatch } = useCart();
   const { placeOrder, isCreatingOrder } = useOrders();
   const { config: guestConfig } = useGuestConfig();
@@ -223,7 +223,7 @@ const CheckoutPage: React.FC = () => {
   const { data: promotionBanners = [] } = useHomepagePromotions();
   const hasBanner = promotionBanners && promotionBanners.length > 0;
 
-  const isReturningCustomer = existingCustomer?.orderCount > 0;
+  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount  > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
 
   const isWelcomePromotion = (promotion: Promotion) => {
@@ -306,7 +306,7 @@ const CheckoutPage: React.FC = () => {
       const result = await findCustomerByContact(contact.trim(), type);
 
       if (result && result.customer) {
-        setExistingCustomer({ ...result.customer, orderCount: result.orderCount ?? 0 });
+        setExistingCustomer({ ...result.customer, orderCount: result?.orderCount ?? 0 });
         setExistingAddresses(result.addresses || []);
         setSelectedAddressId(null);
       } else {
@@ -354,7 +354,7 @@ const CheckoutPage: React.FC = () => {
     }
 
     // For guest users, require OTP verification
-    if (!user) {
+    if (!currentUser) {
       if (!contactData.email && !contactData.phone && !contactData.whatsapp) {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
         return;
@@ -369,7 +369,7 @@ const CheckoutPage: React.FC = () => {
 
     try {
       const orderData = {
-        guestData: !user ? {
+        guestData: !currentUser ? {
           contact: verifiedGuest?.contact || '',
           contactType: verifiedGuest?.type || 'email',
         } : undefined,
@@ -495,7 +495,7 @@ const CheckoutPage: React.FC = () => {
           {/* Left Side - Forms */}
           <div className="lg:col-span-2 space-y-6">
             {/* Contact Section - Only for non-logged-in users */}
-            {!user && (
+            {!currentUser && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

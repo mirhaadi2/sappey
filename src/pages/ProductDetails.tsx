@@ -91,7 +91,9 @@ const variantOptions = useMemo(() => {
 
   // Price display: use selected weight's price (no product-level discount for weight-based)
   const displayPrice = selectedVariantData?.price ?? 0;
+  console.log(selectedVariantData,'selectedVariantData')
   const displayWeight = selectedVariantData?.label;
+  console.log(displayWeight,'displayWeight')
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -274,7 +276,7 @@ const variantOptions = useMemo(() => {
               </span>
             </div>
 
-            <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)] mb-[clamp(1rem,2vw,1.5rem)]">
+            {/* <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)] mb-[clamp(1rem,2vw,1.5rem)]">
               <span
                 className="font-headline text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown"
                 style={{ fontWeight: 600 }}
@@ -282,9 +284,9 @@ const variantOptions = useMemo(() => {
                 ₹{displayPrice.toFixed(2)}
               </span>
               <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-widest text-slate-500 bg-slate-100 px-[clamp(0.5rem,1vw,0.75rem)] py-[clamp(0.25rem,0.5vw,0.35rem)] rounded-full">
-                {displayWeight}
+                {displayWeight ?? `${product?.weight ?? ""}${product?.weightUnit ?? ""}`}
               </span>
-            </div>
+            </div> */}
 
             <p className="font-sans text-[clamp(0.875rem,1.5vw,1rem)] text-slate-600 leading-relaxed mb-[clamp(1rem,2vw,1.5rem)]">
               {product?.description}
@@ -333,8 +335,8 @@ const variantOptions = useMemo(() => {
                         : "border-slate-200 bg-white text-brand-brown hover:border-brand-cocoa"
                       }`}
                   >
-                    <div className="font-semibold">{variant.label}</div>
                     <div className="text-[clamp(0.625rem,1.2vw,0.75rem)]">₹{Number(variant.price).toFixed(2)}</div>
+                    <div className="text-[clamp(0.625rem,1.2vw,0.75rem)]">{variant.label ?? `${variant?.weight} ${variant?.weightUnit ?? 'G'}`}</div>
                   </button>
                 ))}
               </div>

@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
-import { AuthProvider } from "./context/AuthContext";
 import { WebsiteAuthProvider } from "./contexts/WebsiteAuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -110,15 +109,13 @@ const App: React.FC = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <WebsiteAuthProvider>
-                <AuthProvider>
-                    <CartProvider>
-                        <WishlistProvider>
-                            <BrowserRouter>
-                                <AppContent />
-                            </BrowserRouter>
-                        </WishlistProvider>
-                    </CartProvider>
-                </AuthProvider>
+                <CartProvider>
+                    <WishlistProvider>
+                        <BrowserRouter>
+                            <AppContent />
+                        </BrowserRouter>
+                    </WishlistProvider>
+                </CartProvider>
             </WebsiteAuthProvider>
         </QueryClientProvider>
     );

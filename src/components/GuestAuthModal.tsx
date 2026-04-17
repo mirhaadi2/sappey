@@ -11,7 +11,7 @@ import {
   WarningCircle,
 } from '@phosphor-icons/react';
 import { useGuestConfig, useSendOTP, useVerifyOTP, useCreateCustomer } from '../api/guest';
-import { useAuth } from '../context/AuthContext';
+import { useWebsiteAuth } from '../contexts/WebsiteAuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Spinner = () => (
@@ -25,7 +25,7 @@ const Spinner = () => (
 interface GuestAuthModalProps {}
 
 const GuestAuthModal: React.FC<GuestAuthModalProps> = () => {
-  const { authModal, closeAuthModal, setGuestAuthToken } = useAuth();
+  const { authModal, closeAuthModal, setGuestAuthToken } = useWebsiteAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
