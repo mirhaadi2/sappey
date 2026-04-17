@@ -306,7 +306,7 @@ const CheckoutPage: React.FC = () => {
       const result = await findCustomerByContact(contact.trim(), type);
 
       if (result && result.customer) {
-        setExistingCustomer({ ...result.customer, orderCount: result?.orderCount ?? 0 });
+        setExistingCustomer({ ...result.customer, orderCount: result.customer.orderCount ?? 0 });
         setExistingAddresses(result.addresses || []);
         setSelectedAddressId(null);
       } else {
