@@ -151,3 +151,42 @@ export const useFindCustomerByContact = () => {
 
   return { findCustomerByContact, loading, error };
 };
+
+/**
+ * Hook to create or get customer from guest token
+ */
+export const useCreateCustomer = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  const createCustomer = async (guestToken: string): Promise<string | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      setCustomerId(null);
+
+      const response = await guestApiClient.createCustomer(guestToken);
+      if (response.success) {
+        setCustomerId(response.customerId);
+        return response.customerId;
+      }
+
+      throw new Error(response.message || 'Failed to create customer');
+    } catch (err) {
+      const errorMessage = (err as Error).message || 'Failed to create customer';
+      setError(errorMessage);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setLoading(false);
+    setError(null);
+    setCustomerId(null);
+  };
+
+  return { createCustomer, loading, error, customerId, reset };
+};

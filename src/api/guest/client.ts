@@ -76,4 +76,22 @@ export const guestApiClient = {
       throw new Error(errorMessage);
     }
   },
+
+  /**
+   * Create or get customer from guest token
+   */
+  async createCustomer(guestToken: string): Promise<{ success: boolean; customerId: string; message: string }> {
+    try {
+      const response = await api.post(guestApiEndpoints.createCustomer, { guestToken });
+      return {
+        success: response.data.success,
+        customerId: response.data.customerId,
+        message: response.data.message,
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError<any>;
+      const errorMessage = axiosError.response?.data?.message || 'Failed to create customer';
+      throw new Error(errorMessage);
+    }
+  },
 };

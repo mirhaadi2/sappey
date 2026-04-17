@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
                             </li>
                             <li className="flex items-center gap-3">
                                 <EnvelopeSimple size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">support@suppey.com</span>
+                                <span className="opacity-80">support@sappey.com</span>
                             </li>
                         </ul>
                     </div>

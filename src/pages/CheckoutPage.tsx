@@ -368,8 +368,11 @@ const CheckoutPage: React.FC = () => {
     }
 
     try {
-      console.log(deliveryData, 'deliveryData');
       const orderData = {
+        guestData: !user ? {
+          contact: verifiedGuest?.contact || '',
+          contactType: verifiedGuest?.type || 'email',
+        } : undefined,
         items: (state?.items ?? []).map((item) => {
           const variantData = typeof item?.variant === 'object' ? (item?.variant ?? {}) : {};
           return {
@@ -483,8 +486,6 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  console.log(state?.items, 'state?.items')
-
   return (
     <div className="min-h-screen bg-brand-latte">
       <CheckoutHeader />
@@ -502,13 +503,19 @@ const CheckoutPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-brand-brown">Contact</h2>
-                  <div>
+                  <div className="flex gap-4">
                     <button
-                      onClick={() => openAuthModal("signin")}
-                      className="w-full text-right text-brand-brown font-semibold text-sm hover:underline"
+                      onClick={() => openAuthModal("customer")}
+                      className="text-brand-brown font-semibold text-sm hover:underline"
                     >
                       Sign In
                     </button>
+                    {/* <button
+                      onClick={() => openAuthModal("guest")}
+                      className="text-brand-brown font-semibold text-sm hover:underline"
+                    >
+                      Continue as Guest
+                    </button> */}
                   </div>
                 </div>
                 <div className="space-y-4">

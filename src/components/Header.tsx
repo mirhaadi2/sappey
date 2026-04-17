@@ -6,6 +6,7 @@ import {
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useAuth } from "../context/AuthContext";
+import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useProductSearch } from "../api/products";
 import { useHomepageData } from "../api/homepage";
@@ -33,11 +34,15 @@ const Header: React.FC = () => {
     const profileRef = useRef<HTMLDivElement>(null);
 
     const { totalItems, dispatch } = useCart();
-    const { user, openAuthModal, signOut } = useAuth();
+    const { user, openAuthModal, signOut, isGuestAuthenticated, guestDisplayName } = useAuth();
+    const { logout: customerLogout, user: customerUser } = useWebsiteAuth();
     const { wishlistCount } = useWishlist();
 
     const location = useLocation();
     const navigate = useNavigate();
+
+    const isLoggedIn = Boolean(user || isGuestAuthenticated || customerUser);
+    const displayName = customerUser?.name?.split(" ")[0] || user?.name?.split(" ")[0] || guestDisplayName || "Guest";
 
     // API Hooks - Search from backend using PostgreSQL Full-Text Search
     const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
@@ -132,10 +137,14 @@ const Header: React.FC = () => {
 
     // Handle logout
     const handleLogout = useCallback(() => {
-        signOut();
+        if (customerUser) {
+            customerLogout();
+        } else {
+            signOut();
+        }
         setProfileOpen(false);
         navigate("/");
-    }, [signOut, navigate]);
+    }, [customerUser, customerLogout, signOut, navigate]);
 
     return (
         <>
@@ -352,18 +361,13 @@ const Header: React.FC = () => {
 
                         {/* Profile/Account Button with Dropdown - Desktop Only */}
                         <div className="hidden md:flex items-center relative" ref={profileRef}>
-                            {user ? (
+                            {isLoggedIn ? (
                                 <>
                                     <button
                                         onClick={() => setProfileOpen(!profileOpen)}
-                                        className="group flex items-center gap-2 pl-1 pr-4 py-1 rounded-full bg-white border border-brand-brown/10 hover:border-brand-brown transition-all duration-300"
+                                        className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium text-white bg-brand-brown border border-brand-brown/10 hover:border-brand-brown transition-all duration-300 shadow-sm"
                                     >
-                                        <div className="w-7 h-7 rounded-full bg-brand-latte flex items-center justify-center text-brand-brown group-hover:bg-brand-brown group-hover:text-white transition-colors">
-                                            <User size={14} weight="fill" />
-                                        </div>
-                                        <span className="text-[10px] uppercase tracking-widest font-black text-brand-brown">
-                                            {user?.name?.split(" ")[0]}
-                                        </span>
+                                        {displayName?.charAt(0).toUpperCase()}
                                     </button>
 
                                     {/* Profile Dropdown Menu */}
@@ -376,18 +380,19 @@ const Header: React.FC = () => {
                                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                                 className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-48"
                                             >
-                                                {/* Profile Option */}
-                                                <motion.button
-                                                    whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
-                                                    onClick={() => {
-                                                        navigate('/profile');
-                                                        setProfileOpen(false);
-                                                    }}
-                                                    className="w-full px-4 py-2.5 text-left flex items-center gap-3 border-b border-brand-brown/5 transition-colors"
-                                                >
-                                                    <User size={16} weight="bold" className="text-brand-brown" />
-                                                    <span className="text-xs font-semibold text-brand-brown">My Profile</span>
-                                                </motion.button>
+                                                {(user || customerUser) && (
+                                                    <motion.button
+                                                        whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
+                                                        onClick={() => {
+                                                            navigate('/profile');
+                                                            setProfileOpen(false);
+                                                        }}
+                                                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 border-b border-brand-brown/5 transition-colors"
+                                                    >
+                                                        <User size={16} weight="bold" className="text-brand-brown" />
+                                                        <span className="text-xs font-semibold text-brand-brown">My Profile</span>
+                                                    </motion.button>
+                                                )}
 
                                                 {/* Logout Option */}
                                                 <motion.button
@@ -404,7 +409,7 @@ const Header: React.FC = () => {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => openAuthModal("signin")}
+                                    onClick={() => openAuthModal("customer")}
                                     className="px-5 py-2 rounded-xl text-[10px] uppercase tracking-[0.2em] font-black text-brand-brown border border-brand-brown/10 hover:bg-brand-brown hover:text-white transition-all duration-300"
                                 >
                                     Sign In
@@ -466,18 +471,20 @@ const Header: React.FC = () => {
 
                                 <div className="border-t border-brand-brown/10 pt-3">
                                     {/* Mobile Auth Section */}
-                                    {user ? (
+                                    {isLoggedIn ? (
                                         <>
-                                            <button
-                                                onClick={() => {
-                                                    navigate("/profile");
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
-                                            >
-                                                <User size={16} weight="bold" className="text-brand-brown" />
-                                                My Profile
-                                            </button>
+                                            {/* {user && ( */}
+                                                <button
+                                                    onClick={() => {
+                                                        navigate("/profile");
+                                                        setMobileOpen(false);
+                                                    }}
+                                                    className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                                >
+                                                    <User size={16} weight="bold" className="text-brand-brown" />
+                                                    My Profile
+                                                </button>
+                                            {/* )} */}
 
                                             <button
                                                 onClick={() => {
@@ -494,7 +501,7 @@ const Header: React.FC = () => {
                                         <>
                                             <button
                                                 onClick={() => {
-                                                    openAuthModal("signin");
+                                                    openAuthModal("customer");
                                                     setMobileOpen(false);
                                                 }}
                                                 className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte mb-2 flex items-center gap-2"
@@ -505,13 +512,13 @@ const Header: React.FC = () => {
 
                                             <button
                                                 onClick={() => {
-                                                    openAuthModal("signup");
+                                                    openAuthModal("guest");
                                                     setMobileOpen(false);
                                                 }}
                                                 className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown bg-brand-latte hover:bg-brand-brown hover:text-white transition-colors py-2 px-3 rounded-lg font-bold flex items-center gap-2"
                                             >
                                                 <UserPlus size={16} weight="bold" />
-                                                Sign Up
+                                                Continue
                                             </button>
                                         </>
                                     )}

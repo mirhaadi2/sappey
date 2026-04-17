@@ -17,6 +17,7 @@ interface WebsiteAuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  setUserState: (user: AuthUser | null) => void;
   clearError: () => void;
   checkAuth: () => Promise<void>;
 }
@@ -32,9 +33,24 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const setUserState = (user: AuthUser | null) => {
+    setUser(user);
+    if (user) {
+      websiteAuthService.cacheUser(user);
+    } else {
+      websiteAuthService.clearCachedUser();
+    }
+  }; 
+
   // Initialize auth state on mount
   useEffect(() => {
-    checkAuth();
+    const cachedUser = websiteAuthService.getUser();
+    if (cachedUser) {
+      setUser(cachedUser);
+      setIsLoading(false);
+    } else {
+      checkAuth();
+    }
   }, []);
 
   const checkAuth = async () => {
@@ -108,10 +124,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       await websiteAuthService.logout();
       setUser(null);
 
-      // Redirect after logout - only affects this portal
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
+      // User state cleared - let the component handle navigation if needed
     } catch (err: unknown) {
       const errorMessage = (err instanceof Object && 'response' in err && typeof (err as any).response?.data?.message === 'string') 
         ? (err as any).response.data.message 
@@ -133,6 +146,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     login,
     register,
     logout,
+    setUserState,
     clearError,
     checkAuth,
   };

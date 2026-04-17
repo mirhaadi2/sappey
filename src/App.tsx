@@ -3,13 +3,14 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
 import { AuthProvider } from "./context/AuthContext";
+import { WebsiteAuthProvider } from "./contexts/WebsiteAuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
-import SignInModal from "./components/SignInModal";
-import SignUpModal from "./components/SignUpModal";
+import GuestAuthModal from "./components/GuestAuthModal";
+import CustomerAuthModal from "./components/CustomerAuthModal";
 import ShopPage from "./pages/ShopPage";
 import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
@@ -99,8 +100,8 @@ const AppContent: React.FC = () => {
             </main>
             {!isPageContentRoute && !isCheckoutRoute && <Footer />}
             <CartDrawer />
-            <SignInModal />
-            <SignUpModal />
+            <GuestAuthModal />
+            <CustomerAuthModal />
         </div>
     );
 };
@@ -108,15 +109,17 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                <CartProvider>
-                    <WishlistProvider>
-                        <BrowserRouter>
-                            <AppContent />
-                        </BrowserRouter>
-                    </WishlistProvider>
-                </CartProvider>
-            </AuthProvider>
+            <WebsiteAuthProvider>
+                <AuthProvider>
+                    <CartProvider>
+                        <WishlistProvider>
+                            <BrowserRouter>
+                                <AppContent />
+                            </BrowserRouter>
+                        </WishlistProvider>
+                    </CartProvider>
+                </AuthProvider>
+            </WebsiteAuthProvider>
         </QueryClientProvider>
     );
 };

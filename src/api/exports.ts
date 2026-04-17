@@ -21,5 +21,6 @@ export { addressApi, useAddresses } from './address';
 export { homepageApi, useHomepageData } from './homepage';
 export type { Banner, Hero, Section, Testimonial, InstagramPost, HomepageData } from './homepage';
 
-// API utilities for creating new services
-export { ApiService, createApiHooks, createApiService } from './utils';
+// Customers API
+export { customersApi, useSendCustomerOtp, useVerifyCustomerOtp } from './customers';
+export type { Customer, CustomerAuthResponse, SendOtpData, VerifyOtpData } from './customers';

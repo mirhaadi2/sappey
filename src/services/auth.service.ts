@@ -40,7 +40,7 @@ class WebsiteAuthService {
 
     // Session cookie is set automatically by the server
     // No token management needed
-    this.setUser(user);
+    this.cacheUser(user);
 
     return { user };
   }
@@ -59,7 +59,7 @@ class WebsiteAuthService {
 
     // Session cookie is set automatically by the server
     // No token management needed
-    this.setUser(user);
+    this.cacheUser(user);
 
     return { user };
   }
@@ -74,8 +74,9 @@ class WebsiteAuthService {
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
-      // Clear user data from localStorage
-      this.clearUser();
+      // Clear cached user state and any token created by OTP login
+      this.clearCachedUser();
+      localStorage.removeItem('auth_token');
     }
   }
 
@@ -87,12 +88,14 @@ class WebsiteAuthService {
     try {
       const response = await apiMethods.get('/auth/me');
       const user = response.data.data?.user || null;
-      this.setUser(user);
+      if (user) {
+        this.cacheUser(user);
+      }
       return user;
     } catch (error: any) {
       // 401 is normal when user is not authenticated - don't treat as error
       if (error.response?.status === 401) {
-        this.clearUser();
+        this.clearCachedUser();
         return null;
       }
       // Other errors should be re-thrown
@@ -103,7 +106,7 @@ class WebsiteAuthService {
   /**
    * Store user data
    */
-  private setUser(user: AuthUser): void {
+  cacheUser(user: AuthUser): void {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
@@ -118,7 +121,7 @@ class WebsiteAuthService {
   /**
    * Clear user data
    */
-  private clearUser(): void {
+  clearCachedUser(): void {
     localStorage.removeItem(USER_KEY);
   }
 
