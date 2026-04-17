@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone size={20} className="text-brand-latte opacity-70 shrink-0" />
-                                <span className="opacity-80">+91 8130524848</span>
+                                <span className="opacity-80">+91 8492943652</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <EnvelopeSimple size={20} className="text-brand-latte opacity-70 shrink-0" />
