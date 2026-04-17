@@ -293,7 +293,6 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = () => {
                     </div>
                   </div> */}
 
-                  {/* Contact Input */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-brand-brown">
                       {selectedContactType === 'email' ? 'Email Address' :
