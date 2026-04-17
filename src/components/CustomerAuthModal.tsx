@@ -246,8 +246,7 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = () => {
                   className="space-y-6"
                 >
                   {/* Contact Type Selection */}
-                  <div className="space-y-3">
-                    {/* <label className="text-sm font-semibold text-brand-brown">Contact Method</label> */}
+                  {/* <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-2">
                       {config?.enabledContactTypes?.email && (
                         <button
@@ -292,7 +291,7 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = () => {
                         </button>
                       )}
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Contact Input */}
                   <div className="space-y-2">
