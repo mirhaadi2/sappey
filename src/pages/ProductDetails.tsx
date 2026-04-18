@@ -1,576 +1,452 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useProduct, useProducts } from "../api/exports";
 import { useCart } from "../context/CardContext";
 import { useHomepagePromotions } from "../api/promotions";
-import ProductCard from "../components/ProductCard";
-import { ProductDetailSkeleton } from "../components/Skeletons";
+import { ProductDetailSkeleton, ReviewSkeleton } from "../components/Skeletons";
 import LazySection from "../components/LazySection";
-import LazyErrorBoundary from "../components/LazyErrorBoundary";
-import { SectionSkeleton, ReviewSkeleton, ProductGridSkeleton } from "../components/Skeletons";
-import { Product, ProductVariant, NutritionFact, Review } from "../types";
-import {
-  Star,
-  Minus,
-  Plus,
-  ShoppingCart,
-  ArrowRight,
-  Check,
-  Truck,
-  Package,
-  ArrowLeft,
+import { ProductVariant } from "../types";
+import { 
+  Star, Minus, Plus, ShoppingCart, Check, 
+  Truck, ArrowLeft, ShieldCheck, 
+  CaretRight, X, ClockCounterClockwise
 } from "@phosphor-icons/react";
+
+type DrawerType = "description" | "benefits" | "nutrition" | null;
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-
   const navigate = useNavigate();
   const { dispatch } = useCart();
+
   const { products, isLoading: productsLoading } = useProducts(undefined);
   const { data: product, isLoading: productLoading } = useProduct(id!, true);
+
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState<any>(0);
-  const [selectedVariant, setSelectedVariant] = useState<string>("");
-  const [addedToCart, setAddedToCart] = useState(false);
-
-  // Check if there's an active promotion banner to adjust layout
-  const { data: promotionBanners = [] } = useHomepagePromotions();
-  const hasBanner = promotionBanners && promotionBanners.length > 0;
-  // Add padding-top to account for fixed header: Banner(32px) + Header(64px) = 96px when banner present
-  // const topPadding = hasBanner ? "pt-24" : "pt-16";
-
-const variantOptions = useMemo(() => {
-    if (!product) return [];
-
-    const options: ProductVariant[] = [];
-
-    // Add variants if they exist
-    if (Array.isArray(product?.variants)) {
-      (product?.variants as Array<string | ProductVariant>).forEach((variant: string | ProductVariant) => {
-        // Type guard: only process if it's a ProductVariant object
-        if (typeof variant !== 'string' && variant && 'id' in variant) {
-          options.push({
-            id: variant.id,
-            productId: variant.productId,
-            label: variant.label,
-            price: variant.price,
-            originalPrice: variant.originalPrice,
-            discountedPrice: variant.discountedPrice,
-            discountedPercent: variant.discountedPercent,
-            weight: variant.weight,
-            weightUnit: variant.weightUnit,
-            sku: variant.sku,
-            status: variant.status,
-          });
-        }
-      });
-    }
-
-    // Sort by weight ascending
-    return options.sort((a, b) => {
-      const weightA = typeof a.weight === 'string' ? parseFloat(a.weight) : (a.weight || 0);
-      const weightB = typeof b.weight === 'string' ? parseFloat(b.weight) : (b.weight || 0);
-      return weightA - weightB;
-    });
-  }, [product]);
-
-  const selectedVariantData: ProductVariant | null = useMemo(() => {
-    if (!variantOptions || variantOptions.length === 0) return null;
-    const found = variantOptions.find(
-      (item: ProductVariant) => item.id === selectedVariant,
-    );
-    return found || variantOptions[0] || null;
-  }, [selectedVariant, variantOptions]);
+  const [selectedImage, setSelectedImage] = useState<number>(0);
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
+  const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
 
   useEffect(() => {
-    if (variantOptions.length > 0 && !selectedVariant) {
-      setSelectedVariant(String(variantOptions[0].id ?? ""));
-    }
-  }, [variantOptions, selectedVariant]);
-
-  // Price display: use selected weight's price (no product-level discount for weight-based)
-  const displayPrice = selectedVariantData?.price ?? 0;
-  console.log(selectedVariantData,'selectedVariantData')
-  const displayWeight = selectedVariantData?.label;
-  console.log(displayWeight,'displayWeight')
-
-  useEffect(() => {
+    setQuantity(1);
+    setSelectedImage(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
-  if (productLoading || productsLoading) {
-    return <ProductDetailSkeleton />;
-  }
+  // Disable body scroll when drawer is open
+  useEffect(() => {
+    if (activeDrawer) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [activeDrawer]);
 
-  if (!product && productLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-brand-latte px-8">
-        <h1
-          className="text-3xl font-headline text-brand-brown mb-4"
-          style={{ fontWeight: 500 }}
-        >
-          Product Not Found
-        </h1>
-        <button
-          onClick={() => navigate("/shop")}
-          className="mt-4 inline-flex items-center gap-2 bg-brand-brown text-brand-cream px-4 py-2 rounded-lg hover:bg-brand-plum transition-colors"
-        >
-          Back to Shop
-        </button>
-      </div>
-    );
-  }
+  const variantOptions = useMemo(() => {
+    if (!product || !Array.isArray(product.variants)) return [];
+    return (product.variants as ProductVariant[])
+      .filter((v) => v !== null)
+      .sort((a, b) => Number(a.weight) - Number(b.weight));
+  }, [product]);
 
-  const relatedProducts: Product[] = product
-    ? (products ?? [])
-      .filter((p: Product) => p?.category === product?.category && p?.id !== product?.id)
-      .slice(0, 4)
-    : [];
+  const selectedVariantData = useMemo(() => {
+    if (variantOptions.length === 0) return null;
+    return variantOptions.find(v => String(v.id) === selectedVariantId) || variantOptions[0];
+  }, [selectedVariantId, variantOptions]);
 
-  const handleAddToCart = () => {
-    if (!product || !selectedVariantData) return;
-    dispatch({
-      type: "ADD_ITEM",
-      payload: {
-        product: { ...product, price: selectedVariantData.price || 0 } as Product,
-        variant: selectedVariantData,
-        quantity,
-      },
-    });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
+  useEffect(() => {
+    if (variantOptions.length > 0 && !selectedVariantId) {
+      setSelectedVariantId(String(variantOptions[0].id));
+    }
+  }, [variantOptions, selectedVariantId]);
 
-  const handleBuyNow = () => {
-    if (!product || !selectedVariantData) return;
-    dispatch({
-      type: "ADD_ITEM",
-      payload: {
-        product: { ...product, price: selectedVariantData.price || 0 } as Product,
-        variant: selectedVariantData,
-        quantity,
-      },
-    });
-    dispatch({ type: "OPEN_CART" });
-  };
+  if (productLoading || productsLoading) return <ProductDetailSkeleton />;
+  if (!product) return <NotFoundState onBack={() => navigate("/shop")} />;
+
+  const isOutOfStock = selectedVariantData?.status === "out_of_stock";
 
   return (
-    <div className={`min-h-screen bg-brand-latte text-foreground pt-0 ${hasBanner ? "pt-2" : ""}`}>
-      <div className="bg-white border-b border-slate-200">
-        {/* Image Gallery */}
-        <div className="max-w-7xl mx-auto px-[clamp(1rem,3vw,1.5rem)] py-[clamp(0.75rem,1.5vw,1rem)] flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa transition-colors font-medium text-[clamp(0.75rem,1.5vw,0.875rem)]"
-          >
-            <ArrowLeft size={18} weight="bold" />
-            Shop
-          </button>
-          <span className="text-slate-300">/</span>
-          <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] text-brand-brown capitalize">
-            {product?.category}
-          </span>
-          <span className="text-slate-300">/</span>
-          <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] text-slate-500 truncate max-w-xs">
-            {product?.name}
-          </span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#FDFCFB] relative overflow-x-hidden">
+      
+      {/* --- SLIDE-OUT DRAWER OVERLAY --- */}
+      <AnimatePresence>
+        {activeDrawer && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveDrawer(null)}
+              className="fixed inset-0 bg-brand-brown/20 backdrop-blur-sm z-[60]"
+            />
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl overflow-y-auto"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-10">
+                  <h3 className="text-xl font-headline text-brand-brown capitalize tracking-tight">
+                    {activeDrawer === "nutrition" ? "Nutritional Profile" : activeDrawer}
+                  </h3>
+                  <button onClick={() => setActiveDrawer(null)} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-brand-brown">
+                    <X size={24} weight="bold" />
+                  </button>
+                </div>
 
-      <div className="max-w-7xl mx-auto px-[clamp(1rem,3vw,1.5rem)] py-[clamp(1.5rem,3vw,2rem)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[clamp(1.5rem,3vw,2.5rem)] mb-[clamp(2rem,4vw,3rem)]">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="relative rounded-lg overflow-hidden aspect-square bg-white mb-4">
-              <img
-                src={product?.images?.[selectedImage]}
-                alt={`${product?.name} - view ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
-                loading="lazy"
+                <div className="prose prose-slate prose-sm max-w-none">
+                  {(activeDrawer === "description" && product?.description) && (
+                    <div className="text-slate-600 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: product.description }} />
+                  )}
+                  
+                  {activeDrawer === "benefits" && (
+                    product.benefits && product.benefits.length > 0 ? (
+                      <ul className="space-y-4 list-none p-0">
+                        {product.benefits.map((b: string, i: number) => (
+                          <li key={i} className="flex items-start gap-4 text-slate-600">
+                            <Check className="mt-1 text-emerald-500" weight="bold" size={14} />
+                            <span className="text-sm">{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : <ComingSoonPlaceholder label="Key Benefits" />
+                  )}
+
+                  {activeDrawer === "nutrition" && (
+                    product.nutritionFacts && product.nutritionFacts.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-4">
+                        {product.nutritionFacts.map((fact: any, i: number) => (
+                          <div key={i} className="flex justify-between items-center bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{fact.label}</p>
+                            <p className="text-xl font-headline font-bold text-brand-brown">{fact.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <ComingSoonPlaceholder label="Nutritional Profile" />
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Breadcrumb */}
+      <nav className="border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-4 z-30">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+          <button onClick={() => navigate("/shop")} className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-brown/60 hover:text-brand-brown transition-colors">
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+            Back to Collection
+          </button>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
+          
+          {/* Left Column: Media Gallery (Side Thumbnails) */}
+          <div className="lg:col-span-7 flex flex-col lg:flex-row-reverse gap-4 h-fit lg:sticky lg:top-24">
+            {/* Main Image Container */}
+            <div className="flex-1 relative aspect-[5/5] rounded-3xl overflow-hidden bg-white border border-slate-100 shadow-sm flex items-center justify-center">
+              <motion.img
+                key={selectedImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                src={product.images?.[selectedImage] || "/placeholder-product.png"}
+                className="w-full h-full object-contain p-6"
               />
-              {product?.badge && (
-                <span
-                  className={`absolute top-4 left-4 font-label text-xs px-3 py-1 rounded-full uppercase tracking-wider 
-                  ${product?.badge === "Bestseller"
-                      ? "bg-brand-brown text-brand-cream"
-                      : product?.badge === "New Arrival"
-                        ? "bg-brand-plum text-brand-cream"
-                        : "bg-brand-cocoa text-brand-cream"
-                    }`}
-                >
-                  {product?.badge}
-                </span>
+              {product.badge && (
+                <div className="absolute top-6 right-6 bg-brand-brown text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
+                  {product.badge}
+                </div>
               )}
             </div>
-
-            <div className="flex gap-[clamp(0.5rem,1vw,0.75rem)]">
-              {product?.images?.map((img: string, index: number) => (
+            
+            {/* Vertical Thumbnails */}
+            <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-hide pb-2 lg:pb-0 lg:w-24">
+              {product.images?.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-[clamp(3rem,8vw,4.5rem)] h-[clamp(3rem,8vw,4.5rem)] rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer ${selectedImage === index ? "border-brand-brown" : "border-slate-200 hover:border-brand-cocoa"}`}
-                  aria-label={`View ${product?.name} - image ${index + 1}`}
+                  className={`relative w-20 h-20 lg:w-24 lg:h-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all
+                    ${selectedImage === index ? "border-brand-brown scale-95" : "border-transparent opacity-60 hover:opacity-100"}`}
                 >
-                  <img
-                    src={img}
-                    alt={`${product?.name} - view ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  <img src={img} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col"
-          >
-            <div className="flex items-center gap-2 mb-[clamp(0.75rem,1.5vw,1rem)]">
-              <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-widest text-brand-cocoa">
-                {product?.category}
-              </span>
-              {product?.badge && (
-                <span
-                  className={`font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-widest px-[clamp(0.5rem,1vw,0.75rem)] py-[clamp(0.25rem,0.5vw,0.35rem)] rounded-full 
-                  ${(product?.badge === "Bestseller")
-                      ? "bg-brand-brown text-brand-cream"
-                      : "bg-brand-plum text-brand-cream"
-                    }`}
-                >
-                  {product?.badge}
-                </span>
-              )}
-            </div>
-
-            <h1
-              className="text-[clamp(1.75rem,4vw,2.25rem)] font-headline text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
-              style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-            >
-              {product?.name}
-            </h1>
-
-            <div className="flex items-center gap-[clamp(0.5rem,1vw,0.75rem)] mb-[clamp(1rem,2vw,1.5rem)]">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    weight={i < (product?.rating ? Math.floor(product?.rating) : 0) ? "fill" : "regular"}
-                    className={
-                      i < (product?.rating ? Math.floor(product?.rating) : 0)
-                        ? "text-warning"
-                        : "text-slate-300"
-                    }
-                  />
-                ))}
-              </div>
-              <span className="font-sans text-[clamp(0.75rem,1.5vw,0.875rem)] text-slate-600">
-                {product?.rating ?? 0} ({(product?.reviewCount ?? 0)} reviews)
-              </span>
-            </div>
-
-            {/* <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)] mb-[clamp(1rem,2vw,1.5rem)]">
-              <span
-                className="font-headline text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown"
-                style={{ fontWeight: 600 }}
-              >
-                ₹{displayPrice.toFixed(2)}
-              </span>
-              <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-widest text-slate-500 bg-slate-100 px-[clamp(0.5rem,1vw,0.75rem)] py-[clamp(0.25rem,0.5vw,0.35rem)] rounded-full">
-                {displayWeight ?? `${product?.weight ?? ""}${product?.weightUnit ?? ""}`}
-              </span>
-            </div> */}
-
-            <p className="font-sans text-[clamp(0.875rem,1.5vw,1rem)] text-slate-600 leading-relaxed mb-[clamp(1rem,2vw,1.5rem)]">
-              {product?.description}
-            </p>
-
-            {/* <div className="bg-white rounded-2xl border border-slate-100 shadow-lg p-4 mb-6">
-              <h3
-                className="font-label text-xs uppercase tracking-wider text-brand brown mb-3"
-                style={{ fontWeight: 500 }}
-              >
-                Available Offers
-              </h3>
-
-              <ul className="space-y-2">
-                {[
-                  "Free shipping on orders above $49",
-                  "Use SAPPEY10 for 10% off your first order",
-                  "Buy 2 get 5% off | Buy 3 get 10% off",
-                ]?.map((offer: string) => (
-                  <li key={offer} className="flex items-start gap-2">
-                    <Check
-                      size={14}
-                      weight="bold"
-                      className="text-success mt-0.5 flex-shrink-0"
-                    />
-                    <span className="font-sans text-xs text-slate-600">
-                      {offer}
+          {/* Right Column: Details */}
+          <div className="lg:col-span-5 flex flex-col h-full">
+            <div className="space-y-8">
+              <header>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} weight={i < Math.floor(product.rating || 0) ? "fill" : "regular"} />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-slate-400">({product.reviewCount || 0} VERIFIED REVIEWS)</span>
+                </div>
+                <h1 className="text-3xl font-headline text-brand-brown leading-tight mb-4">
+                  {product.name}
+                </h1>
+                <div className="flex items-baseline gap-4">
+                  <span className="text-3xl font-medium text-brand-brown">
+                    ₹{Number(selectedVariantData?.price || 0).toLocaleString('en-IN')}
+                  </span>
+                  {selectedVariantData?.originalPrice && (
+                    <span className="text-lg text-slate-300 line-through">
+                      ₹{Number(selectedVariantData.originalPrice).toLocaleString('en-IN')}
                     </span>
-                  </li>
-                ))}
-              </ul>
-            </div> */}
+                  )}
+                </div>
+              </header>
 
-            <div className="mb-[clamp(1rem,2vw,1.5rem)]">
-              <h3 className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-wider text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]">
-                Select Weight
-              </h3>
+              {/* Information Detail Buttons */}
+              <div className="space-y-1 border-y border-slate-100 py-4">
+                <DrawerButton label="Product Description" onClick={() => setActiveDrawer("description")} />
+                <DrawerButton label="Key Benefits" onClick={() => setActiveDrawer("benefits")} />
+                <DrawerButton label="Nutritional Profile" onClick={() => setActiveDrawer("nutrition")} />
+              </div>
 
-              <div className="flex flex-wrap gap-[clamp(0.5rem,1vw,0.75rem)]">
-                {variantOptions.map((variant: ProductVariant) => (
+              {/* Variant Selector */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4">Choose Size</label>
+                <div className="flex flex-wrap gap-3">
+                  <LayoutGroup>
+                    {variantOptions.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariantId(String(variant.id))}
+                        className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-colors border
+                          ${selectedVariantId === String(variant.id) ? "text-white border-transparent" : "text-brand-brown border-slate-200 hover:border-brand-brown"}`}
+                      >
+                        <span className="relative z-10">{variant.label || `${variant.weight}${variant.weightUnit}`}</span>
+                        {selectedVariantId === String(variant.id) && (
+                          <motion.div layoutId="activeVariant" className="absolute inset-0 bg-brand-brown rounded-xl z-0" transition={{ type: "spring", duration: 0.5 }} />
+                        )}
+                      </button>
+                    ))}
+                  </LayoutGroup>
+                </div>
+              </div>
+
+              {/* Purchase Section */}
+              <div className="space-y-6 pt-4 mt-auto">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Minus weight="bold" /></button>
+                    <span className="w-10 text-center font-bold">{quantity}</span>
+                    <button onClick={() => setQuantity(q => q + 1)} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Plus weight="bold" /></button>
+                  </div>
+                  <div className="text-[11px] font-bold uppercase tracking-widest">
+                    {isOutOfStock ? <span className="text-red-500">Out of Stock</span> : <span className="text-emerald-600 flex items-center gap-1"><Check weight="bold"/> In Stock</span>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
                   <button
-                    key={variant.id}
-                    onClick={() => setSelectedVariant(String(variant.id))}
-                    className={`px-[clamp(1rem,1.5vw,1.5rem)] py-[clamp(0.5rem,1vw,0.75rem)] border-2 rounded-lg text-[clamp(0.75rem,1.5vw,0.875rem)] font-label transition-all duration-200 min-h-10 ${selectedVariant === variant.id
-                        ? "border-brand-brown bg-brand-brown text-brand-cream"
-                        : "border-slate-200 bg-white text-brand-brown hover:border-brand-cocoa"
-                      }`}
+                    disabled={isOutOfStock}
+                    onClick={() => {
+                      if (selectedVariantData && product) {
+                        dispatch({
+                          type: "ADD_ITEM",
+                          payload: {
+                            product,
+                            variant: selectedVariantData,
+                            quantity
+                          }
+                        });
+                        dispatch({ type: "OPEN_CART" });
+                      }
+                    }}
+                    className="group relative overflow-hidden bg-brand-brown text-white h-12 rounded-2xl font-bold uppercase tracking-widest text-xs transition-transform active:scale-[0.98] disabled:opacity-50"
                   >
-                    <div className="text-[clamp(0.625rem,1.2vw,0.75rem)]">₹{Number(variant.price).toFixed(2)}</div>
-                    <div className="text-[clamp(0.625rem,1.2vw,0.75rem)]">{variant.label ?? `${variant?.weight} ${variant?.weightUnit ?? 'G'}`}</div>
+                    <span className="relative z-10 flex items-center justify-center gap-2"><ShoppingCart size={20} /> Add To Bag</span>
                   </button>
-                ))}
-              </div>
-            </div>
+                  <button 
+                    disabled={isOutOfStock}
+                    onClick={() => {
+                      if (selectedVariantData && product) {
+                        dispatch({
+                          type: "ADD_ITEM",
+                          payload: {
+                            product,
+                            variant: selectedVariantData,
+                            quantity
+                          }
+                        });
+                        navigate("/checkout");
+                      }
+                    }}
+                    className="h-12 rounded-2xl border-2 border-brand-brown text-brand-brown font-bold uppercase tracking-widest text-xs hover:bg-brand-brown hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                    Instant Buy
+                  </button>
+                </div>
 
-            <div className="mb-[clamp(1.5rem,3vw,2rem)]">
-              <h3
-                className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-wider text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
-                style={{ fontWeight: 500 }}
-              >
-                Quantity
-              </h3>
-              <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="min-h-11 min-w-11 rounded-xl bg-slate-50 text-brand-brown flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 cursor-pointer border border-slate-200 p-[clamp(0.4rem,0.8vw,0.5rem)]"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus size={16} weight="regular" />
-                </button>
-                <span className="font-sans text-[clamp(1rem,1.5vw,1.25rem)] font-bold" style={{minWidth: "2rem", textAlign: "center"}}>{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="min-h-11 min-w-11 rounded-xl bg-slate-50 text-brand-brown flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 cursor-pointer border border-slate-200 p-[clamp(0.4rem,0.8vw,0.5rem)]"
-                  aria-label="Increase quantity"
-                >
-                  <Plus size={16} weight="regular" />
-                </button>
+                {/* Trust Badges */}
+                <div className="grid grid-cols-2 gap-6 py-6 border-t border-slate-100">
+                  <Badge icon={<Truck size={20} />} text={<>Complimentary <br/>Shipping</>} />
+                  <Badge icon={<ShieldCheck size={20} />} text={<>Quality <br/>Guaranteed</>} />
+                </div>
               </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-[clamp(0.75rem,1.5vw,1rem)] mb-[clamp(1rem,2vw,1.5rem)]">
-              <button
-                onClick={handleAddToCart}
-                className={`flex-1 font-label text-[clamp(0.75rem,1.5vw,0.875rem)] py-[clamp(0.75rem,1.5vw,1rem)] rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-widest min-h-11 ${addedToCart
-                    ? "bg-success text-brand-cream"
-                    : "bg-brand-brown text-brand-cream hover:bg-brand-cocoa"
-                  }`}
-                disabled={addedToCart}
-              >
-                {addedToCart ? (
-                  <>
-                    <Check size={16} weight="bold" />
-                    Added to Cart
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={16} weight="regular" />
-                    Add to Cart
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleBuyNow}
-                className="flex-1 bg-brand-latte text-brand-brown font-label text-[clamp(0.75rem,1.5vw,0.875rem)] py-[clamp(0.75rem,1.5vw,1rem)] rounded-lg border-2 border-brand-brown hover:bg-brand-brown hover:text-brand-cream transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-widest min-h-11"
-              >
-                Buy Now
-                <ArrowRight size={16} weight="regular" />
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-[clamp(1rem,2vw,1.5rem)]">
-              <div className="flex items-center gap-2 text-slate-600">
-                <Truck
-                  size={20}
-                  weight="regular"
-                  className="text-brand-cocoa"
-                />
-                <span className="font-sans text-[clamp(0.625rem,1.5vw,0.75rem)]">
-                  Free delivery above $49
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <Package
-                  size={20}
-                  weight="regular"
-                  className="text-brand-cocoa"
-                />
-                <span className="font-sans text-[clamp(0.625rem,1.5vw,0.75rem)]">Freshness guaranteed</span>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
 
-        <LazyErrorBoundary>
-          <LazySection
-            fallback={<div className="py-8"><SectionSkeleton count={6} /></div>}
-            rootMargin="300px 0px"
-          >
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-[clamp(1.5rem,4vw,2rem)] mb-[clamp(1.5rem,3vw,2rem)]"
-              aria-label="Nutritional information"
-            >
-              <h2
-                className="font-headline text-[clamp(1.25rem,3vw,1.5rem)] text-brand-brown mb-[clamp(1rem,2vw,1.5rem)]"
-                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-              >
-                Nutritional Facts
-              </h2>
-              <p className="font-sans text-[clamp(0.625rem,1.2vw,0.75rem)] text-slate-500 mb-[clamp(1rem,1.5vw,1.25rem)]">
-                Per 100g serving
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-[clamp(0.75rem,1.5vw,1rem)]">
-                {product?.nutrition?.map((fact: string | NutritionFact) => {
-                  // Type guard to handle both string and object
-                  if (typeof fact === 'string') return null;
-                  return (
-                    <div
-                      key={fact?.label}
-                      className="bg-brand-latte rounded-lg p-[clamp(0.75rem,1.5vw,1rem)] text-center"
-                    >
-                      <p
-                        className="font-headline text-[clamp(1rem,2vw,1.25rem)] text-brand-brown mb-1"
-                        style={{ fontWeight: 600 }}
-                      >
-                        {fact?.value}
-                      </p>
-                      <p className="font-label text-[clamp(0.625rem,1.2vw,0.75rem)] text-slate-500 uppercase tracking-wider">
-                        {fact?.label}
-                      </p>
+        {/* Reviews Section */}
+        { product.reviews && product.reviews.length > 0 && (
+          <div className="mt-16">
+            <LazySection fallback={<ReviewSkeleton />}>
+              <div className="text-center max-w-2xl mx-auto mb-16">
+                <h2 className="text-4xl font-headline text-brand-brown mb-4">Customer Chronicles</h2>
+                <p className="text-slate-400 text-sm">Honest experiences from our wellness community</p>
+            </div>
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+              {product.reviews?.map((review: any, i: number) => (
+                <div key={i} className="break-inside-avoid bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                   <div className="flex justify-between mb-4">
+                    <div className="flex text-amber-400">
+                      {[...Array(5)].map((_, s) => <Star key={s} size={12} weight={s < review.rating ? "fill" : "regular"} />)}
                     </div>
-                  );
-                })}
-              </div>
-            </motion.section>
-          </LazySection>
-        </LazyErrorBoundary>
-
-        <LazyErrorBoundary>
-          <LazySection
-            fallback={<div className="py-8"><ReviewSkeleton count={2} /></div>}
-            rootMargin="300px 0px"
-          >
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-[clamp(1.5rem,3vw,2rem)]"
-              aria-label="Customer reviews"
-            >
-              <h2
-                className="font-headline text-[clamp(1.25rem,3vw,1.5rem)] text-brand-brown mb-[clamp(1rem,2vw,1.5rem)]"
-                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-              >
-                Customer Reviews
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-[clamp(1rem,2vw,1.5rem)]">
-                {product?.reviews?.map((review: string | Review) => {
-                  if (typeof review === 'string') return null;
-                  return (
-                  <div
-                    key={review?.id}
-                    className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-[clamp(1rem,2vw,1.5rem)]"
-                  >
-                    <div className="flex items-center justify-between mb-[clamp(0.75rem,1.5vw,1rem)]">
-                      <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
-                        <div className="w-[clamp(1.75rem,4vw,2.25rem)] h-[clamp(1.75rem,4vw,2.25rem)] rounded-full bg-brand-brown flex items-center justify-center flex-shrink-0">
-                          <span
-                            className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] text-brand-cream"
-                            style={{ fontWeight: 500 }}
-                          >
-                            {review?.author?.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <p
-                            className="font-label text-[clamp(0.75rem,1.5vw,0.875rem)] text-brand-brown"
-                            style={{ fontWeight: 500 }}
-                          >
-                            {review?.author}
-                          </p>
-                          <p className="font-sans text-[clamp(0.625rem,1.2vw,0.75rem)] text-slate-400">
-                            {review?.date}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: review?.rating }).map((_, i) => (
-                          <Star
-                            key={i}
-                            size={14}
-                            weight="fill"
-                            className="text-warning"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="font-sans text-[clamp(0.75rem,1.5vw,0.875rem)] text-slate-600 leading-relaxed">
-                      {review?.comment}
-                    </p>
                   </div>
-                  );
-                })}
-              </div>
-            </motion.section>
-          </LazySection>
-        </LazyErrorBoundary>
-
-        {relatedProducts.length > 0 && (
-          <LazyErrorBoundary>
-            <LazySection
-              fallback={<div className="py-8"><ProductGridSkeleton count={4} /></div>}
-              rootMargin="300px 0px"
-            >
-              <motion.section
-                initial={{ opactiy: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                aria-label="Related products"
-              >
-                <h2
-                  className="font-headline text-[clamp(1.25rem,3vw,1.5rem)] text-brand-brown mb-[clamp(1rem,2vw,1.5rem)]"
-                  style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                >
-                  You May Also Like
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(1rem,2.5vw,1.5rem)]">
-                  {relatedProducts?.map((p: Product) => (
-                    <ProductCard key={p?.id} product={p} />
-                  ))}
+                  <p className="text-slate-600 italic text-sm leading-relaxed mb-6">"{review.comment}"</p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
+                    <div className="w-8 h-8 rounded-full bg-brand-latte flex items-center justify-center text-[10px] font-black text-brand-brown uppercase">{review.author?.[0]}</div>
+                    <span className="text-xs font-bold text-brand-brown uppercase tracking-widest">{review.author}</span>
+                  </div>
                 </div>
-              </motion.section>
-            </LazySection>
-          </LazyErrorBoundary>
+              ))}
+            </div>
+          </LazySection>
+        </div>
         )}
-      </div>
+
+        {/* Related Products Section */}
+        <div className="mt-16">
+          <LazySection fallback={<ReviewSkeleton />}>
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="text-4xl font-headline text-brand-brown mb-4">You Might Also Like</h2>
+              <p className="text-slate-400 text-sm">Similar products from our curated collection</p>
+            </div>
+            {products && products.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {products
+                  .filter((p: any) => p.category === product.category && p.id !== product.id)
+                  .slice(0, 4)
+                  .map((relatedProduct: any) => (
+                    <motion.div
+                      key={relatedProduct.id}
+                      whileHover={{ y: -8 }}
+                      onClick={() => {
+                        navigate(`/shop/product/${relatedProduct.id}`);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="cursor-pointer group"
+                    >
+                      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        {/* Product Image */}
+                        <div className="h-48 bg-brand-latte overflow-hidden relative">
+                          {relatedProduct.images?.[0] && (
+                            <img
+                              src={relatedProduct.images[0]}
+                              alt={relatedProduct.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="p-6">
+                          <h3 className="font-headline text-brand-brown text-lg mb-2 line-clamp-2 group-hover:text-brand-cocoa transition-colors">
+                            {relatedProduct.name}
+                          </h3>
+                          <p className="text-slate-400 text-xs mb-4 line-clamp-2">{relatedProduct.description?.replace(/<[^>]*>/g, '').substring(0, 60)}...</p>
+
+                          {/* Rating */}
+                          {relatedProduct.rating && (
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="flex text-amber-400">
+                                {[...Array(5)].map((_, s) => (
+                                  <Star key={s} size={12} weight={s < Math.floor(relatedProduct.rating) ? "fill" : "regular"} />
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-bold">({relatedProduct.reviews || 0})</span>
+                            </div>
+                          )}
+
+                          {/* Price */}
+                          {relatedProduct.variants && relatedProduct.variants.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-headline text-lg text-brand-brown">
+                                ₹{relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price}
+                              </span>
+                              {relatedProduct.variants[0]?.price > (relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price) && (
+                                <span className="text-slate-400 line-through text-sm">
+                                  ₹{relatedProduct.variants[0]?.price}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
+            ) : (
+              <ComingSoonPlaceholder label="related products" />
+            )}
+          </LazySection>
+        </div>
+      </main>
     </div>
   );
 };
+
+// --- Subcomponents for Cleaner Code ---
+
+const DrawerButton = ({ label, onClick }: { label: string; onClick: () => void }) => (
+  <button onClick={onClick} className="w-full flex justify-between items-center py-4 group transition-all border-b border-slate-50 last:border-none">
+    <span className="text-xs font-bold uppercase tracking-widest text-brand-brown/70 group-hover:text-brand-brown">{label}</span>
+    <CaretRight size={18} className="text-slate-300 group-hover:text-brand-brown group-hover:translate-x-1 transition-all" />
+  </button>
+);
+
+const Badge = ({ icon, text }: { icon: React.ReactNode; text: React.ReactNode }) => (
+  <div className="flex items-center gap-3">
+    <div className="p-2 bg-brand-latte rounded-lg text-brand-brown">{icon}</div>
+    <span className="text-[10px] font-bold uppercase leading-tight text-slate-500">{text}</span>
+  </div>
+);
+
+const ComingSoonPlaceholder = ({ label }: { label: string }) => (
+  <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-brand-brown shadow-sm">
+      <ClockCounterClockwise size={24} weight="duotone" className="animate-spin-slow" />
+    </div>
+    <div>
+      <h4 className="font-headline text-brand-brown text-lg">Coming Soon</h4>
+      <p className="text-slate-400 text-xs max-w-[200px] mx-auto">We are currently updating the {label} for this product.</p>
+    </div>
+  </div>
+);
+
+const NotFoundState = ({ onBack }: { onBack: () => void }) => (
+  <div className="min-h-[80vh] flex flex-col items-center justify-center px-8 text-center">
+    <h1 className="text-5xl font-headline text-brand-brown mb-6">Item not found</h1>
+    <button onClick={onBack} className="flex items-center gap-3 bg-brand-brown text-white px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-brand-cocoa transition-colors">
+      <ArrowLeft /> Return to Shop
+    </button>
+  </div>
+);
 
 export default ProductDetailPage;
