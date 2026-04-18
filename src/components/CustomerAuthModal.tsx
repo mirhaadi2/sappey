@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X,
-  Envelope,
-  Phone,
-  ChatCircle,
-  ArrowRight,
-  WarningCircle,
-  ArrowLeft,
-} from '@phosphor-icons/react';
+import { X, ArrowRight, WarningCircle, ArrowLeft } from '@phosphor-icons/react';
 import { useSendCustomerOtp, useVerifyCustomerOtp } from '../api/customers';
-import { useGuestConfig } from '../api/guest';
 import { useWebsiteAuth } from '../contexts/WebsiteAuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -39,9 +30,8 @@ const CustomerAuthModal: React.FC<CustomerAuthModalProps> = () => {
   const [touched, setTouched] = useState(false);
   const [timer, setTimer] = useState(0);
 
-  const { mutateAsync: sendOtp, isPending: sendingOTP, error: otpError } = useSendCustomerOtp();
-  const { mutateAsync: verifyOtp, isPending: verifyingOTP, error: verifyError } = useVerifyCustomerOtp();
-  const { config } = useGuestConfig();
+  const { mutateAsync: sendOtp, isPending: sendingOTP } = useSendCustomerOtp();
+  const { mutateAsync: verifyOtp, isPending: verifyingOTP } = useVerifyCustomerOtp();
 
   const isOpen = authModal === 'customer';
 
