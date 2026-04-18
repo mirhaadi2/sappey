@@ -12,7 +12,7 @@ export interface RegisterData {
 }
 
 export interface User {
-  phone: JSX.Element;
+  phone: string;
   id: string;
   email: string;
   role: string;

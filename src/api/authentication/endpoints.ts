@@ -2,6 +2,7 @@
 export const AUTH_LOGIN = '/auth/login';
 export const AUTH_REGISTER = '/auth/register';
 export const AUTH_PROFILE = '/auth/me';
+export const AUTH_UPDATE_PROFILE = '/customers/profile';
 export const AUTH_LOGOUT = '/auth/logout';
 export const AUTH_CHANGE_PASSWORD = '/auth/change-password';
 export const AUTH_FORGOT_PASSWORD = '/auth/forgot-password';

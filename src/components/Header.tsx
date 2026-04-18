@@ -47,7 +47,8 @@ const Header: React.FC = () => {
     const navigate = useNavigate();
 
     const isLoggedIn = Boolean(currentUser || isGuestAuthenticated);
-    const displayName = currentUser?.name?.split(" ")[0] || guestDisplayName || "Guest";
+    console.log(currentUser,'cu')
+    const displayName = currentUser?.name?.split(" ")[0] || currentUser?.email?.split(" ")[0] || guestDisplayName || "Guest";
 
     // API Hooks - Search from backend using PostgreSQL Full-Text Search
     const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
@@ -440,7 +441,7 @@ const Header: React.FC = () => {
                                     <button
                                         key={link.href}
                                         onClick={() => handleNavClick(link.href)}
-                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
                                     >
                                         <NavigationArrow size={16} weight="bold" className="text-brand-brown/60" />
                                         {link.label}
@@ -454,7 +455,7 @@ const Header: React.FC = () => {
                                             navigate("/wishlist");
                                             setMobileOpen(false);
                                         }}
-                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
                                     >
                                         <Heart size={16} weight="bold" className="text-red-500" />
                                         Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
@@ -466,7 +467,7 @@ const Header: React.FC = () => {
                                             dispatch({ type: "OPEN_CART" });
                                             setMobileOpen(false);
                                         }}
-                                        className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
                                     >
                                         <ShoppingCart size={16} weight="bold" className="text-brand-brown" />
                                         Cart {totalItems > 0 && `(${totalItems})`}
@@ -483,7 +484,7 @@ const Header: React.FC = () => {
                                                         navigate("/profile");
                                                         setMobileOpen(false);
                                                     }}
-                                                    className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                                    className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
                                                 >
                                                     <User size={16} weight="bold" className="text-brand-brown" />
                                                     My Profile
@@ -495,7 +496,7 @@ const Header: React.FC = () => {
                                                     handleLogout();
                                                     setMobileOpen(false);
                                                 }}
-                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-red-600 hover:text-red-700 transition-colors py-2 px-3 rounded-lg hover:bg-red-50 mt-2 flex items-center gap-2"
+                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-red-600 hover:text-red-700 transition-colors py-2 px-3 rounded-lg hover:bg-red-50 mt-2 flex items-center gap-2"
                                             >
                                                 <SignOut size={16} weight="bold" className="text-red-600" />
                                                 Logout
@@ -508,7 +509,7 @@ const Header: React.FC = () => {
                                                     openAuthModal("customer");
                                                     setMobileOpen(false);
                                                 }}
-                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte mb-2 flex items-center gap-2"
+                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte mb-2 flex items-center gap-2"
                                             >
                                                 <LockSimple size={16} weight="bold" className="text-brand-brown" />
                                                 Sign In
@@ -519,7 +520,7 @@ const Header: React.FC = () => {
                                                     openAuthModal("guest");
                                                     setMobileOpen(false);
                                                 }}
-                                                className="block w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown bg-brand-latte hover:bg-brand-brown hover:text-white transition-colors py-2 px-3 rounded-lg font-bold flex items-center gap-2"
+                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown bg-brand-latte hover:bg-brand-brown hover:text-white transition-colors py-2 px-3 rounded-lg font-bold flex items-center gap-2"
                                             >
                                                 <UserPlus size={16} weight="bold" />
                                                 Continue

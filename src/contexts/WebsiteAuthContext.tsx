@@ -179,7 +179,6 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     try {
       setIsLoading(true);
       const currentUser = await websiteAuthService.getCurrentUser();
-      console.log(currentUser, 'user')
       setUser(currentUser);
     } catch (err) {
       console.error('Auth check failed:', err);
@@ -258,9 +257,9 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const clearError = () => setError(null);
 
   // Determine overall authentication state
-  const isAuthenticated = !!user || !!regularUser || isGuestAuthenticated;
+  const isAuthenticated = !!regularUser || isGuestAuthenticated;
 
-  const currentUser = user || regularUser;
+  const currentUser = regularUser;
 
   const value: WebsiteAuthContextType = {
     // Regular auth state
