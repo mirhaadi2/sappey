@@ -23,6 +23,16 @@ export interface Product {
     images?: string[];
     badge?: string;
     description?: string;
+    descriptionDetails?: Array<{
+      type: 'text' | 'highlight' | 'point';
+      content: string;
+    }>;
+    benefits?: string[];
+    ingredients?: string[];
+    nutritionFacts?: Array<{
+      label: string;
+      value: string;
+    }>;
     weight?: number;
     variants?: (string | ProductVariant)[];
     rating?: number;

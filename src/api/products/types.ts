@@ -19,6 +19,17 @@ export interface Product {
   reviews?: string[];
   reviewCount?: number;
   nutrition?: string[];
+  description?: string;
+  descriptionDetails?: Array<{
+    type: 'text' | 'highlight' | 'point';
+    content: string;
+  }>;
+  benefits?: string[];
+  ingredients?: string[];
+  nutritionFacts?: Array<{
+    label: string;
+    value: string;
+  }>;
   price?: number;
   image?: string;
   weight?: number;
