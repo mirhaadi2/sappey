@@ -47,7 +47,6 @@ const Header: React.FC = () => {
     const navigate = useNavigate();
 
     const isLoggedIn = Boolean(currentUser || isGuestAuthenticated);
-    console.log(currentUser,'cu')
     const displayName = currentUser?.name?.split(" ")[0] || currentUser?.email?.split(" ")[0] || guestDisplayName || "Guest";
 
     // API Hooks - Search from backend using PostgreSQL Full-Text Search

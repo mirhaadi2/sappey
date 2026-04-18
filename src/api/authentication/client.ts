@@ -68,7 +68,7 @@ export const authApi = {
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
     const response = await apiMethods.put<User>(AUTH_UPDATE_PROFILE, data);
-    return response.data?.data || response.data; // Handle both legacy and new response formats
+    return response.data?.data?.user || response.data?.data || response.data; // Unwrap profile response if needed
   },
 
   logout: async (): Promise<void> => {

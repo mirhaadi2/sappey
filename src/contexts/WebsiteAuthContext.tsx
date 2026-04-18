@@ -5,6 +5,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { websiteAuthService, AuthUser, LoginCredentials, RegisterCredentials } from '../services/auth.service';
 import { useAuth as useAuthApi, User } from "../api/exports";
 
@@ -78,6 +79,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const [authModal, setAuthModal] = useState<"signin" | "signup" | "guest" | "customer" | null>(null);
 
   // Use the authentication API hook for regular auth
+  const queryClient = useQueryClient();
   const {
     user: regularUser,
     isLoading: regularLoading,
@@ -85,6 +87,13 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     registerMutation,
     logoutMutation,
   } = useAuthApi();
+
+  // Keep local auth state in sync with the shared react-query user cache.
+  useEffect(() => {
+    if (regularUser) {
+      setUser(regularUser as AuthUser);
+    }
+  }, [regularUser]);
 
   // JWT decode helper
   const decodeJwtPayload = <T,>(token: string): T | null => {
@@ -159,8 +168,10 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     setUser(user);
     if (user) {
       websiteAuthService.cacheUser(user);
+      queryClient.setQueryData(['user'], user);
     } else {
       websiteAuthService.clearCachedUser();
+      queryClient.removeQueries({ queryKey: ['user'] });
     }
   };
 
@@ -194,7 +205,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setIsLoading(true);
 
       const { user: userData } = await websiteAuthService.login(credentials);
-      setUser(userData);
+      setUserState(userData);
 
       // Redirect after successful login
       setTimeout(() => {
@@ -217,7 +228,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setIsLoading(true);
 
       const { user: userData } = await websiteAuthService.register(credentials);
-      setUser(userData);
+      setUserState(userData);
 
       // Redirect after successful registration
       setTimeout(() => {
@@ -240,7 +251,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
       setIsLoading(true);
 
       await websiteAuthService.logout();
-      setUser(null);
+      setUserState(null);
 
       // User state cleared - let the component handle navigation if needed
     } catch (err: unknown) {
@@ -257,9 +268,8 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const clearError = () => setError(null);
 
   // Determine overall authentication state
-  const isAuthenticated = !!regularUser || isGuestAuthenticated;
-
-  const currentUser = regularUser;
+  const currentUser = regularUser ?? user;
+  const isAuthenticated = !!currentUser || isGuestAuthenticated;
 
   const value: WebsiteAuthContextType = {
     // Regular auth state

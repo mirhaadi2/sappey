@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "../api/authentication/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { AuthUser } from "../services/auth.service";
 
 // Form validation schema
 const profileSchema = z.object({
@@ -22,7 +23,7 @@ interface ProfileEditModalProps {
 }
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) => {
-  const { currentUser } = useWebsiteAuth();
+  const { currentUser, setUserState } = useWebsiteAuth();
   const { updateProfileMutation } = useAuth();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -41,14 +42,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     },
   });
 
-  // Update form values when user data changes
+  // Update form values when user data changes or modal opens.
   useEffect(() => {
-    if (currentUser && isOpen) {
-      setValue("name", currentUser.name || "");
-      setValue("email", currentUser.email || "");
-      setValue("phone", currentUser.phone || "");
+    if (isOpen && currentUser) {
+      reset({
+        name: currentUser.name || "",
+        email: currentUser.email || "",
+        phone: currentUser.phone || "",
+      });
     }
-  }, [currentUser, isOpen, setValue]);
+  }, [currentUser, isOpen, reset]);
 
   // Reset form and messages when modal closes
   useEffect(() => {
@@ -62,7 +65,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      await updateProfileMutation.mutateAsync(data);
+      const result = await updateProfileMutation.mutateAsync(data);
+      const updatedUser = (result as any)?.user ?? result;
+      setUserState(updatedUser as AuthUser);
       setSuccessMessage("Profile updated successfully!");
       setTimeout(() => {
         setSuccessMessage(null);

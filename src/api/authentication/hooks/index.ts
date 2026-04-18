@@ -43,7 +43,9 @@ export const useAuth = () => {
   const updateProfileMutation = useMutation({
     mutationFn: authApi.updateProfile,
     onSuccess: (data) => {
-      queryClient.setQueryData(['user'], data);
+      const updatedUser = (data as any)?.user ?? data;
+      queryClient.setQueryData(['user'], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
 
