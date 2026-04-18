@@ -187,37 +187,6 @@ export const getStatusLabel = (status: string): string => {
 };
 
 /**
- * Get status description
- */
-export const getStatusDescription = (status: string): string => {
-    return getStatusConfig(status).description;
-};
-
-/**
- * Map order items status to display status (for order details)
- */
-export const getDisplayStatus = (status: string): string => {
-    // For timeline visualization, group some statuses together
-    const displayMap: Record<string, string> = {
-        PENDING: "PENDING",
-        CONFIRMED: "PROCESSING",
-        PROCESSING: "PROCESSING",
-        PACKED: "PROCESSING",
-        HANDOVER: "SHIPPING",
-        SHIPPED: "SHIPPING",
-        OUT_FOR_DELIVERY: "SHIPPING",
-        DELIVERED: "DELIVERED",
-        DELIVERY_FAILED: "DELIVERY_FAILED",
-        RTO: "RTO",
-        CANCELLED: "CANCELLED",
-        FAILED: "FAILED",
-        REFUNDED: "REFUNDED",
-    };
-
-    return displayMap[status] || status;
-};
-
-/**
  * Get timeline steps for order tracking
  */
 export const TIMELINE_STEPS = [
