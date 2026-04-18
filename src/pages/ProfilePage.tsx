@@ -5,6 +5,7 @@ import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useAddresses } from "../api/address/hooks";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { ProfilePageSkeleton } from "../components/Skeletons";
+import ProfileEditModal from "../components/ProfileEditModal";
 import {
   User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check,
   CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag, ArrowRight
@@ -80,6 +81,7 @@ const ProfilePage: React.FC = () => {
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [selectedAddressType, setSelectedAddressType] = useState<string | null>(null);
+  const [showProfileEditModal, setShowProfileEditModal] = useState(false);
 
   const {
     register,
@@ -251,7 +253,7 @@ const ProfilePage: React.FC = () => {
 
                   {/* Optional: Secondary Action to fill space efficiently */}
                   <button
-                    onClick={() => navigate("/profile/edit")}
+                    onClick={() => setShowProfileEditModal(true)}
                     className="w-full h-10 rounded-xl border border-brand-brown/10 text-brand-brown/60 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-brown hover:text-white transition-all"
                   >
                     Account Settings
@@ -450,6 +452,12 @@ const ProfilePage: React.FC = () => {
         confirmText="Delete"
         cancelText="Keep Address"
         isLoading={isDeleting}
+      />
+
+      {/* Profile Edit Modal */}
+      <ProfileEditModal
+        isOpen={showProfileEditModal}
+        onClose={() => setShowProfileEditModal(false)}
       />
     </div>
   );

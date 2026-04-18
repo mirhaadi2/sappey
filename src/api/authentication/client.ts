@@ -12,6 +12,7 @@ import {
   AUTH_INITIATE_REGISTRATION,
   AUTH_VERIFY_OTP,
   AUTH_COMPLETE_REGISTRATION,
+  AUTH_UPDATE_PROFILE,
 } from './endpoints';
 import {
   AuthResponse,
@@ -66,7 +67,7 @@ export const authApi = {
   },
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
-    const response = await apiMethods.put<User>(AUTH_PROFILE, data);
+    const response = await apiMethods.put<User>(AUTH_UPDATE_PROFILE, data);
     return response.data?.data || response.data; // Handle both legacy and new response formats
   },
 
