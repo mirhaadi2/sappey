@@ -274,10 +274,6 @@ const ShopPage: React.FC = () => {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-        .font-headline {
-          font-family: 'Playfair Display', serif;
-          font-weight: 500;
-        }
       `}</style>
     </div>
   );
