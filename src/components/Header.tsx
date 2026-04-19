@@ -152,7 +152,7 @@ const Header: React.FC = () => {
                         : "bg-transparent h-16"
                     }`}
             >
-                <div className="max-w-[1440px] mx-auto h-full px-8 md:px-12 flex items-center justify-between">
+                <div className="max-w-[1440px] mx-auto h-full px-2 md:px-12 flex items-center justify-between">
 
                     {/* Brand Identity */}
                     <div className="flex-1">
@@ -197,7 +197,7 @@ const Header: React.FC = () => {
                     </nav>
 
                     {/* Action Hub */}
-                    <div className="flex-1 flex items-center justify-end gap-1 md:gap-3">
+                    <div className="flex-1 flex items-center justify-end gap-[0.1rem] md:gap-3">
                         <div ref={searchRef} className="relative">
                             <AnimatePresence mode="wait">
                                 {searchOpen ? (
@@ -330,70 +330,67 @@ const Header: React.FC = () => {
                         </button>
                     </div>
                 </div>
-
-                {/* Mobile Menu Overlay */}
-                <AnimatePresence>
-                    {mobileOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, x: "100%" }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: "100%" }}
-                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                            // Added h-[100dvh] for mobile height & overflow-y-auto for small screens
-                            className="fixed inset-0 h-[100dvh] bg-white z-[100] flex flex-col p-8 pb-10 lg:hidden overflow-y-auto"
-                        >
-                            {/* Header: Increased top margin for notch/status bar safety */}
-                            <div className="flex justify-between items-center mb-10 mt-4">
-                                {/* <img src="/images/sappey-logo-4.png" alt="SAPPEY" className="h-12 w-auto object-contain" /> */}
-                                <img 
-                                    src="/images/sappey-logo-4.png" 
-                                    alt="SAPPEY" 
-                                    className="h-16 w-auto object-contain" 
-                                />
-                                <button
-                                    onClick={() => setMobileOpen(false)}
-                                    className="p-2 -mr-2 active:scale-95 transition-transform"
-                                >
-                                    <X size={32} weight="light" />
-                                </button>
-                            </div>
-
-                            {/* Links: Slightly smaller text for better fit on small iPhones */}
-                            <div className="flex flex-col">
-                                {navLinks.map((link) => (
-                                    <button
-                                        key={link.label}
-                                        onClick={() => handleNavClick(link.href)}
-                                        className="text-[28px] py-2 font-light text-brand-brown text-left border-b border-black/5 flex justify-between items-center group active:bg-black/[0.02] transition-colors"
-                                    >
-                                        <span className="tracking-tight">{link.label}</span>
-                                        <CaretRight size={20} className="opacity-30" />
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Footer: Pushed to bottom */}
-                            <div className="mt-auto pt-10 space-y-6">
-                                {!isLoggedIn && (
-                                    <button
-                                        onClick={() => { openAuthModal("customer"); setMobileOpen(false); }}
-                                        className="w-full py-4 bg-brand-brown text-white font-bold uppercase tracking-[0.2em] rounded-xl shadow-lg active:scale-[0.98] transition-transform"
-                                    >
-                                        Member Login
-                                    </button>
-                                )}
-                                <div className="text-center space-y-1">
-                                    <p className="text-[10px] uppercase tracking-[0.3em] text-brand-brown/40">
-                                        Premium Dry Fruits & Nuts
-                                    </p>
-                                    {/* Small visual indicator for the bottom of the page */}
-                                    <div className="w-12 h-1 bg-brand-brown/10 mx-auto rounded-full mt-4" />
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </header>
+
+            {/* Mobile Menu Overlay - OUTSIDE header for proper fixed positioning */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, x: "100%" }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: "100%" }}
+                        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                        className="fixed inset-0 h-[100dvh] bg-white z-[100] flex flex-col p-8 pb-10 lg:hidden overflow-y-auto"
+                    >
+                        {/* Header: Increased top margin for notch/status bar safety */}
+                        <div className="flex justify-between items-center mb-10 mt-4">
+                            <img 
+                                src="/images/sappey-logo-4.png" 
+                                alt="SAPPEY" 
+                                className="h-16 w-auto object-contain" 
+                            />
+                            <button
+                                onClick={() => setMobileOpen(false)}
+                                className="p-2 -mr-2 active:scale-95 transition-transform"
+                            >
+                                <X size={32} weight="light" />
+                            </button>
+                        </div>
+
+                        {/* Links: Slightly smaller text for better fit on small iPhones */}
+                        <div className="flex flex-col">
+                            {navLinks.map((link) => (
+                                <button
+                                    key={link.label}
+                                    onClick={() => handleNavClick(link.href)}
+                                    className="text-[28px] py-2 font-light text-brand-brown text-left border-b border-black/5 flex justify-between items-center group active:bg-black/[0.02] transition-colors"
+                                >
+                                    <span className="tracking-tight">{link.label}</span>
+                                    <CaretRight size={20} className="opacity-30" />
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Footer: Pushed to bottom */}
+                        <div className="mt-auto pt-10 space-y-6">
+                            {!isLoggedIn && (
+                                <button
+                                    onClick={() => { openAuthModal("customer"); setMobileOpen(false); }}
+                                    className="w-full py-4 bg-brand-brown text-white font-bold uppercase tracking-[0.2em] rounded-xl shadow-lg active:scale-[0.98] transition-transform"
+                                >
+                                    Member Login
+                                </button>
+                            )}
+                            <div className="text-center space-y-1">
+                                <p className="text-[10px] uppercase tracking-[0.3em] text-brand-brown/40">
+                                    Premium Dry Fruits & Nuts
+                                </p>
+                                <div className="w-12 h-1 bg-brand-brown/10 mx-auto rounded-full mt-4" />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* SPACER: Height matches the default header (h-16) + banner (h-10) to avoid content jump */}
             <div className={`transition-all duration-700 ${hasTopBanner ? "h-[calc(64px+40px)]" : "h-16"}`} />
