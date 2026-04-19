@@ -14,6 +14,7 @@ import { Product } from "../types";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
+    { label: "Bulk Order", href: "/bulk-order" },
     { label: "Our Story", href: "/#story" },
     { label: "Recipes", href: "/#recipes" },
     { label: "Contact", href: "/#contact" },

@@ -13,6 +13,7 @@ import CustomerAuthModal from "./components/CustomerAuthModal";
 import ShopPage from "./pages/ShopPage";
 import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
+import BulkOrderPage from "./pages/BulkOrderPage";
 import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
@@ -53,6 +54,7 @@ const AppContent: React.FC = () => {
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/shop" element={<ShopPage />} />
+                    <Route path="/bulk-order" element={<BulkOrderPage />} />
                     <Route path="/products/:id" element={<ProductDetailsPage />} />
                     <Route path="/wishlist" element={<WishlistPage />} />
                     <Route
