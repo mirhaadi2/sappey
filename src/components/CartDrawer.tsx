@@ -1,4 +1,5 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom"; // Essential for fixing the overlap
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../context/CardContext";
@@ -7,198 +8,178 @@ import { CartItem } from "../types";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
-    console.log(state,'ste')
-
     const navigate = useNavigate();
+
+    // Lock body scroll when drawer is open
+    useEffect(() => {
+        if (state.isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [state.isOpen]);
 
     const handleCheckout = useCallback(() => {
         dispatch({ type: "CLOSE_CART" });
         navigate("/checkout");
     }, [dispatch, navigate]);
 
-    return (
+    const drawerContent = (
         <AnimatePresence>
             {state.isOpen && (
                 <>
+                    {/* Backdrop - Uses the same Sappey branding as the Modal */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.25 }}
+                        transition={{ duration: 0.3 }}
                         onClick={() => dispatch({ type: "CLOSE_CART" })}
-                        className="fixed inset-0 bg-gray-900 bg-opacity-50 z-1000"
+                        className="fixed inset-0 bg-brand-brown/40 backdrop-blur-sm z-[9998]"
                         aria-hidden="true"
                     />
 
+                    {/* Drawer Panel */}
                     <motion.div
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-cream z-50 flex flex-col"
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-cream z-[9999] flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-l border-brand-brown/5"
                         role="dialog"
                         aria-label="Shopping cart"
                         aria-modal="true"
                     >
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
-                            <div className="flex items-center gap-3">
-                                <ShoppingBag
-                                    size={24}
-                                    weight="regular"
-                                    className="text-brand-brown"
-                                />
-                                <h2
-                                    className="font-headline text-xl text-brand-brown"
-                                    style={{ fontWeight: 600 }}
-                                >
-                                    Your Cart ({totalItems})
+                        {/* Header - Editorial Style */}
+                        <div className="flex items-center justify-between px-8 py-6 border-b border-brand-brown/5 bg-white/50 backdrop-blur-md sticky top-0 z-20">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-orange-500 mb-1">
+                                    Your Selection
+                                </span>
+                                <h2 className="font-headline text-xl text-brand-brown">
+                                    The Cart ({totalItems})
                                 </h2>
                             </div>
                             <button
                                 onClick={() => dispatch({ type: "CLOSE_CART" })}
-                                className="p-2 rounded-lg text-brand-brown hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
+                                className="p-3 rounded-full text-brand-brown/40 hover:text-brand-brown hover:bg-brand-brown/5 transition-all duration-300"
                             >
-                                <X size={20} weight="regular" />
+                                <X size={20} weight="bold" />
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto px-6 py-6">
+                        {/* Cart Items List */}
+                        <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
                             {state?.items.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-4">
-                                    <ShoppingBag
-                                        size={48}
-                                        weight="thin"
-                                        className="text-gray-400"
-                                    />
-                                    <p className="font-sans text-gray-500 text-center">
-                                        Your cart is empty. Start adding some delicious nuts!
+                                <div className="flex flex-col items-center justify-center h-full gap-6 opacity-40">
+                                    <ShoppingBag size={48} weight="thin" className="text-brand-brown" />
+                                    <p className="font-headline text-lg text-brand-brown text-center italic">
+                                        Your reserve is currently empty.
                                     </p>
                                     <button
                                         onClick={() => {
                                             dispatch({ type: "CLOSE_CART" });
                                             navigate("/shop");
                                         }}
-                                        className="bg-brand-brown text-brand-cream px-6 py-3 rounded-lg font-label text-sm hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer"
+                                        className="text-[11px] font-bold uppercase tracking-[0.3em] border-b border-brand-brown/20 pb-1 hover:border-brand-brown transition-all"
                                     >
-                                        Shop Now
+                                        Explore the Collection
                                     </button>
                                 </div>
                             ) : (
-                                <ul className="space-y-4">
+                                <ul className="space-y-6">
                                     {(state?.items ?? []).map((item: CartItem) => (
                                         <li
                                             key={`${item?.product?.id ?? 'unknown'}-${getVariantKey(item?.variant)}`}
-                                            className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200"
+                                            className="group flex gap-5 pb-6 border-b border-brand-brown/5 last:border-0"
                                         >
-                                            <img
-                                                src={item?.product?.images?.[0] ?? "/placeholder.png"}
-                                                alt={item?.product?.name ?? 'Product'}
-                                                className="w-16 h-16 object-cover rounded-lg"
-                                            />
-                                            <div className="flex-1 min-w-0">
-                                                <h3
-                                                    className="font-label text-sm text-brand-brown font-500 truncate"
-                                                    style={{ fontWeight: 500 }}
-                                                >
-                                                    {item?.product?.name ?? 'Product'}
-                                                </h3>
-                                                <p className="font-sans text-xs text-gray-500 mb-2">
-                                                    Weight: {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
-                                                </p>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
+                                            <div className="relative w-24 h-24 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
+                                                <img
+                                                    src={item?.product?.images?.[0] ?? "/placeholder.png"}
+                                                    alt={item?.product?.name ?? 'Product'}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                />
+                                            </div>
+
+                                            <div className="flex-1 flex flex-col justify-between py-1">
+                                                <div className="flex justify-between gap-4">
+                                                    <div>
+                                                        <h3 className="font-headline text-md text-brand-brown leading-tight mb-1">
+                                                            {item?.product?.name ?? 'Product'}
+                                                        </h3>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40">
+                                                            {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => dispatch({ type: "REMOVE_ITEM", payload: { productId: item?.product?.id ?? '', variant: item?.variant } })}
+                                                        className="text-brand-brown/20 hover:text-red-400 transition-colors"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </button>
+                                                </div>
+
+                                                <div className="flex items-center justify-between mt-4">
+                                                    {/* Custom Quantity Stepper */}
+                                                    <div className="flex items-center border border-brand-brown/10 rounded-full px-2 py-1 gap-4">
                                                         <button
-                                                            onClick={() =>
-                                                                dispatch({
-                                                                    type: "UPDATE_QUANTITY",
-                                                                    payload: {
-                                                                        productId: item?.product?.id ?? '',
-                                                                        variant: item?.variant,
-                                                                        quantity: (item?.quantity ?? 0) - 1,
-                                                                    },
-                                                                })
-                                                            }
+                                                            onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item?.product?.id ?? '', variant: item?.variant, quantity: (item?.quantity ?? 0) - 1 } })}
                                                             disabled={(item?.quantity ?? 0) <= 1}
-                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                                            aria-label={`Decrease quantity of ${item?.product?.name ?? 'Product'}`}
-                                                            title={(item?.quantity ?? 0) <= 1 ? "Quantity cannot be less than 1" : "Decrease quantity"}
+                                                            className="text-brand-brown/40 hover:text-brand-brown disabled:opacity-10 transition-colors"
                                                         >
-                                                            <Minus size={12} weight="bold" />
+                                                            <Minus size={10} weight="bold" />
                                                         </button>
-                                                        <span className="font-label text-sm text-brand-brown w-6 text-center">
+                                                        <span className="text-xs font-bold text-brand-brown min-w-[12px] text-center">
                                                             {item?.quantity ?? 0}
                                                         </span>
                                                         <button
-                                                            onClick={() =>
-                                                                dispatch({
-                                                                    type: "UPDATE_QUANTITY",
-                                                                    payload: {
-                                                                        productId: item?.product?.id ?? '',
-                                                                        variant: item?.variant,
-                                                                        quantity: (item?.quantity ?? 0) + 1,
-                                                                    },
-                                                                })
-                                                            }
-                                                            className="w-7 h-7 rounded-md bg-brand-latte text-brand-brown flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                                                            aria-label={`Increase quantity of ${item?.product?.name ?? 'Product'}`}
+                                                            onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item?.product?.id ?? '', variant: item?.variant, quantity: (item?.quantity ?? 0) + 1 } })}
+                                                            className="text-brand-brown/40 hover:text-brand-brown transition-colors"
                                                         >
-                                                            <Plus size={12} weight="bold" />
+                                                            <Plus size={10} weight="bold" />
                                                         </button>
                                                     </div>
-                                                    <span
-                                                        className="font-label text-sm text-brand-brown font-500"
-                                                        style={{ fontWeight: 500 }}
-                                                    >
-                                                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price)
-                                                            ? item?.variant?.price
-                                                            : item?.product?.price ?? 0) * (item?.quantity ?? 0)).toFixed(2)}
+                                                    <span className="font-headline text-brand-brown">
+                                                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price) ? item?.variant?.price : item?.product?.price ?? 0) * (item?.quantity ?? 0)).toLocaleString()}
                                                     </span>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() =>
-                                                    dispatch({
-                                                        type: "REMOVE_ITEM",
-                                                        payload: {
-                                                            productId: item?.product?.id ?? '',
-                                                            variant: item?.variant,
-                                                        },
-                                                    })
-                                                }
-                                                className="text-gray-400 hover:text-red-500 transition-colors duration-200 cursor-pointer self-start-mt-1"
-                                                aria-label={`Remove ${item.product.name} from cart`}
-                                            >
-                                                <Trash size={16} weight="regular" />
-                                            </button>
                                         </li>
                                     ))}
                                 </ul>
                             )}
                         </div>
 
+                        {/* Footer - Classy Summary */}
                         {state?.items.length > 0 && (
-                            <div className="px-8 py-6 border-t border-gray-200 bg-white">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="font-sans text-sm text-gray-600">Subtotal</span>
-                                    <span className="font-headline text-brand-brown text-xl" style={{ fontWeight: 600 }}>
-                                        ₹{totalPrice?.toFixed(2)}
-                                    </span>
+                            <div className="p-6 border-t border-brand-brown/5 bg-white">
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/40">Subtotal</span>
+                                        <span className="font-headline text-2xl text-brand-brown">
+                                            ₹{totalPrice?.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <p className="text-[9px] text-brand-brown/30 uppercase tracking-widest leading-relaxed">
+                                        Complimentary shipping on orders above ₹2,000. Taxes included.
+                                    </p>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-4 font-sans">
-                                    Shipping & taxes calculated at checkout
-                                </p>
-                                <button
-                                    onClick={handleCheckout}
-                                    className="w-full bg-brand-brown text-brand-cream font-label text-sm py-4 rounded-lg hover:bg-brand-cocoa transition-colors duration-200 cursor-pointer uppercase tracking-widest"
-                                >
-                                    Proceed to Checkout
-                                </button>
-                                <button
-                                    onClick={() => dispatch({ type: "CLEAR_CART" })}
-                                    className="w-full mt-2 bg-transparent text-brand-brown font-label text-xs py-2 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer"
-                                >
-                                    Clear Cart
-                                </button>
+
+                                <div className="flex flex-col gap-3">
+                                    <button
+                                        onClick={handleCheckout}
+                                        className="w-full bg-brand-brown text-brand-cream text-[11px] font-bold uppercase tracking-[0.3em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
+                                    >
+                                        Finalize Selection
+                                    </button>
+                                    <button
+                                        onClick={() => dispatch({ type: "CLEAR_CART" })}
+                                        className="text-[9px] font-bold uppercase tracking-widest text-brand-brown/40 hover:text-red-500 py-2 transition-colors"
+                                    >
+                                        Clear Entire Cart
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </motion.div>
@@ -206,6 +187,9 @@ const CartDrawer: React.FC = () => {
             )}
         </AnimatePresence>
     );
+
+    // FIX: Render outside of the shop content tree
+    return createPortal(drawerContent, document.body);
 };
 
 export default memo(CartDrawer);

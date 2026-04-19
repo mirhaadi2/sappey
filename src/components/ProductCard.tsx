@@ -127,11 +127,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         </div>
 
                         <button
-                            className={`absolute top-3 right-3 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer ${
-                                isAnyVariantInWishlist
+                            className={`absolute top-3 right-3 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer ${isAnyVariantInWishlist
                                     ? 'bg-red-500 text-white hover:bg-red-600'
                                     : 'bg-white/80 backdrop-blur-sm text-brand-brown hover:bg-brand-brown hover:text-brand-cream'
-                            }`}
+                                }`}
                             onClick={handleWishlistToggle}
                             title={isAnyVariantInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                         >
@@ -210,44 +209,70 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 isOpen={showVariantModal}
                 onClose={() => setShowVariantModal(false)}
                 title="Select Weight"
-                maxWidth="max-w-md"
+                maxWidth="max-w-sm" // Slightly narrower for a more focused look
             >
-                <p className="text-sm text-slate-600 mb-4">{product.name}</p>
+                <div className="flex flex-col">
+                    {/* Product Subtitle - Minimalist line */}
+                    <div className="flex items-center gap-2 mb-6">
+                        <span className="text-xs font-bold uppercase tracking-[0.1em] text-brand-brown/80">
+                            {product.name}
+                        </span>
+                        <div className="h-[1px] flex-1 bg-brand-brown/5" />
+                    </div>
 
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {variantOptions.map((variant) => {
-                        const isSelected = isInWishlist(product.id, variant.id);
-                        return (
-                            <button
-                                key={variant.id}
-                                onClick={() => handleVariantSelect(variant)}
-                                className={`w-full p-3 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
-                                    isSelected
-                                        ? 'border-brand-brown bg-amber-50'
-                                        : 'border-slate-200 hover:border-brand-brown bg-white hover:bg-slate-50'
-                                }`}
-                            >
-                                <div>
-                                    <div className="font-semibold text-brand-brown">{variant.label}</div>
-                                    <div className="text-sm text-slate-600">₹{Number(variant.price).toFixed(0)}</div>
-                                </div>
-                                {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-brand-brown flex items-center justify-center">
-                                        <span className="text-white text-xs">✓</span>
+                    {/* Variant Options - Compact Rows */}
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
+                        {variantOptions.map((variant) => {
+                            const isSelected = isInWishlist(product.id, variant.id);
+                            return (
+                                <button
+                                    key={variant.id}
+                                    onClick={() => handleVariantSelect(variant)}
+                                    className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 flex items-center justify-between group ${isSelected
+                                            ? 'border-brand-brown bg-brand-brown/[0.02]'
+                                            : 'border-brand-brown/10 bg-white hover:border-brand-brown/30'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        {/* Refined Indicator */}
+                                        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${isSelected ? 'bg-orange-500 scale-125' : 'bg-brand-brown/10'
+                                            }`} />
+
+                                        <span className={`text-[11px] font-bold uppercase tracking-widest ${isSelected ? 'text-brand-brown' : 'text-brand-brown/60'
+                                            }`}>
+                                            {variant.label}
+                                        </span>
                                     </div>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
 
-                <div className="mt-6 flex gap-3">
-                    <button
-                        onClick={() => setShowVariantModal(false)}
-                        className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-xl transition-colors"
-                    >
-                        Cancel
-                    </button>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-[10px] font-medium text-brand-brown/80 uppercase">INR</span>
+                                        <span className={`text-sm font-semibold tracking-tight ${isSelected ? 'text-brand-brown' : 'text-brand-brown/70'
+                                            }`}>
+                                            {Number(variant.price).toLocaleString()}
+                                        </span>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Compact Footer */}
+                    <div className="mt-8">
+                        <button
+                            onClick={() => setShowVariantModal(false)}
+                            className="w-full py-3.5 bg-brand-brown text-brand-cream text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-brand-brown/95 transition-all active:scale-[0.98]"
+                        >
+                            Confirm Selection
+                        </button>
+
+                        <div className="flex justify-center items-center gap-2 mt-4 opacity-30">
+                            <div className="h-[1px] w-4 bg-brand-brown" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown">
+                                Sappey Premium
+                            </span>
+                            <div className="h-[1px] w-4 bg-brand-brown" />
+                        </div>
+                    </div>
                 </div>
             </Modal>
         </>
