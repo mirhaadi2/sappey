@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, LockSimple, UserPlus, NavigationArrow
+    MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, CaretRight, ArrowRight
 } from "@phosphor-icons/react";
 import { useCart } from "../context/CardContext";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
@@ -14,7 +14,7 @@ import { Product } from "../types";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },
-    { label: "Story", href: "/#story" },
+    { label: "Our Story", href: "/#story" },
     { label: "Recipes", href: "/#recipes" },
     { label: "Contact", href: "/#contact" },
 ];
@@ -47,43 +47,28 @@ const Header: React.FC = () => {
     const navigate = useNavigate();
 
     const isLoggedIn = Boolean(currentUser || isGuestAuthenticated);
-    const displayName = currentUser?.name?.split(" ")[0] || currentUser?.email?.split(" ")[0] || guestDisplayName || "Guest";
+    const displayName = currentUser?.name?.split(" ")[0] || guestDisplayName || "Guest";
 
-    // API Hooks - Search from backend using PostgreSQL Full-Text Search
     const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
     const { data: homepageData } = useHomepageData();
     const { data: promotions } = useHomepagePromotions();
 
-    // Banner Logic
     const activeBanner = homepageData?.banners?.find((b) => b?.isActive);
     const activePromotion = promotions?.[0];
     const hasTopBanner = !!(activePromotion || activeBanner);
 
-    // Debounce search query (300ms delay) to avoid excessive API calls
     useEffect(() => {
-        // Clear previous timer
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
-        }
-
-        // Set new timer only if search query has at least 2 characters
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
         if (searchQuery.trim().length >= 2) {
             debounceTimer.current = setTimeout(() => {
                 setDebouncedSearchQuery(searchQuery.trim());
-            }, 300); // 300ms debounce delay
+            }, 300);
         } else {
-            // Clear search if query is too short
             setDebouncedSearchQuery("");
         }
-
-        return () => {
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
-        };
+        return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
     }, [searchQuery]);
 
-    // Handlers
     const openSearch = useCallback(() => {
         setSearchOpen(true);
         setTimeout(() => inputRef.current?.focus(), 100);
@@ -119,7 +104,6 @@ const Header: React.FC = () => {
         }
     }, [location.pathname, navigate]);
 
-    // Effects
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", handleScroll);
@@ -128,415 +112,269 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-                closeSearch();
-            }
-            if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
-                setProfileOpen(false);
-            }
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) closeSearch();
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
         };
         if (searchOpen || profileOpen) document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [searchOpen, profileOpen, closeSearch]);
 
-    // Handle logout
     const handleLogout = useCallback(async () => {
-        if (currentUser) {
-            await customerLogout();
-        } else {
-            await signOut();
-        }
+        currentUser ? await customerLogout() : await signOut();
         setProfileOpen(false);
         navigate("/");
     }, [currentUser, customerLogout, signOut, navigate]);
 
     return (
         <>
-            {/* 1. TOP PROMO BANNER */}
             <AnimatePresence>
                 {hasTopBanner && (
                     <motion.div
-                        className="fixed top-0 left-0 right-0 z-[60] bg-brand-brown text-brand-cream text-center flex items-center justify-center font-label text-[9px] tracking-[0.25em] uppercase w-full h-8 overflow-hidden"
-                        initial={{ opacity: 0, y: -32 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -32 }}
-                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="fixed top-0 left-0 right-0 z-[70] bg-brand-brown text-[#F9F6F0] h-10 flex items-center justify-center overflow-hidden"
+                        initial={{ y: -40 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: -40 }}
                     >
-                        {/* Premium Animated Shine Effect */}
-                        <motion.div
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent w-1/2 skew-x-12"
-                        />
-                        <span className="relative z-10 font-bold">
+                        <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]" />
+                        <p className="text-[10px] font-[800] tracking-[0.2em] uppercase relative z-10">
                             {activePromotion?.bannerText ?? activeBanner?.text}
-                        </span>
+                        </p>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* 2. MAIN HEADER NAVIGATION */}
             <header
-                className={`fixed left-0 right-0 transition-all duration-500 z-50 h-20
-                    ${hasTopBanner ? "top-8" : "top-0"} 
+                className={`fixed left-0 right-0 transition-all duration-700 z-[60] 
+                    ${hasTopBanner ? "top-10" : "top-0"} 
                     ${scrolled
-                        ? "bg-white/80 backdrop-blur-xl border-b border-brand-brown/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
-                        : "bg-brand-cream border-b border-transparent"
+                        ? "bg-white/90 backdrop-blur-xl border-b border-black/5 h-20 shadow-[0_10px_40px_rgba(0,0,0,0.04)]"
+                        : "bg-transparent h-16"
                     }`}
             >
-                <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-full">
+                <div className="max-w-[1440px] mx-auto h-full px-8 md:px-12 flex items-center justify-between">
 
-                    {/* LOGO ZONE */}
+                    {/* Brand Identity */}
                     <div className="flex-1">
-                        <Link
-                            to="/"
-                            className="group flex items-center gap-2.5 font-headline font-black text-2xl text-brand-brown tracking-tighter transition-all duration-300"
-                        >
-                            {/* <div className="w-8 h-8 bg-brand-brown rounded-lg flex items-center justify-center text-brand-cream text-xs group-hover:rotate-6 transition-transform">
-                                S
-                            </div>
-                            <span className="hidden sm:inline-block">Sappey</span> */}
-                            <img src="/images/sappey-logo-4.png" alt="SAPPEY Logo" width="120" height="40" />
+                        <Link to="/" className="inline-block transform transition-transform duration-500 hover:scale-105">
+                            <img
+                                src="/images/sappey-logo-4.png"
+                                alt="SAPPEY"
+                                className={`transition-all duration-700 object-contain ${scrolled ? 'h-14' : 'h-12'}`}
+                            />
                         </Link>
                     </div>
 
-                    {/* CENTER NAVIGATION (Desktop) */}
-                    <nav className="hidden md:flex items-center bg-brand-brown/[0.03] p-1 rounded-full border border-brand-brown/5">
+                    {/* Navigation - High End Editorial Style */}
+                    <nav className="hidden lg:flex items-center gap-10">
                         {navLinks.map((link) => {
                             const isActive = location.pathname === link.href;
                             return (
                                 <button
                                     key={link.href}
                                     onClick={() => handleNavClick(link.href)}
-                                    className={`relative font-label text-[10px] uppercase tracking-[0.18em] px-6 py-2 rounded-full transition-all duration-500
-                                        ${isActive ? "text-brand-cream" : "text-brand-brown/80 hover:text-brand-brown"}`}
+                                    className="group relative py-2"
                                 >
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="nav-active-pill"
-                                            className="absolute inset-0 bg-brand-brown rounded-full shadow-lg shadow-brand-brown/20"
-                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                        />
-                                    )}
-                                    <span className="relative z-10 font-black">{link.label}</span>
+                                    <span className={`text-[11px] font-bold uppercase tracking-[0.1em] transition-all duration-300
+                                        ${isActive
+                                            ? "text-brand-brown/60"
+                                            : "text-brand-brown group-hover:text-brand-brown/60"
+                                        }`}>
+                                        {link.label}
+                                    </span>
+
+                                    {/* The premium underline transition */}
+                                    <motion.span
+                                        className="absolute bottom-0 left-0 w-full h-[1.5px] bg-brand-brown origin-left"
+                                        initial={{ scaleX: 0 }}
+                                        animate={{ scaleX: isActive ? 1 : 0 }}
+                                        whileHover={{ scaleX: 1 }}
+                                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                    />
                                 </button>
                             );
                         })}
                     </nav>
 
-                    {/* ACTIONS ZONE (Search, Account, Cart) */}
-                    <div className="flex-1 flex items-center justify-end gap-1 md:gap-3 ml-2">
-
-                        {/* Premium Search Bar */}
-                        <div ref={searchRef} className="relative flex items-center justify-end">
+                    {/* Action Hub */}
+                    <div className="flex-1 flex items-center justify-end gap-1 md:gap-3">
+                        <div ref={searchRef} className="relative">
                             <AnimatePresence mode="wait">
                                 {searchOpen ? (
                                     <motion.form
-                                        key="search-active"
+                                        key="search-box"
                                         onSubmit={handleSearchSubmit}
-                                        initial={{ width: 60, opacity: 0, x: 20 }}
-                                        animate={{ width: 280, opacity: 1, x: 0 }}
-                                        exit={{ width: 60, opacity: 0, x: 20 }}
-                                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                                        className="flex items-center bg-white/40 backdrop-blur-2xl rounded-2xl border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.03] overflow-hidden"
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: 280, opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        className="flex items-center bg-[#F9F6F0] rounded-full border border-brand-brown/10 px-4 py-2"
                                     >
-                                        <div className="pl-4 pr-2 text-brand-brown/40">
-                                            <MagnifyingGlass size={18} weight="bold" />
-                                        </div>
+                                        <MagnifyingGlass size={18} className="text-brand-brown/40" />
                                         <input
                                             ref={inputRef}
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             placeholder="Search our collection..."
-                                            className="flex-1 bg-transparent font-label text-[12px] text-brand-brown font-bold placeholder-brand-brown/20 py-2.5 focus:outline-none"
+                                            className="bg-transparent w-full pl-3 text-[12px] font-medium text-brand-brown placeholder-brand-brown/30 outline-none"
                                         />
-                                        <motion.button
-                                            whileHover={{ rotate: 90 }}
-                                            type="button"
-                                            onClick={closeSearch}
-                                            className="p-2 mr-1 text-brand-brown/30 hover:text-brand-brown transition-colors"
-                                        >
-                                            <X size={16} weight="bold" />
-                                        </motion.button>
+                                        <button type="button" onClick={closeSearch}>
+                                            <X size={16} className="text-brand-brown/40 hover:text-brand-brown" />
+                                        </button>
                                     </motion.form>
                                 ) : (
-                                    <motion.button
-                                        key="search-trigger"
-                                        layoutId="search-pill"
+                                    <button
                                         onClick={openSearch}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            backgroundColor: "rgba(255,255,255,0.9)",
-                                            boxShadow: "0 10px 20px rgba(0,0,0,0.05)"
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="p-2 text-brand-brown hover:text-brand-brown rounded-full transition-all duration-300 bg-white/0"
+                                        className="p-3 hover:bg-brand-brown/5 rounded-full transition-colors"
                                     >
-                                        <MagnifyingGlass size={18} weight="bold" />
-                                    </motion.button>
+                                        <MagnifyingGlass size={22} weight="light" className="text-brand-brown" />
+                                    </button>
                                 )}
                             </AnimatePresence>
 
-                            {/* Search Results Dropdown with Loading State */}
+                            {/* Luxury Search Results Dropdown */}
                             <AnimatePresence>
                                 {searchOpen && debouncedSearchQuery && (
                                     <motion.div
-                                        key="search-results"
-                                        initial={{ opacity: 0, y: -10 }}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                                        className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-2xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-80"
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute top-full mt-4 right-0 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-black/5 w-[380px] rounded-2xl overflow-hidden z-[80]"
                                     >
-                                        {/* Loading State */}
-                                        {isSearching && (
-                                            <div className="px-4 py-8 flex items-center justify-center gap-2">
-                                                <motion.div
-                                                    animate={{ rotate: 360 }}
-                                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                                >
-                                                    <SpinnerGap size={18} weight="bold" className="text-brand-brown" />
-                                                </motion.div>
-                                                <p className="text-xs font-semibold text-brand-brown/60">Searching...</p>
-                                            </div>
-                                        )}
-
-                                        {/* Results State */}
-                                        {!isSearching && searchResults.length > 0 && (
-                                            <>
-                                                {searchResults.slice(0, 8).map((product: Product) => (
-                                                    <motion.button
+                                        <div className="p-4 border-b border-black/5 bg-[#F9F6F0]/50">
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-brown/40">Results for "{debouncedSearchQuery}"</h4>
+                                        </div>
+                                        <div className="max-h-[400px] overflow-y-auto">
+                                            {isSearching ? (
+                                                <div className="p-12 flex justify-center"><SpinnerGap size={24} className="animate-spin text-brand-brown/20" /></div>
+                                            ) : searchResults.length > 0 ? (
+                                                searchResults.slice(0, 5).map((product: Product) => (
+                                                    <button
                                                         key={product.id}
-                                                        onClick={() => {
-                                                            navigate(`/products/${product?.id}`);
-                                                            closeSearch();
-                                                        }}
-                                                        whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
-                                                        className="w-full px-4 py-3 text-left flex items-center gap-3 border-b border-brand-brown/5 last:border-0 transition-colors"
+                                                        onClick={() => { navigate(`/products/${product.id}`); closeSearch(); }}
+                                                        className="w-full p-4 flex items-center gap-4 hover:bg-[#F9F6F0] transition-colors group text-left"
                                                     >
-                                                        <img
-                                                            src={product.images?.[0] || "/placeholder.png"}
-                                                            alt={product.name}
-                                                            className="w-10 h-10 rounded-lg object-cover"
-                                                        />
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-xs font-bold text-brand-brown truncate">{product.name}</p>
-                                                            <p className="text-[10px] text-brand-brown/60 truncate">{product.category}</p>
+                                                        <img src={product.images?.[0]} className="w-14 h-14 object-cover rounded-lg bg-gray-50" alt="" />
+                                                        <div className="flex-1">
+                                                            <p className="text-[13px] font-bold text-brand-brown">{product.name}</p>
+                                                            <p className="text-[11px] text-brand-brown/50 uppercase tracking-tighter">{product.category}</p>
                                                         </div>
-                                                        <p className="text-xs font-black text-brand-brown whitespace-nowrap">₹{product.price?.toFixed(2)}</p>
-                                                    </motion.button>
-                                                ))}
-                                            </>
-                                        )}
-
-                                        {/* No Results State */}
-                                        {!isSearching && searchResults.length === 0 && (
-                                            <div className="px-4 py-6 text-center">
-                                                <p className="text-xs font-semibold text-brand-brown/60">No products found</p>
-                                                <p className="text-[10px] text-brand-brown/40 mt-1">Try different keywords</p>
-                                            </div>
-                                        )}
+                                                        <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                <div className="p-8 text-center text-brand-brown/40 text-[12px]">No products found.</div>
+                                            )}
+                                        </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
 
-                        {/* Icons Stack */}
-                        <div className="flex items-center gap-1">
-                            <button onClick={() => navigate("/wishlist")} className="p-2.5 text-brand-brown hover:bg-white hover:shadow-sm rounded-xl transition-all">
-                                <Heart size={22} weight={wishlistCount > 0 ? "fill" : "bold"} className={wishlistCount > 0 ? "text-red-500" : ""} />
-                            </button>
+                        <button onClick={() => navigate("/wishlist")} className="p-3 hover:bg-brand-brown/5 rounded-full relative transition-colors">
+                            <Heart size={22} weight={wishlistCount > 0 ? "fill" : "light"} className={wishlistCount > 0 ? "text-red-500" : "text-brand-brown"} />
+                        </button>
 
-                            <button onClick={() => dispatch({ type: "OPEN_CART" })} className="group relative p-2.5 text-brand-brown hover:bg-white hover:shadow-sm rounded-xl transition-all">
-                                <ShoppingCart size={22} weight="bold" />
-                                {totalItems > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 bg-brand-brown text-brand-cream text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center border border-white shadow-sm group-hover:scale-110 transition-transform">
-                                        {totalItems}
-                                    </span>
-                                )}
-                            </button>
+                        <button onClick={() => dispatch({ type: "OPEN_CART" })} className="p-3 hover:bg-brand-brown/5 rounded-full relative transition-colors group">
+                            <ShoppingCart size={22} weight="light" className="text-brand-brown" />
+                            {totalItems > 0 && (
+                                <span className="absolute top-2 right-2 bg-brand-brown text-white text-[8px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                                    {totalItems}
+                                </span>
+                            )}
+                        </button>
 
-                            {/* Mobile Menu Trigger */}
-                            <button className="md:hidden p-2 text-brand-brown ml-1" onClick={() => setMobileOpen(!mobileOpen)}>
-                                {mobileOpen ? <X size={26} weight="bold" /> : <List size={26} weight="bold" />}
-                            </button>
-                        </div>
+                        <div className="hidden md:block h-6 w-[1px] bg-brand-brown/10 mx-2" />
 
-                        {/* Profile/Account Button with Dropdown - Desktop Only */}
-                        <div className="hidden md:flex items-center relative" ref={profileRef}>
+                        <div className="relative" ref={profileRef}>
                             {isLoggedIn ? (
-                                <>
-                                    <button
-                                        onClick={() => setProfileOpen(!profileOpen)}
-                                        className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium text-white bg-brand-brown border border-brand-brown/10 hover:border-brand-brown transition-all duration-300 shadow-sm"
-                                    >
-                                        {displayName?.charAt(0).toUpperCase()}
-                                    </button>
-
-                                    {/* Profile Dropdown Menu */}
-                                    <AnimatePresence>
-                                        {profileOpen && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                                                className="absolute top-full mt-2 right-0 bg-white/95 backdrop-blur-xl rounded-xl border border-brand-brown/10 shadow-lg overflow-hidden z-50 w-48"
-                                            >
-                                                {(currentUser) && (
-                                                    <motion.button
-                                                        whileHover={{ backgroundColor: "rgba(139, 115, 85, 0.05)" }}
-                                                        onClick={() => {
-                                                            navigate('/profile');
-                                                            setProfileOpen(false);
-                                                        }}
-                                                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 border-b border-brand-brown/5 transition-colors"
-                                                    >
-                                                        <User size={16} weight="bold" className="text-brand-brown" />
-                                                        <span className="text-xs font-semibold text-brand-brown">My Profile</span>
-                                                    </motion.button>
-                                                )}
-
-                                                {/* Logout Option */}
-                                                <motion.button
-                                                    whileHover={{ backgroundColor: "rgba(220, 38, 38, 0.05)" }}
-                                                    onClick={handleLogout}
-                                                    className="w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors"
-                                                >
-                                                    <SignOut size={16} weight="bold" className="text-red-600" />
-                                                    <span className="text-xs font-semibold text-red-600">Logout</span>
-                                                </motion.button>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </>
+                                <button
+                                    onClick={() => setProfileOpen(!profileOpen)}
+                                    className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-brand-brown/5 transition-all"
+                                >
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown">{displayName}</span>
+                                    <div className="w-8 h-8 rounded-full bg-brand-brown text-white flex items-center justify-center text-[11px] font-bold">
+                                        {displayName.charAt(0)}
+                                    </div>
+                                </button>
                             ) : (
                                 <button
                                     onClick={() => openAuthModal("customer")}
-                                    className="px-5 py-2 rounded-xl text-[10px] uppercase tracking-[0.2em] font-black text-brand-brown border border-brand-brown/10 hover:bg-brand-brown hover:text-white transition-all duration-300"
+                                    className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-brown px-5 py-2 hover:bg-brand-brown hover:text-white border border-brand-brown/20 transition-all duration-500 rounded-full"
                                 >
-                                    Sign In
+                                    Login
                                 </button>
                             )}
+
+                            <AnimatePresence>
+                                {profileOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute top-full mt-4 right-0 bg-white shadow-2xl rounded-2xl border border-black/5 w-52 p-2 z-[90]"
+                                    >
+                                        <button onClick={() => { navigate('/profile'); setProfileOpen(false); }} className="w-full p-3 text-left text-[12px] font-bold text-brand-brown hover:bg-[#F9F6F0] rounded-xl flex items-center gap-3 transition-colors">
+                                            <User size={18} weight="light" /> My Account
+                                        </button>
+                                        <button onClick={handleLogout} className="w-full p-3 text-left text-[12px] font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
+                                            <SignOut size={18} weight="light" /> Sign Out
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
+
+                        <button className="lg:hidden p-3 text-brand-brown" onClick={() => setMobileOpen(!mobileOpen)}>
+                            {mobileOpen ? <X size={24} weight="light" /> : <List size={24} weight="light" />}
+                        </button>
                     </div>
                 </div>
 
-                {/* MOBILE MENU */}
+                {/* Mobile Menu Overlay */}
                 <AnimatePresence>
                     {mobileOpen && (
                         <motion.div
-                            key="mobile-menu"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="md:hidden border-t border-brand-brown/10 bg-white/95 backdrop-blur-xl"
+                            initial={{ opacity: 0, x: "100%" }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: "100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed inset-0 bg-white z-[100] flex flex-col p-8 lg:hidden"
                         >
-                            <div className="px-6 py-4 space-y-3">
-                                {/* Navigation Links */}
+                            <div className="flex justify-between items-center mb-12">
+                                <img src="/images/sappey-logo-4.png" alt="SAPPEY" className="h-8" />
+                                <button onClick={() => setMobileOpen(false)}><X size={32} weight="light" /></button>
+                            </div>
+
+                            <div className="flex flex-col gap-8">
                                 {navLinks.map((link) => (
                                     <button
-                                        key={link.href}
+                                        key={link.label}
                                         onClick={() => handleNavClick(link.href)}
-                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                        className="text-[32px] font-light text-brand-brown text-left border-b border-black/5 pb-4 flex justify-between items-center"
                                     >
-                                        <NavigationArrow size={16} weight="bold" className="text-brand-brown/60" />
-                                        {link.label}
+                                        {link.label} <CaretRight size={20} />
                                     </button>
                                 ))}
+                            </div>
 
-                                <div className="border-t border-brand-brown/10 my-3 pt-3">
-                                    {/* Mobile Wishlist Link */}
+                            <div className="mt-auto space-y-4">
+                                {!isLoggedIn && (
                                     <button
-                                        onClick={() => {
-                                            navigate("/wishlist");
-                                            setMobileOpen(false);
-                                        }}
-                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
+                                        onClick={() => { openAuthModal("customer"); setMobileOpen(false); }}
+                                        className="w-full py-5 bg-brand-brown text-white font-bold uppercase tracking-[0.2em] rounded-xl"
                                     >
-                                        <Heart size={16} weight="bold" className="text-red-500" />
-                                        Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                                        Member Login
                                     </button>
-
-                                    {/* Mobile Cart Link */}
-                                    <button
-                                        onClick={() => {
-                                            dispatch({ type: "OPEN_CART" });
-                                            setMobileOpen(false);
-                                        }}
-                                        className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
-                                    >
-                                        <ShoppingCart size={16} weight="bold" className="text-brand-brown" />
-                                        Cart {totalItems > 0 && `(${totalItems})`}
-                                    </button>
-                                </div>
-
-                                <div className="border-t border-brand-brown/10 pt-3">
-                                    {/* Mobile Auth Section */}
-                                    {isLoggedIn ? (
-                                        <>
-                                            {/* {user && ( */}
-                                                <button
-                                                    onClick={() => {
-                                                        navigate("/profile");
-                                                        setMobileOpen(false);
-                                                    }}
-                                                    className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte flex items-center gap-2"
-                                                >
-                                                    <User size={16} weight="bold" className="text-brand-brown" />
-                                                    My Profile
-                                                </button>
-                                            {/* )} */}
-
-                                            <button
-                                                onClick={() => {
-                                                    handleLogout();
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-red-600 hover:text-red-700 transition-colors py-2 px-3 rounded-lg hover:bg-red-50 mt-2 flex items-center gap-2"
-                                            >
-                                                <SignOut size={16} weight="bold" className="text-red-600" />
-                                                Logout
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button
-                                                onClick={() => {
-                                                    openAuthModal("customer");
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown hover:text-brand-brown/60 transition-colors py-2 px-3 rounded-lg hover:bg-brand-latte mb-2 flex items-center gap-2"
-                                            >
-                                                <LockSimple size={16} weight="bold" className="text-brand-brown" />
-                                                Sign In
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    openAuthModal("guest");
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="w-full text-left font-label text-[clamp(0.625rem,2vw,0.75rem)] uppercase tracking-[0.18em] text-brand-brown bg-brand-latte hover:bg-brand-brown hover:text-white transition-colors py-2 px-3 rounded-lg font-bold flex items-center gap-2"
-                                            >
-                                                <UserPlus size={16} weight="bold" />
-                                                Continue
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
+                                )}
+                                <p className="text-center text-[10px] uppercase tracking-[0.3em] text-brand-brown/40">Premium Dry Fruits & Nuts</p>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </header>
 
-            {/* 3. DYNAMIC SPACER 
-          Ensures the rest of the page doesn't go under the fixed header. 
-          Height changes based on whether the Top Banner is visible. */}
-            <div className={`transition-all duration-500 ease-in-out ${hasTopBanner ? "h-24" : "h-16"}`} />
+            {/* SPACER: Height matches the default header (h-16) + banner (h-10) to avoid content jump */}
+            <div className={`transition-all duration-700 ${hasTopBanner ? "h-[calc(64px+40px)]" : "h-16"}`} />
         </>
     );
 };

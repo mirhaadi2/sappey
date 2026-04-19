@@ -66,7 +66,7 @@ module.exports = {
             },
             fontFamily: {
                 sans: ["Open Sans", "sans-serif"],
-                headline: ["Raleway", "sans-serif"],
+                headline: ["Open Sans", "sans-serif"],
                 label: ["DM Sans", "sans-serif"],
                 mono: ["IBM Plex Mono", "monospace"],
             },

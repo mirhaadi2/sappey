@@ -5,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   FunnelSimple,
@@ -21,11 +21,15 @@ type SortOption = "default" | "price-asc" | "price-desc" | "rating" | "newest";
 type ViewMode = "grid-4" | "grid-3" | "grid-2";
 
 const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  },
 };
 
 const ShopPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [viewMode, setViewMode] = useState<ViewMode>("grid-4");
@@ -34,32 +38,23 @@ const ShopPage: React.FC = () => {
   const searchQuery = searchParams.get("search") || "";
   const isBestsellerFilter = searchParams.get("isBestseller") === "true";
   const isNewFilter = searchParams.get("isNew") === "true";
-  const isCustomerFavouritesFilter =
-    searchParams.get("isCustomerFavourites") === "true";
+  const isCustomerFavouritesFilter = searchParams.get("isCustomerFavourites") === "true";
 
   const limit = 12;
 
-  const productFilters: Record<string, unknown> = React.useMemo(
+  const productFilters = useMemo(
     () => ({
       ...(activeCategory !== "all" ? { categoryId: activeCategory } : {}),
       ...(searchQuery ? { search: searchQuery } : {}),
       ...(isBestsellerFilter ? { isBestseller: true } : {}),
       ...(isNewFilter ? { isNew: true } : {}),
       ...(isCustomerFavouritesFilter ? { isCustomerFavourites: true } : {}),
-      sort: sortBy, // <-- Add this line
+      sort: sortBy,
       limit,
     }),
-    [
-      activeCategory,
-      searchQuery,
-      isBestsellerFilter,
-      isNewFilter,
-      isCustomerFavouritesFilter,
-      sortBy, // <-- Add this to dependencies
-      limit,
-    ],
+    [activeCategory, searchQuery, isBestsellerFilter, isNewFilter, isCustomerFavouritesFilter, sortBy]
   );
-  // Fetch products from API with optional category or feature filter using infinite scroll + pagination
+
   const {
     products,
     isLoading,
@@ -68,9 +63,8 @@ const ShopPage: React.FC = () => {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteProducts(productFilters);
-  // Fetch categories from API
-  const { categories: apiCategories, isLoading: categoriesLoading } =
-    useCategories(true);
+
+  const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
 
   const setCategory = useCallback(
     (cat: string) => {
@@ -82,312 +76,187 @@ const ShopPage: React.FC = () => {
       }
       setSearchParams(newParams);
     },
-    [searchParams, setSearchParams],
+    [searchParams, setSearchParams]
   );
 
   const sortedProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
-
-    // Create a copy to avoid mutating original
     const result = [...products];
-
-    // Apply sorting based on sortBy state
     switch (sortBy) {
-      case "price-asc":
-        result.sort((a, b) => {
-          const priceA = Number(a?.basePrice ?? 0);
-          const priceB = Number(b?.basePrice ?? 0);
-          return priceA - priceB;
-        });
-        break;
-      case "price-desc":
-        result.sort((a, b) => {
-          const priceA = Number(a?.basePrice ?? 0);
-          const priceB = Number(b?.basePrice ?? 0);
-          return priceB - priceA;
-        });
-        break;
-      case "newest":
-        result.sort((a, b) => {
-          const dateA = new Date(b?.createdAt ?? 0).getTime();
-          const dateB = new Date(a?.createdAt ?? 0).getTime();
-          return dateA - dateB;
-        });
-        break;
-      case "rating":
-        // Rating sorting - implementation depends on API data
-        result.sort((a, b) => Number(b?.rating ?? 0) - Number(a?.rating ?? 0));
-        break;
-      case "default":
-      default:
-        // Keep original order
-        break;
+      case "price-asc": return result.sort((a, b) => Number(a?.basePrice ?? 0) - Number(b?.basePrice ?? 0));
+      case "price-desc": return result.sort((a, b) => Number(b?.basePrice ?? 0) - Number(a?.basePrice ?? 0));
+      case "newest": return result.sort((a, b) => new Date(b?.createdAt ?? 0).getTime() - new Date(a?.createdAt ?? 0).getTime());
+      case "rating": return result.sort((a, b) => Number(b?.rating ?? 0) - Number(a?.rating ?? 0));
+      default: return result;
     }
-
-    return result;
   }, [products, sortBy]);
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!hasNextPage || isFetchingNextPage || !loadMoreRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
+        if (entries[0].isIntersecting) fetchNextPage();
       },
-      { rootMargin: "200px" },
+      { rootMargin: "300px" }
     );
-
     observer.observe(loadMoreRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const gridClass =
-    viewMode === "grid-4"
-      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-      : viewMode === "grid-3"
-        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        : "grid-cols-1 sm:grid-cols-2";
+  const gridClass = {
+    "grid-4": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+    "grid-3": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    "grid-2": "grid-cols-1 sm:grid-cols-2",
+  }[viewMode];
 
-  if (isLoading && sortedProducts.length === 0) {
-    return <ShopPageSkeleton />;
-  }
+  if (isLoading && sortedProducts.length === 0) return <ShopPageSkeleton />;
 
   return (
-    <div className="min-h-screen bg-brand-latte text-foreground">
-      {/* Page Header */}
-      <div className="bg-gradient-1 py-[clamp(2rem,6vw,4rem)] px-[clamp(1rem,5vw,2rem)]">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-brand-latte/30">
+      {/* Refined Header */}
+      <div className="bg-gradient-1 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1
-              className="font-headline text-[clamp(1.75rem,5vw,3rem)] text-brand-cream mb-[clamp(0.75rem,2vw,1rem)]"
-              style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-            >
-              Shop Premium Dry Fruits & Nuts
+            <h1 className="font-headline text-5xl md:text-6xl text-brand-cream mb-6 leading-tight tracking-tight">
+              Shop Premium <br /> Dry Fruits & Nuts
             </h1>
-            <p className="font-sans text-[clamp(0.875rem,2vw,1rem)] text-brand-cream opacity-80 max-w-xl">
-              Discover our full range of carefully sourced, premium quality dry
-              fruits and nuts.
+            <p className="font-sans text-lg text-brand-cream/80 max-w-2xl leading-relaxed">
+              Experience the pinnacle of taste and nutrition with our hand-selected,
+              sustainably sourced collection.
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-[clamp(1rem,5vw,2rem)] pt-[clamp(1rem,3vw,1.5rem)] pb-[clamp(1.5rem,4vw,2rem)]">
-        {/* Filters Bar */}
-        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_10px_50px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] p-[clamp(1rem,2vw,1.25rem)] mb-[clamp(1rem,2vw,1.5rem)]">
-          <div className="flex flex-wrap items-center gap-[clamp(0.75rem,2vw,1rem)]">
-            {/* Category Filter */}
-            <div className="flex items-center gap-[clamp(0.5rem,1.5vw,0.75rem)] flex-wrap">
-              <span className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] uppercase tracking-wider text-gray-500 mr-1">
-                Category:
-              </span>
-              {categoriesLoading ? (
-                <div className="text-xs text-gray-500">Loading...</div>
-              ) : (
-                [{ id: "all", name: "All" }, ...(apiCategories ?? [])].map(
-                  (cat) => (
+      <div className="max-w-7xl mx-auto px-6 -mt-10 pb-24">
+        {/* Floating Filter Bar */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-white shadow-2xl shadow-brand-brown/5 p-2 px-4 mb-12">
+          <div className="flex flex-col xl:flex-row items-center justify-between gap-6">
+
+            {/* Categories with custom scrollbar */}
+            <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-1">
+              <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-2 px-1">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown">
+                  Filter:
+                </span>
+                <div className="flex gap-3">
+                  {[{ id: "all", name: "All Products" }, ...(apiCategories ?? [])].map((cat) => (
                     <button
                       key={cat?.id}
                       onClick={() => setCategory(cat?.id ?? "all")}
-                      className={`font-label text-[clamp(0.625rem,1.5vw,0.75rem)] px-[clamp(0.75rem,1.5vw,1rem)] py-[clamp(0.4rem,1vw,0.5rem)] rounded-lg transition-all duration-200 cursor-pointer min-h-10 flex items-center justify-center ${activeCategory === (cat?.id ?? "all")
-                          ? "bg-brand-brown text-brand-cream"
-                          : "bg-brand-latte text-brand-brown hover:bg-gray-200"
+                      // The transform (scale-105) now has room because of the py-2 and px-1 above
+                      className={`px-6 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeCategory === (cat?.id ?? "all")
+                          ? "bg-brand-brown text-brand-cream shadow-lg shadow-brand-brown/20 scale-105"
+                          : "bg-brand-latte/50 text-brand-brown hover:bg-brand-latte"
                         }`}
                     >
-                      {cat?.name ?? "Category"}
+                      {cat?.name}
                     </button>
-                  ),
-                )
-              )}
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="ml-auto flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
-              {/* Sort */}
-              <div className="flex items-center gap-[clamp(0.4rem,1vw,0.5rem)]">
-                <FunnelSimple
-                  size={16}
-                  weight="regular"
-                  className={
-                    sortBy !== "default" ? "text-brand-brown" : "text-gray-500"
-                  }
-                />
+            <div className="flex items-center justify-between w-full xl:w-auto gap-4 px-2">
+              {/* Premium Select Box */}
+              <div className="relative group">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="font-label text-[clamp(0.625rem,1.5vw,0.75rem)] rounded-lg px-[clamp(0.5rem,1vw,0.75rem)] py-[clamp(0.35rem,0.8vw,0.5rem)] focus:outline-none cursor-pointer transition-all bg-white text-slate-700 border border-slate-200 hover:border-brand-brown focus:border-brand-brown appearance-none"
-                  aria-label="Sort products"
+                  className="appearance-none pl-10 pr-12 py-3 bg-brand-latte/30 border-none rounded-2xl text-sm font-semibold text-brand-brown focus:ring-2 focus:ring-brand-brown/10 cursor-pointer transition-all min-w-[180px]"
                 >
-                  <option value="default" className="text-slate-900 bg-white">Sort: Default</option>
-                  <option value="price-asc" className="text-slate-900 bg-white">Price: Low to High</option>
-                  <option value="price-desc" className="text-slate-900 bg-white">Price: High to Low</option>
-                  <option value="rating" className="text-slate-900 bg-white">Most Popular</option>
-                  <option value="newest" className="text-slate-900 bg-white">Newest First</option>
+                  <option value="default">Sort: Recommended</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">Customer Rating</option>
+                  <option value="newest">Latest Arrivals</option>
                 </select>
+                <FunnelSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-brown/60" />
               </div>
 
-              {/* View Toggle */}
-              <div className="hidden md:flex items-center gap-1 bg-brand-latte rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode("grid-4")}
-                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-4"
-                      ? "bg-brand-brown text-brand-cream"
-                      : "text-gray-500 hover:text-brand-brown"
-                    }`}
-                  aria-label="4 column grid"
-                >
-                  <GridFour size={16} weight="regular" />
-                </button>
-                <button
-                  onClick={() => setViewMode("grid-3")}
-                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-3"
-                      ? "bg-brand-brown text-brand-cream"
-                      : "text-gray-500 hover:text-brand-brown"
-                    }`}
-                  aria-label="3 column grid"
-                >
-                  <SquaresFour size={16} weight="regular" />
-                </button>
-                <button
-                  onClick={() => setViewMode("grid-2")}
-                  className={`p-[clamp(0.4rem,1vw,0.5rem)] rounded-md transition-colors duration-200 cursor-pointer min-h-11 min-w-11 flex items-center justify-center ${viewMode === "grid-2"
-                      ? "bg-brand-brown text-brand-cream"
-                      : "text-gray-500 hover:text-brand-brown"
-                    }`}
-                  aria-label="2 column grid"
-                >
-                  <Rows size={16} weight="regular" />
-                </button>
+              {/* View Toggles */}
+              <div className="hidden md:flex bg-brand-latte/30 p-1.5 rounded-2xl">
+                {[
+                  { id: "grid-4", icon: GridFour },
+                  { id: "grid-3", icon: SquaresFour },
+                  { id: "grid-2", icon: Rows }
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setViewMode(mode.id as ViewMode)}
+                    className={`p-2.5 rounded-xl transition-all ${viewMode === mode.id
+                        ? "bg-white text-brand-brown shadow-sm scale-110"
+                        : "text-brand-brown/40 hover:text-brand-brown"
+                      }`}
+                  >
+                    <mode.icon size={20} weight={viewMode === mode.id ? "fill" : "regular"} />
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Results Count */}
-        <p className="font-semibold text-[clamp(0.75rem,1.5vw,0.875rem)] text-gray-500 mb-[clamp(1rem,2vw,1.5rem)]">
-          {isLoading ? (
-            "Loading products..."
-          ) : (
-            <>
-              Showing{" "}
-              <span
-                className="text-brand-brown font-bold"
-                style={{ fontWeight: 500 }}
-              >
-                {sortedProducts.length}
-              </span>{" "}
-              Products
-              {activeCategory !== "all" && (
-                <span>
-                  {" "}
-                  in{" "}
-                  <span className="text-brand-brown capitalize">
-                    {activeCategory}
-                  </span>
-                </span>
-              )}
-              {searchQuery && (
-                <span>
-                  {" "}
-                  matching "
-                  <span className="text-brand-brown font-medium">
-                    {searchQuery}
-                  </span>
-                  "
-                </span>
-              )}
-            </>
-          )}
-        </p>
+        {/* Dynamic Results Grid */}
+        <div className="mb-8 flex items-baseline justify-between px-2">
+          <h3 className="text-brand-brown font-headline text-2xl">
+            {activeCategory === "all" ? "Our Collection" : activeCategory}
+          </h3>
+          <p className="text-slate-400 text-sm font-medium">
+            Showing <span className="text-brand-brown font-bold">{sortedProducts.length}</span> items
+          </p>
+        </div>
 
-        {/* Error State */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border-l-4 border-red-500 p-[clamp(1rem,2vw,1.25rem)] rounded mb-[clamp(1rem,2vw,1.5rem)]"
-          >
-            <p className="text-red-800">
-              Failed to load products. Please try again.
-            </p>
-          </motion.div>
-        )}
-
-        {/* Loading State */}
-        {isLoading ? (
-          <div className="grid gap-6 ${gridClass}">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="h-96 bg-gray-200 rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-        ) : sortedProducts.length > 0 ? (
+        {sortedProducts.length > 0 ? (
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className={`grid gap-[clamp(1rem,2.5vw,1.5rem)] ${gridClass}`}
+            className={`grid gap-8 items-stretch ${gridClass}`}
           >
-            {products.map((product) => (
+            {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </motion.div>
         ) : (
-          /* Empty State */
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-[clamp(2rem,8vw,5rem)] bg-white rounded-[24px] border-2 border-dashed border-slate-200"
+            className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-brand-latte"
           >
-            <div className="max-w-md mx-auto px-[clamp(1rem,3vw,1.5rem)]">
-              <div className="w-[clamp(3rem,10vw,5rem)] h-[clamp(3rem,10vw,5rem)] bg-brand-latte rounded-full flex items-center justify-center mx-auto mb-[clamp(1rem,2vw,1.5rem)]">
-                <FunnelSimple
-                  size={32}
-                  weight="light"
-                  className="text-brand-brown"
-                />
-              </div>
-              <h3 className="font-headline text-[clamp(1.25rem,3vw,1.75rem)] text-brand-brown mb-[clamp(0.5rem,1vw,0.75rem)]">
-                No products found
-              </h3>
-              <p className="font-sans text-[clamp(0.875rem,1.5vw,1rem)] text-gray-500 mb-[clamp(1.5rem,3vw,2rem)]">
-                We couldn't find any products matching your current filters. Try
-                adjusting your search or category selection.
-              </p>
-              <button
-                onClick={() => {
-                  setSearchParams({});
-                  setSortBy("default");
-                }}
-                className="font-label text-[clamp(0.75rem,1.5vw,0.875rem)] bg-brand-brown text-brand-cream px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.5rem,1.5vw,0.75rem)] rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer min-h-11"
-              >
-                Clear All Filters
-              </button>
+            <div className="w-24 h-24 bg-brand-latte rounded-full flex items-center justify-center mb-6">
+              <FunnelSimple size={40} weight="thin" className="text-brand-brown opacity-40" />
             </div>
+            <h3 className="text-2xl font-headline text-brand-brown mb-2">No items found</h3>
+            <p className="text-slate-400 mb-8 max-w-xs text-center">Try adjusting your filters or search terms.</p>
+            <button
+              onClick={() => setSearchParams({})}
+              className="px-10 py-4 bg-brand-brown text-brand-cream rounded-2xl font-bold shadow-xl shadow-brand-brown/20 hover:-translate-y-1 transition-all"
+            >
+              Reset Filters
+            </button>
           </motion.div>
         )}
 
-        {!isLoading && sortedProducts.length > 0 && hasNextPage && (
-          <div ref={loadMoreRef} className="text-center mt-[clamp(1.5rem,3vw,2rem)]">
+        {/* Load More Area */}
+        {hasNextPage && (
+          <div ref={loadMoreRef} className="mt-20 flex justify-center">
             <button
               onClick={() => fetchNextPage()}
-              disabled={!hasNextPage || isFetchingNextPage}
-              className="font-label text-[clamp(0.75rem,1.5vw,0.875rem)] bg-brand-brown text-brand-cream px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.5rem,1.5vw,0.75rem)] rounded-xl hover:bg-brand-cocoa transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none min-h-11"
+              disabled={isFetchingNextPage}
+              className="group flex items-center gap-3 px-12 py-5 bg-white border border-brand-latte text-brand-brown rounded-[24px] font-bold hover:bg-brand-brown hover:text-white transition-all duration-500 disabled:opacity-50"
             >
-              {isFetchingNextPage ? "Loading more..." : "Load More"}
+              {isFetchingNextPage ? (
+                <div className="w-5 h-5 border-2 border-brand-brown/30 border-t-brand-brown animate-spin rounded-full" />
+              ) : (
+                "Show More Products"
+              )}
             </button>
           </div>
         )}
@@ -396,6 +265,14 @@ const ShopPage: React.FC = () => {
       <style>{`
         .bg-gradient-1 {
           background: linear-gradient(135deg, var(--color-brand-brown) 0%, var(--color-brand-cocoa) 100%);
+          
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>

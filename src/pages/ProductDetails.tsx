@@ -7,9 +7,9 @@ import { useHomepagePromotions } from "../api/promotions";
 import { ProductDetailSkeleton, ReviewSkeleton } from "../components/Skeletons";
 import LazySection from "../components/LazySection";
 import { ProductVariant } from "../types";
-import { 
-  Star, Minus, Plus, ShoppingCart, Check, 
-  Truck, ArrowLeft, ShieldCheck, 
+import {
+  Star, Minus, Plus, ShoppingCart, Check,
+  Truck, ArrowLeft, ShieldCheck,
   CaretRight, X, ClockCounterClockwise
 } from "@phosphor-icons/react";
 
@@ -71,19 +71,19 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] relative overflow-x-hidden">
-      
+
       {/* --- SLIDE-OUT DRAWER OVERLAY --- */}
       <AnimatePresence>
         {activeDrawer && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setActiveDrawer(null)}
               className="fixed inset-0 bg-brand-brown/20 backdrop-blur-sm z-[60]"
             />
-            <motion.div 
+            <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -104,7 +104,7 @@ const ProductDetailPage: React.FC = () => {
                   {(activeDrawer === "description" && product?.description) && (
                     <div className="text-slate-600 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: product.description }} />
                   )}
-                  
+
                   {activeDrawer === "benefits" && (
                     product.benefits && product.benefits.length > 0 ? (
                       <ul className="space-y-4 list-none p-0">
@@ -149,7 +149,7 @@ const ProductDetailPage: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
-          
+
           {/* Left Column: Media Gallery (Side Thumbnails) */}
           <div className="lg:col-span-7 flex flex-col lg:flex-row-reverse gap-4 h-fit lg:sticky lg:top-24">
             {/* Main Image Container */}
@@ -159,7 +159,7 @@ const ProductDetailPage: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 src={product.images?.[selectedImage] || "/placeholder-product.png"}
-                className="w-full h-full object-contain p-6"
+                className="w-full h-full object-contain p-0"
               />
               {product.badge && (
                 <div className="absolute top-6 right-6 bg-brand-brown text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
@@ -167,8 +167,7 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               )}
             </div>
-            
-            {/* Vertical Thumbnails */}
+
             <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-hide pb-2 lg:pb-0 lg:w-24">
               {product.images?.map((img: string, index: number) => (
                 <button
@@ -248,7 +247,7 @@ const ProductDetailPage: React.FC = () => {
                     <button onClick={() => setQuantity(q => q + 1)} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Plus weight="bold" /></button>
                   </div>
                   <div className="text-[11px] font-bold uppercase tracking-widest">
-                    {isOutOfStock ? <span className="text-red-500">Out of Stock</span> : <span className="text-emerald-600 flex items-center gap-1"><Check weight="bold"/> In Stock</span>}
+                    {isOutOfStock ? <span className="text-red-500">Out of Stock</span> : <span className="text-emerald-600 flex items-center gap-1"><Check weight="bold" /> In Stock</span>}
                   </div>
                 </div>
 
@@ -272,7 +271,7 @@ const ProductDetailPage: React.FC = () => {
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2"><ShoppingCart size={20} /> Add To Bag</span>
                   </button>
-                  <button 
+                  <button
                     disabled={isOutOfStock}
                     onClick={() => {
                       if (selectedVariantData && product) {
@@ -295,8 +294,8 @@ const ProductDetailPage: React.FC = () => {
 
                 {/* Trust Badges */}
                 <div className="grid grid-cols-2 gap-6 py-6 border-t border-slate-100">
-                  <Badge icon={<Truck size={20} />} text={<>Complimentary <br/>Shipping</>} />
-                  <Badge icon={<ShieldCheck size={20} />} text={<>Quality <br/>Guaranteed</>} />
+                  <Badge icon={<Truck size={20} />} text={<>Complimentary <br />Shipping</>} />
+                  <Badge icon={<ShieldCheck size={20} />} text={<>Quality <br />Guaranteed</>} />
                 </div>
               </div>
             </div>
@@ -304,109 +303,123 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
         {/* Reviews Section */}
-        { product.reviews && product.reviews.length > 0 && (
+        {product.reviews && product.reviews.length > 0 && (
           <div className="mt-16">
             <LazySection fallback={<ReviewSkeleton />}>
               <div className="text-center max-w-2xl mx-auto mb-16">
                 <h2 className="text-4xl font-headline text-brand-brown mb-4">Customer Chronicles</h2>
                 <p className="text-slate-400 text-sm">Honest experiences from our wellness community</p>
-            </div>
-            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-              {product.reviews?.map((review: any, i: number) => (
-                <div key={i} className="break-inside-avoid bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                   <div className="flex justify-between mb-4">
-                    <div className="flex text-amber-400">
-                      {[...Array(5)].map((_, s) => <Star key={s} size={12} weight={s < review.rating ? "fill" : "regular"} />)}
+              </div>
+              <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                {product.reviews?.map((review: any, i: number) => (
+                  <div key={i} className="break-inside-avoid bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex justify-between mb-4">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, s) => <Star key={s} size={12} weight={s < review.rating ? "fill" : "regular"} />)}
+                      </div>
+                    </div>
+                    <p className="text-slate-600 italic text-sm leading-relaxed mb-6">"{review.comment}"</p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
+                      <div className="w-8 h-8 rounded-full bg-brand-latte flex items-center justify-center text-[10px] font-black text-brand-brown uppercase">{review.author?.[0]}</div>
+                      <span className="text-xs font-bold text-brand-brown uppercase tracking-widest">{review.author}</span>
                     </div>
                   </div>
-                  <p className="text-slate-600 italic text-sm leading-relaxed mb-6">"{review.comment}"</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
-                    <div className="w-8 h-8 rounded-full bg-brand-latte flex items-center justify-center text-[10px] font-black text-brand-brown uppercase">{review.author?.[0]}</div>
-                    <span className="text-xs font-bold text-brand-brown uppercase tracking-widest">{review.author}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </LazySection>
-        </div>
+                ))}
+              </div>
+            </LazySection>
+          </div>
         )}
 
-        {/* Related Products Section */}
-        <div className="mt-16">
-          <LazySection fallback={<ReviewSkeleton />}>
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="text-4xl font-headline text-brand-brown mb-4">You Might Also Like</h2>
-              <p className="text-slate-400 text-sm">Similar products from our curated collection</p>
-            </div>
-            {products && products.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {products
-                  .filter((p: any) => p.category === product.category && p.id !== product.id)
-                  .slice(0, 4)
-                  .map((relatedProduct: any) => (
-                    <motion.div
-                      key={relatedProduct.id}
-                      whileHover={{ y: -8 }}
-                      onClick={() => {
-                        navigate(`/shop/product/${relatedProduct.id}`);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className="cursor-pointer group"
-                    >
-                      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        {/* Product Image */}
-                        <div className="h-48 bg-brand-latte overflow-hidden relative">
-                          {relatedProduct.images?.[0] && (
-                            <img
-                              src={relatedProduct.images[0]}
-                              alt={relatedProduct.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          )}
-                        </div>
+        {products && products.length > 0 && (
+          <div className="mt-16">
+            <LazySection fallback={<ReviewSkeleton />}>
+              <div className="text-center max-w-2xl mx-auto mb-16">
+                <h2 className="text-4xl font-headline text-brand-brown mb-4">You Might Also Like</h2>
+                <p className="text-slate-400 text-sm">Similar products from our curated collection</p>
+              </div>
 
-                        {/* Product Info */}
-                        <div className="p-6">
-                          <h3 className="font-headline text-brand-brown text-lg mb-2 line-clamp-2 group-hover:text-brand-cocoa transition-colors">
-                            {relatedProduct.name}
-                          </h3>
-                          <p className="text-slate-400 text-xs mb-4 line-clamp-2">{relatedProduct.description?.replace(/<[^>]*>/g, '').substring(0, 60)}...</p>
+              {products && products.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                  {products
+                    .filter((p: any) => p.category === product.category && p.id !== product.id)
+                    .slice(0, 4)
+                    .map((relatedProduct: any) => (
+                      <motion.div
+                        key={relatedProduct.id}
+                        whileHover={{ y: -8 }}
+                        onClick={() => {
+                          navigate(`/shop/product/${relatedProduct.id}`);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="cursor-pointer group h-full flex flex-col"
+                      >
+                        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
+                          {/* Product Image - Fixed height to keep layout consistent */}
+                          <div className="h-48 bg-brand-latte overflow-hidden relative flex-shrink-0">
+                            {relatedProduct.images?.[0] && (
+                              <img
+                                src={relatedProduct.images[0]}
+                                alt={relatedProduct.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              />
+                            )}
+                          </div>
 
-                          {/* Rating */}
-                          {relatedProduct.rating && (
-                            <div className="flex items-center gap-2 mb-4">
-                              <div className="flex text-amber-400">
-                                {[...Array(5)].map((_, s) => (
-                                  <Star key={s} size={12} weight={s < Math.floor(relatedProduct.rating) ? "fill" : "regular"} />
-                                ))}
-                              </div>
-                              <span className="text-[10px] text-slate-400 font-bold">({relatedProduct.reviews || 0})</span>
-                            </div>
-                          )}
+                          {/* Product Info - flex-1 allows this section to grow and fill space */}
+                          <div className="p-6 flex flex-col flex-1">
+                            <h3 className="font-headline text-brand-brown text-lg mb-2 line-clamp-2 group-hover:text-brand-cocoa transition-colors">
+                              {relatedProduct.name}
+                            </h3>
 
-                          {/* Price */}
-                          {relatedProduct.variants && relatedProduct.variants.length > 0 && (
-                            <div className="flex items-center gap-2">
-                              <span className="font-headline text-lg text-brand-brown">
-                                ₹{relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price}
-                              </span>
-                              {relatedProduct.variants[0]?.price > (relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price) && (
-                                <span className="text-slate-400 line-through text-sm">
-                                  ₹{relatedProduct.variants[0]?.price}
-                                </span>
+                            <p className="text-slate-400 text-xs mb-4 line-clamp-2">
+                              {relatedProduct.description?.replace(/<[^>]*>/g, '')}
+                            </p>
+
+                            {/* mt-auto pushes everything below this point to the bottom of the card */}
+                            <div className="mt-auto">
+                              {/* Rating */}
+                              {relatedProduct.rating && (
+                                <div className="flex items-center gap-2 mb-4">
+                                  <div className="flex text-amber-400">
+                                    {[...Array(5)].map((_, s) => (
+                                      <Star
+                                        key={s}
+                                        size={12}
+                                        weight={s < Math.floor(relatedProduct.rating) ? "fill" : "regular"}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className="text-[10px] text-slate-400 font-bold">
+                                    ({relatedProduct.reviews || 0})
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Price Section */}
+                              {relatedProduct.variants && relatedProduct.variants.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-headline text-lg text-brand-brown">
+                                    ₹{relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price}
+                                  </span>
+                                  {relatedProduct.variants[0]?.price > (relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price) && (
+                                    <span className="text-slate-400 line-through text-sm">
+                                      ₹{relatedProduct.variants[0]?.price}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-            ) : (
-              <ComingSoonPlaceholder label="related products" />
-            )}
-          </LazySection>
-        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              ) : (
+                <ComingSoonPlaceholder label="related products" />
+              )}
+            </LazySection>
+          </div>
+        )}
       </main>
     </div>
   );
