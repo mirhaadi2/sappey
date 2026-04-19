@@ -391,7 +391,7 @@ const BulkOrderPage: React.FC = () => {
                                 </button>
                             </form>
 
-                            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                            {/* <div className="mt-8 grid gap-4 sm:grid-cols-2">
                                 <div className="rounded-3xl bg-slate-100 p-4">
                                     <div className="flex items-center gap-3 text-brand-brown font-semibold mb-3">
                                         <Phone size={18} />
@@ -406,7 +406,7 @@ const BulkOrderPage: React.FC = () => {
                                     </div>
                                     <p className="text-sm text-slate-600">support@sappey.com</p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

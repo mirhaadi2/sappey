@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom'; // Import this
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from '@phosphor-icons/react';
 
@@ -19,10 +20,21 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = 'max-w-md',
   showCloseButton = true,
 }) => {
-  return (
+  // Prevent scrolling on the background when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        // Changed z-index to a standard Tailwind class like z-[9999]
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -30,7 +42,7 @@ const Modal: React.FC<ModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-brand-brown/40 backdrop-blur-md" // Changed bg to match Sappey branding
           />
 
           {/* Modal */}
@@ -38,26 +50,26 @@ const Modal: React.FC<ModalProps> = ({
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 10 }}
-            transition={{ type: 'spring', duration: 0.3 }}
-            className={`relative w-full ${maxWidth} bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 overflow-auto max-h-[calc(100vh-2rem)]`}
+            transition={{ type: 'spring', duration: 0.4, bounce: 0.3 }}
+            className={`relative w-full ${maxWidth} bg-white rounded-[32px] shadow-[0_30px_60px_rgba(0,0,0,0.12)] border border-brand-brown/10 overflow-hidden flex flex-col max-h-[90vh]`}
             onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
           >
-            {/* Close Button && Title */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
-              {title && <h2 className="text-xl font-bold text-slate-900">{title}</h2>}
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 px-6 border-b border-brand-latte/20 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
+              {title && <h2 className="text-2xl font-headline text-brand-brown">{title}</h2>}
               {!title && <div />}
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-700"
+                  className="p-2 rounded-full hover:bg-brand-latte/30 transition-all text-brand-brown/60 hover:text-brand-brown"
                 >
-                  <X size={20} weight="bold" />
+                  <X size={24} weight="bold" />
                 </button>
               )}
             </div>
 
-            {/* Content */}
-            <div className="p-6">
+            {/* Scrollable Content */}
+            <div className="p-4 px-6 !pt-0 overflow-y-auto custom-scrollbar">
               {children}
             </div>
           </motion.div>
@@ -65,6 +77,9 @@ const Modal: React.FC<ModalProps> = ({
       )}
     </AnimatePresence>
   );
+
+  // This renders the modal at the end of <body> instead of inside your ShopPage HTML
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;
