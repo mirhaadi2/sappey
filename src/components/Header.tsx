@@ -344,7 +344,12 @@ const Header: React.FC = () => {
                         >
                             {/* Header: Increased top margin for notch/status bar safety */}
                             <div className="flex justify-between items-center mb-10 mt-4">
-                                <img src="/images/sappey-logo-4.png" alt="SAPPEY" className="h-12 w-auto object-contain" />
+                                {/* <img src="/images/sappey-logo-4.png" alt="SAPPEY" className="h-12 w-auto object-contain" /> */}
+                                <img 
+                                    src="/images/sappey-logo-4.png" 
+                                    alt="SAPPEY" 
+                                    className="h-16 w-auto object-contain" 
+                                />
                                 <button
                                     onClick={() => setMobileOpen(false)}
                                     className="p-2 -mr-2 active:scale-95 transition-transform"
