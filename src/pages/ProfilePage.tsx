@@ -7,10 +7,10 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { ProfilePageSkeleton } from "../components/Skeletons";
 import ProfileEditModal from "../components/ProfileEditModal";
 import {
-  User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check,
-  CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag, 
-  Gear, ShieldCheck, MapTrifold, CaretRight, IdentificationCard,
-  ArrowRightIcon
+  User, MapPin, Envelope, Pencil, Plus, Trash, Check,
+  CircleNotch, ArrowLeft, House, Briefcase,
+  ShieldCheck, MapTrifold, CaretRight, IdentificationCard,
+  ArrowRight
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,8 @@ const ADDRESS_TYPES = [
 ] as const;
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Label required"),
+  firstName: z.string().min(1, "First name required"),
+  lastName: z.string().min(1, "Last name required"),
   addressLine1: z.string().min(3, "Required"),
   addressLine2: z.string().optional(),
   city: z.string().min(1, "Required"),
@@ -69,7 +70,17 @@ const ProfilePage: React.FC = () => {
   if (!currentUser) return null;
 
   const handleAddressSubmit = (data: AddressFormData) => {
-    const payload = { ...data, type: (selectedAddressType as any) || "HOME" };
+    const payload = {
+      type: (selectedAddressType as any) || "HOME",
+      name: `${data.firstName} ${data.lastName}`.trim(),
+      addressLine1: data.addressLine1,
+      addressLine2: data.addressLine2,
+      city: data.city,
+      state: data.state,
+      postalCode: data.postalCode,
+      country: data.country,
+      phone: data.phone,
+    };
     editingAddressId ? updateAddress({ ...payload, id: editingAddressId }) : createAddress(payload);
     reset();
     setShowAddressForm(false);
@@ -77,7 +88,16 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleEdit = (address: any) => {
-    Object.keys(addressSchema.shape).forEach((key) => setValue(key as any, address[key] || ""));
+    const [firstName, ...rest] = (address.name || "").split(" ");
+    setValue("firstName", firstName || "");
+    setValue("lastName", rest.join(" ") || "");
+    setValue("addressLine1", address.addressLine1 || "");
+    setValue("addressLine2", address.addressLine2 || "");
+    setValue("city", address.city || "");
+    setValue("state", address.state || "");
+    setValue("postalCode", address.postalCode || "");
+    setValue("country", address.country || "");
+    setValue("phone", address.phone || "");
     setSelectedAddressType(address.type);
     setEditingAddressId(address.id);
     setShowAddressForm(true);
@@ -194,7 +214,7 @@ const ProfilePage: React.FC = () => {
                         {ADDRESS_TYPES.map(t => (
                           <button
                             key={t.id} type="button"
-                            onClick={() => { setSelectedAddressType(t.id); if(t.id !== 'OTHER') setValue('name', t.label); }}
+                            onClick={() => { setSelectedAddressType(t.id); }}
                             className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedAddressType === t.id ? 'bg-brand-brown text-white shadow-xl shadow-brand-brown/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
                           >
                             <t.icon size={16} weight={selectedAddressType === t.id ? "fill" : "bold"} />
@@ -205,7 +225,8 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <CompactInput label="Label Name" placeholder="e.g. My Beach House" register={register("name")} error={errors.name} />
+                      <CompactInput label="First Name" placeholder="John" register={register("firstName")} error={errors.firstName} />
+                      <CompactInput label="Last Name" placeholder="Doe" register={register("lastName")} error={errors.lastName} />
                       <CompactInput label="Contact Number" placeholder="10 Digit Phone" register={register("phone")} error={errors.phone} />
                       <div className="md:col-span-2">
                         <CompactInput label="Street Address" placeholder="Building, Street, Area" register={register("addressLine1")} error={errors.addressLine1} />

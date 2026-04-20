@@ -6,9 +6,11 @@ import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { useApplicablePromotions, Promotion } from "../api/promotions";
-import { getOrderSummary, buildOrderItemsPayload, getSubtotal, isShippingAddressComplete } from "../utils/checkoutCalculations";
+import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/checkoutCalculations";
 import { MapPin, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
+import { useAddresses } from "../api/address/hooks";
+import { Address } from "../types/address";
 import CheckoutHeader from "../components/CheckoutHeader";
 import PageContentModal from "../components/PageContentModal";
 import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
@@ -198,7 +200,7 @@ const CheckoutPage: React.FC = () => {
   });
 
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | "upi" | "netbanking">("cod");
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
+  const [shippingMethod] = useState<"standard" | "express" | "overnight">("standard");
   const [newsletter, setNewsletter] = useState(true);
   const [saveInfo, setSaveInfo] = useState(true);
   const [openModal, setOpenModal] = useState<string | null>(null);
@@ -220,6 +222,7 @@ const CheckoutPage: React.FC = () => {
   const placeOrderPendingRef = useRef(false);
 
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
+  const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
 
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount  > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
@@ -448,18 +451,6 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  const getContactLabel = (type: 'email' | 'phone' | 'whatsapp') => {
-    if (guestConfig?.labels?.[type]) return guestConfig.labels[type];
-    switch (type) {
-      case 'email':
-        return 'Email Address';
-      case 'phone':
-        return 'Phone Number';
-      case 'whatsapp':
-        return 'WhatsApp Number';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-brand-latte">
       <CheckoutHeader />
@@ -601,6 +592,87 @@ const CheckoutPage: React.FC = () => {
                 <MapPin size={24} />
                 Delivery
               </h2>
+
+              {/* Address Selection for Logged-in Users */}
+              {currentUser && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Select Shipping Address</h3>
+
+                  {addressesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-brown"></div>
+                    </div>
+                  ) : userAddresses.length > 0 ? (
+                    <div className="space-y-3 mb-4">
+                      {userAddresses.map((address: Address) => (
+                        <button
+                          key={address.id}
+                          type="button"
+                          onClick={() => {
+                            if (selectedAddressId === address.id) {
+                              setSelectedAddressId(null);
+                              setDeliveryData({
+                                firstName: '',
+                                lastName: '',
+                                address: '',
+                                city: '',
+                                state: '',
+                                pinCode: '',
+                                country: 'India',
+                                phone: '',
+                              });
+                            } else {
+                              setSelectedAddressId(address.id);
+                              setDeliveryData({
+                                firstName: address.name?.split(' ')[0] || '',
+                                lastName: address.name?.split(' ').slice(1).join(' ') || '',
+                                address: address.addressLine1 + (address.addressLine2 ? `, ${address.addressLine2}` : ''),
+                                city: address.city || '',
+                                state: address.state || '',
+                                pinCode: address.postalCode || '',
+                                country: address.country || 'India',
+                                phone: address.phone || '',
+                              });
+                            }
+                          }}
+                          className={`w-full text-left p-4 border-2 rounded-xl transition-all ${
+                            selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <p className="font-semibold text-slate-900">{address.name || 'Shipping address'}</p>
+                              <p className="text-sm text-slate-600">
+                                {address.addressLine1}, {address.city}, {address.state} {address.postalCode}
+                              </p>
+                              <p className="text-sm text-slate-600">{address.country}</p>
+                              {selectedAddressId === address.id && (
+                                <p className="text-xs text-slate-500 mt-2">Click again to deselect and enter a different address.</p>
+                              )}
+                            </div>
+                            {selectedAddressId === address.id && (
+                              <span className="text-xs font-semibold text-brand-brown">Selected</span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+
+                      {selectedAddressId && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedAddressId(null)}
+                          className="text-sm text-brand-brown font-semibold mt-2"
+                        >
+                          Use a different address
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-600 mb-4">No saved shipping addresses found. Please enter a new address below.</p>
+                  )}
+                </div>
+              )}
+
               <AddressForm
                 data={deliveryData}
                 onChange={setDeliveryData}
