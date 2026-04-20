@@ -1,4 +1,5 @@
 import { Promotion } from '../api/promotions';
+import { OrderItem } from '../api/orders/types';
 
 export interface CheckoutItem {
     product?: Record<string, any>;
@@ -119,7 +120,7 @@ export const getOrderSummary = (
     };
 };
 
-export const buildOrderItemsPayload = (items: CheckoutItem[] = []): Record<string, any>[] => {
+export const buildOrderItemsPayload = (items: CheckoutItem[] = []): OrderItem[] => {
     return items.map((item) => {
         const variantData = item?.variant && typeof item.variant === 'object' ? item.variant : {};
         const unitPrice = getItemUnitPrice(item);

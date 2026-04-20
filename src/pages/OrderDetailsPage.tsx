@@ -85,7 +85,7 @@ const OrderDetailsPage: React.FC = () => {
     if (!currentUser) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center p-12 bg-white rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] border border-slate-100 max-w-sm mx-4"
@@ -129,25 +129,26 @@ const OrderDetailsPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#FBFBFD] pb-24">
             {/* Elegant Header Navigation */}
-            <div className="sticky top-0 z-30 bg-[#FBFBFD]/80 backdrop-blur-xl border-b border-slate-200/50">
+            <div className="sticky top-0 z-30 ">
                 <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-1">
                         <button
                             onClick={() => navigate("/orders")}
-                            className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-600 hover:text-brand-brown hover:border-brand-brown transition-all shadow-sm group"
+                            className="group flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-50 transition-all"
                         >
-                            <ArrowLeft size={20} weight="bold" className="group-hover:-translate-x-0.5 transition-transform" />
+                            <div className="p-2 bg-brand-latte/20 rounded-lg group-hover:bg-brand-brown group-hover:text-white transition-colors">
+                                <ArrowLeft size={16} weight="bold" />
+                            </div>
                         </button>
                         <div>
                             <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
                                 <span>Manifest</span>
                                 <CaretRight size={10} weight="bold" />
-                                <span className="text-brand-brown">Tracking</span>
+                                <span className="text-brand-brown">{order?.orderNumber}</span>
                             </div>
-                            <h1 className="text-xl font-black text-slate-900 leading-none">#{order?.orderNumber}</h1>
                         </div>
                     </div>
-                    
+
                     <div className="hidden md:flex items-center gap-6">
                         <div className="text-right">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Order Date</p>
@@ -167,7 +168,7 @@ const OrderDetailsPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 mt-10">
+            <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <div className="lg:col-span-8 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -209,7 +210,7 @@ const OrderDetailsPage: React.FC = () => {
                             </div>
                             <div className="divide-y divide-slate-50 px-4">
                                 {order?.items?.map((item: OrderItemDetail, idx: number) => (
-                                    <motion.div 
+                                    <motion.div
                                         key={item.id || idx}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -219,7 +220,7 @@ const OrderDetailsPage: React.FC = () => {
                                     </motion.div>
                                 ))}
                             </div>
-                            
+
                             {/* Premium Promotion Banner */}
                             {order?.metadata?.promotion && (
                                 <div className="m-6 p-8 bg-slate-900 rounded-[2rem] text-white flex items-center gap-6 relative overflow-hidden">
@@ -268,7 +269,7 @@ const OrderDetailsPage: React.FC = () => {
                                         Encrypted Secure Payment
                                     </div> */}
                                 </div>
-                                
+
                                 <div className="flex flex-col justify-center md:items-end md:text-right">
                                     <p className="text-[10px] font-black text-brand-cream/40 uppercase tracking-[0.4em] mb-4">Final Amount</p>
                                     <h3 className="text-5xl font-black tracking-tighter mb-6">
@@ -293,13 +294,13 @@ const OrderDetailsPage: React.FC = () => {
                                 </div>
                                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Delivery Intel</h3>
                             </div>
-                            
+
                             <div className="space-y-8">
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Recipient</p>
                                     <p className="text-xl font-black text-slate-900 tracking-tight">{currentUser?.name ?? "N/A"}</p>
                                 </div>
-                                
+
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Shipping Hub</p>
                                     <p className="text-sm font-bold text-slate-600 leading-relaxed">
@@ -347,7 +348,7 @@ const OrderDetailsPage: React.FC = () => {
                         </div>
 
                         {order?.status === "DELIVERED" && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="rounded-2xl overflow-hidden border border-slate-100 shadow-2xl shadow-slate-200"
