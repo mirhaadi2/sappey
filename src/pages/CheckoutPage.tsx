@@ -41,6 +41,16 @@ interface AddressFormProps {
   saveInfo?: boolean;
   onSaveInfoChange?: (value: boolean) => void;
   phoneLabel?: string;
+  errors?: {
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    phone?: string;
+    pinCode?: string;
+    country?: string;
+  };
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
@@ -49,10 +59,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
   showSaveInfo = false,
   saveInfo = true,
   onSaveInfoChange,
-  phoneLabel = "Phone"
+  phoneLabel = "Phone",
+  errors = {}
 }) => {
   // Common styles for all inputs to ensure consistency
-  const inputClass = "w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none focus:ring-0 transition";
+  const inputClass = "w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-0 transition";
+  const getInputClass = (fieldName: keyof typeof errors) => `${inputClass} ${errors[fieldName] ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-brand-brown'}`;
 
   return (
     <div className="space-y-4">
@@ -60,38 +72,48 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <select
           value={data.country}
           onChange={(e) => onChange({ ...data, country: e.target.value })}
-          className={inputClass}
+          className={getInputClass('country')}
         >
           <option>India</option>
         </select>
+        {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <input
-          type="text"
-          value={data.firstName}
-          onChange={(e) => onChange({ ...data, firstName: e.target.value })}
-          placeholder="First name"
-          className={inputClass}
-        />
-        <input
-          type="text"
-          value={data.lastName}
-          onChange={(e) => onChange({ ...data, lastName: e.target.value })}
-          placeholder="Last name"
-          className={inputClass}
-          autoComplete="off"
-        />
+        <div>
+          <input
+            type="text"
+            value={data.firstName}
+            onChange={(e) => onChange({ ...data, firstName: e.target.value })}
+            placeholder="First name"
+            className={getInputClass('firstName')}
+          />
+          {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+        </div>
+        <div>
+          <input
+            type="text"
+            value={data.lastName}
+            onChange={(e) => onChange({ ...data, lastName: e.target.value })}
+            placeholder="Last name"
+            className={getInputClass('lastName')}
+            autoComplete="off"
+          />
+          {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+        </div>
       </div>
 
-      <input
-        type="text"
-        value={data.address}
-        onChange={(e) => onChange({ ...data, address: e.target.value })}
-        placeholder="Address"
-        className={inputClass}
-        autoComplete="off"
-      />
+      <div>
+        <input
+          type="text"
+          value={data.address}
+          onChange={(e) => onChange({ ...data, address: e.target.value })}
+          placeholder="Address"
+          className={getInputClass('address')}
+          autoComplete="off"
+        />
+        {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+      </div>
 
       <input
         type="text"
@@ -101,42 +123,53 @@ const AddressForm: React.FC<AddressFormProps> = ({
       />
 
       <div className="grid grid-cols-3 gap-4">
-        <input
-          type="text"
-          value={data.city}
-          onChange={(e) => onChange({ ...data, city: e.target.value })}
-          placeholder="City"
-          className={inputClass}
-          autoComplete="off"
-        />
-        <select
-          value={data.state}
-          onChange={(e) => onChange({ ...data, state: e.target.value })}
-          className={inputClass}
-        >
-          <option value="">Select State</option>
-          {indianStates.map((state) => (
-            <option key={state} value={state}>{state}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          value={data.pinCode}
-          onChange={(e) => onChange({ ...data, pinCode: e.target.value })}
-          placeholder="PIN code"
-          className={inputClass}
-          autoComplete="off"
-        />
+        <div>
+          <input
+            type="text"
+            value={data.city}
+            onChange={(e) => onChange({ ...data, city: e.target.value })}
+            placeholder="City"
+            className={getInputClass('city')}
+            autoComplete="off"
+          />
+          {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+        </div>
+        <div>
+          <select
+            value={data.state}
+            onChange={(e) => onChange({ ...data, state: e.target.value })}
+            className={getInputClass('state')}
+          >
+            <option value="">Select State</option>
+            {indianStates.map((state) => (
+              <option key={state} value={state}>{state}</option>
+            ))}
+          </select>
+          {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
+        </div>
+        <div>
+          <input
+            type="text"
+            value={data.pinCode}
+            onChange={(e) => onChange({ ...data, pinCode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+            placeholder="PIN code"
+            className={getInputClass('pinCode')}
+            autoComplete="off"
+            maxLength={6}
+          />
+          {errors.pinCode && <p className="text-red-500 text-sm mt-1">{errors.pinCode}</p>}
+        </div>
       </div>
 
       <div className="relative group flex items-center">
         <input
           type="text"
           value={data.phone}
-          onChange={(e) => onChange({ ...data, phone: e.target.value })}
+          onChange={(e) => onChange({ ...data, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
           placeholder={phoneLabel}
-          className={inputClass}
+          className={getInputClass('phone')}
           autoComplete="off"
+          maxLength={10}
         />
         <QuestionIcon
           size={20}
@@ -148,8 +181,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
             <div className="absolute top-full right-5 -mt-1 border-4 border-transparent border-t-slate-800"></div>
           </div>
         </div>
+        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
       </div>
-
       {showSaveInfo && (
         <label className="flex items-center gap-3 cursor-pointer">
           <input
@@ -188,6 +221,16 @@ const CheckoutPage: React.FC = () => {
     phone: '',
     country: 'India',
   });
+  const [deliveryErrors, setDeliveryErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    phone?: string;
+    pinCode?: string;
+    country?: string;
+  }>({});
   const [billingData, setBillingData] = useState({
     sameAsShipping: true,
     firstName: '',
@@ -196,6 +239,7 @@ const CheckoutPage: React.FC = () => {
     city: '',
     state: '',
     pinCode: '',
+    phone: '',
     country: 'India',
   });
 
@@ -309,6 +353,79 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  const validateDeliveryAddress = () => {
+    const errors: typeof deliveryErrors = {};
+
+    // First Name validation
+    if (!deliveryData.firstName.trim()) {
+      errors.firstName = "First name is required";
+    } else if (deliveryData.firstName.trim().length < 2) {
+      errors.firstName = "First name must be at least 2 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(deliveryData.firstName.trim())) {
+      errors.firstName = "First name can only contain letters and spaces";
+    }
+
+    // Last Name validation (optional but if provided, validate)
+    if (deliveryData.lastName.trim() && !/^[a-zA-Z\s]+$/.test(deliveryData.lastName.trim())) {
+      errors.lastName = "Last name can only contain letters and spaces";
+    }
+
+    // Address validation
+    if (!deliveryData.address.trim()) {
+      errors.address = "Address is required";
+    } else if (deliveryData.address.trim().length < 10) {
+      errors.address = "Please provide a complete address (minimum 10 characters)";
+    }
+
+    // City validation
+    if (!deliveryData.city.trim()) {
+      errors.city = "City is required";
+    } else if (deliveryData.city.trim().length < 2) {
+      errors.city = "City name must be at least 2 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(deliveryData.city.trim())) {
+      errors.city = "City name can only contain letters and spaces";
+    }
+
+    // State validation
+    if (!deliveryData.state.trim()) {
+      errors.state = "Please select a state";
+    }
+
+    // PIN Code validation
+    if (!deliveryData.pinCode.trim()) {
+      errors.pinCode = "PIN code is required";
+    } else if (!/^[1-9][0-9]{5}$/.test(deliveryData.pinCode.trim())) {
+      errors.pinCode = "Please enter a valid 6-digit PIN code";
+    }
+
+    // Country validation
+    if (!deliveryData.country.trim()) {
+      errors.country = "Country is required";
+    }
+
+    // Phone validation
+    if (!deliveryData.phone.trim()) {
+      errors.phone = "Phone number is required";
+    } else if (!/^[6-9][0-9]{9}$/.test(deliveryData.phone.trim())) {
+      errors.phone = "Please enter a valid 10-digit mobile number starting with 6-9";
+    }
+
+    setDeliveryErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleDeliveryDataChange = (data: typeof deliveryData) => {
+    setDeliveryData(data);
+    // Clear errors for fields that are being edited
+    const updatedErrors = { ...deliveryErrors };
+    (Object.keys(data) as Array<keyof typeof data>).forEach(key => {
+      if (updatedErrors[key] && data[key]?.trim()) {
+        delete updatedErrors[key];
+      }
+    });
+    setDeliveryErrors(updatedErrors);
+  };
+
   const applySavedAddress = (address: any) => {
     setSelectedAddressId(address.id);
     setDeliveryData((prev) => ({
@@ -334,9 +451,14 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    // Validation
-    if (!deliveryData.firstName || !deliveryData.address || !deliveryData.city) {
-      alert("Please fill in all delivery address fields");
+    // Validate delivery address
+    if (!validateDeliveryAddress()) {
+      // Scroll to the first error field
+      const firstErrorField = Object.keys(deliveryErrors)[0];
+      if (firstErrorField) {
+        const element = document.querySelector(`[name="${firstErrorField}"]`) || document.querySelector('.delivery-section');
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
@@ -675,11 +797,12 @@ const CheckoutPage: React.FC = () => {
 
               <AddressForm
                 data={deliveryData}
-                onChange={setDeliveryData}
+                onChange={handleDeliveryDataChange}
                 showSaveInfo={true}
                 saveInfo={saveInfo}
                 onSaveInfoChange={setSaveInfo}
                 phoneLabel="Phone"
+                errors={deliveryErrors}
               />
             </motion.div>
 
@@ -776,11 +899,9 @@ const CheckoutPage: React.FC = () => {
               {!billingData.sameAsShipping && (
                 <div className="mt-6">
                   <AddressForm
-                    data={deliveryData}
-                    onChange={setDeliveryData}
-                    showSaveInfo={true}
-                    saveInfo={saveInfo}
-                    onSaveInfoChange={setSaveInfo}
+                    data={billingData}
+                    onChange={(data) => setBillingData((prev) => ({ ...prev, ...data }))}
+                    showSaveInfo={false}
                     phoneLabel="Phone (Optional)"
                   />
                 </div>
