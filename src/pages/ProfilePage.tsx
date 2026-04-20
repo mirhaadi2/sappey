@@ -8,57 +8,42 @@ import { ProfilePageSkeleton } from "../components/Skeletons";
 import ProfileEditModal from "../components/ProfileEditModal";
 import {
   User, MapPin, Phone, Envelope, Pencil, Plus, Trash, Check,
-  CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag, ArrowRight
+  CircleNotch, ArrowLeft, House, Briefcase, ShoppingBag, 
+  Gear, ShieldCheck, MapTrifold, CaretRight, IdentificationCard,
+  ArrowRightIcon
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-// Address type options (mapped to backend enum values)
 const ADDRESS_TYPES = [
   { id: "HOME" as const, label: "Home", icon: House },
   { id: "WORK" as const, label: "Work", icon: Briefcase },
   { id: "OTHER" as const, label: "Other", icon: MapPin },
 ] as const;
 
-// Form validation schemas
 const addressSchema = z.object({
-  name: z.string().min(1, "Address name required"),
-  addressLine1: z.string().min(3, "Address is required"),
+  name: z.string().min(1, "Label required"),
+  addressLine1: z.string().min(3, "Required"),
   addressLine2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  postalCode: z.string().min(3, "Postal code is required"),
-  country: z.string().min(1, "Country is required"),
-  phone: z.string().regex(/^[0-9]{10}$/, "Valid 10-digit phone required"),
+  city: z.string().min(1, "Required"),
+  state: z.string().min(1, "Required"),
+  postalCode: z.string().min(3, "Required"),
+  country: z.string().min(1, "Required"),
+  phone: z.string().regex(/^[0-9]{10}$/, "10 digits required"),
 });
 
 type AddressFormData = z.infer<typeof addressSchema>;
 
-const ActionButton = ({ icon, onClick, color = "brown" }: { icon: React.ReactNode; onClick: () => void; color?: "red" | "brown" }) => (
-  <button
-    onClick={onClick}
-    className={`p-2.5 rounded-xl border transition-all duration-300 ${color === "red"
-      ? "border-red-100 text-red-400 hover:bg-red-500 hover:text-white"
-      : "border-brand-brown/10 text-brand-brown/60 hover:bg-brand-brown hover:text-white"
-      }`}
-  >
-    {icon}
-  </button>
-);
-
-const FloatingLabelInput = ({ label, register, error, placeholder, ...props }: { label: string; register: any; error?: any; placeholder?: string; props?: any }) => (
-  <div className="flex flex-col gap-1.5 w-full">
-    <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 ml-1">
-      {label}
-    </label>
+const CompactInput = ({ label, register, error, ...props }: any) => (
+  <div className="space-y-1.5">
+    {label && <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 ml-1">{label}</label>}
     <input
       {...register}
       {...props}
-      placeholder={placeholder}
-      className="w-full px-5 py-3 bg-white border border-brand-brown/10 rounded-2xl focus:ring-4 focus:ring-brand-brown/5 focus:border-brand-brown outline-none transition-all text-sm font-semibold placeholder:text-gray-300"
+      className="w-full px-5 py-3.5 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand-latte/20 focus:border-brand-brown outline-none transition-all text-sm font-medium shadow-sm placeholder:text-gray-300"
     />
-    {error && <p className="text-red-500 text-[10px] font-bold ml-1">{error.message}</p>}
+    {error && <span className="text-[10px] text-red-500 font-bold px-1 tracking-tight">{error.message}</span>}
   </div>
 );
 
@@ -66,320 +51,178 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, isLoading: authLoading } = useWebsiteAuth();
   const {
-    addresses,
-    isLoading,
-    createAddress,
-    updateAddress,
-    deleteAddress,
-    setDefaultAddress,
-    isCreating,
-    isUpdating,
-    isDeleting,
+    addresses = [], isLoading, createAddress, updateAddress,
+    deleteAddress, setDefaultAddress, isCreating, isUpdating, isDeleting,
   } = useAddresses();
 
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [selectedAddressType, setSelectedAddressType] = useState<string | null>(null);
+  const [selectedAddressType, setSelectedAddressType] = useState<string | null>("HOME");
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-    setValue,
-  } = useForm<AddressFormData>({
+  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
   });
 
-  if (authLoading) {
-    return <ProfilePageSkeleton />;
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">Please sign in to view your profile</p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-6 py-2 bg-brand-brown text-white rounded-lg hover:bg-brand-cocoa transition"
-          >
-            Go Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const handleSelectAddressType = (typeId: string) => {
-    setSelectedAddressType(typeId);
-    const selectedType = ADDRESS_TYPES.find(t => t.id === typeId);
-    if (selectedType && typeId !== "OTHER") {
-      setValue("name", selectedType.label);
-    } else {
-      setValue("name", "");
-    }
-  };
+  if (authLoading || isLoading) return <ProfilePageSkeleton />;
+  if (!currentUser) return null;
 
   const handleAddressSubmit = (data: AddressFormData) => {
-    if (editingAddressId) {
-      updateAddress({
-        ...data,
-        id: editingAddressId,
-        type: (selectedAddressType as any) || "HOME"
-      });
-    } else {
-      createAddress({
-        ...data,
-        type: (selectedAddressType as any) || "HOME"
-      });
-    }
+    const payload = { ...data, type: (selectedAddressType as any) || "HOME" };
+    editingAddressId ? updateAddress({ ...payload, id: editingAddressId }) : createAddress(payload);
     reset();
-    setEditingAddressId(null);
     setShowAddressForm(false);
-    setSelectedAddressType(null);
+    setEditingAddressId(null);
   };
 
-  const handleEditAddress = (addressId: string) => {
-    const address = (addresses ?? []).find((a) => a?.id === addressId);
-    if (address) {
-      Object.entries(address).forEach(([key, value]) => {
-        if (!["id", "userId", "type", "createdAt", "updatedAt", "isDefault"].includes(key)) {
-          setValue(key as keyof AddressFormData, (value ?? '') as string);
-        }
-      });
-      setSelectedAddressType(address?.type ?? "HOME");
-      setEditingAddressId(addressId);
-      setShowAddressForm(true);
-    }
+  const handleEdit = (address: any) => {
+    Object.keys(addressSchema.shape).forEach((key) => setValue(key as any, address[key] || ""));
+    setSelectedAddressType(address.type);
+    setEditingAddressId(address.id);
+    setShowAddressForm(true);
   };
-
-  const handleDeleteAddress = (addressId: string) => {
-    deleteAddress(addressId);
-    setDeleteConfirm(null);
-  };
-
-  if (isLoading) {
-    return <ProfilePageSkeleton />;
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-latte to-white">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto px-6 md:px-12 pt-6 pb-6">
-        <button
-          onClick={() => navigate("/")}
-          className="group inline-flex items-center gap-2 px-4 py-2 -ml-4 rounded-full text-brand-brown/60 hover:text-brand-brown hover:bg-brand-brown/5 transition-all duration-300"
-        >
-          <ArrowLeft
-            size={18}
-            weight="bold"
-            className="group-hover:-translate-x-1 transition-transform"
-          />
-          <span className="text-sm font-bold uppercase tracking-widest">Back</span>
-        </button>
-      </div>
-
-      <main className="max-w-6xl mx-auto px-6 md:px-12 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-1 lg:sticky lg:top-32 h-fit"
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        {/* Premium Navigation Bar */}
+        <div className="flex items-center justify-between mb-12">
+          <button 
+            onClick={() => navigate("/")} 
+            className="group flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-50 transition-all"
           >
-            {/* The Card: Reduced padding from p-10 to p-6, enhanced borders */}
-            <div className="group relative bg-white rounded-[24px] p-6 border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden">
+            <div className="p-2 bg-brand-latte/20 rounded-lg group-hover:bg-brand-brown group-hover:text-white transition-colors">
+              <ArrowLeft size={16} weight="bold" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-widest text-gray-500 group-hover:text-brand-brown">Back to Store</span>
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => navigate("/orders")} 
+              className="px-6 py-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-brand-brown transition-colors"
+            >
+              View Orders
+            </button>
+          </div>
+        </div>
 
-              {/* Subtle Top "Highlight" Line */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-brand-brown/20 to-transparent" />
-
-              <div className="flex flex-col">
-                {/* Top Section: Compact Avatar & Identity */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="relative flex-shrink-0">
-                    <div className="absolute inset-0 bg-brand-brown/20 rounded-full blur-xl group-hover:bg-brand-brown/30 transition-colors" />
-                    <div className="relative w-16 h-16 p-[2px] rounded-full bg-gradient-to-tr from-brand-brown to-brand-latte">
-                      <div className="w-full h-full bg-brand-cream rounded-full flex items-center justify-center">
-                        <User size={30} className="text-brand-brown" weight="duotone" />
-                      </div>
-                    </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Sidebar - Enhanced Visual Depth */}
+          <aside className="lg:col-span-4 space-y-6">
+            <div className="relative overflow-hidden bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-latte/20 rounded-full -mr-16 -mt-16 blur-3xl" />
+              
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="relative mb-6">
+                  <div className="w-24 h-24 bg-gradient-to-br from-brand-latte to-brand-brown/20 rounded-[32px] flex items-center justify-center shadow-inner">
+                    <User size={48} weight="duotone" className="text-brand-brown" />
                   </div>
-
-                  <div className="flex flex-col min-w-0">
-                    <h2 className="text-xl font-black text-brand-brown truncate leading-tight">
-                      {currentUser?.name ?? 'User'}
-                    </h2>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-brown/40">
-                        {currentUser?.role ?? "Member"}
-                      </span>
-                    </div>
+                  <div className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-lg border border-gray-50">
+                    <ShieldCheck size={18} weight="fill" className="text-emerald-500" />
                   </div>
                 </div>
-
-                {/* Info Rows: More compact layout */}
-                <div className="space-y-2 mb-6">
-                  {[
-                    { icon: <Envelope size={16} />, value: currentUser?.email },
-                    { icon: <Phone size={16} />, value: currentUser?.phone || "No phone linked" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-brand-latte/20 border border-brand-brown/5 hover:bg-brand-latte/40 transition-colors">
-                      <div className="text-brand-brown/60">{item.icon}</div>
-                      <span className="text-xs font-bold text-brand-brown/80 truncate">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Actions: Highlighting the button as the focal point */}
-                <div className="space-y-3 pt-4 border-t border-brand-brown/10">
-                  <button
-                    onClick={() => navigate("/orders")}
-                    className="w-full group/btn relative h-12 overflow-hidden rounded-xl bg-brand-brown text-brand-cream flex items-center justify-center gap-2 shadow-lg shadow-brand-brown/20 transition-all duration-300 active:scale-95"
-                  >
-                    {/* Subtle Button Shine */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-
-                    <ShoppingBag size={18} weight="fill" />
-                    <span className="text-[11px] font-black uppercase tracking-widest">
-                      My Orders
-                    </span>
-                    <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all" />
-                  </button>
-
-                  {/* Optional: Secondary Action to fill space efficiently */}
-                  <button
-                    onClick={() => setShowProfileEditModal(true)}
-                    className="w-full h-10 rounded-xl border border-brand-brown/10 text-brand-brown/60 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-brown hover:text-white transition-all"
-                  >
-                    Account Settings
-                  </button>
+                
+                <h1 className="text-2xl font-black text-brand-brown tracking-tight mb-1">{currentUser.name}</h1>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Envelope size={14} weight="bold" />
+                  <p className="text-sm font-medium">{currentUser.email}</p>
                 </div>
               </div>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-2 bg-white rounded-[24px] p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
-          >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-              <div>
-                <h3 className="text-2xl font-black text-brand-brown flex items-center gap-3 tracking-tight">
-                  <div className="p-2 bg-brand-brown/5 rounded-lg text-brand-brown">
-                    <MapPin size={24} weight="duotone" />
-                  </div>
-                  Shipping Addresses
-                </h3>
-                <p className="text-gray-400 text-sm mt-1 font-medium">Manage where your premium goods are delivered.</p>
-              </div>
-
-              <button
-                onClick={() => {
-                  reset();
-                  setEditingAddressId(null);
-                  setShowAddressForm(true);
-                }}
-                className="group flex items-center gap-2 px-6 py-3 bg-brand-brown text-white rounded-2xl hover:bg-brand-cocoa transition-all shadow-lg shadow-brand-brown/20 active:scale-95 font-bold text-sm tracking-wide"
-              >
-                <Plus size={20} weight="bold" className="group-hover:rotate-90 transition-transform duration-300" />
-                New Address
-              </button>
-            </div>
-
-            {/* Address Form: Re-engineered for Professionalism */}
-            <AnimatePresence>
-              {showAddressForm && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="bg-brand-latte/10 rounded-[24px] p-8 mb-10 border border-brand-brown/10 relative overflow-hidden"
+              <div className="mt-10 space-y-3">
+                <button 
+                  onClick={() => setShowAddressForm(true)}
+                  className="w-full flex items-center justify-between p-4 bg-brand-brown text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-brand-brown/20"
                 >
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="h-6 w-1 bg-brand-brown rounded-full" />
-                    <h4 className="text-lg font-black text-brand-brown">
-                      {editingAddressId ? "Modify Address" : "Add New Destination"}
-                    </h4>
+                  <div className="flex items-center gap-3">
+                    <Plus weight="bold" size={16} />
+                    <span>Add New Address</span>
                   </div>
+                  <CaretRight weight="bold" />
+                </button>
+                
+                <button 
+                  onClick={() => setShowProfileEditModal(true)}
+                  className="w-full flex items-center justify-between p-4 bg-brand-latte/10 text-brand-brown rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-brand-latte/30 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <IdentificationCard weight="duotone" size={18} />
+                    <span>Edit Profile Details</span>
+                  </div>
+                  <CaretRight weight="bold" />
+                </button>
+              </div>
+            </div>
 
-                  {/* Improved Address Type Selector */}
-                  {!editingAddressId && (
+            {/* Loyalty/Account Status Card */}
+            {/* <div className="p-6 bg-gradient-to-br from-brand-brown to-[#4a3728] rounded-[32px] text-white shadow-lg">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Account Status</p>
+              <h4 className="text-lg font-bold">Premium Member</h4>
+              <div className="mt-4 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full w-2/3 bg-white rounded-full" />
+              </div>
+            </div> */}
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="lg:col-span-8">
+            <header className="flex items-end justify-between mb-8 px-2">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="h-1 w-8 bg-brand-brown rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-brown/50">Address Book</span>
+                </div>
+                <h3 className="text-3xl font-black text-brand-brown tracking-tight">Saved Locations</h3>
+              </div>
+              <p className="text-xs font-bold text-gray-400">{addresses.length} Addresses Saved</p>
+            </header>
+
+            <AnimatePresence mode="wait">
+              {showAddressForm && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="mb-10"
+                >
+                  <form onSubmit={handleSubmit(handleAddressSubmit)} className="p-10 bg-white rounded-[40px] border border-gray-100 shadow-2xl shadow-gray-200/40">
                     <div className="mb-8">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 block mb-4">
-                        Category
-                      </label>
-                      <div className="flex flex-wrap gap-4">
-                        {ADDRESS_TYPES.map((type) => {
-                          const IconComponent = type.icon;
-                          const isActive = selectedAddressType === type.id;
-                          return (
-                            <button
-                              key={type.id}
-                              type="button"
-                              onClick={() => handleSelectAddressType(type.id)}
-                              className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all duration-300 ${isActive
-                                ? "border-brand-brown bg-brand-brown text-white shadow-md"
-                                : "border-brand-brown/10 bg-white text-brand-brown/60 hover:border-brand-brown/30"
-                                }`}
-                            >
-                              <IconComponent size={20} weight={isActive ? "fill" : "bold"} />
-                              <span className="text-sm font-bold tracking-tight">{type.label}</span>
-                            </button>
-                          );
-                        })}
+                      <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 mb-4 block">Select Category</label>
+                      <div className="flex flex-wrap gap-3">
+                        {ADDRESS_TYPES.map(t => (
+                          <button
+                            key={t.id} type="button"
+                            onClick={() => { setSelectedAddressType(t.id); if(t.id !== 'OTHER') setValue('name', t.label); }}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedAddressType === t.id ? 'bg-brand-brown text-white shadow-xl shadow-brand-brown/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                          >
+                            <t.icon size={16} weight={selectedAddressType === t.id ? "fill" : "bold"} />
+                            {t.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  )}
 
-                  <form onSubmit={handleSubmit(handleAddressSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {(!selectedAddressType || selectedAddressType === "other") && (
-                        <div className="md:col-span-2">
-                          <FloatingLabelInput label="Address Name" register={register("name")} error={errors.name} placeholder="e.g. Vacation Home" />
-                        </div>
-                      )}
-
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <CompactInput label="Label Name" placeholder="e.g. My Beach House" register={register("name")} error={errors.name} />
+                      <CompactInput label="Contact Number" placeholder="10 Digit Phone" register={register("phone")} error={errors.phone} />
                       <div className="md:col-span-2">
-                        <FloatingLabelInput label="Street Address" register={register("addressLine1")} error={errors.addressLine1} placeholder="123 Luxury Lane" />
+                        <CompactInput label="Street Address" placeholder="Building, Street, Area" register={register("addressLine1")} error={errors.addressLine1} />
                       </div>
-
-                      <FloatingLabelInput label="Apt / Suite (Optional)" register={register("addressLine2")} />
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <FloatingLabelInput label="City" register={register("city")} error={errors.city} />
-                        <FloatingLabelInput label="State" register={register("state")} error={errors.state} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <FloatingLabelInput label="Postal Code" register={register("postalCode")} error={errors.postalCode} />
-                        <FloatingLabelInput label="Country" register={register("country")} error={errors.country} />
-                      </div>
-
-                      <FloatingLabelInput label="Contact Number" register={register("phone")} error={errors.phone} placeholder="For delivery updates" />
+                      <CompactInput label="City" placeholder="Enter City" register={register("city")} error={errors.city} />
+                      <CompactInput label="State" placeholder="Enter State" register={register("state")} error={errors.state} />
+                      <CompactInput label="Postal Code" placeholder="ZIP Code" register={register("postalCode")} error={errors.postalCode} />
+                      <CompactInput label="Country" placeholder="Enter Country" register={register("country")} error={errors.country} />
                     </div>
 
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        type="submit"
-                        disabled={isCreating || isUpdating}
-                        className="flex-[2] h-14 bg-brand-brown text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-brown/20 hover:bg-brand-cocoa transition-all flex items-center justify-center gap-3"
-                      >
-                        {isCreating || isUpdating ? <CircleNotch size={20} className="animate-spin" /> : <Check size={20} weight="bold" />}
-                        Save Destination
+                    <div className="flex items-center gap-4 mt-10 pt-8 border-t border-gray-50">
+                      <button type="submit" disabled={isCreating || isUpdating} className="flex-1 py-4 bg-brand-brown text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:shadow-2xl hover:shadow-brand-brown/30 transition-all flex items-center justify-center gap-3">
+                        {isCreating || isUpdating ? <CircleNotch className="animate-spin" size={18} /> : <Check size={18} weight="bold" />}
+                        {isCreating || isUpdating ? 'Saving...' : 'Confirm & Save Location'}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => { reset(); setShowAddressForm(false); setEditingAddressId(null); }}
-                        className="flex-1 h-14 border-2 border-brand-brown/10 text-brand-brown/60 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white transition-all"
-                      >
-                        Discard
+                      <button type="button" onClick={() => { setShowAddressForm(false); setEditingAddressId(null); reset(); }} className="px-8 py-4 bg-gray-50 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all">
+                        Cancel
                       </button>
                     </div>
                   </form>
@@ -387,78 +230,88 @@ const ProfilePage: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Address List: High Contrast Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {addresses.map((address) => (
                 <motion.div
-                  key={address.id}
-                  layout
-                  className={`relative p-6 rounded-[24px] border-2 transition-all duration-500 overflow-hidden ${address.isDefault
-                    ? "border-brand-brown bg-brand-brown/[0.02] shadow-md"
-                    : "border-gray-100 bg-white hover:border-brand-brown/20"
-                    }`}
+                  key={address.id} layout
+                  className={`group relative flex flex-col md:flex-row items-start md:items-center justify-between p-8 rounded-[32px] border transition-all ${address.isDefault ? 'border-brand-brown/30 bg-white shadow-xl shadow-brand-brown/5' : 'border-white bg-white shadow-sm hover:shadow-md hover:border-gray-100'}`}
                 >
-                  {address.isDefault && (
-                    <div className="absolute top-0 right-0 px-4 py-1 bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest rounded-bl-xl">
-                      Primary
+                  <div className="flex items-center gap-6">
+                    <div className={`w-16 h-16 rounded-[22px] flex items-center justify-center transition-colors ${address.isDefault ? 'bg-brand-brown text-white' : 'bg-brand-latte/10 text-brand-brown group-hover:bg-brand-brown group-hover:text-white'}`}>
+                      {address.type === 'HOME' ? <House size={28} weight="duotone" /> : address.type === 'WORK' ? <Briefcase size={28} weight="duotone" /> : <MapPin size={28} weight="duotone" />}
                     </div>
-                  )}
-
-                  <div className="flex flex-col h-full">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className={`p-2 rounded-lg ${address.isDefault ? 'bg-brand-brown text-white' : 'bg-brand-latte text-brand-brown'}`}>
-                        <MapPin size={20} weight="fill" />
+                    <div>
+                      <div className="flex items-center gap-3 mb-1">
+                        <h4 className="font-black text-lg text-brand-brown tracking-tight">{address.name}</h4>
+                        {address.isDefault && (
+                          <span className="text-[8px] font-black uppercase tracking-[0.2em] bg-emerald-500 text-white px-2.5 py-1 rounded-full shadow-lg shadow-emerald-500/20">
+                            Primary
+                          </span>
+                        )}
                       </div>
-                      <div>
-                        <h4 className="font-black text-brand-brown leading-tight">{address.name}</h4>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{address.city}, {address.state}</p>
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-sm font-bold text-gray-600">{address.addressLine1}</p>
+                        <p className="text-xs font-medium text-gray-400">{address.city}, {address.state} • {address.postalCode}</p>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="flex-grow space-y-1">
-                      <p className="text-gray-600 text-sm font-medium">{address.addressLine1}</p>
-                      {address.addressLine2 && <p className="text-gray-500 text-xs">{address.addressLine2}</p>}
-                      <p className="text-gray-500 text-xs font-bold mt-2 flex items-center gap-2">
-                        <Phone size={12} weight="fill" /> {address.phone}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-6 pt-4 border-t border-gray-50">
-                      <ActionButton icon={<Pencil size={16} />} onClick={() => handleEditAddress(address.id)} color="brown" />
-                      {!address.isDefault && <ActionButton icon={<Check size={16} />} onClick={() => setDefaultAddress(address.id)} color="brown" />}
-                      <ActionButton icon={<Trash size={16} />} onClick={() => setDeleteConfirm(address.id)} color="red" />
-                    </div>
+                  <div className="flex items-center gap-3 mt-6 md:mt-0 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    {!address.isDefault && (
+                      <button 
+                        onClick={() => setDefaultAddress(address.id)} 
+                        className="w-10 h-10 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all"
+                        title="Set as Primary"
+                      >
+                        <Check size={18} weight="bold" />
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => handleEdit(address)} 
+                      className="w-10 h-10 flex items-center justify-center bg-brand-latte/10 text-brand-brown rounded-xl hover:bg-brand-brown hover:text-white transition-all"
+                    >
+                      <Pencil size={18} weight="bold" />
+                    </button>
+                    <button 
+                      onClick={() => setDeleteConfirm(address.id)} 
+                      className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                    >
+                      <Trash size={18} weight="bold" />
+                    </button>
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </motion.div>
-        </div>
-      </main>
 
-      {/* Delete Address Confirmation Modal */}
+              {addresses.length === 0 && !showAddressForm && (
+                <div className="text-center py-20 bg-white border-2 border-dashed border-gray-100 rounded-[40px]">
+                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapTrifold size={40} weight="duotone" className="text-gray-200" />
+                  </div>
+                  <h4 className="text-lg font-bold text-brand-brown">No addresses yet</h4>
+                  <p className="text-gray-400 text-sm font-medium mt-1">Add your first shipping location to get started.</p>
+                  <button 
+                    onClick={() => setShowAddressForm(true)}
+                    className="mt-6 px-8 py-3 bg-brand-latte/20 text-brand-brown rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-brown hover:text-white transition-all"
+                  >
+                    Create Address
+                  </button>
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      </div>
+
       <ConfirmDialog
         isOpen={!!deleteConfirm}
         onCancel={() => setDeleteConfirm(null)}
-        onConfirm={() => {
-          if (deleteConfirm) {
-            handleDeleteAddress(deleteConfirm);
-            setDeleteConfirm(null);
-          }
-        }}
-        type="danger"
-        title="Delete Address?"
-        description="This address will be permanently removed from your profile. This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Keep Address"
+        onConfirm={() => { deleteAddress(deleteConfirm!); setDeleteConfirm(null); }}
+        type="danger" title="Remove Address?"
+        description="This will permanently delete this shipping location. You can't undo this action."
         isLoading={isDeleting}
       />
-
-      {/* Profile Edit Modal */}
-      <ProfileEditModal
-        isOpen={showProfileEditModal}
-        onClose={() => setShowProfileEditModal(false)}
-      />
+      
+      <ProfileEditModal isOpen={showProfileEditModal} onClose={() => setShowProfileEditModal(false)} />
     </div>
   );
 };
