@@ -166,10 +166,10 @@ const CartDrawer: React.FC = () => {
                                     </p>
                                 </div>
 
-                                <div className="flex flex-col gap-3">
+                                <div className="flex justify-between items-center gap-3">
                                     <button
                                         onClick={handleCheckout}
-                                        className="w-full bg-brand-brown text-brand-cream text-[11px] font-bold uppercase tracking-[0.3em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
+                                        className="w-[50%] bg-brand-brown text-brand-cream text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
                                     >
                                         Finalize Selection
                                     </button>

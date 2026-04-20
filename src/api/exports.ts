@@ -13,6 +13,10 @@ export type { Product, CreateProductData, UpdateProductData, ProductFilters, Pro
 export { ordersClient, useOrders, useOrder } from './orders';
 export type { Order, CreateOrderData, OrderItem, OrderResponse, OrdersListResponse } from './orders';
 
+// Reviews API
+export { reviewsClient, useSubmitReview } from './reviews';
+export type { CreateReviewData, Review, ReviewResponse } from './reviews/types';
+
 // Address API
 export { addressApi, useAddresses } from './address';
 // export type { Address, CreateAddressData, UpdateAddressData } from './address';
@@ -23,4 +27,4 @@ export type { Banner, Hero, Section, Testimonial, InstagramPost, HomepageData } 
 
 // Customers API
 export { customersApi, useSendCustomerOtp, useVerifyCustomerOtp } from './customers';
-export type { Customer, CustomerAuthResponse, SendOtpData, VerifyOtpData } from './customers';
+export type { Customer, CustomerAuthResponse } from './customers';
