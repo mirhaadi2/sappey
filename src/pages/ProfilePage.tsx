@@ -10,10 +10,9 @@ import {
   User, MapPin, Envelope, Pencil, Plus, Trash, Check,
   CircleNotch, ArrowLeft, House, Briefcase,
   ShieldCheck, MapTrifold, CaretRight, IdentificationCard,
-  ArrowRight
 } from "@phosphor-icons/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "../components/ui";
+import { useFormWithValidation } from "../hooks/useFormValidation";
 import * as z from "zod";
 
 const ADDRESS_TYPES = [
@@ -36,18 +35,6 @@ const addressSchema = z.object({
 
 type AddressFormData = z.infer<typeof addressSchema>;
 
-const CompactInput = ({ label, register, error, ...props }: any) => (
-  <div className="space-y-1.5">
-    {label && <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 ml-1">{label}</label>}
-    <input
-      {...register}
-      {...props}
-      className="w-full px-5 py-3.5 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand-latte/20 focus:border-brand-brown outline-none transition-all text-sm font-medium shadow-sm placeholder:text-gray-300"
-    />
-    {error && <span className="text-[10px] text-red-500 font-bold px-1 tracking-tight">{error.message}</span>}
-  </div>
-);
-
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, isLoading: authLoading } = useWebsiteAuth();
@@ -62,9 +49,7 @@ const ProfilePage: React.FC = () => {
   const [selectedAddressType, setSelectedAddressType] = useState<string | null>("HOME");
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
-  });
+  const { register, handleSubmit, reset, formState: { errors }, setValue } = useFormWithValidation<AddressFormData>(addressSchema);
 
   if (authLoading || isLoading) return <ProfilePageSkeleton />;
   if (!currentUser) return null;
@@ -107,7 +92,7 @@ const ProfilePage: React.FC = () => {
     <div className="min-h-screen bg-[#FAFAFA]">
       <div className="max-w-7xl mx-auto px-6 py-10">
         {/* Premium Navigation Bar */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-4">
           <button 
             onClick={() => navigate("/")} 
             className="group flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-50 transition-all"
@@ -128,7 +113,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar - Enhanced Visual Depth */}
           <aside className="lg:col-span-4 space-y-6">
             <div className="relative overflow-hidden bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50">
@@ -188,7 +173,7 @@ const ProfilePage: React.FC = () => {
 
           {/* Main Content Area */}
           <main className="lg:col-span-8">
-            <header className="flex items-end justify-between mb-8 px-2">
+            <header className="flex items-end justify-between mb-4 px-2">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <div className="h-1 w-8 bg-brand-brown rounded-full" />
@@ -225,16 +210,16 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <CompactInput label="First Name" placeholder="John" register={register("firstName")} error={errors.firstName} />
-                      <CompactInput label="Last Name" placeholder="Doe" register={register("lastName")} error={errors.lastName} />
-                      <CompactInput label="Contact Number" placeholder="10 Digit Phone" register={register("phone")} error={errors.phone} />
+                      <Input label="First Name" placeholder="John" name="firstName" register={register} error={errors.firstName} />
+                      <Input label="Last Name" placeholder="Doe" name="lastName" register={register} error={errors.lastName} />
                       <div className="md:col-span-2">
-                        <CompactInput label="Street Address" placeholder="Building, Street, Area" register={register("addressLine1")} error={errors.addressLine1} />
+                        <Input label="Street Address" placeholder="Building, Street, Area" name="addressLine1" register={register} error={errors.addressLine1} />
                       </div>
-                      <CompactInput label="City" placeholder="Enter City" register={register("city")} error={errors.city} />
-                      <CompactInput label="State" placeholder="Enter State" register={register("state")} error={errors.state} />
-                      <CompactInput label="Postal Code" placeholder="ZIP Code" register={register("postalCode")} error={errors.postalCode} />
-                      <CompactInput label="Country" placeholder="Enter Country" register={register("country")} error={errors.country} />
+                      <Input label="City" placeholder="Enter City" name="city" register={register} error={errors.city} />
+                      <Input label="State" placeholder="Enter State" name="state" register={register} error={errors.state} />
+                      <Input label="Postal Code" placeholder="ZIP Code" name="postalCode" register={register} error={errors.postalCode} />
+                      <Input label="Country" placeholder="Enter Country" name="country" register={register} error={errors.country} />
+                      <Input label="Contact Number" placeholder="10 Digit Phone" name="phone" register={register} error={errors.phone} />
                     </div>
 
                     <div className="flex items-center gap-4 mt-10 pt-8 border-t border-gray-50">

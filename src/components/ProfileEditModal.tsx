@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom'; 
-import { X, User, Envelope, Phone, Check, WarningCircle } from "@phosphor-icons/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { X, Check, WarningCircle, User } from "@phosphor-icons/react";
+import { useFormWithValidation } from "../hooks/useFormValidation";
+import { Input } from "./ui";
 import * as z from "zod";
 import { useAuth } from "../api/authentication/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
@@ -38,8 +38,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+  } = useFormWithValidation<ProfileFormData>(profileSchema, {
     defaultValues: {
       name: currentUser?.name || "",
       email: currentUser?.email || "",
@@ -81,52 +80,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
       console.error("Profile update failed:", error);
     }
   };
-
-  const FloatingLabelInput = ({
-    label,
-    register,
-    error,
-    placeholder,
-    type = "text",
-    icon: Icon,
-    disabled = false,
-  }: {
-    label: string;
-    register: any;
-    error?: any;
-    placeholder?: string;
-    type?: string;
-    icon?: React.ComponentType<any>;
-    disabled: boolean;
-  }) => (
-    <div className="flex flex-col gap-1.5 w-full">
-      <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 ml-1">
-        {label}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-brown/40">
-            <Icon size={18} weight="duotone" />
-          </div>
-        )}
-        <input
-          {...register}
-          type={type}
-          disabled={disabled}
-          placeholder={placeholder}
-          className={`w-full ${Icon ? 'pl-12' : 'pl-5'} pr-5 py-3 bg-white border rounded-2xl focus:ring-4 focus:ring-brand-brown/5 focus:border-brand-brown outline-none transition-all text-sm font-semibold placeholder:text-gray-300 ${
-            error ? 'border-red-300 focus:border-red-400 focus:ring-red-500/10' : 'border-brand-brown/10'
-          }`}
-        />
-      </div>
-      {error && (
-        <p className="text-red-500 text-[10px] font-bold ml-1 flex items-center gap-1">
-          <WarningCircle size={12} weight="bold" />
-          {error.message}
-        </p>
-      )}
-    </div>
-  );
 
   // Return null if we are on the server or if document is not available
   if (!mounted) return null;
@@ -183,33 +136,33 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
               </AnimatePresence>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                <FloatingLabelInput
+                <Input
                   label="Full Name"
-                  register={register("name")}
+                  name="name"
+                  register={register}
                   error={errors.name}
                   disabled={isSubmitting || updateProfileMutation.isPending}
                   placeholder="Enter your full name"
-                  icon={User}
                 />
 
-                <FloatingLabelInput
+                <Input
                   label="Email Address"
-                  register={register("email")}
+                  name="email"
+                  register={register}
                   error={errors.email}
                   disabled={true}
                   placeholder="Enter your email address"
                   type="email"
-                  icon={Envelope}
                 />
 
-                <FloatingLabelInput
+                <Input
                   label="Phone Number"
-                  register={register("phone")}
+                  name="phone"
+                  register={register}
                   error={errors.phone}
                   disabled={isSubmitting || updateProfileMutation.isPending}
                   placeholder="Enter your phone number"
                   type="tel"
-                  icon={Phone}
                 />
 
                 <motion.button
