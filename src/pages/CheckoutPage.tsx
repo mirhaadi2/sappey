@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useCart, getVariantKey } from "../context/CardContext";
+import { useCart } from "../context/CardContext";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
-import { useHomepagePromotions, useApplicablePromotions, Promotion } from "../api/promotions";
-import { MapPin, Truck, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
+import { useApplicablePromotions, Promotion } from "../api/promotions";
+import { getOrderSummary, buildOrderItemsPayload, getSubtotal, isShippingAddressComplete } from "../utils/checkoutCalculations";
+import { MapPin, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import CheckoutHeader from "../components/CheckoutHeader";
 import PageContentModal from "../components/PageContentModal";
@@ -220,9 +221,6 @@ const CheckoutPage: React.FC = () => {
 
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
 
-  const { data: promotionBanners = [] } = useHomepagePromotions();
-  const hasBanner = promotionBanners && promotionBanners.length > 0;
-
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount  > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
 
@@ -231,11 +229,9 @@ const CheckoutPage: React.FC = () => {
     return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
   };
 
-  // Calculate base subtotal
+  // Calculate base subtotal using centralized order math utilities
   const baseSubtotal = useMemo(() => {
-    return (state?.items ?? []).reduce((sum, item) => sum + ((typeof item?.variant === 'object' && item?.variant?.price)
-      ? item.variant.price
-      : item?.product?.price ?? 0) * (item?.quantity ?? 0), 0);
+    return getSubtotal(state?.items ?? []);
   }, [state?.items]);
 
   // Fetch applicable promotions based on cart value using the hook
@@ -254,27 +250,15 @@ const CheckoutPage: React.FC = () => {
   }, [applicablePromotions, isReturningCustomer, isFirstOrderEligible]);
 
   const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
-  const originalShipping = shippingMethod === "standard" ? 9.99 : shippingMethod === "express" ? 24.99 : 49.99;
-
   const orderSummary = useMemo(() => {
-    const subtotal = baseSubtotal;
-    const tax = parseFloat((subtotal * 0.08).toFixed(2));
-    const selectedPromo = bestPromotion;
-    const isFreeShippingPromo = selectedPromo?.promotion?.type === 'free_shipping';
-    const shipping = isFreeShippingPromo ? 0 : originalShipping;
-    const promotionDiscount = selectedPromo?.discountAmount ?? 0;
+    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, deliveryData);
+  }, [state?.items, shippingMethod, bestPromotion, deliveryData]);
 
-    return {
-      items: state?.items?.length ?? 0,
-      subtotal,
-      tax,
-      shipping,
-      promotionDiscount,
-      selectedPromotion: selectedPromo?.promotion || null,
-      total: parseFloat((subtotal - promotionDiscount + tax + shipping).toFixed(2)),
-      totalBeforePromo: parseFloat((subtotal + tax + shipping).toFixed(2)),
-    };
-  }, [baseSubtotal, bestPromotion, originalShipping]);
+  const shippingLabel = orderSummary.shippingReady
+    ? orderSummary.shipping === 0
+      ? 'Free'
+      : `₹${orderSummary.shipping.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+    : 'Enter shipping address';
 
   useEffect(() => {
     if (placeOrderPendingRef.current && isGuestVerified) {
@@ -373,18 +357,7 @@ const CheckoutPage: React.FC = () => {
           contact: verifiedGuest?.contact || '',
           contactType: verifiedGuest?.type || 'email',
         } : undefined,
-        items: (state?.items ?? []).map((item) => {
-          const variantData = typeof item?.variant === 'object' ? (item?.variant ?? {}) : {};
-          return {
-            productId: item?.product?.id ?? '',
-            productVariantId: variantData?.id ?? item?.product?.id ?? '',
-            sku: variantData?.sku ?? '',
-            quantity: item?.quantity ?? 0,
-            price: variantData?.price ?? item?.product?.price ?? 0,
-            discountedPrice: variantData?.discountedPrice ?? variantData?.price ?? item?.product?.price ?? 0,
-            discountedPercent: variantData?.discountedPercent ?? 0,
-          };
-        }),
+        items: buildOrderItemsPayload(state?.items ?? []),
         subtotal: orderSummary.subtotal,
         totalAmount: orderSummary.total,
         discountAmount: orderSummary.promotionDiscount,
@@ -429,6 +402,7 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  console.log(state?.items,'Checkout items');
   if ((state?.items?.length ?? 0) === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
@@ -859,7 +833,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">Shipping</span>
-                  <span className="font-semibold text-brand-brown">Enter shipping address</span>
+                  <span className="font-semibold text-brand-brown">{shippingLabel}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex justify-between text-lg font-bold">
                   <span>Total</span>
