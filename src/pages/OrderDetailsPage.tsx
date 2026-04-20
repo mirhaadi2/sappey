@@ -240,13 +240,13 @@ const OrderDetailsPage: React.FC = () => {
                             )}
                         </section>
 
-                        <section className="bg-brand-brown rounded-2xl p-10 text-white relative overflow-hidden shadow-2xl shadow-brand-brown/20">
+                        <section className="bg-brand-brown rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl shadow-brand-brown/20">
                             <div className="absolute top-0 right-0 p-12 opacity-10">
                                 <Receipt size={180} weight="duotone" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
                                 <div className="space-y-6">
-                                    <div className="pb-6 border-b border-white/10">
+                                    <div>
                                         <h4 className="text-[10px] font-black text-brand-cream/40 uppercase tracking-[0.3em] mb-6">Settlement Breakdown</h4>
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center text-brand-cream/80 font-bold text-sm">
@@ -263,10 +263,10 @@ const OrderDetailsPage: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-brand-cream/40">
+                                    {/* <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-brand-cream/40">
                                         <ShieldCheck size={18} weight="fill" />
                                         Encrypted Secure Payment
-                                    </div>
+                                    </div> */}
                                 </div>
                                 
                                 <div className="flex flex-col justify-center md:items-end md:text-right">
