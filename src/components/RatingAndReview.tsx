@@ -88,7 +88,7 @@ const RatingAndReview: React.FC<RatingAndReviewProps> = ({ orderId, orderItems =
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-brand-brown/10 rounded-[24px] p-[clamp(1.5rem,3vw,2rem)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
+      className="bg-white border border-brand-brown/10 rounded-2xl p-[clamp(1.2rem,3vw,1.8rem)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1"
     >
       <div className="text-center mb-[clamp(1.5rem,2vw,2rem)]">
         <h2 className="text-[clamp(1rem,2vw,1.25rem)] font-bold text-slate-900 mb-2">
