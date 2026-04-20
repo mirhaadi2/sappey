@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from 'react-dom'; 
 import { X, User, Envelope, Phone, Check, WarningCircle } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +9,6 @@ import { useAuth } from "../api/authentication/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { AuthUser } from "../services/auth.service";
 
-// Form validation schema
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
@@ -26,13 +26,18 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
   const { currentUser, setUserState } = useWebsiteAuth();
   const { updateProfileMutation } = useAuth();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted to true on client-side to prevent SSR errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-    setValue,
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -42,7 +47,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     },
   });
 
-  // Update form values when user data changes or modal opens.
   useEffect(() => {
     if (isOpen && currentUser) {
       reset({
@@ -53,13 +57,13 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     }
   }, [currentUser, isOpen, reset]);
 
-  // Reset form and messages when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         reset();
         setSuccessMessage(null);
       }, 300);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, reset]);
 
@@ -75,7 +79,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
       }, 2000);
     } catch (error: any) {
       console.error("Profile update failed:", error);
-      // Error handling is done by the mutation
     }
   };
 
@@ -87,7 +90,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     type = "text",
     icon: Icon,
     disabled = false,
-    ...props
   }: {
     label: string;
     register: any;
@@ -96,7 +98,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     type?: string;
     icon?: React.ComponentType<any>;
     disabled: boolean;
-    props?: any;
   }) => (
     <div className="flex flex-col gap-1.5 w-full">
       <label className="text-[10px] font-black uppercase tracking-widest text-brand-brown/50 ml-1">
@@ -110,7 +111,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
         )}
         <input
           {...register}
-          {...props}
           type={type}
           disabled={disabled}
           placeholder={placeholder}
@@ -128,11 +128,13 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
     </div>
   );
 
-  return (
+  // Return null if we are on the server or if document is not available
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -142,7 +144,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Modal */}
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -151,7 +152,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
             className="relative w-full max-w-md bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-brand-brown/10 overflow-hidden"
             onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <h2 className="text-xl font-black text-brand-brown flex items-center gap-2">
                 <div className="p-1.5 bg-brand-brown/5 rounded-lg">
@@ -167,7 +167,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
               </button>
             </div>
 
-            {/* Content */}
             <div className="p-6">
               <AnimatePresence>
                 {successMessage && (
@@ -213,10 +212,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
                   icon={Phone}
                 />
 
-                {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting || updateProfileMutation.isPending}
+                  disabled={isSubmitting || updateProfileMutation.isPending || !!successMessage}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full h-12 bg-brand-brown text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-brand-brown/20 hover:bg-brand-cocoa transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -239,7 +237,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
                 </motion.button>
               </form>
 
-              {/* Error Display */}
               <AnimatePresence>
                 {updateProfileMutation.isError && (
                   <motion.div
@@ -261,7 +258,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) 
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 
