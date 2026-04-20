@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     ArrowLeft,
     Package,
@@ -14,17 +14,19 @@ import {
     Phone,
     Copy,
     CheckFat,
+    Receipt,
+    ShieldCheck,
 } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
 import ConfirmDialog from "../components/ConfirmDialog";
+import RatingAndReview from "../components/RatingAndReview";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";
 import { OrderItemDetail } from "../api/orders";
 
-// --- Types ---
 type OrderStatus =
     | "PENDING"
     | "CONFIRMED"
@@ -58,23 +60,14 @@ const OrderDetailsPage: React.FC = () => {
 
     const timelineData = useMemo(() => {
         if (!order) return [];
-
-        // 1. These must exactly match the 'status' strings in your TIMELINE_STEPS utility
         const statusOrder = ["ORDER_PLACED", "PROCESSING", "SHIPPED", "DELIVERED"];
-
-        // 2. Normalize the API status to one of your 4 visual buckets
         let mappedStatus: any = order.status;
 
-        // Fix: Map 'CONFIRMED' and 'PENDING' to the first highlightable step
         if (["CONFIRMED", "PENDING"].includes(order.status)) {
             mappedStatus = "ORDER_PLACED";
-        }
-        // Map intermediate warehouse steps to 'PROCESSING'
-        else if (["PACKED", "HANDOVER", "PROCESSING"].includes(order.status)) {
+        } else if (["PACKED", "HANDOVER", "PROCESSING"].includes(order.status)) {
             mappedStatus = "PROCESSING";
-        }
-        // Map transit steps to 'SHIPPED'
-        else if (["OUT_FOR_DELIVERY", "SHIPPED"].includes(order.status)) {
+        } else if (["OUT_FOR_DELIVERY", "SHIPPED"].includes(order.status)) {
             mappedStatus = "SHIPPED";
         }
 
@@ -82,11 +75,7 @@ const OrderDetailsPage: React.FC = () => {
 
         return TIMELINE_STEPS.map((step, idx) => ({
             ...step,
-            // Step is completed if we've passed it OR if it's the final delivered state
-            isCompleted:
-                idx < currentIndex ||
-                (order.status === "DELIVERED" && idx === currentIndex),
-            // Step is active if it's the current mapped status
+            isCompleted: idx < currentIndex || (order.status === "DELIVERED" && idx === currentIndex),
             isActive: idx === currentIndex && order.status !== "DELIVERED",
             isUpcoming: idx > currentIndex,
         }));
@@ -94,51 +83,37 @@ const OrderDetailsPage: React.FC = () => {
 
     if (!currentUser) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="text-center p-8 bg-white rounded-3xl shadow-xl border border-slate-200 max-w-sm">
-                    <Warning
-                        size={48}
-                        weight="duotone"
-                        className="mx-auto text-amber-500 mb-4"
-                    />
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                        Authentication Required
-                    </h2>
-                    <p className="text-slate-500 mb-6">
-                        Please log in to track enterprise shipments.
-                    </p>
+            <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
+                <div className="text-center p-12 bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)] border border-slate-100 max-w-sm">
+                    <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <Warning size={40} weight="duotone" className="text-amber-500" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Access Restricted</h2>
+                    <p className="text-slate-500 mb-8 leading-relaxed">Please authenticate your session to view sensitive logistics data.</p>
                     <button
                         onClick={() => navigate("/")}
-                        className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition"
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-[0.98] shadow-xl shadow-slate-200"
                     >
-                        Return to Login
+                        Return to Authentication
                     </button>
                 </div>
             </div>
         );
     }
 
-    if (isLoading) {
-        return <OrderDetailsSkeleton />;
-    }
+    if (isLoading) return <OrderDetailsSkeleton />;
 
     if (error || !order) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-                <div className="text-center max-w-md bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
-                    <XCircle
-                        size={64}
-                        weight="duotone"
-                        className="mx-auto text-rose-500 mb-4"
-                    />
-                    <h2 className="text-2xl font-black text-slate-900 mb-2">
-                        Order Not Located
-                    </h2>
+            <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB] px-4">
+                <div className="text-center max-w-md bg-white p-12 rounded-[2.5rem] border border-slate-100 shadow-xl">
+                    <XCircle size={64} weight="duotone" className="mx-auto text-rose-500 mb-6" />
+                    <h2 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Record Not Found</h2>
                     <button
                         onClick={() => navigate("/orders")}
-                        className="inline-flex items-center gap-2 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-200"
+                        className="inline-flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
                     >
-                        <ArrowLeft weight="bold" /> Back to Ledger
+                        <ArrowLeft weight="bold" /> Return to Ledger
                     </button>
                 </div>
             </div>
@@ -147,104 +122,97 @@ const OrderDetailsPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
-            <div className="max-w-6xl mx-auto px-[clamp(1rem,3vw,1.5rem)] pt-[clamp(1rem,1.5vw,1.5rem)] pb-12">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,2vw,2rem)]">
+            <div className="max-w-6xl mx-auto px-6 pt-10 pb-20">
+                
+                {/* Refined Navigation Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <button
                         onClick={() => navigate("/orders")}
-                        className="inline-flex items-center gap-2 text-brand-brown hover:text-brand-cocoa font-medium transition-colors text-[clamp(0.875rem,1.5vw,1rem)]"
+                        className="group inline-flex items-center gap-2 text-brand-brown/60 hover:text-brand-brown font-bold transition-all text-sm uppercase tracking-widest"
                     >
-                        <ArrowLeft
-                            size={20}
-                            weight="bold"
-                        />
-                        Back to All Orders
+                        <div className="p-2 rounded-full bg-white border border-slate-200 group-hover:border-brand-brown transition-colors">
+                            <ArrowLeft size={16} weight="bold" />
+                        </div>
+                        Back to Orders
                     </button>
-                    <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1rem)]">
-                        <button className="flex items-center gap-2 px-[clamp(1rem,1.5vw,1.25rem)] py-[clamp(0.5rem,1vw,0.75rem)] bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-[clamp(0.75rem,1.2vw,0.875rem)] hover:bg-slate-50 transition shadow-sm min-h-10">
-                            <Printer size={18} weight="bold" /> Print Record
+                    
+                    <div className="flex items-center gap-3">
+                        <button className="flex items-center gap-2.5 px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-sm hover:border-brand-brown hover:text-brand-brown transition-all shadow-sm active:scale-95">
+                            <Printer size={18} weight="bold" /> Print Document
                         </button>
-                        <button className="flex items-center gap-2 px-[clamp(1rem,1.5vw,1.25rem)] py-[clamp(0.5rem,1vw,0.75rem)] bg-slate-900 text-white rounded-xl font-bold text-[clamp(0.75rem,1.2vw,0.875rem)] hover:bg-slate-800 transition shadow-lg shadow-slate-200 min-h-10">
-                            <DownloadSimple size={18} weight="bold" /> Get Invoice
+                        <button className="flex items-center gap-2.5 px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95">
+                            <DownloadSimple size={18} weight="bold" /> Export Invoice
                         </button>
                     </div>
                 </div>
 
-                {/* Status Card */}
+                {/* Hero Status Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-[2rem] border-2 p-[clamp(1rem,2vw,1.5rem)] px-[clamp(1rem,2vw,2rem)] mb-[clamp(1rem,2vw,1.5rem)] bg-white border-brand-brown/5 shadow-sm"
+                    className="relative overflow-hidden rounded-[2.5rem] border border-white p-8 md:p-10 mb-8 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                 >
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-[clamp(1rem,2vw,1.5rem)]">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-brand-brown/5 rounded-full blur-3xl -mr-32 -mt-32" />
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between relative z-10 gap-8">
                         <div>
-                            <div className="flex items-center gap-3 mb-[clamp(0.75rem,1.5vw,1rem)]">
-                                <span className="font-label text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.3em] text-brand-brown/40">
-                                    Tracking Reference
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="px-3 py-1 bg-slate-100 rounded-lg font-black text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                                    System ID
                                 </span>
-                                <div
-                                    className={`w-2 h-2 rounded-full animate-pulse ${order?.status === "DELIVERED" ? "bg-emerald-500" : "bg-orange-500"}`}
-                                />
+                                <div className={`w-2 h-2 rounded-full ${order?.status === "DELIVERED" ? "bg-emerald-500" : "bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]"}`} />
                             </div>
-                            <h1 className="text-[clamp(1.75rem,4vw,2.25rem)] font-black text-brand-brown tracking-tighter mb-2">
-                                #{order?.orderNumber}
+                            <h1 className="text-4xl md:text-5xl font-black text-brand-brown tracking-tightest mb-4">
+                                {order?.orderNumber}
                             </h1>
-                            <p className="text-slate-500 font-bold text-[clamp(0.75rem,1.5vw,0.875rem)] flex items-center gap-2">
-                                <Clock weight="bold" className="text-brand-brown/30" />
-                                {new Date(order?.createdAt ?? new Date()).toLocaleDateString(
-                                    "en-US",
-                                    { dateStyle: "full" },
-                                )}
-                            </p>
+                            <div className="flex items-center gap-4 text-slate-400 font-bold text-sm">
+                                <div className="flex items-center gap-2">
+                                    <Clock weight="bold" className="text-brand-brown/40" />
+                                    {new Date(order?.createdAt ?? new Date()).toLocaleDateString("en-US", { dateStyle: "long" })}
+                                </div>
+                                <span className="text-slate-200">|</span>
+                                <div className="flex items-center gap-2 text-slate-500">
+                                    <ShieldCheck weight="bold" className="text-emerald-500" />
+                                    Verified Transaction
+                                </div>
+                            </div>
                         </div>
-                        <OrderStatusBadge
-                            status={(order?.status as OrderStatus) ?? "PENDING"}
-                            size="lg"
-                            showIcon
-                            animated
-                        />
+                        <div className="flex flex-col items-end gap-3">
+                            <OrderStatusBadge
+                                status={(order?.status as OrderStatus) ?? "PENDING"}
+                                size="lg"
+                                showIcon
+                                animated
+                            />
+                        </div>
                     </div>
                 </motion.div>
 
                 {/* Timeline Progress */}
-                <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 p-[clamp(1.5rem,3vw,2rem)] mb-8">
-                    <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-400 uppercase tracking-widest mb-[clamp(1.5rem,3vw,2rem)] text-center">
-                        Fulfillment Lifecycle
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] p-10 mb-8 overflow-hidden relative">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-brand-brown/10" />
+                    <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-12 text-center md:text-left">
+                        Logistics Progression
                     </h3>
-                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-0 px-4">
-                        <div className="hidden md:block absolute top-7 left-0 w-full h-[2px] bg-slate-100 -z-0" />
+                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-10 md:gap-4">
+                        <div className="hidden md:block absolute top-7 left-0 w-full h-[2px] bg-slate-50 -z-0" />
                         {timelineData.map((step) => (
-                            <div
-                                key={step.status}
-                                className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 flex-1"
-                            >
-                                <div
-                                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 
-                                    ${step.isCompleted
-                                            ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100"
-                                            : step.isActive
-                                                ? "bg-[#9a5d2e] border-none text-white scale-110 shadow-lg"
-                                                : "bg-white border-slate-200 text-slate-300"
-                                        }`}
+                            <div key={step.status} className="relative z-10 flex flex-row md:flex-col items-center gap-5 md:gap-4 flex-1">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 border-2 
+                                    ${step.isCompleted 
+                                        ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100" 
+                                        : step.isActive 
+                                            ? "bg-brand-brown border-transparent text-white scale-110 shadow-2xl shadow-brand-brown/30" 
+                                            : "bg-white border-slate-100 text-slate-300"}`}
                                 >
-                                    {step.isCompleted ? (
-                                        <CheckFat size={24} weight="fill" />
-                                    ) : (
-                                        <step.icon
-                                            size={24}
-                                            weight={step.isActive ? "bold" : "regular"}
-                                        />
-                                    )}
+                                    {step.isCompleted ? <CheckFat size={24} weight="fill" /> : <step.icon size={24} weight={step.isActive ? "bold" : "regular"} />}
                                 </div>
                                 <div className="text-left md:text-center">
-                                    <p
-                                        className={`text-[clamp(0.75rem,1.2vw,0.875rem)] font-black uppercase tracking-tighter ${step.isUpcoming ? "text-slate-300" : "text-slate-900"}`}
-                                    >
+                                    <p className={`text-[11px] font-black uppercase tracking-widest ${step.isUpcoming ? "text-slate-300" : "text-slate-900"}`}>
                                         {step.label}
                                     </p>
                                     {step.isActive && (
-                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-[#9a5d2e] uppercase mt-1 animate-pulse">
-                                            In Progress
+                                        <p className="text-[9px] font-black text-brand-brown uppercase mt-1 tracking-tighter animate-pulse">
+                                            Current Phase
                                         </p>
                                     )}
                                 </div>
@@ -255,154 +223,154 @@ const OrderDetailsPage: React.FC = () => {
 
                 {/* Grid Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-[24px] border border-brand-brown/10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden">
-                            <div className="px-[clamp(0.75rem,2vw,2rem)] py-[clamp(1rem,1.5vw,1.5rem)] border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                <h2 className="text-[clamp(0.875rem,1.5vw,1.125rem)] font-black text-slate-900 flex items-center gap-3">
-                                    <Package
-                                        size={24}
-                                        weight="duotone"
-                                        className="text-[#9a5d2e]"
-                                    />{" "}
-                                    Consignment Items
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden">
+                            <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                                <h2 className="text-lg font-black text-slate-900 flex items-center gap-3">
+                                    <Package size={26} weight="duotone" className="text-brand-brown" /> 
+                                    Inventory Summary
                                 </h2>
-                                <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[clamp(0.625rem,1vw,0.75rem)] font-black text-slate-500 uppercase">
-                                    {order?.items?.length ?? 0} Units
+                                <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest shadow-sm">
+                                    {order?.items?.length ?? 0} SKUs
                                 </span>
                             </div>
-                            <div className="divide-y divide-slate-100">
+                            <div className="divide-y divide-slate-50">
                                 {order?.items?.map((item: OrderItemDetail, idx: number) => (
-                                    <div key={String(item?.id ?? idx)} className="px-[clamp(0.75rem,2vw,2rem)]">
+                                    <div key={String(item?.id ?? idx)} className="px-6 hover:bg-slate-50/50 transition-colors">
                                         <OrderItemCard item={item} index={idx} isOrderItem={true} />
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Applied Promotion */}
                             {order?.metadata?.promotion && (
-                                <div className="mx-8 mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-[24px] flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
-                                        <Package size={24} weight="fill" />
+                                <div className="m-8 p-6 bg-emerald-50/50 border border-emerald-100 rounded-[2rem] flex items-center gap-5">
+                                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
+                                        <Package size={28} weight="fill" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                                            Applied Promotion
-                                        </p>
-                                        <h4 className="text-sm font-bold text-slate-900">
-                                            {order.metadata.promotion.title}
-                                        </h4>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Loyalty Perk Applied</p>
+                                        <h4 className="text-base font-black text-slate-900">{order.metadata.promotion.title}</h4>
                                     </div>
-                                    <div className="ml-auto px-3 py-1 bg-emerald-600 text-white text-[10px] font-black rounded-lg uppercase">
-                                        Free Gift
+                                    <div className="ml-auto px-4 py-1.5 bg-emerald-600 text-white text-[10px] font-black rounded-xl uppercase tracking-tighter">
+                                        Complimentary
                                     </div>
                                 </div>
                             )}
-                            <div className="p-[clamp(1rem,2vw,2rem)] bg-[#9a5d2e] text-brand-cream rounded-b-3xl">
-                                <div className="space-y-3 mb-6">
-                                    <div className="flex justify-between text-slate-400 font-bold text-[clamp(0.75rem,1.2vw,0.875rem)]">
-                                        <span className="text-brand-cream">Subtotal</span>
-                                        <span className="text-white">
-                                            ₹{parseFloat(order?.totalAmount ?? "0").toFixed(2)}
-                                        </span>
+
+                            {/* Financial Summary */}
+                            <div className="p-8 md:p-10 bg-brand-brown text-white relative">
+                                <div className="absolute top-0 right-0 w-32 h-full bg-white/5 skew-x-[-20deg] translate-x-16" />
+                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center text-brand-cream/60 font-bold text-sm">
+                                            <span>Subtotal</span>
+                                            <span className="text-white">₹{parseFloat(order?.totalAmount ?? "0").toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-brand-cream/60 font-bold text-sm">
+                                            <span>Logistics Fee</span>
+                                            <span className="text-white">₹{parseFloat(order?.shippingCost ?? "0").toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-brand-cream/60 font-bold text-sm">
+                                            <span>Taxation (GST)</span>
+                                            <span className="text-white">₹{parseFloat(order?.taxAmount ?? "0").toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
-                                        <span className="text-brand-cream">
-                                            Shipping & Handling
-                                        </span>
-                                        <span className="text-white">
-                                            ₹{parseFloat(order?.shippingCost ?? "0").toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-slate-400 font-bold text-sm">
-                                        <span className="text-brand-cream">Applicable Tax</span>
-                                        <span className="text-white">
-                                            ₹{parseFloat(order?.taxAmount ?? "0").toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="pt-6 border-t border-brand-cream flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-brand-cream uppercase tracking-[0.2em] mb-1">
-                                            Grand Total
-                                        </p>
-                                        <h3 className="text-[clamp(2rem,5vw,3rem)] font-black tracking-tighter">
-                                            ₹{parseFloat(order?.finalAmount ?? "0").toFixed(2)}
+                                    <div className="flex flex-col justify-end md:items-end md:text-right border-t md:border-t-0 md:border-l border-brand-cream/20 pt-6 md:pt-0 md:pl-10">
+                                        <p className="text-[10px] font-black text-brand-cream/60 uppercase tracking-[0.3em] mb-2">Grand Total Settlement</p>
+                                        <h3 className="text-5xl font-black tracking-tightest mb-2">
+                                            ₹{parseFloat(order?.finalAmount ?? "0").toLocaleString('en-IN', {minimumFractionDigits: 2})}
                                         </h3>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-brand-cream uppercase tracking-widest mb-1">
-                                            Currency
-                                        </p>
-                                        <p className="font-bold ">INR (Indian Rupee)</p>
+                                        <div className="flex items-center gap-2 md:justify-end text-brand-cream/80 text-xs font-bold uppercase tracking-widest">
+                                            <Receipt size={16} /> Secure Payment • INR
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="space-y-6">
-                        {/* Delivery Info */}
-                        <div className="bg-white rounded-3xl border border-slate-200 p-[clamp(1rem,2vw,2rem)] shadow-sm">
-                            <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <MapPin size={20} weight="duotone" className="text-[#9a5d2e]" />{" "}
-                                Destination
+                    {/* Sidebar Details */}
+                    <div className="space-y-8">
+                        {/* Recipient Details */}
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                                <div className="p-2 bg-brand-brown/5 rounded-lg text-brand-brown">
+                                    <MapPin size={20} weight="duotone" />
+                                </div>
+                                Consignee Detail
                             </h3>
-                            <p className="text-[clamp(0.625rem,1vw,0.75rem)] font-black text-slate-400 uppercase tracking-tighter mb-1">
-                                Recipient
-                            </p>
-                            <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase mb-4">
-                                {currentUser?.name ?? "N/A"}
-                            </p>
-                            <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700 leading-relaxed mb-4">
-                                {order?.shippingAddressLine1 ?? ""}, {order?.shippingCity ?? ""}
-                                <br />
-                                {order?.shippingState ?? ""} — {order?.shippingPostalCode ?? ""}
-                            </p>
-                            {order?.shippingPhone && (
-                                <button
-                                    onClick={() =>
-                                        copyToClipboard(String(order?.shippingPhone), "phone")
-                                    }
-                                    className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Phone size={18} className="text-slate-400" />
-                                        <span className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold text-slate-700">
-                                            {order?.shippingPhone}
-                                        </span>
-                                    </div>
-                                    {copiedField === "phone" ? (
-                                        <CheckFat className="text-emerald-500" weight="fill" />
-                                    ) : (
-                                        <Copy className="text-slate-300" />
-                                    )}
-                                </button>
-                            )}
+                            <div className="space-y-6">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Full Name</p>
+                                    <p className="text-base font-black text-slate-900 uppercase">{currentUser?.name ?? "N/A"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Shipping Destination</p>
+                                    <p className="text-sm font-bold text-slate-700 leading-relaxed">
+                                        {order?.shippingAddressLine1}, {order?.shippingCity}
+                                        <br />
+                                        <span className="text-slate-900">{order?.shippingState} — {order?.shippingPostalCode}</span>
+                                    </p>
+                                </div>
+                                {order?.shippingPhone && (
+                                    <button
+                                        onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")}
+                                        className="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white hover:border-brand-brown transition-all group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Phone size={20} className="text-slate-400 group-hover:text-brand-brown" />
+                                            <span className="text-sm font-black text-slate-700">{order?.shippingPhone}</span>
+                                        </div>
+                                        {copiedField === "phone" ? (
+                                            <CheckFat className="text-emerald-500" weight="fill" />
+                                        ) : (
+                                            <Copy size={18} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Payment Info */}
-                        <div className="bg-white rounded-3xl border border-slate-200 p-[clamp(1rem,2vw,2rem)] shadow-sm">
-                            <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <CreditCard
-                                    size={20}
-                                    weight="duotone"
-                                    className="text-[#9a5d2e]"
-                                />{" "}
+                        {/* Settlement Status */}
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                                <div className="p-2 bg-brand-brown/5 rounded-lg text-brand-brown">
+                                    <CreditCard size={20} weight="duotone" />
+                                </div>
                                 Settlement
                             </h3>
-                            <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl mb-3">
-                                <span className="text-[clamp(0.625rem,1vw,0.75rem)] font-bold text-slate-500">Status</span>
-                                <span
-                                    className={`text-[clamp(0.625rem,1vw,0.75rem)] font-black px-2 py-1 rounded-md ${order?.paymentStatus === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}
-                                >
+                            <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gateway Status</span>
+                                <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
+                                    order?.paymentStatus === "COMPLETED" 
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+                                        : "bg-amber-50 text-amber-700 border-amber-100"
+                                }`}>
                                     {order?.paymentStatus ?? "PENDING"}
                                 </span>
                             </div>
                         </div>
 
-                        {/* Cancellation Logic */}
+                        {/* Rating Component */}
+                        {order?.status === "DELIVERED" && (
+                            <RatingAndReview
+                                orderId={orderId || ""}
+                                orderItems={order?.items?.map(item => ({
+                                    orderItemId: item.id || item.productId,
+                                    productId: item.productId,
+                                    productName: item.productName || "Product",
+                                    productImage: item.productImage,
+                                    variant: item.variantLabel
+                                })) || []}
+                            />
+                        )}
+
+                        {/* Order Cancellation */}
                         {order?.status !== "DELIVERED" && order?.status !== "CANCELLED" && (
                             <button
                                 onClick={() => setShowCancelConfirm(true)}
-                                className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-3xl font-black text-[clamp(0.625rem,1vw,0.75rem)] uppercase tracking-[0.2em] hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50 transition-all"
+                                className="w-full py-5 border border-slate-200 text-slate-400 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/50 transition-all duration-300"
                             >
                                 Terminate Transaction
                             </button>
@@ -412,19 +380,23 @@ const OrderDetailsPage: React.FC = () => {
             </div>
 
             {/* Modals */}
-            <ConfirmDialog
-                isOpen={showCancelConfirm}
-                onCancel={() => setShowCancelConfirm(false)}
-                onConfirm={() => {
-                    setShowCancelConfirm(false);
-                    console.log("Cancel Request for:", orderId);
-                }}
-                type="danger"
-                title="Cancel Order?"
-                description="This action will halt the logistics flow and is logged for audit purposes. This cannot be undone."
-                confirmText="Cancel Order"
-                cancelText="Keep Order"
-            />
+            <AnimatePresence>
+                {showCancelConfirm && (
+                    <ConfirmDialog
+                        isOpen={showCancelConfirm}
+                        onCancel={() => setShowCancelConfirm(false)}
+                        onConfirm={() => {
+                            setShowCancelConfirm(false);
+                            console.log("Cancel Request for:", orderId);
+                        }}
+                        type="danger"
+                        title="Authorize Cancellation?"
+                        description="This action will disrupt the active logistics chain and initiate a refund sequence. This record will be permanently flagged."
+                        confirmText="Confirm Termination"
+                        cancelText="Maintain Shipment"
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
