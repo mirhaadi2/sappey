@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from "react";
 import { Product, CartItem, ProductVariant } from "../types";
 
 export interface CartState {
@@ -14,6 +14,9 @@ type CartAction =
     | { type: "OPEN_CART" }
     | { type: "CLOSE_CART" } 
     | { type: "CLEAR_CART" }
+    | { type: "RESTORE_CART"; payload: CartState };
+
+const CART_STORAGE_KEY = "sappay_cart";
 
 // Helper function to get consistent variant identifier
 export const getVariantKey = (variant: ProductVariant | string | null): string => {
@@ -26,6 +29,42 @@ export const getVariantKey = (variant: ProductVariant | string | null): string =
     if (variant.label) return variant.label;
     // Fallback to stringified variant for edge cases
     return JSON.stringify(variant);
+};
+
+// Helper function to safely load cart from localStorage
+const loadCartFromStorage = (): CartState => {
+    try {
+        if (typeof window === 'undefined') {
+            return { items: [], isOpen: false };
+        }
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        if (!stored) {
+            return { items: [], isOpen: false };
+        }
+        const parsed = JSON.parse(stored);
+        return {
+            items: Array.isArray(parsed.items) ? parsed.items : [],
+            isOpen: false, // Always start with cart closed after reload
+        };
+    } catch (error) {
+        console.error("Failed to load cart from localStorage:", error);
+        return { items: [], isOpen: false };
+    }
+};
+
+// Helper function to save cart to localStorage
+const saveCartToStorage = (state: CartState) => {
+    try {
+        if (typeof window !== 'undefined') {
+            const cartToSave = {
+                items: state.items,
+                isOpen: false, // Don't persist the isOpen state
+            };
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartToSave));
+        }
+    } catch (error) {
+        console.error("Failed to save cart to localStorage:", error);
+    }
 };
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
@@ -113,6 +152,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             return { ...state, isOpen: false };
         case "CLEAR_CART":
             return { ...state, items: [] };
+        case "RESTORE_CART":
+            return action.payload;
         default:
             return state;
     }
@@ -136,6 +177,23 @@ const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export const CartProvider = ({ children } : { children: ReactNode }) => {
     const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
+    const [isHydrated, setIsHydrated] = React.useState(false);
+
+    // Load cart from localStorage on component mount
+    useEffect(() => {
+        const savedCart = loadCartFromStorage();
+        if (savedCart.items.length > 0) {
+            dispatch({ type: "RESTORE_CART", payload: savedCart });
+        }
+        setIsHydrated(true);
+    }, []);
+
+    // Save cart to localStorage whenever state changes
+    useEffect(() => {
+        if (isHydrated) {
+            saveCartToStorage(state);
+        }
+    }, [state, isHydrated]);
 
     // totalItems = number of line items in cart (not total quantity)
     const totalItems = state.items.length;

@@ -223,7 +223,7 @@ const OrderListingPage: React.FC = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    paginatedOrders.map((order, idx) => {
+                                    paginatedOrders.map((order) => {
                                         const config = getStatusConfig(order.status);
                                         return (
                                             <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
