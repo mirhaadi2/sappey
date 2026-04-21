@@ -427,7 +427,7 @@ const HomePage: React.FC = () => {
                                             {collectionsSection?.title || "Shop by Category"}
                                         </h2>
 
-                                        <p className="font-sans text-slate-600">
+                                        <p className="font-sans text-brand-brown/80">
                                             {collectionsSection?.subtitle ||
                                                 "Discover our wide range of dry fruits and nuts, carefully categorized for your convenience."}
                                         </p>
@@ -459,7 +459,7 @@ const HomePage: React.FC = () => {
                                     ))}
 
                                     {collections.length === 0 && (
-                                        <div className="col-span-full text-center text-slate-500" role="status">
+                                        <div className="col-span-full text-center text-brown-500" role="status">
                                             No collection products available yet.
                                         </div>
                                     )}
@@ -597,7 +597,7 @@ const HomePage: React.FC = () => {
                                     className="flex items-end justify-between mb-12"
                                 >
                                     <div>
-                                        <span className="font-label text-xs uppercase tracking-widest text-brand-plum block mb-2">
+                                        <span className="font-sans text-xs uppercase tracking-widest text-brand-brown/80 block mb-2">
                                             {newArrivalsSection?.title || "Just Landed"}
                                         </span>
                                         <h2
@@ -647,7 +647,7 @@ const HomePage: React.FC = () => {
                             viewport={{ once: true }}
                             className="text-center mb-12"
                         >
-                            <span className="font-label text-xs uppercase tracking-widest text-brand-cocoa block mb-2">
+                            <span className="font-sans text-xs uppercase tracking-widest text-brand-brown/80 block mb-2">
                                 Our {formatSectionTitle(storySection?.sectionType) || "Story"}
                             </span>
                             <h2
@@ -657,7 +657,7 @@ const HomePage: React.FC = () => {
                                 {storySection?.title || "From Our Farms to Your Table"}
                             </h2>
 
-                            <p className="font-sans text-slate-600 max-w-xl mx-auto">
+                            <p className="font-sans text-brand-brown/80 max-w-xl mx-auto">
                                 {storySection?.subtitle ||
                                     "Founded in 2026, our mission has been to provide the highest quality dry fruits and nuts while supporting sustainable farming practices. We work directly with farmers to ensure fair wages and ethical sourcing, so you can feel good about every bite."}
                             </p>
@@ -855,7 +855,7 @@ const HomePage: React.FC = () => {
                                         {instagramSection?.subtitle ||
                                             "See Our Latest Posts on Instagram"}
                                     </h2>
-                                    <p className="font-sans text-slate-600">
+                                    <p className="font-sans text-brand-brown/80">
                                         Join our community of health enthusiasts on Instagram
                                     </p>
                                 </motion.div>
