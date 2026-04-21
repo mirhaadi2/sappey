@@ -1,167 +1,24 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CardContext";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { useApplicablePromotions, Promotion } from "../api/promotions";
-import { getOrderSummary, buildOrderItemsPayload, getSubtotal, isShippingAddressComplete } from "../utils/checkoutCalculations";
-import { MapPin, CreditCard, Package, Envelope, Phone, ChatCircle, QuestionIcon } from "@phosphor-icons/react";
+import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/checkoutCalculations";
+import { MapPin, CreditCard, Package, Envelope, Phone, ChatCircle, Plus, CheckCircle, Buildings, House } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
+import { useAddresses } from "../api/address/hooks";
+import { Address } from "../types/address";
 import CheckoutHeader from "../components/CheckoutHeader";
 import PageContentModal from "../components/PageContentModal";
-import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
 import OtpVerificationModal from "../components/OtpVerificationModal";
-
-const indianStates = [
-  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-  "Delhi", "Dadra and Nagar Haveli", "Daman and Diu", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
-  "Jammu and Kashmir", "Jharkhand", "Karnataka",
-  "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-  "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
-];
-
-interface AddressFormProps {
-  data: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    city: string;
-    state: string;
-    phone: string;
-    pinCode: string;
-    country: string;
-  };
-  onChange: (data: any) => void;
-  showSaveInfo?: boolean;
-  saveInfo?: boolean;
-  onSaveInfoChange?: (value: boolean) => void;
-  phoneLabel?: string;
-}
-
-const AddressForm: React.FC<AddressFormProps> = ({
-  data,
-  onChange,
-  showSaveInfo = false,
-  saveInfo = true,
-  onSaveInfoChange,
-  phoneLabel = "Phone"
-}) => {
-  // Common styles for all inputs to ensure consistency
-  const inputClass = "w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none focus:ring-0 transition";
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <select
-          value={data.country}
-          onChange={(e) => onChange({ ...data, country: e.target.value })}
-          className={inputClass}
-        >
-          <option>India</option>
-        </select>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <input
-          type="text"
-          value={data.firstName}
-          onChange={(e) => onChange({ ...data, firstName: e.target.value })}
-          placeholder="First name"
-          className={inputClass}
-        />
-        <input
-          type="text"
-          value={data.lastName}
-          onChange={(e) => onChange({ ...data, lastName: e.target.value })}
-          placeholder="Last name"
-          className={inputClass}
-          autoComplete="off"
-        />
-      </div>
-
-      <input
-        type="text"
-        value={data.address}
-        onChange={(e) => onChange({ ...data, address: e.target.value })}
-        placeholder="Address"
-        className={inputClass}
-        autoComplete="off"
-      />
-
-      <input
-        type="text"
-        placeholder="Apartment, suite, etc. (optional)"
-        className={inputClass}
-        autoComplete="off"
-      />
-
-      <div className="grid grid-cols-3 gap-4">
-        <input
-          type="text"
-          value={data.city}
-          onChange={(e) => onChange({ ...data, city: e.target.value })}
-          placeholder="City"
-          className={inputClass}
-          autoComplete="off"
-        />
-        <select
-          value={data.state}
-          onChange={(e) => onChange({ ...data, state: e.target.value })}
-          className={inputClass}
-        >
-          <option value="">Select State</option>
-          {indianStates.map((state) => (
-            <option key={state} value={state}>{state}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          value={data.pinCode}
-          onChange={(e) => onChange({ ...data, pinCode: e.target.value })}
-          placeholder="PIN code"
-          className={inputClass}
-          autoComplete="off"
-        />
-      </div>
-
-      <div className="relative group flex items-center">
-        <input
-          type="text"
-          value={data.phone}
-          onChange={(e) => onChange({ ...data, phone: e.target.value })}
-          placeholder={phoneLabel}
-          className={inputClass}
-          autoComplete="off"
-        />
-        <QuestionIcon
-          size={20}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-help"
-        />
-        <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block transition-opacity duration-200">
-          <div className="bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg whitespace-nowrap">
-            In case we need to contact you about your order
-            <div className="absolute top-full right-5 -mt-1 border-4 border-transparent border-t-slate-800"></div>
-          </div>
-        </div>
-      </div>
-
-      {showSaveInfo && (
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={saveInfo}
-            onChange={(e) => onSaveInfoChange?.(e.target.checked)}
-            className="w-5 h-5 text-brand-brown rounded border-slate-300 focus:ring-0"
-          />
-          <span className="text-sm text-slate-700">Save this information for next time</span>
-        </label>
-      )}
-    </div>
-  );
-};
+import { useFormWithValidation } from "../hooks/useFormValidation";
+import { checkoutFormSchema, CheckoutFormData } from "../schemas";
+import AddressForm from "../components/AddressForm";
+import CheckoutItems from "../components/CheckoutItems";
+import OrderSummary from "../components/OrderSummary";
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -170,42 +27,46 @@ const CheckoutPage: React.FC = () => {
   const { placeOrder, isCreatingOrder } = useOrders();
   const { config: guestConfig } = useGuestConfig();
 
-  // Form state
-  const [contactData, setContactData] = useState({
-    email: '',
-    phone: '',
-    whatsapp: '',
-  });
-  const [deliveryData, setDeliveryData] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    pinCode: '',
-    phone: '',
-    country: 'India',
-  });
-  const [billingData, setBillingData] = useState({
-    sameAsShipping: true,
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    pinCode: '',
-    country: 'India',
+  // Consolidated Checkout Form - manages all form-related state
+  const checkoutForm = useFormWithValidation<CheckoutFormData>(checkoutFormSchema, {
+    defaultValues: {
+      contactEmail: '',
+      contactPhone: '',
+      contactWhatsapp: '',
+      deliveryAddress: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        state: '',
+        pinCode: '',
+        phone: '',
+        country: 'India',
+      },
+      billingAddress: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        state: '',
+        pinCode: '',
+        phone: '',
+        country: 'India',
+      },
+      billingSameAsShipping: true,
+      paymentMethod: 'cod',
+      shippingMethod: 'standard',
+      newsletter: true,
+      saveInfo: true,
+    }
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | "upi" | "netbanking">("cod");
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express" | "overnight">("standard");
-  const [newsletter, setNewsletter] = useState(true);
-  const [saveInfo, setSaveInfo] = useState(true);
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isGuestVerified, setIsGuestVerified] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
+
   const [existingCustomer, setExistingCustomer] = useState<{
     id: string;
     email?: string;
@@ -216,12 +77,14 @@ const CheckoutPage: React.FC = () => {
   } | null>(null);
   const [existingAddresses, setExistingAddresses] = useState<Array<any>>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [newDestinationAddress, setNewDestinationAddress] = useState<boolean>(false);
   const [customerLookupError, setCustomerLookupError] = useState<string | null>(null);
   const placeOrderPendingRef = useRef(false);
 
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
+  const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
 
-  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount  > 0;
+  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
 
   const isWelcomePromotion = (promotion: Promotion) => {
@@ -229,12 +92,10 @@ const CheckoutPage: React.FC = () => {
     return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
   };
 
-  // Calculate base subtotal using centralized order math utilities
   const baseSubtotal = useMemo(() => {
     return getSubtotal(state?.items ?? []);
   }, [state?.items]);
 
-  // Fetch applicable promotions based on cart value using the hook
   const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
 
   const filteredPromotions = useMemo(() => {
@@ -251,8 +112,19 @@ const CheckoutPage: React.FC = () => {
 
   const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
   const orderSummary = useMemo(() => {
-    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, deliveryData);
-  }, [state?.items, shippingMethod, bestPromotion, deliveryData]);
+    const deliveryValues = checkoutForm.watch("deliveryAddress");
+    const shippingMethod = checkoutForm.watch("shippingMethod");
+    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, {
+      firstName: deliveryValues.firstName || '',
+      lastName: deliveryValues.lastName || '',
+      address: deliveryValues.address || '',
+      city: deliveryValues.city || '',
+      state: deliveryValues.state || '',
+      pinCode: deliveryValues.pinCode || '',
+      phone: deliveryValues.phone || '',
+      country: deliveryValues.country || 'India',
+    });
+  }, [state?.items, checkoutForm.watch(), bestPromotion]);
 
   const shippingLabel = orderSummary.shippingReady
     ? orderSummary.shipping === 0
@@ -308,17 +180,14 @@ const CheckoutPage: React.FC = () => {
 
   const applySavedAddress = (address: any) => {
     setSelectedAddressId(address.id);
-    setDeliveryData((prev) => ({
-      ...prev,
-      firstName: address.name?.split(' ')?.[0] || prev.firstName,
-      lastName: address.name?.split(' ')?.slice(1).join(' ') || prev.lastName,
-      address: address.addressLine1 || prev.address,
-      city: address.city || prev.city,
-      state: address.state || prev.state,
-      pinCode: address.postalCode || prev.pinCode,
-      country: address.country || prev.country,
-      phone: address.phone || prev.phone,
-    }));
+    checkoutForm.setValue('deliveryAddress.firstName', address.name?.split(' ')?.[0] || '');
+    checkoutForm.setValue('deliveryAddress.lastName', address.name?.split(' ')?.slice(1).join(' ') || '');
+    checkoutForm.setValue('deliveryAddress.address', address.addressLine1 || '');
+    checkoutForm.setValue('deliveryAddress.city', address.city || '');
+    checkoutForm.setValue('deliveryAddress.state', address.state || '');
+    checkoutForm.setValue('deliveryAddress.pinCode', address.postalCode || '');
+    checkoutForm.setValue('deliveryAddress.country', address.country || 'India');
+    checkoutForm.setValue('deliveryAddress.phone', address.phone || '');
   };
 
   const toggleSavedAddress = (address: any) => {
@@ -331,15 +200,17 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    // Validation
-    if (!deliveryData.firstName || !deliveryData.address || !deliveryData.city) {
-      alert("Please fill in all delivery address fields");
+    const isFormValid = await checkoutForm.trigger();
+    if (!isFormValid) {
+      console.log("Validation failed", checkoutForm.formState.errors);
       return;
     }
 
-    // For guest users, require OTP verification
+    const formValues = checkoutForm.getValues();
+    const deliveryValues = formValues.deliveryAddress;
+    const billingValues = formValues.billingSameAsShipping ? deliveryValues : formValues.billingAddress;
     if (!currentUser) {
-      if (!contactData.email && !contactData.phone && !contactData.whatsapp) {
+      if (!formValues.contactEmail && !formValues.contactPhone && !formValues.contactWhatsapp) {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
         return;
       }
@@ -363,17 +234,27 @@ const CheckoutPage: React.FC = () => {
         discountAmount: orderSummary.promotionDiscount,
         taxAmount: orderSummary.tax,
         shippingCost: orderSummary.shipping,
-        paymentMethod,
+        paymentMethod: formValues.paymentMethod,
         shippingAddressId: selectedAddressId || undefined,
         shippingAddress: {
-          name: `${deliveryData.firstName} ${deliveryData.lastName}`,
-          phone: deliveryData?.phone || contactData.phone || contactData.whatsapp,
-          email: contactData.email,
-          addressLine1: deliveryData.address,
-          city: deliveryData.city,
-          state: deliveryData.state,
-          postalCode: deliveryData.pinCode,
-          country: deliveryData.country,
+          name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
+          phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+          email: currentUser ? currentUser.email : formValues.contactEmail,
+          addressLine1: deliveryValues.address,
+          city: deliveryValues.city,
+          state: deliveryValues.state,
+          postalCode: deliveryValues.pinCode,
+          country: deliveryValues.country,
+        },
+        billingAddress: formValues.billingSameAsShipping ? undefined : {
+          name: `${billingValues?.firstName} ${billingValues?.lastName}`,
+          phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+          email: currentUser ? currentUser.email : formValues.contactEmail,
+          addressLine1: billingValues?.address,
+          city: billingValues?.city,
+          state: billingValues?.state,
+          postalCode: billingValues?.pinCode,
+          country: billingValues?.country,
         },
         promotionId: orderSummary.selectedPromotion?.id,
       };
@@ -386,11 +267,11 @@ const CheckoutPage: React.FC = () => {
           orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder?.id ?? 'Unknown'}`,
           orderTotal: orderSummary.total,
           estimatedDelivery: new Date(
-            Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
+            Date.now() + (formValues.shippingMethod === "standard" ? 6 : formValues.shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
           ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          shippingMethod,
-          paymentMethod,
-          address: `${deliveryData.firstName}, ${deliveryData.city}`,
+          shippingMethod: formValues.shippingMethod,
+          paymentMethod: formValues.paymentMethod,
+          address: `${deliveryValues.firstName}, ${deliveryValues.city}`,
           itemCount: state?.items?.length ?? 0,
           promotionApplied: orderSummary.selectedPromotion?.title,
           promotionSavings: orderSummary.promotionDiscount,
@@ -402,7 +283,6 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  console.log(state?.items,'Checkout items');
   if ((state?.items?.length ?? 0) === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
@@ -448,169 +328,188 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  const getContactLabel = (type: 'email' | 'phone' | 'whatsapp') => {
-    if (guestConfig?.labels?.[type]) return guestConfig.labels[type];
-    switch (type) {
-      case 'email':
-        return 'Email Address';
-      case 'phone':
-        return 'Phone Number';
-      case 'whatsapp':
-        return 'WhatsApp Number';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-brand-latte">
       <CheckoutHeader />
 
       <main className="max-w-7xl mx-auto px-6 md:px-12 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Side - Forms */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-6">
-            {/* Contact Section - Only for non-logged-in users */}
             {!currentUser && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+                className="bg-white rounded-3xl p-8 border border-brand-brown/10 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-brand-brown">Contact</h2>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => openAuthModal("customer")}
-                      className="text-brand-brown font-semibold text-sm hover:underline"
-                    >
-                      Sign In
-                    </button>
-                    {/* <button
-                      onClick={() => openAuthModal("guest")}
-                      className="text-brand-brown font-semibold text-sm hover:underline"
-                    >
-                      Continue as Guest
-                    </button> */}
-                  </div>
+                  <h2 className="text-xl font-bold text-brand-brown">Contact Information</h2>
+                  <button
+                    onClick={() => openAuthModal("customer")}
+                    className="text-brand-brown font-bold text-sm hover:opacity-80 transition-opacity"
+                  >
+                    Sign In
+                  </button>
                 </div>
+
                 <div className="space-y-4">
                   {contactFields.map((type) => (
-                    <div key={type}>
-                      <div className="relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown opacity-60">
-                          {getContactIcon(type as 'email' | 'phone' | 'whatsapp')}
-                        </div>
-                        <input
-                          type={type === 'email' ? 'email' : 'tel'}
-                          value={contactData[type as 'email' | 'phone' | 'whatsapp']}
-                          onChange={(e) =>
-                            setContactData((prev) => ({
-                              ...prev,
-                              [type]: e.target.value,
-                            }))
-                          }
-                          onBlur={() => runCustomerLookup(contactData[type as 'email' | 'phone' | 'whatsapp'], type as 'email' | 'phone' | 'whatsapp')}
-                          placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
-                          className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none transition"
-                        />
+                    <div key={type} className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown transition-transform group-focus-within:scale-110">
+                        {getContactIcon(type as 'email' | 'phone' | 'whatsapp')}
                       </div>
+                      <input
+                        type={type === 'email' ? 'email' : 'tel'}
+                        value={checkoutForm.watch(`contact${type.charAt(0).toUpperCase() + type.slice(1)}` as any)}
+                        onChange={(e) => checkoutForm.setValue(`contact${type.charAt(0).toUpperCase() + type.slice(1)}` as any, e.target.value)}
+                        onBlur={(e) => runCustomerLookup(e.target.value, type as 'email' | 'phone' | 'whatsapp')}
+                        placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-100 bg-slate-50/30 focus:bg-white focus:border-brand-brown focus:ring-4 focus:ring-brand-brown/5 focus:outline-none transition-all"
+                      />
                     </div>
                   ))}
-                  <label className="flex items-center gap-3 cursor-pointer mt-4">
+
+                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded-xl hover:bg-slate-50 transition-colors">
                     <input
                       type="checkbox"
-                      checked={newsletter}
-                      onChange={(e) => setNewsletter(e.target.checked)}
-                      className="w-5 h-5 text-brand-brown rounded"
+                      checked={checkoutForm.watch("newsletter")}
+                      onChange={(e) => checkoutForm.setValue("newsletter", e.target.checked)}
+                      className="w-5 h-5 accent-brand-brown rounded-md"
                     />
-                    <span className="text-sm text-slate-700">Email me with news and offers</span>
+                    <span className="text-sm font-medium text-slate-600">Email me with news and offers</span>
                   </label>
 
                   {customerLookupLoading && (
-                    <div className="text-sm text-slate-500 mt-4">Checking for saved customer and addresses...</div>
-                  )}
-
-                  {existingCustomer && (
-                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 mt-4">
-                      <p className="text-sm text-slate-700 mb-3">
-                        We found an existing customer profile for{' '}
-                        <span className="font-semibold text-slate-900">
-                          {existingCustomer.email || existingCustomer.phone || existingCustomer.whatsapp}
-                        </span>.
-                        Choose one of the saved addresses below, or enter a different shipping address.
-                      </p>
-
-                      {existingAddresses.length > 0 ? (
-                        <div className="space-y-3">
-                          {existingAddresses.map((address) => (
-                            <button
-                              key={address.id}
-                              type="button"
-                              onClick={() => toggleSavedAddress(address)}
-                              className={`w-full text-left p-4 rounded-2xl border transition ${
-                                selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between gap-4">
-                                <div>
-                                  <p className="font-semibold text-slate-900">{address.name || 'Shipping address'}</p>
-                                  <p className="text-sm text-slate-600">
-                                    {address.addressLine1}, {address.city}, {address.state} {address.postalCode}
-                                  </p>
-                                  <p className="text-sm text-slate-600">{address.country}</p>
-                                  {selectedAddressId === address.id && (
-                                    <p className="text-xs text-slate-500 mt-2">Click again to deselect and enter a different address.</p>
-                                  )}
-                                </div>
-                                {selectedAddressId === address.id && (
-                                  <span className="text-xs font-semibold text-brand-brown">Selected</span>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-
-                          {selectedAddressId && (
-                            <button
-                              type="button"
-                              onClick={() => setSelectedAddressId(null)}
-                              className="text-sm text-brand-brown font-semibold mt-2"
-                            >
-                              Use a different address
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-slate-600">No saved shipping addresses found. Please enter a new address below.</p>
-                      )}
+                    <div className="flex items-center gap-2 text-xs font-bold text-brand-brown/60 uppercase tracking-widest animate-pulse mt-2">
+                      <div className="w-4 h-4 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
+                      Checking for profile...
                     </div>
-                  )}
-
-                  {customerLookupError && (
-                    <p className="text-sm text-red-600 mt-3">{customerLookupError}</p>
                   )}
                 </div>
               </motion.div>
             )}
 
-            {/* Delivery Section */}
+            {/* --- DELIVERY SECTION --- */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl p-8 border border-brand-brown/10"
+              className="bg-white rounded-3xl p-8 border border-brand-brown/10 shadow-sm"
             >
-              <h2 className="text-xl font-bold text-brand-brown mb-6 flex items-center gap-2">
-                <MapPin size={24} />
-                Delivery
+              <h2 className="text-xl font-bold text-brand-brown mb-8 flex items-center gap-3">
+                <div className="p-2 bg-brand-brown/5 rounded-xl">
+                  <MapPin size={24} weight="duotone" />
+                </div>
+                Shipping Details
               </h2>
-              <AddressForm
-                data={deliveryData}
-                onChange={setDeliveryData}
-                showSaveInfo={true}
-                saveInfo={saveInfo}
-                onSaveInfoChange={setSaveInfo}
-                phoneLabel="Phone"
-              />
-            </motion.div>
 
+              {/* SAVED ADDRESSES GRID (Show for both Logged In and Recognized Guests) */}
+              {(currentUser || existingCustomer) && (
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                      {currentUser ? "Your Saved Addresses" : "Found in your profile"}
+                    </h3>
+                    <span className="text-[11px] font-bold text-brand-brown bg-brand-brown/5 px-2 py-1 rounded-md">
+                      {(currentUser ? userAddresses : existingAddresses).length} Destinations
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(currentUser ? userAddresses : existingAddresses).map((address: Address) => {
+                      const isSelected = selectedAddressId === address.id;
+                      return (
+                        <button
+                          key={address.id}
+                          type="button"
+                          onClick={() => toggleSavedAddress(address)}
+                          className={`relative group text-left p-5 rounded-2xl border-2 transition-all duration-300 ${isSelected
+                            ? 'border-brand-brown bg-brand-brown/[0.02] shadow-md shadow-brand-brown/5 ring-1 ring-brand-brown/10'
+                            : 'border-slate-100 bg-white hover:border-slate-200'
+                            }`}
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div className={`p-2 rounded-lg ${isSelected ? 'bg-brand-brown text-white' : 'bg-slate-50 text-slate-400'}`}>
+                              {address.name?.toLowerCase().includes('office') ? <Buildings size={16} /> : <House size={16} />}
+                            </div>
+                            {isSelected ? (
+                              <CheckCircle size={22} weight="fill" className="text-brand-brown" />
+                            ) : (
+                              <div className="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-brand-brown/30 transition-colors" />
+                            )}
+                          </div>
+
+                          <div className="space-y-1">
+                            <p className={`text-sm font-bold ${isSelected ? 'text-brand-brown' : 'text-slate-800'}`}>
+                              {address.name || 'Personal Address'}
+                            </p>
+                            <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-1">
+                              {address.addressLine1}, {address.city}
+                            </p>
+                            <p className="text-[12px] font-medium text-slate-400">
+                              {address.state}, {address.postalCode}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+
+                    {/* New Destination Button */}
+                    {!newDestinationAddress ? (
+                      <button
+                        type="button"
+                        onClick={() => setNewDestinationAddress(true)}
+                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all min-h-[145px] ${!selectedAddressId
+                          ? 'border-brand-brown bg-brand-brown/[0.02] ring-1 ring-brand-brown/10'
+                          : 'border-slate-200 hover:border-brand-brown/40 hover:bg-slate-50 text-slate-400 hover:text-brand-brown'
+                          }`}
+                      >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 transition-all ${!selectedAddressId ? 'bg-brand-brown text-white' : 'bg-slate-100 group-hover:bg-brand-brown group-hover:text-white'
+                          }`}>
+                          <Plus size={20} weight="bold" />
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-widest">New Destination</p>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewDestinationAddress(false);
+                          const firstAddr = currentUser ? userAddresses[0] : existingAddresses[0];
+                          if (firstAddr) toggleSavedAddress(firstAddr);
+                        }}
+                        className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-brand-brown bg-brand-brown/[0.02] ring-1 ring-brand-brown/10 transition-all min-h-[145px] group"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-brand-brown text-white flex items-center justify-center mb-3 shadow-lg shadow-brand-brown/20">
+                          <Plus size={20} weight="bold" className="rotate-45" /> {/* Rotated Plus = X */}
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-brand-brown">Cancel New Address</p>
+                        <p className="text-[10px] mt-1 text-brand-brown/60">Back to saved list</p>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                {((!selectedAddressId && (userAddresses.length === 0 && existingAddresses.length === 0))
+                  || newDestinationAddress) && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-6 mt-4 border-t border-slate-100">
+                        <AddressForm
+                          form={checkoutForm}
+                          addressFieldPrefix="deliveryAddress"
+                          showSaveInfo={!currentUser}
+                          phoneLabel="Delivery Phone"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+              </AnimatePresence>
+            </motion.div>
             {/* Shipping Method Section */}
             {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -648,15 +547,15 @@ const CheckoutPage: React.FC = () => {
                 ].map((method) => (
                   <label key={method.id} className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-brand-brown transition"
                     style={{
-                      borderColor: paymentMethod === method.id ? '#6B4423' : '#E5E7EB',
+                      borderColor: checkoutForm.watch("paymentMethod") === method.id ? '#6B4423' : '#E5E7EB',
                     }}
                   >
                     <input
                       type="radio"
                       name="payment"
                       value={method.id}
-                      checked={paymentMethod === method.id as any}
-                      onChange={(e) => setPaymentMethod(e.target.value as any)}
+                      checked={checkoutForm.watch("paymentMethod") === method.id as any}
+                      onChange={(e) => checkoutForm.setValue("paymentMethod", e.target.value as any)}
                       className="w-5 h-5 accent-brand-brown"
                     />
                     <span className="text-sm font-medium text-slate-700">{method.label}</span>
@@ -665,7 +564,6 @@ const CheckoutPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Billing Address Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -674,48 +572,48 @@ const CheckoutPage: React.FC = () => {
               <h2 className="text-xl font-bold text-brand-brown mb-6">Billing address</h2>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
-                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                <label
+                  className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => {
+                    checkoutForm.setValue("billingSameAsShipping", true);
+                    checkoutForm.clearErrors("billingAddress");
+                  }}
                 >
                   <input
                     type="radio"
                     name="billing"
-                    checked={billingData.sameAsShipping}
-                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                    checked={checkoutForm.watch("billingSameAsShipping")}
+                    readOnly
                     className="w-5 h-5 accent-brand-brown"
                   />
                   <span className="text-sm font-medium text-slate-700">Same as shipping address</span>
                 </label>
 
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
-                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                <label
+                  className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => checkoutForm.setValue("billingSameAsShipping", false)}
                 >
                   <input
                     type="radio"
                     name="billing"
-                    checked={!billingData.sameAsShipping}
-                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                    checked={!checkoutForm.watch("billingSameAsShipping")}
+                    readOnly
                     className="w-5 h-5 accent-brand-brown"
                   />
                   <span className="text-sm font-medium text-slate-700">Use a different billing address</span>
                 </label>
               </div>
-
-              {!billingData.sameAsShipping && (
+              {!checkoutForm.watch("billingSameAsShipping") && (
                 <div className="mt-6">
                   <AddressForm
-                    data={deliveryData}
-                    onChange={setDeliveryData}
-                    showSaveInfo={true}
-                    saveInfo={saveInfo}
-                    onSaveInfoChange={setSaveInfo}
+                    form={checkoutForm}
+                    addressFieldPrefix="billingAddress"
+                    showSaveInfo={false}
                     phoneLabel="Phone (Optional)"
                   />
                 </div>
               )}
             </motion.div>
-
-            {/* Pay Now Button */}
             <motion.button
               onClick={handlePlaceOrder}
               disabled={isCreatingOrder}
@@ -725,8 +623,6 @@ const CheckoutPage: React.FC = () => {
             >
               {isCreatingOrder ? "Processing..." : "Complete order"}
             </motion.button>
-
-            {/* Footer Links */}
             <div className="flex justify-center gap-6 text-sm text-slate-600 flex-wrap">
               <button onClick={() => setOpenModal('returns-and-refunds')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Refund policy</button>
               <button onClick={() => setOpenModal('shipping-policy')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Shipping</button>
@@ -735,125 +631,28 @@ const CheckoutPage: React.FC = () => {
               <button onClick={() => setOpenModal('about-sappey')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Contact</button>
             </div>
           </div>
-
-          {/* Right Side - Order Summary */}
+          
           <div className="lg:col-span-1">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-2xl p-6 border border-brand-brown/10 sticky top-32 space-y-4"
+              className="sticky top-28 space-y-4"
             >
-              {/* Items */}
-              <div className="space-y-4 pb-4 border-b border-slate-200 max-h-64 overflow-y-auto px-2 pt-2">
-                {(state?.items ?? []).map((item, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    {/* Product Image Container */}
-                    <div className="relative w-20 h-20 bg-slate-100 rounded-xl flex-shrink-0">
-                      <img
-                        src={item?.product?.images?.[0] || ''}
-                        alt={item?.product?.name}
-                        className="w-full h-full object-cover rounded-xl overflow-hidden border border-slate-100"
-                      />
-
-                      {/* Quantity Badge - Now has 'breathing room' because of the parent's padding */}
-                      <span className="absolute -top-2 -right-2 bg-brand-brown text-white text-[11px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-md z-20">
-                        {item?.quantity}
-                      </span>
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex-1 pt-1">
-                      <p className="text-sm font-medium text-slate-700 line-clamp-2 mb-1">
-                        {item?.product?.name}
-                      </p>
-                      <p className="text-sm font-medium text-slate-700 line-clamp-2 mb-1">
-                        {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit || 'g'}` : ''}
-                      </p>
-
-                      <p className="text-sm font-bold text-slate-900">
-                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price)
-                          ? item.variant.price
-                          : item?.product?.price ?? 0) * (item?.quantity ?? 1)).toLocaleString('en-IN')}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-2xl p-6 border border-brand-brown/10">
+                <CheckoutItems state={state} />
               </div>
 
-              {/* Discount Code */}
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  placeholder="Discount code"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:border-brand-brown focus:outline-none text-sm"
-                />
-                <button className="w-full text-right text-brand-brown font-semibold text-sm hover:underline">
-                  Apply
-                </button>
-              </div>
-
-              {/* Applicable Promotions */}
-              {filteredPromotions.length > 0 ? (
-                <div className="space-y-2 pt-3">
-                  {filteredPromotions.map((promo: any) => {
-                    let discountAmount = 0;
-                    let isFreeShipping = false;
-
-                    if (promo.type === 'fixed_discount' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
-                      discountAmount = promo.discountValue || 0;
-                    } else if (promo.type === 'percentage_discount' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
-                      discountAmount = (orderSummary.subtotal * (promo.discountValue || 0)) / 100;
-                    } else if (promo.type === 'free_shipping' && orderSummary.subtotal >= (promo.minOrderValue || 0)) {
-                      isFreeShipping = true;
-                      discountAmount = orderSummary.shipping;
-                    }
-
-                    return (
-                      <CheckoutPromotionBadge
-                        key={promo.id}
-                        promotion={promo}
-                        cartValue={orderSummary.subtotal}
-                        discount={discountAmount}
-                        isFreeShipping={isFreeShipping}
-                      />
-                    );
-                  })}
-                </div>
-              ) : isReturningCustomer ? (
-                <p className="text-xs italic text-slate-500 pt-3">
-                  This customer has placed previous orders, so promotional offers are not available.
-                </p>
-              ) : null}
-
-              {/* Totals */}
-              <div className="space-y-2 pt-4 border-t border-slate-200">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Subtotal</span>
-                  <span className="font-semibold">₹{orderSummary.subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Shipping</span>
-                  <span className="font-semibold text-brand-brown">{shippingLabel}</span>
-                </div>
-                <div className="pt-2 border-t border-slate-200 flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <div className="text-right">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-sm text-slate-600">INR</span>
-                      <span className="text-2xl">₹{orderSummary.total.toLocaleString('en-IN')}</span>
-                    </div>
-                    <p className="text-xs text-slate-600">
-                      Including ₹{orderSummary.tax.toFixed(2)} in taxes
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <OrderSummary
+                orderSummary={orderSummary}
+                filteredPromotions={filteredPromotions}
+                isReturningCustomer={isReturningCustomer}
+                shippingLabel={shippingLabel}
+              />
             </motion.div>
           </div>
         </div>
       </main>
 
-      {/* Page Content Modals */}
       <PageContentModal
         isOpen={openModal === 'returns-and-refunds'}
         onClose={() => setOpenModal(null)}
@@ -885,7 +684,6 @@ const CheckoutPage: React.FC = () => {
         title="About Us"
       />
 
-      {/* OTP Verification Modal for Guest Checkout */}
       <OtpVerificationModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
@@ -895,8 +693,12 @@ const CheckoutPage: React.FC = () => {
           setIsGuestVerified(true);
           setShowOtpModal(false);
         }}
-        contactData={contactData}
-        defaultType={contactData.email ? 'email' : contactData.phone ? 'phone' : 'whatsapp'}
+        contactData={{
+          email: checkoutForm.watch("contactEmail"),
+          phone: checkoutForm.watch("contactPhone"),
+          whatsapp: checkoutForm.watch("contactWhatsapp"),
+        }}
+        defaultType={checkoutForm.watch("contactEmail") ? 'email' : checkoutForm.watch("contactPhone") ? 'phone' : 'whatsapp'}
       />
     </div>
   );
