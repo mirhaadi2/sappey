@@ -15,6 +15,9 @@ import CheckoutHeader from "../components/CheckoutHeader";
 import PageContentModal from "../components/PageContentModal";
 import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
 import OtpVerificationModal from "../components/OtpVerificationModal";
+import { Input, Select, Checkbox } from "../components/ui";
+import { useFormWithValidation } from "../hooks/useFormValidation";
+import * as z from "zod";
 
 const indianStates = [
   "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -25,155 +28,157 @@ const indianStates = [
   "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
 
+const addressSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters").regex(/^[a-zA-Z\s]+$/, "First name can only contain letters"),
+  lastName: z.string().optional().refine((val) => !val || /^[a-zA-Z\s]+$/.test(val), "Last name can only contain letters"),
+  address: z.string().min(10, "Address must be at least 10 characters"),
+  city: z.string().min(2, "City must be at least 2 characters").regex(/^[a-zA-Z\s]+$/, "City can only contain letters"),
+  state: z.string().min(1, "Please select a state"),
+  pinCode: z.string().regex(/^[1-9][0-9]{5}$/, "Please enter a valid 6-digit PIN code"),
+  phone: z.string().regex(/^[6-9][0-9]{9}$/, "Please enter a valid 10-digit phone number"),
+  country: z.string().min(1, "Country is required"),
+});
+
+// Comprehensive Checkout Form Schema - manages all checkout-related form fields
+const checkoutFormSchema = z.object({
+  contactEmail: z.string().email("Invalid email").or(z.literal("")),
+  contactPhone: z.string().regex(/^[6-9][0-9]{9}$|^$/, "Invalid phone number"),
+  contactWhatsapp: z.string().regex(/^[6-9][0-9]{9}$|^$/, "Invalid WhatsApp number"),
+  deliveryAddress: addressSchema,
+  billingSameAsShipping: z.boolean().default(true),
+  // Make billingAddress optional in the base object
+  billingAddress: z.union([
+    addressSchema,
+    z.object({
+      firstName: z.string(),
+      lastName: z.string().optional(),
+      address: z.string(),
+      city: z.string(),
+      state: z.string(),
+      pinCode: z.string(),
+      phone: z.string(),
+      country: z.string(),
+    }).partial()
+  ]).optional(),
+  paymentMethod: z.enum(["cod", "card", "upi", "netbanking"]).default("cod"),
+  shippingMethod: z.enum(["standard", "express", "overnight"]).default("standard"),
+  newsletter: z.boolean().default(true),
+  saveInfo: z.boolean().default(true),
+}).superRefine((values, ctx) => {
+  if (!values.billingSameAsShipping) {
+    // Now we perform the strict check only when the toggle is OFF
+    const billingResult = addressSchema.safeParse(values.billingAddress);
+    if (!billingResult.success) {
+      billingResult.error.issues.forEach((issue) => {
+        ctx.addIssue({
+          ...issue,
+          path: ["billingAddress", ...issue.path],
+        });
+      });
+    }
+  }
+});
+
+type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+
 interface AddressFormProps {
-  data: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    city: string;
-    state: string;
-    phone: string;
-    pinCode: string;
-    country: string;
-  };
-  onChange: (data: any) => void;
+  form: ReturnType<typeof useFormWithValidation<CheckoutFormData>>;
+  addressFieldPrefix: "deliveryAddress" | "billingAddress";
   showSaveInfo?: boolean;
-  saveInfo?: boolean;
-  onSaveInfoChange?: (value: boolean) => void;
   phoneLabel?: string;
-  errors?: {
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    phone?: string;
-    pinCode?: string;
-    country?: string;
-  };
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
-  data,
-  onChange,
+  form,
+  addressFieldPrefix,
   showSaveInfo = false,
-  saveInfo = true,
-  onSaveInfoChange,
   phoneLabel = "Phone",
-  errors = {}
 }) => {
-  // Common styles for all inputs to ensure consistency
-  const inputClass = "w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-0 transition";
-  const getInputClass = (fieldName: keyof typeof errors) => `${inputClass} ${errors[fieldName] ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-brand-brown'}`;
+  const { register, formState: { errors } } = form;
+
+  // Helper to build nested field names for react-hook-form
+  const field = (fieldName: string) => `${addressFieldPrefix}.${fieldName}` as const;
+  const getNestedError = (fieldName: string) => {
+    const errorObj = errors[addressFieldPrefix] as any;
+    return errorObj?.[fieldName];
+  };
 
   return (
     <div className="space-y-4">
-      <div>
-        <select
-          value={data.country}
-          onChange={(e) => onChange({ ...data, country: e.target.value })}
-          className={getInputClass('country')}
-        >
-          <option>India</option>
-        </select>
-        {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
-      </div>
+      <Select
+        label="Country"
+        name={field("country")}
+        register={register}
+        error={getNestedError("country")}
+        options={[{ value: 'India', label: 'India' }]}
+        placeholder="Select Country"
+      />
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <input
-            type="text"
-            value={data.firstName}
-            onChange={(e) => onChange({ ...data, firstName: e.target.value })}
-            placeholder="First name"
-            className={getInputClass('firstName')}
-          />
-          {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
-        </div>
-        <div>
-          <input
-            type="text"
-            value={data.lastName}
-            onChange={(e) => onChange({ ...data, lastName: e.target.value })}
-            placeholder="Last name"
-            className={getInputClass('lastName')}
-            autoComplete="off"
-          />
-          {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-        </div>
-      </div>
-
-      <div>
-        <input
-          type="text"
-          value={data.address}
-          onChange={(e) => onChange({ ...data, address: e.target.value })}
-          placeholder="Address"
-          className={getInputClass('address')}
-          autoComplete="off"
+        <Input
+          label="First Name"
+          name={field("firstName")}
+          register={register}
+          error={getNestedError("firstName")}
+          placeholder="First name"
         />
-        {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+        <Input
+          label="Last Name"
+          name={field("lastName")}
+          register={register}
+          error={getNestedError("lastName")}
+          placeholder="Last name"
+        />
       </div>
 
-      <input
-        type="text"
-        placeholder="Apartment, suite, etc. (optional)"
-        className={inputClass}
-        autoComplete="off"
+      <Input
+        label="Address"
+        name={field("address")}
+        register={register}
+        error={getNestedError("address")}
+        placeholder="Address"
       />
 
       <div className="grid grid-cols-3 gap-4">
-        <div>
-          <input
-            type="text"
-            value={data.city}
-            onChange={(e) => onChange({ ...data, city: e.target.value })}
-            placeholder="City"
-            className={getInputClass('city')}
-            autoComplete="off"
-          />
-          {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-        </div>
-        <div>
-          <select
-            value={data.state}
-            onChange={(e) => onChange({ ...data, state: e.target.value })}
-            className={getInputClass('state')}
-          >
-            <option value="">Select State</option>
-            {indianStates.map((state) => (
-              <option key={state} value={state}>{state}</option>
-            ))}
-          </select>
-          {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
-        </div>
-        <div>
-          <input
-            type="text"
-            value={data.pinCode}
-            onChange={(e) => onChange({ ...data, pinCode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-            placeholder="PIN code"
-            className={getInputClass('pinCode')}
-            autoComplete="off"
-            maxLength={6}
-          />
-          {errors.pinCode && <p className="text-red-500 text-sm mt-1">{errors.pinCode}</p>}
-        </div>
+        <Input
+          label="City"
+          name={field("city")}
+          register={register}
+          error={getNestedError("city")}
+          placeholder="City"
+        />
+        <Select
+          label="State"
+          name={field("state")}
+          register={register}
+          error={getNestedError("state")}
+          options={indianStates.map(state => ({ value: state, label: state }))}
+          placeholder="Select State"
+        />
+        <Input
+          label="PIN Code"
+          name={field("pinCode")}
+          register={register}
+          error={getNestedError("pinCode")}
+          placeholder="PIN code"
+          type="text"
+          maxLength={6}
+        />
       </div>
 
-      <div className="relative group flex items-center">
-        <input
-          type="text"
-          value={data.phone}
-          onChange={(e) => onChange({ ...data, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+      <div className="relative group">
+        <Input
+          label={phoneLabel}
+          name={field("phone")}
+          register={register}
+          error={getNestedError("phone")}
           placeholder={phoneLabel}
-          className={getInputClass('phone')}
-          autoComplete="off"
+          type="tel"
           maxLength={10}
         />
         <QuestionIcon
           size={20}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-help"
+          className="absolute right-4 top-1/3 -translate-y-1/2 text-slate-400 cursor-help z-10"
         />
         <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block transition-opacity duration-200">
           <div className="bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg whitespace-nowrap">
@@ -181,18 +186,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
             <div className="absolute top-full right-5 -mt-1 border-4 border-transparent border-t-slate-800"></div>
           </div>
         </div>
-        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
       </div>
+
       {showSaveInfo && (
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={saveInfo}
-            onChange={(e) => onSaveInfoChange?.(e.target.checked)}
-            className="w-5 h-5 text-brand-brown rounded border-slate-300 focus:ring-0"
-          />
-          <span className="text-sm text-slate-700">Save this information for next time</span>
-        </label>
+        <Checkbox
+          label="Save this information for next time"
+          name="saveInfo"
+          checked={form.watch("saveInfo")}
+          onChange={(e) => form.setValue("saveInfo", e.target.checked)}
+        />
       )}
     </div>
   );
@@ -205,53 +207,50 @@ const CheckoutPage: React.FC = () => {
   const { placeOrder, isCreatingOrder } = useOrders();
   const { config: guestConfig } = useGuestConfig();
 
-  // Form state
-  const [contactData, setContactData] = useState({
-    email: '',
-    phone: '',
-    whatsapp: '',
-  });
-  const [deliveryData, setDeliveryData] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    pinCode: '',
-    phone: '',
-    country: 'India',
-  });
-  const [deliveryErrors, setDeliveryErrors] = useState<{
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    phone?: string;
-    pinCode?: string;
-    country?: string;
-  }>({});
-  const [billingData, setBillingData] = useState({
-    sameAsShipping: true,
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    pinCode: '',
-    phone: '',
-    country: 'India',
+  // Consolidated Checkout Form - manages all form-related state
+  const checkoutForm = useFormWithValidation<CheckoutFormData>(checkoutFormSchema, {
+    defaultValues: {
+      contactEmail: '',
+      contactPhone: '',
+      contactWhatsapp: '',
+      deliveryAddress: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        state: '',
+        pinCode: '',
+        phone: '',
+        country: 'India',
+      },
+      billingAddress: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        state: '',
+        pinCode: '',
+        phone: '',
+        country: 'India',
+      },
+      billingSameAsShipping: true,
+      paymentMethod: 'cod',
+      shippingMethod: 'standard',
+      newsletter: true,
+      saveInfo: true,
+    }
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | "upi" | "netbanking">("cod");
-  const [shippingMethod] = useState<"standard" | "express" | "overnight">("standard");
-  const [newsletter, setNewsletter] = useState(true);
-  const [saveInfo, setSaveInfo] = useState(true);
+  console.log(checkoutForm?.getValues(), 'checkoutForm');
+
+  // UI State (not form data)
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isGuestVerified, setIsGuestVerified] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
+
+  // Server Data (not form data)
   const [existingCustomer, setExistingCustomer] = useState<{
     id: string;
     email?: string;
@@ -268,7 +267,7 @@ const CheckoutPage: React.FC = () => {
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
   const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
 
-  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount  > 0;
+  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
 
   const isWelcomePromotion = (promotion: Promotion) => {
@@ -276,12 +275,10 @@ const CheckoutPage: React.FC = () => {
     return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
   };
 
-  // Calculate base subtotal using centralized order math utilities
   const baseSubtotal = useMemo(() => {
     return getSubtotal(state?.items ?? []);
   }, [state?.items]);
 
-  // Fetch applicable promotions based on cart value using the hook
   const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
 
   const filteredPromotions = useMemo(() => {
@@ -298,8 +295,19 @@ const CheckoutPage: React.FC = () => {
 
   const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
   const orderSummary = useMemo(() => {
-    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, deliveryData);
-  }, [state?.items, shippingMethod, bestPromotion, deliveryData]);
+    const deliveryValues = checkoutForm.watch("deliveryAddress");
+    const shippingMethod = checkoutForm.watch("shippingMethod");
+    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, {
+      firstName: deliveryValues.firstName || '',
+      lastName: deliveryValues.lastName || '',
+      address: deliveryValues.address || '',
+      city: deliveryValues.city || '',
+      state: deliveryValues.state || '',
+      pinCode: deliveryValues.pinCode || '',
+      phone: deliveryValues.phone || '',
+      country: deliveryValues.country || 'India',
+    });
+  }, [state?.items, checkoutForm.watch(), bestPromotion]);
 
   const shippingLabel = orderSummary.shippingReady
     ? orderSummary.shipping === 0
@@ -353,92 +361,16 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  const validateDeliveryAddress = () => {
-    const errors: typeof deliveryErrors = {};
-
-    // First Name validation
-    if (!deliveryData.firstName.trim()) {
-      errors.firstName = "First name is required";
-    } else if (deliveryData.firstName.trim().length < 2) {
-      errors.firstName = "First name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s]+$/.test(deliveryData.firstName.trim())) {
-      errors.firstName = "First name can only contain letters and spaces";
-    }
-
-    // Last Name validation (optional but if provided, validate)
-    if (deliveryData.lastName.trim() && !/^[a-zA-Z\s]+$/.test(deliveryData.lastName.trim())) {
-      errors.lastName = "Last name can only contain letters and spaces";
-    }
-
-    // Address validation
-    if (!deliveryData.address.trim()) {
-      errors.address = "Address is required";
-    } else if (deliveryData.address.trim().length < 10) {
-      errors.address = "Please provide a complete address (minimum 10 characters)";
-    }
-
-    // City validation
-    if (!deliveryData.city.trim()) {
-      errors.city = "City is required";
-    } else if (deliveryData.city.trim().length < 2) {
-      errors.city = "City name must be at least 2 characters";
-    } else if (!/^[a-zA-Z\s]+$/.test(deliveryData.city.trim())) {
-      errors.city = "City name can only contain letters and spaces";
-    }
-
-    // State validation
-    if (!deliveryData.state.trim()) {
-      errors.state = "Please select a state";
-    }
-
-    // PIN Code validation
-    if (!deliveryData.pinCode.trim()) {
-      errors.pinCode = "PIN code is required";
-    } else if (!/^[1-9][0-9]{5}$/.test(deliveryData.pinCode.trim())) {
-      errors.pinCode = "Please enter a valid 6-digit PIN code";
-    }
-
-    // Country validation
-    if (!deliveryData.country.trim()) {
-      errors.country = "Country is required";
-    }
-
-    // Phone validation
-    if (!deliveryData.phone.trim()) {
-      errors.phone = "Phone number is required";
-    } else if (!/^[6-9][0-9]{9}$/.test(deliveryData.phone.trim())) {
-      errors.phone = "Please enter a valid 10-digit mobile number starting with 6-9";
-    }
-
-    setDeliveryErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleDeliveryDataChange = (data: typeof deliveryData) => {
-    setDeliveryData(data);
-    // Clear errors for fields that are being edited
-    const updatedErrors = { ...deliveryErrors };
-    (Object.keys(data) as Array<keyof typeof data>).forEach(key => {
-      if (updatedErrors[key] && data[key]?.trim()) {
-        delete updatedErrors[key];
-      }
-    });
-    setDeliveryErrors(updatedErrors);
-  };
-
   const applySavedAddress = (address: any) => {
     setSelectedAddressId(address.id);
-    setDeliveryData((prev) => ({
-      ...prev,
-      firstName: address.name?.split(' ')?.[0] || prev.firstName,
-      lastName: address.name?.split(' ')?.slice(1).join(' ') || prev.lastName,
-      address: address.addressLine1 || prev.address,
-      city: address.city || prev.city,
-      state: address.state || prev.state,
-      pinCode: address.postalCode || prev.pinCode,
-      country: address.country || prev.country,
-      phone: address.phone || prev.phone,
-    }));
+    checkoutForm.setValue('deliveryAddress.firstName', address.name?.split(' ')?.[0] || '');
+    checkoutForm.setValue('deliveryAddress.lastName', address.name?.split(' ')?.slice(1).join(' ') || '');
+    checkoutForm.setValue('deliveryAddress.address', address.addressLine1 || '');
+    checkoutForm.setValue('deliveryAddress.city', address.city || '');
+    checkoutForm.setValue('deliveryAddress.state', address.state || '');
+    checkoutForm.setValue('deliveryAddress.pinCode', address.postalCode || '');
+    checkoutForm.setValue('deliveryAddress.country', address.country || 'India');
+    checkoutForm.setValue('deliveryAddress.phone', address.phone || '');
   };
 
   const toggleSavedAddress = (address: any) => {
@@ -451,20 +383,21 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    // Validate delivery address
-    if (!validateDeliveryAddress()) {
-      // Scroll to the first error field
-      const firstErrorField = Object.keys(deliveryErrors)[0];
-      if (firstErrorField) {
-        const element = document.querySelector(`[name="${firstErrorField}"]`) || document.querySelector('.delivery-section');
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    // Validate form
+    const isFormValid = await checkoutForm.trigger();
+    if (!isFormValid) {
+      // Optional: Scroll to the first error
+      console.log("Validation failed", checkoutForm.formState.errors);
       return;
     }
 
+    const formValues = checkoutForm.getValues();
+    const deliveryValues = formValues.deliveryAddress;
+    const billingValues = formValues.billingSameAsShipping ? deliveryValues : formValues.billingAddress;
+    console.log(formValues, 'formValues', deliveryValues, 'deliveryValues', billingValues, 'billingValues');
     // For guest users, require OTP verification
     if (!currentUser) {
-      if (!contactData.email && !contactData.phone && !contactData.whatsapp) {
+      if (!formValues.contactEmail && !formValues.contactPhone && !formValues.contactWhatsapp) {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
         return;
       }
@@ -488,17 +421,27 @@ const CheckoutPage: React.FC = () => {
         discountAmount: orderSummary.promotionDiscount,
         taxAmount: orderSummary.tax,
         shippingCost: orderSummary.shipping,
-        paymentMethod,
+        paymentMethod: formValues.paymentMethod,
         shippingAddressId: selectedAddressId || undefined,
         shippingAddress: {
-          name: `${deliveryData.firstName} ${deliveryData.lastName}`,
-          phone: deliveryData?.phone || contactData.phone || contactData.whatsapp,
-          email: contactData.email,
-          addressLine1: deliveryData.address,
-          city: deliveryData.city,
-          state: deliveryData.state,
-          postalCode: deliveryData.pinCode,
-          country: deliveryData.country,
+          name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
+          phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+          email: formValues.contactEmail,
+          addressLine1: deliveryValues.address,
+          city: deliveryValues.city,
+          state: deliveryValues.state,
+          postalCode: deliveryValues.pinCode,
+          country: deliveryValues.country,
+        },
+        billingAddress: formValues.billingSameAsShipping ? undefined : {
+          name: `${billingValues?.firstName} ${billingValues?.lastName}`,
+          phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+          email: formValues.contactEmail,
+          addressLine1: billingValues?.address,
+          city: billingValues?.city,
+          state: billingValues?.state,
+          postalCode: billingValues?.pinCode,
+          country: billingValues?.country,
         },
         promotionId: orderSummary.selectedPromotion?.id,
       };
@@ -511,11 +454,11 @@ const CheckoutPage: React.FC = () => {
           orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder?.id ?? 'Unknown'}`,
           orderTotal: orderSummary.total,
           estimatedDelivery: new Date(
-            Date.now() + (shippingMethod === "standard" ? 6 : shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
+            Date.now() + (formValues.shippingMethod === "standard" ? 6 : formValues.shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
           ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          shippingMethod,
-          paymentMethod,
-          address: `${deliveryData.firstName}, ${deliveryData.city}`,
+          shippingMethod: formValues.shippingMethod,
+          paymentMethod: formValues.paymentMethod,
+          address: `${deliveryValues.firstName}, ${deliveryValues.city}`,
           itemCount: state?.items?.length ?? 0,
           promotionApplied: orderSummary.selectedPromotion?.title,
           promotionSavings: orderSummary.promotionDiscount,
@@ -527,7 +470,6 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  console.log(state?.items,'Checkout items');
   if ((state?.items?.length ?? 0) === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-latte to-white">
@@ -614,14 +556,16 @@ const CheckoutPage: React.FC = () => {
                         </div>
                         <input
                           type={type === 'email' ? 'email' : 'tel'}
-                          value={contactData[type as 'email' | 'phone' | 'whatsapp']}
-                          onChange={(e) =>
-                            setContactData((prev) => ({
-                              ...prev,
-                              [type]: e.target.value,
-                            }))
-                          }
-                          onBlur={() => runCustomerLookup(contactData[type as 'email' | 'phone' | 'whatsapp'], type as 'email' | 'phone' | 'whatsapp')}
+                          value={checkoutForm.watch(`contact${type.charAt(0).toUpperCase() + type.slice(1)}` as any)}
+                          onChange={(e) => {
+                            const fieldName = `contact${type.charAt(0).toUpperCase() + type.slice(1)}` as any;
+                            checkoutForm.setValue(fieldName, e.target.value);
+                          }}
+                          onBlur={() => {
+                            const fieldName = `contact${type.charAt(0).toUpperCase() + type.slice(1)}` as any;
+                            const value = checkoutForm.watch(fieldName);
+                            runCustomerLookup(value, type as 'email' | 'phone' | 'whatsapp');
+                          }}
                           placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
                           className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-brown focus:outline-none transition"
                         />
@@ -631,8 +575,8 @@ const CheckoutPage: React.FC = () => {
                   <label className="flex items-center gap-3 cursor-pointer mt-4">
                     <input
                       type="checkbox"
-                      checked={newsletter}
-                      onChange={(e) => setNewsletter(e.target.checked)}
+                      checked={checkoutForm.watch("newsletter")}
+                      onChange={(e) => checkoutForm.setValue("newsletter", e.target.checked)}
                       className="w-5 h-5 text-brand-brown rounded"
                     />
                     <span className="text-sm text-slate-700">Email me with news and offers</span>
@@ -659,9 +603,8 @@ const CheckoutPage: React.FC = () => {
                               key={address.id}
                               type="button"
                               onClick={() => toggleSavedAddress(address)}
-                              className={`w-full text-left p-4 rounded-2xl border transition ${
-                                selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
-                              }`}
+                              className={`w-full text-left p-4 rounded-2xl border transition ${selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
+                                }`}
                             >
                               <div className="flex items-center justify-between gap-4">
                                 <div>
@@ -730,36 +673,9 @@ const CheckoutPage: React.FC = () => {
                         <button
                           key={address.id}
                           type="button"
-                          onClick={() => {
-                            if (selectedAddressId === address.id) {
-                              setSelectedAddressId(null);
-                              setDeliveryData({
-                                firstName: '',
-                                lastName: '',
-                                address: '',
-                                city: '',
-                                state: '',
-                                pinCode: '',
-                                country: 'India',
-                                phone: '',
-                              });
-                            } else {
-                              setSelectedAddressId(address.id);
-                              setDeliveryData({
-                                firstName: address.name?.split(' ')[0] || '',
-                                lastName: address.name?.split(' ').slice(1).join(' ') || '',
-                                address: address.addressLine1 + (address.addressLine2 ? `, ${address.addressLine2}` : ''),
-                                city: address.city || '',
-                                state: address.state || '',
-                                pinCode: address.postalCode || '',
-                                country: address.country || 'India',
-                                phone: address.phone || '',
-                              });
-                            }
-                          }}
-                          className={`w-full text-left p-4 border-2 rounded-xl transition-all ${
-                            selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
-                          }`}
+                          onClick={() => toggleSavedAddress(address)}
+                          className={`w-full text-left p-4 border-2 rounded-xl transition-all ${selectedAddressId === address.id ? 'border-brand-brown bg-brand-brown/5' : 'border-slate-200 bg-white hover:border-brand-brown'
+                            }`}
                         >
                           <div className="flex items-center justify-between gap-4">
                             <div>
@@ -796,13 +712,10 @@ const CheckoutPage: React.FC = () => {
               )}
 
               <AddressForm
-                data={deliveryData}
-                onChange={handleDeliveryDataChange}
+                form={checkoutForm}
+                addressFieldPrefix="deliveryAddress"
                 showSaveInfo={true}
-                saveInfo={saveInfo}
-                onSaveInfoChange={setSaveInfo}
                 phoneLabel="Phone"
-                errors={deliveryErrors}
               />
             </motion.div>
 
@@ -843,15 +756,15 @@ const CheckoutPage: React.FC = () => {
                 ].map((method) => (
                   <label key={method.id} className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-brand-brown transition"
                     style={{
-                      borderColor: paymentMethod === method.id ? '#6B4423' : '#E5E7EB',
+                      borderColor: checkoutForm.watch("paymentMethod") === method.id ? '#6B4423' : '#E5E7EB',
                     }}
                   >
                     <input
                       type="radio"
                       name="payment"
                       value={method.id}
-                      checked={paymentMethod === method.id as any}
-                      onChange={(e) => setPaymentMethod(e.target.value as any)}
+                      checked={checkoutForm.watch("paymentMethod") === method.id as any}
+                      onChange={(e) => checkoutForm.setValue("paymentMethod", e.target.value as any)}
                       className="w-5 h-5 accent-brand-brown"
                     />
                     <span className="text-sm font-medium text-slate-700">{method.label}</span>
@@ -869,38 +782,44 @@ const CheckoutPage: React.FC = () => {
               <h2 className="text-xl font-bold text-brand-brown mb-6">Billing address</h2>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
-                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                <label
+                  className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => {
+                    checkoutForm.setValue("billingSameAsShipping", true);
+                    // IMPORTANT: Clear the errors so the form can submit
+                    checkoutForm.clearErrors("billingAddress");
+                  }}
                 >
                   <input
                     type="radio"
                     name="billing"
-                    checked={billingData.sameAsShipping}
-                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: true }))}
+                    checked={checkoutForm.watch("billingSameAsShipping")}
+                    readOnly // Use readOnly since the label click handles the logic
                     className="w-5 h-5 accent-brand-brown"
                   />
                   <span className="text-sm font-medium text-slate-700">Same as shipping address</span>
                 </label>
 
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
-                  onClick={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                <label
+                  className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
+                  onClick={() => checkoutForm.setValue("billingSameAsShipping", false)}
                 >
                   <input
                     type="radio"
                     name="billing"
-                    checked={!billingData.sameAsShipping}
-                    onChange={() => setBillingData((prev) => ({ ...prev, sameAsShipping: false }))}
+                    checked={!checkoutForm.watch("billingSameAsShipping")}
+                    readOnly
                     className="w-5 h-5 accent-brand-brown"
                   />
                   <span className="text-sm font-medium text-slate-700">Use a different billing address</span>
                 </label>
               </div>
 
-              {!billingData.sameAsShipping && (
+              {!checkoutForm.watch("billingSameAsShipping") && (
                 <div className="mt-6">
                   <AddressForm
-                    data={billingData}
-                    onChange={(data) => setBillingData((prev) => ({ ...prev, ...data }))}
+                    form={checkoutForm}
+                    addressFieldPrefix="billingAddress"
                     showSaveInfo={false}
                     phoneLabel="Phone (Optional)"
                   />
@@ -1088,8 +1007,12 @@ const CheckoutPage: React.FC = () => {
           setIsGuestVerified(true);
           setShowOtpModal(false);
         }}
-        contactData={contactData}
-        defaultType={contactData.email ? 'email' : contactData.phone ? 'phone' : 'whatsapp'}
+        contactData={{
+          email: checkoutForm.watch("contactEmail"),
+          phone: checkoutForm.watch("contactPhone"),
+          whatsapp: checkoutForm.watch("contactWhatsapp"),
+        }}
+        defaultType={checkoutForm.watch("contactEmail") ? 'email' : checkoutForm.watch("contactPhone") ? 'phone' : 'whatsapp'}
       />
     </div>
   );

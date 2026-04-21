@@ -24,7 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         return (
             <div className="space-y-1">
                 {label && (
-                    <label className="block text-[13px] font-medium text-brand-brown/70 mb-1">
+                    <label className="block text-[13px] font-semibold text-brand-brown mb-1">
                         {label}
                     </label>
                 )}
@@ -61,7 +61,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         return (
             <div className="space-y-1">
                 {label && (
-                    <label className="block text-[13px] font-medium text-brand-brown/70 mb-1">
+                    <label className="block text-[13px] font-semibold text-brand-brown mb-1">
                         {label}
                     </label>
                 )}
@@ -105,7 +105,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         return (
             <div className="space-y-1">
                 {label && (
-                    <label className="block text-[13px] font-medium text-brand-brown/70 mb-1">
+                    <label className="block text-[13px] font-semibold text-brand-brown mb-1">
                         {label}
                     </label>
                 )}
@@ -145,7 +145,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                         {...registerProps}
                         {...props}
                     />
-                    <span className="text-[13px] text-brand-brown/70">{label}</span>
+                    <span className="text-[13px] text-brand-brown font-semibold">{label}</span>
                 </label>
                 {error && (
                     <p className="text-red-500 text-sm mt-1">{error.message}</p>
