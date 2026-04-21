@@ -17,6 +17,11 @@ export interface Review {
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface ReviewResponse {

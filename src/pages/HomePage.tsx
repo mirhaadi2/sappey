@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -11,10 +11,12 @@ import {
     Truck,
     ShieldCheck,
     Quotes,
+    CaretRight,
 } from "@phosphor-icons/react";
 import ProductCard from "../components/ProductCard";
-import { useHomepageData, Hero, Section, Testimonial, InstagramPost } from "../api/homepage";
+import { useHomepageData, Hero, Section, InstagramPost } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
+import { useGetReviews } from "../api/reviews";
 import { Product } from "../types";
 import { HomeSkeleton, ProductGridSkeleton, ReviewSkeleton, CategoryGridSkeleton } from "../components/Skeletons";
 import LazySection from "../components/LazySection";
@@ -82,8 +84,19 @@ const HomePage: React.FC = () => {
     const heroRef = useRef<HTMLDivElement>(null);
     const [testimonialIndex, setTestimonialIndex] = useState(0);
 
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Helper to handle index change and reset expansion
+    const handleNavigation = (index: number) => {
+        setIsExpanded(false);
+        setTestimonialIndex(index);
+    };
+
     // Fetch homepage data from API
     const { data: homepageData, isLoading: homepageLoading } = useHomepageData();
+
+    // Fetch reviews for testimonials section (limit to 5 for professional display)
+    const { reviews: backendReviews, isLoading: reviewsLoading } = useGetReviews(5, 0);
 
     // Fetch category-based UI for collections
     const {
@@ -130,26 +143,41 @@ const HomePage: React.FC = () => {
         error: newArrivalsError,
     } = useProducts(newArrivalsFilters);
 
-    const homepageTestimonials = homepageData?.testimonials || [];
+    // Convert backend reviews to testimonial format for display
+    const formattedTestimonials = backendReviews.map((review) => ({
+        id: review.id,
+        name: review.customer?.name || 'Anonymous',
+        role: undefined,
+        content: review.comment || '',
+        imageUrl: undefined,
+        rating: review.rating,
+        comment: review.comment || '',
+        author: review.customer?.name || 'Anonymous',
+        location: undefined,
+        isActive: true,
+        createdAt: review.createdAt,
+        updatedAt: review.updatedAt,
+    }));
 
     useEffect(() => {
-        if (!homepageTestimonials.length) return;
+        if (!formattedTestimonials.length) return;
 
         const interval = setInterval(() => {
             setTestimonialIndex(
-                (prev) => (prev + 1) % homepageTestimonials.length,
+                (prev) => (prev + 1) % formattedTestimonials.length,
             );
         }, 4000);
 
         return () => clearInterval(interval);
-    }, [homepageTestimonials.length]);
+    }, [formattedTestimonials.length]);
 
     const isAnyLoading =
         homepageLoading ||
         categoriesLoading ||
         collectionLoading ||
         bestsellersLoading ||
-        newArrivalsLoading;
+        newArrivalsLoading ||
+        reviewsLoading;
 
     if (isAnyLoading) {
         return <HomeSkeleton />;
@@ -181,7 +209,6 @@ const HomePage: React.FC = () => {
 
     const hero = homepageData?.hero?.find((hero: Hero) => hero?.isActive) || null;
     const sections: Section[] = Array.isArray(homepageData?.sections) ? (homepageData.sections as Section[])?.filter((section: Section) => section?.isActive) : [];
-    const testimonials: Testimonial[] = Array.isArray(homepageData?.testimonials) ? (homepageData.testimonials as Testimonial[])?.filter((testimony: Testimonial) => testimony?.isActive) : [];
     const instagramPosts: InstagramPost[] = Array.isArray(homepageData?.instagramPosts) ? (homepageData.instagramPosts as InstagramPost[])?.filter((post: InstagramPost) => post?.isActive) : [];
 
     const collections = Array.isArray(collectionProducts) ? collectionProducts : [];
@@ -209,9 +236,6 @@ const HomePage: React.FC = () => {
     );
     const instagramSection: Section | undefined = sections.find(
         (s: Section) => s.sectionType === "instagram" && s.isActive
-    );
-    const contactSection: Section | undefined = sections.find(
-        (s: Section) => s.sectionType === "contact" && s.isActive
     );
 
     const knownSectionTypes = [
@@ -672,107 +696,140 @@ const HomePage: React.FC = () => {
                 </section>
             )}
 
-            {testimonialsSection && testimonials?.length > 0 && (
+          {testimonialsSection && formattedTestimonials?.length > 0 && (
                 <LazyErrorBoundary>
                     <LazySection
                         fallback={<div className="py-16 px-8"><ReviewSkeleton count={1} /></div>}
                         rootMargin="250px 0px"
                     >
-                        <section className="py-16 px-8 bg-gradient-1">
-                            <div className="max-w-4xl mx-auto text-center">
-                                <motion.div
-                                    variants={fadeUpVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true }}
-                                >
-                                    <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-2">
-                                        {testimonialsSection?.title || "Testimonials"}
-                                    </span>
-                                    <h2
-                                        className="font-headline text-4xl text-brand-cream mb-12"
-                                        style={{ fontWeight: 500, letterSpacing: "-0.0.25em" }}
+                        <section className="py-20 px-6 bg-brand-cocoa overflow-hidden">
+                            <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
+                                
+                                {/* LEFT SIDE: Heading & Navigation */}
+                                <div className="w-full lg:w-2/5 text-center lg:text-left lg:sticky lg:top-24">
+                                    <motion.span 
+                                        initial={{ opacity: 0, x: -20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        viewport={{ once: true }}
+                                        className="inline-block py-1 px-3 rounded-full border border-brand-cream/20 font-label text-[9px] uppercase tracking-[0.3em] text-brand-cream mb-4"
                                     >
-                                        {testimonialsSection?.subtitle || "What Our Customers Are Saying"}
+                                        {testimonialsSection?.title || "Reviews"}
+                                    </motion.span>
+                                    
+                                    <h2 className="font-headline text-3xl md:text-4xl text-brand-cream leading-tight mb-8">
+                                        {testimonialsSection?.subtitle || "What Our Community Says"}
                                     </h2>
-                                </motion.div>
 
-                                <div className="relative min-h-48">
-                                    {testimonials?.map((t: Testimonial, i: number) => (
-                                        <motion.div
-                                            key={t.id}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: i === testimonialIndex ? 1 : 0 }}
-                                            transition={{ duration: 0.5 }}
-                                            className={`absolute inset-0 flex flex-col items-center ${i === testimonialIndex
-                                                ? "pointer-events-auto"
-                                                : "pointer-events-none"
+                                    {/* Minimalist Tab-style Navigation */}
+                                    <div className="hidden lg:flex flex-col gap-4">
+                                        {formattedTestimonials.slice(0, 5).map((t, i) => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => handleNavigation(i)}
+                                                className="flex items-center gap-4 group transition-all text-left"
+                                            >
+                                                <div className={`h-[1px] transition-all duration-500 ${
+                                                    i === testimonialIndex ? "w-10 bg-brand-cream" : "w-4 bg-brand-cream/20 group-hover:bg-brand-cream/40"
+                                                }`} />
+                                                <span className={`font-label text-[10px] uppercase tracking-widest transition-opacity ${
+                                                    i === testimonialIndex ? "text-brand-cream opacity-100" : "text-brand-cream opacity-40 group-hover:opacity-70"
+                                                }`}>
+                                                    {t.author}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* RIGHT SIDE: The Spotlight Card */}
+                                <div className="w-full lg:w-3/5 relative">
+                                    {/* Decorative background glow */}
+                                    <div className="absolute -inset-4 bg-gradient-to-tr from-brand-brown/20 to-transparent blur-3xl rounded-full opacity-50 pointer-events-none" />
+                                    
+                                    <div className="relative">
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={testimonialIndex}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                                className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-10 shadow-xl relative overflow-hidden"
+                                            >
+                                                <Quotes size={32} weight="fill" className="text-brand-cream/10 mb-6" />
+                                                
+                                                <div className="relative">
+                                                    <p className={`font-sans text-base md:text-lg text-brand-cream/90 leading-relaxed transition-all duration-300 ${
+                                                        !isExpanded ? "line-clamp-4" : ""
+                                                    }`}>
+                                                        "{formattedTestimonials[testimonialIndex].comment}"
+                                                    </p>
+                                                    
+                                                    {/* Smart Read More Toggle */}
+                                                    {formattedTestimonials[testimonialIndex].comment?.length > 180 && (
+                                                        <button 
+                                                            onClick={() => setIsExpanded(!isExpanded)}
+                                                            className="mt-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-brand-cream/60 hover:text-brand-cream transition-colors group"
+                                                        >
+                                                            <span className="border-b border-brand-cream/20 group-hover:border-brand-cream">
+                                                                {isExpanded ? "Show Less" : "Read Full Story"}
+                                                            </span>
+                                                            <CaretRight 
+                                                                size={10} 
+                                                                className={`transition-transform duration-300 ${isExpanded ? "-rotate-90" : "rotate-90"}`} 
+                                                            />
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-brand-brown/40 border border-brand-cream/20 flex items-center justify-center font-label text-xs text-brand-cream">
+                                                            {formattedTestimonials[testimonialIndex].author?.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-bold text-brand-cream uppercase tracking-wider">
+                                                                {formattedTestimonials[testimonialIndex].author}
+                                                            </p>
+                                                            <p className="text-[10px] text-brand-cream/40 uppercase tracking-tighter">Verified Buyer</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex gap-0.5">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star 
+                                                                key={i} 
+                                                                size={10} 
+                                                                weight="fill" 
+                                                                className={i < (formattedTestimonials[testimonialIndex].rating || 5) ? "text-brand-cream" : "text-white/10"} 
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
+
+                                    {/* Mobile Navigation Dots */}
+                                    <div className="flex lg:hidden justify-center gap-2 mt-8">
+                                        {formattedTestimonials.map((_, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleNavigation(i)}
+                                                className={`h-1 rounded-full transition-all duration-300 ${
+                                                    i === testimonialIndex ? "w-8 bg-brand-cream" : "w-2 bg-brand-cream/20"
                                                 }`}
-                                        >
-                                            <Quotes
-                                                size={32}
-                                                weight="fill"
-                                                className="text-brand-cream opacity-40 mb-4"
+                                                aria-label={`Go to slide ${i + 1}`}
                                             />
-                                            <p className="font-sans text-lg text-brand-cream opacity-95 leading-relaxed mb-6 max-w-2xl">
-                                                "{t.comment}"
-                                            </p>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-brand-cocoa flex items-center justify-center">
-                                                    <span
-                                                        className="font-label text-sm text-brand-cream font-500"
-                                                        style={{ fontWeight: 500 }}
-                                                    >
-                                                        {t.author?.charAt(0)?.toUpperCase() || "U"}
-                                                    </span>
-                                                </div>
-
-                                                <div className="text-left">
-                                                    <p
-                                                        className="font-label text-sm  text-brand-cream"
-                                                        style={{ fontWeight: 500 }}
-                                                    >
-                                                        {t.author}
-                                                    </p>
-                                                    <p className="font-sans text-xs text-brand-cream opacity-70">
-                                                        {t.location || "Customer"}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-1 ml-2">
-                                                    {Array.from({ length: t.rating })?.map((_, i: number) => (
-                                                        <Star
-                                                            key={i}
-                                                            size={14}
-                                                            weight="fill"
-                                                            className="text-warning"
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-2 mt-16">
-                                    {testimonials?.map((_: Testimonial, i: number) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => setTestimonialIndex(i)}
-                                            className={`rounded-full transition-all duration-300 cursor-pointer ${i === testimonialIndex
-                                                ? "w-6 h-2 bg-brand-cream"
-                                                : "w-2 h-2 bg-brand-cream opacity-40 hover:opacity-70"
-                                                }`}
-                                            aria-label={`Go to testimonial ${i + 1}`}
-                                        />
-                                    ))}
-                                </div>
                             </div>
                         </section>
                     </LazySection>
                 </LazyErrorBoundary>
             )}
-
             {instagramSection && instagramPosts?.length > 0 && (
                 <LazyErrorBoundary>
                     <LazySection
@@ -838,7 +895,7 @@ const HomePage: React.FC = () => {
 
             {dynamicSections.map((section) => renderDynamicSection(section))}
 
-            {contactSection && (
+            {/* {contactSection && (
                 <section id="contact" className="py-16 px-8 bg-white">
                     <div className="max-w-2xl mx-auto text-center">
                         <motion.div
@@ -885,7 +942,7 @@ const HomePage: React.FC = () => {
                         </motion.div>
                     </div>
                 </section>
-            )}
+            )} */}
         </div>
     );
 };
