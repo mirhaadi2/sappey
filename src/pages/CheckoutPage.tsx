@@ -17,69 +17,8 @@ import CheckoutPromotionBadge from "../components/CheckoutPromotionBadge";
 import OtpVerificationModal from "../components/OtpVerificationModal";
 import { Input, Select, Checkbox } from "../components/ui";
 import { useFormWithValidation } from "../hooks/useFormValidation";
-import * as z from "zod";
-
-const indianStates = [
-  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-  "Delhi", "Dadra and Nagar Haveli", "Daman and Diu", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
-  "Jammu and Kashmir", "Jharkhand", "Karnataka",
-  "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-  "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
-];
-
-const addressSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters").regex(/^[a-zA-Z\s]+$/, "First name can only contain letters"),
-  lastName: z.string().optional().refine((val) => !val || /^[a-zA-Z\s]+$/.test(val), "Last name can only contain letters"),
-  address: z.string().min(10, "Address must be at least 10 characters"),
-  city: z.string().min(2, "City must be at least 2 characters").regex(/^[a-zA-Z\s]+$/, "City can only contain letters"),
-  state: z.string().min(1, "Please select a state"),
-  pinCode: z.string().regex(/^[1-9][0-9]{5}$/, "Please enter a valid 6-digit PIN code"),
-  phone: z.string().regex(/^[6-9][0-9]{9}$/, "Please enter a valid 10-digit phone number"),
-  country: z.string().min(1, "Country is required"),
-});
-
-// Comprehensive Checkout Form Schema - manages all checkout-related form fields
-const checkoutFormSchema = z.object({
-  contactEmail: z.string().email("Invalid email").or(z.literal("")),
-  contactPhone: z.string().regex(/^[6-9][0-9]{9}$|^$/, "Invalid phone number"),
-  contactWhatsapp: z.string().regex(/^[6-9][0-9]{9}$|^$/, "Invalid WhatsApp number"),
-  deliveryAddress: addressSchema,
-  billingSameAsShipping: z.boolean().default(true),
-  // Make billingAddress optional in the base object
-  billingAddress: z.union([
-    addressSchema,
-    z.object({
-      firstName: z.string(),
-      lastName: z.string().optional(),
-      address: z.string(),
-      city: z.string(),
-      state: z.string(),
-      pinCode: z.string(),
-      phone: z.string(),
-      country: z.string(),
-    }).partial()
-  ]).optional(),
-  paymentMethod: z.enum(["cod", "card", "upi", "netbanking"]).default("cod"),
-  shippingMethod: z.enum(["standard", "express", "overnight"]).default("standard"),
-  newsletter: z.boolean().default(true),
-  saveInfo: z.boolean().default(true),
-}).superRefine((values, ctx) => {
-  if (!values.billingSameAsShipping) {
-    // Now we perform the strict check only when the toggle is OFF
-    const billingResult = addressSchema.safeParse(values.billingAddress);
-    if (!billingResult.success) {
-      billingResult.error.issues.forEach((issue) => {
-        ctx.addIssue({
-          ...issue,
-          path: ["billingAddress", ...issue.path],
-        });
-      });
-    }
-  }
-});
-
-type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+import { checkoutFormSchema, CheckoutFormData } from "../schemas";
+import { INDIAN_STATES } from "../constants";
 
 interface AddressFormProps {
   form: ReturnType<typeof useFormWithValidation<CheckoutFormData>>;
@@ -96,7 +35,6 @@ const AddressForm: React.FC<AddressFormProps> = ({
 }) => {
   const { register, formState: { errors } } = form;
 
-  // Helper to build nested field names for react-hook-form
   const field = (fieldName: string) => `${addressFieldPrefix}.${fieldName}` as const;
   const getNestedError = (fieldName: string) => {
     const errorObj = errors[addressFieldPrefix] as any;
@@ -152,7 +90,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           name={field("state")}
           register={register}
           error={getNestedError("state")}
-          options={indianStates.map(state => ({ value: state, label: state }))}
+          options={INDIAN_STATES.map(state => ({ value: state, label: state }))}
           placeholder="Select State"
         />
         <Input
@@ -241,16 +179,12 @@ const CheckoutPage: React.FC = () => {
     }
   });
 
-  console.log(checkoutForm?.getValues(), 'checkoutForm');
-
-  // UI State (not form data)
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isGuestVerified, setIsGuestVerified] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
 
-  // Server Data (not form data)
   const [existingCustomer, setExistingCustomer] = useState<{
     id: string;
     email?: string;
@@ -383,10 +317,8 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    // Validate form
     const isFormValid = await checkoutForm.trigger();
     if (!isFormValid) {
-      // Optional: Scroll to the first error
       console.log("Validation failed", checkoutForm.formState.errors);
       return;
     }
@@ -394,8 +326,6 @@ const CheckoutPage: React.FC = () => {
     const formValues = checkoutForm.getValues();
     const deliveryValues = formValues.deliveryAddress;
     const billingValues = formValues.billingSameAsShipping ? deliveryValues : formValues.billingAddress;
-    console.log(formValues, 'formValues', deliveryValues, 'deliveryValues', billingValues, 'billingValues');
-    // For guest users, require OTP verification
     if (!currentUser) {
       if (!formValues.contactEmail && !formValues.contactPhone && !formValues.contactWhatsapp) {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
@@ -426,7 +356,7 @@ const CheckoutPage: React.FC = () => {
         shippingAddress: {
           name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
           phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-          email: formValues.contactEmail,
+          email: currentUser ? currentUser.email : formValues.contactEmail,
           addressLine1: deliveryValues.address,
           city: deliveryValues.city,
           state: deliveryValues.state,
@@ -436,7 +366,7 @@ const CheckoutPage: React.FC = () => {
         billingAddress: formValues.billingSameAsShipping ? undefined : {
           name: `${billingValues?.firstName} ${billingValues?.lastName}`,
           phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-          email: formValues.contactEmail,
+          email: currentUser ? currentUser.email : formValues.contactEmail,
           addressLine1: billingValues?.address,
           city: billingValues?.city,
           state: billingValues?.state,
@@ -539,12 +469,6 @@ const CheckoutPage: React.FC = () => {
                     >
                       Sign In
                     </button>
-                    {/* <button
-                      onClick={() => openAuthModal("guest")}
-                      className="text-brand-brown font-semibold text-sm hover:underline"
-                    >
-                      Continue as Guest
-                    </button> */}
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -647,7 +571,6 @@ const CheckoutPage: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Delivery Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -658,7 +581,6 @@ const CheckoutPage: React.FC = () => {
                 Delivery
               </h2>
 
-              {/* Address Selection for Logged-in Users */}
               {currentUser && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-slate-900 mb-4">Select Shipping Address</h3>
@@ -773,7 +695,6 @@ const CheckoutPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Billing Address Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -786,7 +707,6 @@ const CheckoutPage: React.FC = () => {
                   className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-brown transition"
                   onClick={() => {
                     checkoutForm.setValue("billingSameAsShipping", true);
-                    // IMPORTANT: Clear the errors so the form can submit
                     checkoutForm.clearErrors("billingAddress");
                   }}
                 >
@@ -794,7 +714,7 @@ const CheckoutPage: React.FC = () => {
                     type="radio"
                     name="billing"
                     checked={checkoutForm.watch("billingSameAsShipping")}
-                    readOnly // Use readOnly since the label click handles the logic
+                    readOnly
                     className="w-5 h-5 accent-brand-brown"
                   />
                   <span className="text-sm font-medium text-slate-700">Same as shipping address</span>
@@ -827,7 +747,6 @@ const CheckoutPage: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Pay Now Button */}
             <motion.button
               onClick={handlePlaceOrder}
               disabled={isCreatingOrder}
@@ -838,7 +757,6 @@ const CheckoutPage: React.FC = () => {
               {isCreatingOrder ? "Processing..." : "Complete order"}
             </motion.button>
 
-            {/* Footer Links */}
             <div className="flex justify-center gap-6 text-sm text-slate-600 flex-wrap">
               <button onClick={() => setOpenModal('returns-and-refunds')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Refund policy</button>
               <button onClick={() => setOpenModal('shipping-policy')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Shipping</button>
@@ -848,32 +766,26 @@ const CheckoutPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Side - Order Summary */}
           <div className="lg:col-span-1">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="bg-white rounded-2xl p-6 border border-brand-brown/10 sticky top-32 space-y-4"
             >
-              {/* Items */}
               <div className="space-y-4 pb-4 border-b border-slate-200 max-h-64 overflow-y-auto px-2 pt-2">
                 {(state?.items ?? []).map((item, idx) => (
                   <div key={idx} className="flex gap-4">
-                    {/* Product Image Container */}
                     <div className="relative w-20 h-20 bg-slate-100 rounded-xl flex-shrink-0">
                       <img
                         src={item?.product?.images?.[0] || ''}
                         alt={item?.product?.name}
                         className="w-full h-full object-cover rounded-xl overflow-hidden border border-slate-100"
                       />
-
-                      {/* Quantity Badge - Now has 'breathing room' because of the parent's padding */}
                       <span className="absolute -top-2 -right-2 bg-brand-brown text-white text-[11px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-md z-20">
                         {item?.quantity}
                       </span>
                     </div>
 
-                    {/* Product Details */}
                     <div className="flex-1 pt-1">
                       <p className="text-sm font-medium text-slate-700 line-clamp-2 mb-1">
                         {item?.product?.name}
@@ -892,7 +804,6 @@ const CheckoutPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* Discount Code */}
               <div className="space-y-2">
                 <input
                   type="text"
@@ -904,7 +815,6 @@ const CheckoutPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Applicable Promotions */}
               {filteredPromotions.length > 0 ? (
                 <div className="space-y-2 pt-3">
                   {filteredPromotions.map((promo: any) => {
@@ -965,7 +875,6 @@ const CheckoutPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Page Content Modals */}
       <PageContentModal
         isOpen={openModal === 'returns-and-refunds'}
         onClose={() => setOpenModal(null)}
@@ -997,7 +906,6 @@ const CheckoutPage: React.FC = () => {
         title="About Us"
       />
 
-      {/* OTP Verification Modal for Guest Checkout */}
       <OtpVerificationModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
