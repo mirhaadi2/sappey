@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
 import { Product, CartItem, ProductVariant } from "../types";
 
-interface CartState {
+export interface CartState {
     items: CartItem[];
     isOpen: boolean;
 }
