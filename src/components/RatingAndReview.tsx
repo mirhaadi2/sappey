@@ -4,11 +4,12 @@ import { Star, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useSubmitReview, useGetReviewByOrderItem } from "../api/reviews/hooks";
 
 interface OrderItem {
-  orderItemId: string;
+  orderItemId: string;     // Unique order item ID for this specific purchase
   productId: string;
   productName: string;
   productImage?: string;
   variant?: string;
+  quantity?: number;       // Quantity of this item in the order
 }
 
 interface RatingAndReviewProps {
@@ -71,9 +72,14 @@ const ReviewItemCard: React.FC<{
           )}
           <div className="flex-1">
             <h3 className="text-sm font-medium text-slate-900">{item.productName}</h3>
-            {item.variant && (
-              <p className="text-xs text-slate-500">{item.variant}</p>
-            )}
+            <div className="flex items-center gap-2 mt-1">
+              {item.variant && (
+                <p className="text-xs text-slate-500">{item.variant}</p>
+              )}
+              {item.quantity && (
+                <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">Qty: {item.quantity}</span>
+              )}
+            </div>
           </div>
           <div className="text-right">
             <p className="text-xs text-slate-500">Your Review</p>
@@ -136,9 +142,18 @@ const ReviewItemCard: React.FC<{
           )}
           <div className="flex-1">
             <h3 className="text-sm font-medium text-slate-900">{item.productName}</h3>
-            {item.variant && (
-              <p className="text-xs text-slate-500">{item.variant}</p>
-            )}
+            <div className="flex items-center gap-2 mt-1">
+              {item.variant && (
+                <p className="text-xs text-slate-500">{item.variant}</p>
+              )}
+              {item.quantity && (
+                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Qty: {item.quantity}</span>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-slate-500\">Item Review</p>
+            <p className="text-xs text-slate-400 font-mono\">{item.orderItemId.slice(0, 8)}</p>
           </div>
         </div>
         <div className="flex items-center justify-center py-8">
@@ -181,9 +196,18 @@ const ReviewItemCard: React.FC<{
         )}
         <div className="flex-1">
           <h3 className="text-sm font-medium text-slate-900">{item.productName}</h3>
-          {item.variant && (
-            <p className="text-xs text-slate-500">{item.variant}</p>
-          )}
+          <div className="flex items-center gap-2 mt-1">
+            {item.variant && (
+              <p className="text-xs text-slate-500">{item.variant}</p>
+            )}
+            {item.quantity && (
+              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Qty: {item.quantity}</span>
+            )}
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-slate-500">Item Review</p>
+          <p className="text-xs text-slate-400 font-mono">{item.orderItemId.slice(0, 8)}</p>
         </div>
       </div>
 
