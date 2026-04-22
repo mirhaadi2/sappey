@@ -11,6 +11,7 @@ export const useSubmitReview = () => {
       // Invalidate review-related queries whenever a new review is created
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
       queryClient.invalidateQueries({ queryKey: ['productReviews', response.data.productId] });
+      queryClient.invalidateQueries({ queryKey: ['orderItemReview', response.data.orderItemId] });
     },
   });
 };
@@ -25,6 +26,22 @@ export const useGetReviews = (limit: number = 10, offset: number = 0) => {
   return {
     reviews: query.data?.data || [],
     total: query.data?.pagination.total || 0,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useGetReviewByOrderItem = (orderItemId: string) => {
+  const query = useQuery({
+    queryKey: ['orderItemReview', orderItemId],
+    queryFn: () => reviewsClient.getReviewByOrderItem(orderItemId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!orderItemId, // Only run query if orderItemId is provided
+  });
+
+  return {
+    review: query.data?.data || null,
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,

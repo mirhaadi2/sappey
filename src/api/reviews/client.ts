@@ -28,4 +28,9 @@ export const reviewsClient = {
     const response = await apiMethods.get<GetReviewsResponse>('/reviews', { params });
     return response.data;
   },
+
+  getReviewByOrderItem: async (orderItemId: string): Promise<ReviewResponse> => {
+    const response = await apiMethods.get<ReviewResponse>(`/reviews/order-item/${orderItemId}`);
+    return response.data;
+  },
 };
