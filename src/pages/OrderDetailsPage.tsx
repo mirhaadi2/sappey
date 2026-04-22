@@ -2,46 +2,19 @@ import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    ArrowLeft,
-    Package,
-    MapPin,
-    CreditCard,
-    Clock,
-    XCircle,
-    Warning,
-    Phone,
-    Copy,
-    CheckFat,
-    Receipt,
-    CaretRight,
-    TrendUp,
-    ShieldCheck,
+    ArrowLeft, Package, MapPin, XCircle,
+    Phone, Copy, CheckFat, Receipt, CaretRight, ShieldCheck,
+    Truck, SealCheck, Fingerprint, CalendarBlank
 } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
-import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderItemCard from "../components/OrderItemCard";
+import ItemReviewCard from "../components/ItemReviewCard";
 import ConfirmDialog from "../components/ConfirmDialog";
-import RatingAndReview from "../components/RatingAndReview";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";
 import { OrderItemDetail } from "../api/orders";
 import LogisticsTimeline from "../components/LogisticsTimeline";
-
-type OrderStatus =
-    | "PENDING"
-    | "CONFIRMED"
-    | "PROCESSING"
-    | "PACKED"
-    | "HANDOVER"
-    | "SHIPPED"
-    | "OUT_FOR_DELIVERY"
-    | "DELIVERED"
-    | "DELIVERY_FAILED"
-    | "RTO"
-    | "CANCELLED"
-    | "FAILED"
-    | "REFUNDED";
 
 const OrderDetailsPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
@@ -62,15 +35,11 @@ const OrderDetailsPage: React.FC = () => {
     const timelineData = useMemo(() => {
         if (!order) return [];
         const statusOrder = ["ORDER_PLACED", "PROCESSING", "SHIPPED", "DELIVERED"];
-        let mappedStatus: any = order.status;
+        let mappedStatus: string = order.status;
 
-        if (["CONFIRMED", "PENDING"].includes(order.status)) {
-            mappedStatus = "ORDER_PLACED";
-        } else if (["PACKED", "HANDOVER", "PROCESSING"].includes(order.status)) {
-            mappedStatus = "PROCESSING";
-        } else if (["OUT_FOR_DELIVERY", "SHIPPED"].includes(order.status)) {
-            mappedStatus = "SHIPPED";
-        }
+        if (["CONFIRMED", "PENDING"].includes(order.status)) mappedStatus = "ORDER_PLACED";
+        else if (["PACKED", "HANDOVER", "PROCESSING"].includes(order.status)) mappedStatus = "PROCESSING";
+        else if (["OUT_FOR_DELIVERY", "SHIPPED"].includes(order.status)) mappedStatus = "SHIPPED";
 
         const currentIndex = statusOrder.indexOf(mappedStatus);
 
@@ -85,21 +54,14 @@ const OrderDetailsPage: React.FC = () => {
     if (!currentUser) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center p-12 bg-white rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] border border-slate-100 max-w-sm mx-4"
-                >
-                    <div className="w-24 h-24 bg-amber-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
-                        <Warning size={48} weight="duotone" className="text-amber-500" />
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-12 bg-white rounded-[3rem] shadow-2xl shadow-brand-brown/5 border border-slate-100 max-w-sm mx-4">
+                    <div className="w-20 h-20 bg-brand-cream/30 rounded-2xl flex items-center justify-center mx-auto mb-8">
+                        <Fingerprint size={40} weight="duotone" className="text-brand-brown" />
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Security Check</h2>
-                    <p className="text-slate-500 mb-10 leading-relaxed text-sm">Please authenticate your session to access order logistics and private records.</p>
-                    <button
-                        onClick={() => navigate("/")}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-bold hover:bg-slate-800 transition-all active:scale-[0.98] shadow-2xl shadow-slate-200"
-                    >
-                        Sign In to Proceed
+                    <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Identity Required</h2>
+                    <p className="text-slate-500 mb-8 leading-relaxed text-sm">Authentication is required to access this secure logistics manifest.</p>
+                    <button onClick={() => navigate("/")} className="w-full py-4 bg-brand-brown text-white rounded-2xl font-bold shadow-lg shadow-brand-brown/20 hover:bg-slate-900 transition-all active:scale-95 uppercase text-xs tracking-widest">
+                        Verify Identity
                     </button>
                 </motion.div>
             </div>
@@ -110,137 +72,80 @@ const OrderDetailsPage: React.FC = () => {
 
     if (error || !order) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB] px-4">
-                <div className="text-center max-w-md bg-white p-16 rounded-[3rem] border border-slate-100 shadow-2xl">
-                    <XCircle size={80} weight="duotone" className="mx-auto text-rose-500 mb-8" />
-                    <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Trace Failed</h2>
-                    <p className="text-slate-500 mb-10 text-sm">The requested order manifest could not be retrieved from our servers.</p>
-                    <button
-                        onClick={() => navigate("/orders")}
-                        className="inline-flex items-center gap-3 px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
-                    >
-                        <ArrowLeft weight="bold" /> Back to Orders
-                    </button>
+            <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB] px-4 text-center">
+                <div className="max-w-md">
+                    <XCircle size={64} weight="duotone" className="mx-auto text-rose-500 mb-6" />
+                    <h2 className="text-2xl font-black text-slate-900">Trace Failed</h2>
+                    <p className="text-slate-500 mt-2 mb-8">This manifest does not exist in our digital archives.</p>
+                    <button onClick={() => navigate("/orders")} className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold">Return to Dashboard</button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FBFBFD] pb-24">
-            {/* Elegant Header Navigation */}
-            <div className="sticky top-0 z-30 ">
-                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => navigate("/orders")}
-                            className="group flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-50 transition-all"
-                        >
-                            <div className="p-2 bg-brand-latte/20 rounded-lg group-hover:bg-brand-brown group-hover:text-white transition-colors">
-                                <ArrowLeft size={16} weight="bold" />
-                            </div>
+        <div className="min-h-screen bg-[#FDFCFB] pb-24 font-sans selection:bg-brand-cream selection:text-brand-brown">
+            <header className="sticky top-0 z-40 bg-white/60 backdrop-blur-md border-b border-slate-100">
+                <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <button onClick={() => navigate("/orders")} className="p-2 hover:bg-slate-50 rounded-full transition-all border border-slate-100 group">
+                            <ArrowLeft size={18} weight="bold" className="text-slate-400 group-hover:text-brand-brown" />
                         </button>
                         <div>
-                            <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
+                            <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.25em]">
                                 <span>Manifest</span>
-                                <CaretRight size={10} weight="bold" />
-                                <span className="text-brand-brown">{order?.orderNumber}</span>
+                                <CaretRight size={8} weight="bold" className="text-slate-300" />
+                                <span className="text-brand-brown">{order.orderNumber}</span>
                             </div>
+                            <h1 className="text-xl font-black text-slate-900 tracking-tight">Order Architecture</h1>
                         </div>
                     </div>
-
-                    <div className="hidden md:flex items-center gap-6">
-                        <div className="text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Order Date</p>
-                            <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <Clock size={16} weight="duotone" className="text-brand-brown" />
-                                {new Date(order?.createdAt ?? "").toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}
-                            </div>
-                        </div>
-                        <div className="h-10 w-px bg-slate-200" />
-                        <OrderStatusBadge
-                            status={(order?.status as OrderStatus) ?? "PENDING"}
-                            size="lg"
-                            showIcon
-                            animated
-                        />
+                    <div className="hidden sm:flex items-center gap-3 px-5 py-2 bg-white rounded-full border border-slate-100 shadow-sm">
+                        <ShieldCheck size={16} weight="fill" className="text-emerald-500" />
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Secured Node</span>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    <div className="lg:col-span-8 space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-brown/5 flex items-center justify-center text-brand-brown">
-                                    <Package size={24} weight="duotone" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cargo Volume</p>
-                                    <p className="text-lg font-black text-slate-900">{order?.items?.length ?? 0} SKUs</p>
-                                </div>
-                            </div>
-                            <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                                    <ShieldCheck size={24} weight="duotone" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protection</p>
-                                    <p className="text-lg font-black text-slate-900">Insured</p>
-                                </div>
-                            </div>
-                            <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                                    <TrendUp size={24} weight="duotone" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weight</p>
-                                    <p className="text-lg font-black text-slate-900">Standard</p>
-                                </div>
-                            </div>
+            <main className="max-w-7xl mx-auto px-6 mt-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    <div className="lg:col-span-8 space-y-10">
+                        {/* Quick Stats Header */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <StatCard icon={Package} label="SKU Count" value={`${order?.items?.length} Items`} />
+                            <StatCard icon={CalendarBlank} label="Ordered" value={new Date(order?.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} />
+                            <StatCard icon={Truck} label="Carrier" value="Premium Logistics" />
+                            <StatCard icon={SealCheck} label="Authenticity" value="Verified" />
                         </div>
 
-                        <section className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                            <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Order Contents</h3>
-                                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                    Verified Manifest
+                        {/* Shipment Contents */}
+                        <section>
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-1 h-6 bg-brand-brown rounded-full" />
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Shipment Inventory</h3>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
+                                <div className="divide-y divide-slate-50">
+                                    {order?.items?.map((item: OrderItemDetail, idx: number) => (
+                                        <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.05 }}>
+                                            <div className="p-4 hover:bg-slate-50/50 transition-colors">
+                                                <OrderItemCard item={item} index={idx} isOrderItem={true} />
+                                            </div>
+                                            {order.status === "DELIVERED" && (
+                                                <ItemReviewCard
+                                                    {...item}
+                                                    orderId={orderId || ""}
+                                                    productId={item.productId || ""}
+                                                    productName={item.productName || "Product"}
+                                                />
+                                            )}
+                                        </motion.div>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-50 px-4">
-                                {order?.items?.map((item: OrderItemDetail, idx: number) => (
-                                    <motion.div
-                                        key={item.id || idx}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: idx * 0.1 }}
-                                    >
-                                        <OrderItemCard item={item} index={idx} isOrderItem={true} />
-                                    </motion.div>
-                                ))}
-                            </div>
-
-                            {/* Premium Promotion Banner */}
-                            {order?.metadata?.promotion && (
-                                <div className="m-6 p-8 bg-slate-900 rounded-[2rem] text-white flex items-center gap-6 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-full bg-brand-brown/20 skew-x-[-20deg] translate-x-20" />
-                                    <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-brand-cream shadow-inner border border-white/10 shrink-0">
-                                        <Package size={28} weight="fill" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-[10px] font-bold text-brand-cream/60 uppercase tracking-[0.2em] mb-1">Exclusive Tier Benefit</p>
-                                        <h4 className="text-lg font-black tracking-tight">{order.metadata.promotion.title}</h4>
-                                    </div>
-                                    <div className="ml-auto relative z-10 hidden sm:block">
-                                        <div className="px-6 py-2.5 bg-white text-slate-900 text-[10px] font-black rounded-xl uppercase tracking-widest shadow-xl">
-                                            Complimentary
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
+                        {/* Financial Card - Minimal Glass Style */}
                         <section className="bg-brand-brown rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl shadow-brand-brown/20">
                             <div className="absolute top-0 right-0 p-12 opacity-10">
                                 <Receipt size={180} weight="duotone" />
@@ -284,120 +189,93 @@ const OrderDetailsPage: React.FC = () => {
                         </section>
                     </div>
 
-                    <div className="lg:col-span-4 space-y-4">
+                    {/* Sidebar Information */}
+                    <div className="lg:col-span-4 space-y-8">
                         <LogisticsTimeline timelineData={timelineData} />
 
-                        <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-brown/5 flex items-center justify-center text-brand-brown">
-                                    <MapPin size={24} weight="duotone" />
-                                </div>
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Delivery Intel</h3>
-                            </div>
-
-                            <div className="space-y-8">
+                        <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-xl shadow-slate-200/30">
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Shipping Dossier</h3>
+                            <div className="space-y-10">
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Recipient</p>
-                                    <p className="text-xl font-black text-slate-900 tracking-tight">{currentUser?.name ?? "N/A"}</p>
+                                    <p className="text-[9px] font-black text-brand-brown/50 uppercase tracking-widest mb-3">Recipient Identity</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
+                                            <Fingerprint size={20} className="text-slate-400" />
+                                        </div>
+                                        <p className="text-lg font-black text-slate-900 tracking-tight">{currentUser?.name}</p>
+                                    </div>
                                 </div>
 
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Shipping Hub</p>
-                                    <p className="text-sm font-bold text-slate-600 leading-relaxed">
-                                        {order?.shippingAddressLine1}, {order?.shippingCity}
-                                        <br />
-                                        <span className="text-slate-900 font-black">{order?.shippingState} {order?.shippingPostalCode}</span>
-                                    </p>
+                                    <p className="text-[9px] font-black text-brand-brown/50 uppercase tracking-widest mb-3">Destination</p>
+                                    <div className="flex gap-4">
+                                        <MapPin size={22} weight="duotone" className="text-slate-300 shrink-0 mt-1" />
+                                        <p className="text-sm font-bold text-slate-600 leading-relaxed">
+                                            {order.shippingAddressLine1}, {order.shippingCity}<br />
+                                            <span className="text-slate-900 font-black">{order.shippingState} {order.shippingPostalCode}</span>
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {order?.shippingPhone && (
+                                {order.shippingPhone && (
                                     <button
-                                        onClick={() => copyToClipboard(String(order?.shippingPhone), "phone")}
-                                        className="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-brand-brown transition-all group"
+                                        onClick={() => copyToClipboard(String(order.shippingPhone), "phone")}
+                                        className="w-full flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] hover:border-brand-brown transition-all group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <Phone size={20} className="text-slate-400 group-hover:text-brand-brown transition-colors" />
-                                            <span className="text-sm font-black text-slate-800">{order?.shippingPhone}</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center border border-slate-100 group-hover:border-brand-brown/20 shadow-sm">
+                                                <Phone size={16} className="text-slate-400 group-hover:text-brand-brown" />
+                                            </div>
+                                            <span className="text-sm font-black text-slate-800">{order.shippingPhone}</span>
                                         </div>
                                         {copiedField === "phone" ? (
                                             <CheckFat className="text-emerald-500" weight="fill" />
                                         ) : (
-                                            <Copy size={18} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <Copy size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         )}
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400">
-                                    <CreditCard size={24} weight="duotone" />
-                                </div>
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Gateway</h3>
-                            </div>
-                            <div className="flex justify-between items-center p-2 bg-slate-50 rounded-2xl border border-slate-100">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                                <span className={`text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border shadow-sm ${order?.paymentStatus === "COMPLETED"
-                                    ? "bg-white text-emerald-600 border-emerald-100"
-                                    : "bg-white text-amber-600 border-amber-100"
-                                    }`}>
-                                    {order?.paymentStatus ?? "PENDING"}
-                                </span>
-                            </div>
-                        </div>
-
-                        {order?.status === "DELIVERED" && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="rounded-2xl overflow-hidden border border-slate-100 shadow-2xl shadow-slate-200"
-                            >
-                                <RatingAndReview
-                                    orderId={orderId || ""}
-                                    orderItems={order?.items?.map(item => ({
-                                        orderItemId: item.id || item.productId,
-                                        productId: item.productId,
-                                        productName: item.productName || "Product",
-                                        productImage: item.productImage,
-                                        variant: item.variantLabel
-                                    })) || []}
-                                />
-                            </motion.div>
-                        )}
-
-                        {order?.status !== "DELIVERED" && order?.status !== "CANCELLED" && (
+                        {/* Secondary Action */}
+                        {order.status !== "DELIVERED" && order.status !== "CANCELLED" && order.status !== "SHIPPED" && (
                             <button
                                 onClick={() => setShowCancelConfirm(true)}
-                                className="w-full py-6 px-4 bg-slate-50 border border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/50 transition-all duration-500 active:scale-[0.98]"
+                                className="w-full py-6 text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] transition-all border border-dashed border-slate-200 hover:border-rose-200"
                             >
                                 Request Cancellation
                             </button>
                         )}
                     </div>
                 </div>
-            </div>
+            </main>
 
-            {/* Global Modals */}
             <AnimatePresence>
                 {showCancelConfirm && (
                     <ConfirmDialog
                         isOpen={showCancelConfirm}
                         onCancel={() => setShowCancelConfirm(false)}
-                        onConfirm={() => {
-                            setShowCancelConfirm(false);
-                            console.log("Cancel Request for:", orderId);
-                        }}
+                        onConfirm={() => { setShowCancelConfirm(false); }}
                         type="danger"
-                        title="Authorize Cancellation?"
-                        description="This action will terminate the logistics chain and initiate the refund sequence. This cannot be undone."
-                        confirmText="Terminate Order"
-                        cancelText="Retain Order"
+                        title="Confirm Cancellation"
+                        description="This will halt the current logistics process and trigger a refund to your original payment method."
+                        confirmText="Revoke Order"
                     />
                 )}
             </AnimatePresence>
         </div>
     );
 };
+
+const StatCard = ({ icon: Icon, label, value }: any) => (
+    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-3">
+        <Icon size={22} weight="duotone" className="text-brand-brown" />
+        <div>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-sm font-black text-slate-900 tracking-tight">{value}</p>
+        </div>
+    </div>
+);
 
 export default OrderDetailsPage;

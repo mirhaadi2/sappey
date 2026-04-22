@@ -9,6 +9,7 @@ export interface OrderItem {
 }
 
 export interface OrderItemDetail extends OrderItem {
+  id: string; // Unique order item ID from database - REQUIRED for reviews
   productName?: string;
   productImage?: string;
   variantLabel?: string;
@@ -22,7 +23,6 @@ export interface OrderItemDetail extends OrderItem {
   subtotal?: string;
   metadata?: Record<string, any>;
   status?: string;
-  id?: string;
 }
 
 export interface CreateOrderData {

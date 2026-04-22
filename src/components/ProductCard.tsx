@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, ArrowRight, ShoppingCartSimple } from "@phosphor-icons/react";
 import { Product, ProductVariant } from "../types";
-import { useWishlist, WishlistItem } from "../context/WishlistContext";
+import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CardContext";
 import Modal from "./Modal";
 
