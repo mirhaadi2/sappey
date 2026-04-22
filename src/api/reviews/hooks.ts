@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { reviewsClient } from './client';
-import { CreateReviewData, ReviewResponse, Review } from './types';
+import { CreateReviewData, ReviewResponse } from './types';
 
 export const useSubmitReview = () => {
   const queryClient = useQueryClient();
@@ -42,6 +42,29 @@ export const useGetReviewByOrderItem = (orderItemId: string) => {
 
   return {
     review: query.data?.data || null,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useGetProductReviews = (productId: string, page: number = 1, limit: number = 10) => {
+  const query = useQuery({
+    queryKey: ['productReviews', productId, { page, limit }],
+    queryFn: () => reviewsClient.getProductReviews(productId, { page, limit }),
+    staleTime: 1000 * 60 * 10, // 10 minutes - product reviews don't change as frequently
+    enabled: !!productId, // Only run query if productId is provided
+  });
+
+  return {
+    reviews: query.data?.data?.reviews || [],
+    statistics: query.data?.data?.statistics || null,
+    pagination: query.data?.data ? { 
+      total: query.data.data.total,
+      page: query.data.data.page,
+      limit: query.data.data.limit,
+      totalPages: query.data.data.totalPages
+    } : null,
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,

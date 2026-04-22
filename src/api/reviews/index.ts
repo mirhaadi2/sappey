@@ -1,3 +1,3 @@
 export { reviewsClient } from './client';
-export { useSubmitReview, useGetReviews } from './hooks';
-export type { CreateReviewData, Review, ReviewResponse } from './types';
+export { useSubmitReview, useGetReviews, useGetReviewByOrderItem, useGetProductReviews } from './hooks';
+export type { CreateReviewData, Review, ReviewResponse, ProductReviewsResponse, ProductReviewsData, RatingStatistics } from './types';

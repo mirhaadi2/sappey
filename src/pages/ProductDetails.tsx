@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useProduct, useProducts } from "../api/exports";
+import { useGetProductReviews } from "../api/reviews";
 import { useCart } from "../context/CardContext";
-import { useHomepagePromotions } from "../api/promotions";
 import { ProductDetailSkeleton, ReviewSkeleton } from "../components/Skeletons";
 import LazySection from "../components/LazySection";
 import { ProductVariant } from "../types";
@@ -22,6 +22,7 @@ const ProductDetailPage: React.FC = () => {
 
   const { products, isLoading: productsLoading } = useProducts(undefined);
   const { data: product, isLoading: productLoading } = useProduct(id!, true);
+  const { reviews, statistics, isLoading: reviewsLoading } = useGetProductReviews(id || "");
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<number>(0);
@@ -189,10 +190,12 @@ const ProductDetailPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} weight={i < Math.floor(product.rating || 0) ? "fill" : "regular"} />
+                      <Star key={i} size={16} weight={i < Math.floor(statistics?.averageRating || product?.rating || 0) ? "fill" : "regular"} />
                     ))}
                   </div>
-                  <span className="text-xs font-bold text-slate-400">({product.reviewCount || 0} VERIFIED REVIEWS)</span>
+                  <span className="text-xs font-bold text-slate-400">
+                    ({statistics?.totalReviews || product?.reviewCount || 0} VERIFIED REVIEWS)
+                  </span>
                 </div>
                 <h1 className="text-3xl font-headline text-brand-brown leading-tight mb-4">
                   {product.name}
@@ -303,28 +306,95 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
         {/* Reviews Section */}
-        {product.reviews && product.reviews.length > 0 && (
+        {reviews && reviews.length > 0 ? (
           <div className="mt-16">
             <LazySection fallback={<ReviewSkeleton />}>
               <div className="text-center max-w-2xl mx-auto mb-16">
                 <h2 className="text-4xl font-headline text-brand-brown mb-4">Customer Chronicles</h2>
                 <p className="text-slate-400 text-sm">Honest experiences from our wellness community</p>
-              </div>
-              <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-                {product.reviews?.map((review: any, i: number) => (
-                  <div key={i} className="break-inside-avoid bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                    <div className="flex justify-between mb-4">
-                      <div className="flex text-amber-400">
-                        {[...Array(5)].map((_, s) => <Star key={s} size={12} weight={s < review.rating ? "fill" : "regular"} />)}
+                
+                {/* Rating Statistics */}
+                {statistics && (
+                  <div className="mt-8 p-8 bg-gradient-to-br from-brand-latte/50 to-brand-latte/20 rounded-3xl border border-brand-latte/30">
+                    <div className="flex items-center justify-center gap-6">
+                      <div className="text-center">
+                        <div className="text-5xl font-headline text-brand-brown mb-2">
+                          {statistics.averageRating.toFixed(1)}
+                        </div>
+                        <div className="flex justify-center text-amber-400 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={16} weight={i < Math.round(statistics.averageRating) ? "fill" : "regular"} />
+                          ))}
+                        </div>
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                          Based on {statistics.totalReviews} reviews
+                        </p>
+                      </div>
+                      
+                      {/* Rating Distribution */}
+                      <div className="space-y-2">
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <div key={rating} className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-500 w-8">{rating}★</span>
+                            <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-amber-400 transition-all duration-300"
+                                style={{
+                                  width: `${statistics.totalReviews > 0 ? (statistics.ratingDistribution[rating as keyof typeof statistics.ratingDistribution] / statistics.totalReviews) * 100 : 0}%`
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs text-slate-400 w-8 text-right">
+                              {statistics.ratingDistribution[rating as keyof typeof statistics.ratingDistribution] || 0}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <p className="text-slate-600 italic text-sm leading-relaxed mb-6">"{review.comment}"</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                {reviews.map((review: any) => (
+                  <div key={review.id} className="break-inside-avoid bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, s) => (
+                          <Star key={s} size={12} weight={s < review.rating ? "fill" : "regular"} />
+                        ))}
+                      </div>
+                      {review.isVerified && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                          ✓ VERIFIED
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-slate-600 italic text-sm leading-relaxed mb-6">"{review.comment || "No comment provided"}"</p>
                     <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
-                      <div className="w-8 h-8 rounded-full bg-brand-latte flex items-center justify-center text-[10px] font-black text-brand-brown uppercase">{review.author?.[0]}</div>
-                      <span className="text-xs font-bold text-brand-brown uppercase tracking-widest">{review.author}</span>
+                      <div className="w-8 h-8 rounded-full bg-brand-latte flex items-center justify-center text-[10px] font-black text-brand-brown uppercase">
+                        {review.customer?.name?.[0] || "C"}
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs font-bold text-brand-brown uppercase tracking-widest block">
+                          {review.customer?.name || "Anonymous"}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </LazySection>
+          </div>
+        ) : !reviewsLoading && (
+          <div className="mt-16">
+            <LazySection fallback={<ReviewSkeleton />}>
+              <div className="text-center py-16 bg-slate-50 rounded-3xl border border-slate-100">
+                <h3 className="text-lg font-headline text-slate-600 mb-2">No Reviews Yet</h3>
+                <p className="text-slate-400 text-sm">Be the first to share your experience with this product!</p>
               </div>
             </LazySection>
           </div>
