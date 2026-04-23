@@ -65,7 +65,7 @@ const ShopPage: React.FC = () => {
     fetchNextPage,
   } = useInfiniteProducts(productFilters);
 
-  const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
+  // const { categories: apiCategories, isLoading: categoriesLoading } = useCategories(true);
 
   const setCategory = useCallback(
     (cat: string) => {
@@ -151,9 +151,8 @@ const ShopPage: React.FC = () => {
               </h1>
 
               <p className="font-sans text-lg md:text-xl text-brand-cream/70 max-w-xl leading-relaxed mb-10 border-l-2 border-brand-latte/30 pl-6">
-                Sourced from the high-altitude orchards of Kashmir.
-                Our collection represents the <span className="text-white font-medium">pinnacle of harvest excellence</span>,
-                vacuum-packed to lock in natural oils and crunch.
+                Nature’s best, curated by <span className="text-white font-semibold">Sappey</span>. From sun-drenched orchards to fertile groves, we bring you the
+                <span className="text-white font-medium"> ultimate dry fruit experience</span>—pure, nutrient-rich, and vacuum-packed at the peak of freshness for a superior taste in every bite.
               </p>
 
               {/* Quick Stats Badges */}
@@ -221,54 +220,65 @@ const ShopPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-10 pb-24">
-        {/* Floating Filter Bar */}
-        <div className="relative overflow-hidden bg-gradient-to-b from-[#FCFBF9] via-white/90 to-brand-cream/10 backdrop-blur-xl rounded-[24px] border border-white/60 shadow-2xl shadow-brand-brown/10 p-2 px-4 mb-12">
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-brown/5 blur-[60px] rounded-full pointer-events-none" />
-          <div className="flex flex-col xl:flex-row items-center justify-between gap-6">
+        {/* {/* <div className="relative overflow-hidden bg-gradient-to-b from-[#FCFBF9] via-white/90 to-brand-cream/10 backdrop-blur-xl rounded-[24px] border border-white/60 shadow-2xl shadow-brand-brown/10 p-2 px-4 mb-12"> */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 " />
+          <div className="flex flex-col gap-10 py-4"> 
+            {/* 1. The Collection Navigator */}
+            {/* <div className="flex flex-col gap-4"> */}
+              {/* <div className="flex items-center justify-between px-2">
+                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-brown/40">
+                  Browse Collections
+                </h2>
+                <p className="text-[10px] font-bold text-brand-brown/40 uppercase tracking-widest">
+                  {sortedProducts.length} Exceptional Items
+                </p>
+              </div> */}
 
-            {/* Categories with custom scrollbar */}
-            <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-1">
-              <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-2 px-1">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown">
-                  Filter:
-                </span>
-                <div className="flex gap-3">
-                  {[{ id: "all", name: "All Products" }, ...(apiCategories ?? [])].map((cat) => (
+              {/* <div className="flex flex-wrap gap-3">
+                {[{ id: "all", name: "All Products" }, ...(apiCategories ?? [])].map((cat) => {
+                  const isActive = activeCategory === (cat?.id ?? "all");
+                  return (
                     <button
                       key={cat?.id}
                       onClick={() => setCategory(cat?.id ?? "all")}
-                      // The transform (scale-105) now has room because of the py-2 and px-1 above
-                      className={`px-6 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeCategory === (cat?.id ?? "all")
-                        ? "bg-brand-brown text-brand-cream shadow-lg shadow-brand-brown/20 scale-105"
-                        : "bg-brand-latte/50 text-brand-brown hover:bg-brand-latte"
+                      className={`px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-500 border ${isActive
+                          ? "bg-brand-brown text-brand-cream border-brand-brown shadow-xl shadow-brand-brown/20 scale-105"
+                          : "bg-white/40 backdrop-blur-md text-brand-brown/60 border-brand-brown/10 hover:border-brand-brown/30 hover:bg-white"
                         }`}
                     >
                       {cat?.name}
                     </button>
+                  );
+                })}
+              </div> */}
+            {/* </div> */}
+
+            {/* 2. The Floating Glass Control Bar */}
+            <div className="sticky top-24 z-30 flex items-center justify-between p-2 px-4 bg-white backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-brand-brown/5">
+
+              {/* Sort Section - Replaced <select> with a cleaner UI */}
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-brand-brown/5 rounded-full">
+                  <FunnelSimple size={16} className="text-brand-brown" />
+                </div>
+                <div className="flex gap-4 px-2">
+                  {["default", "price-asc", "price-desc"].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => setSortBy(option as SortOption)}
+                      className={`text-[11px] font-bold uppercase tracking-tighter transition-all ${sortBy === option ? "text-orange-500" : "text-brand-brown/40 hover:text-brand-brown"
+                        }`}
+                    >
+                      {option === "default" && "Recommended"}
+                      {option === "price-asc" && "Price ↑"}
+                      {option === "price-desc" && "Price ↓"}
+                    </button>
                   ))}
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center justify-between w-full xl:w-auto gap-4 px-2">
-              {/* Premium Select Box */}
-              <div className="relative group shadow-lg  shadow-brand-brown/10 rounded-2xl">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="appearance-none pl-10 pr-12 py-3 bg-brand-latte/30 border-none rounded-2xl text-sm font-semibold text-brand-brown focus:ring-2 focus:ring-brand-brown/10 cursor-pointer transition-all min-w-[180px]"
-                >
-                  <option value="default">Sort: Recommended</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Customer Rating</option>
-                  <option value="newest">Latest Arrivals</option>
-                </select>
-                <FunnelSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-brown/60" />
-              </div>
-
-              {/* View Toggles */}
-              <div className="hidden md:flex bg-brand-latte/30 p-1.5 rounded-2xl">
+              {/* View Switcher */}
+              <div className="flex items-center gap-1 bg-brand-brown/5 p-1 rounded-full">
                 {[
                   { id: "grid-4", icon: GridFour },
                   { id: "grid-3", icon: SquaresFour },
@@ -277,17 +287,17 @@ const ShopPage: React.FC = () => {
                   <button
                     key={mode.id}
                     onClick={() => setViewMode(mode.id as ViewMode)}
-                    className={`p-2.5 rounded-xl transition-all ${viewMode === mode.id
-                      ? "bg-white text-brand-brown shadow-sm scale-110"
-                      : "text-brand-brown/40 hover:text-brand-brown"
+                    className={`p-2 rounded-full transition-all ${viewMode === mode.id
+                        ? "bg-brand-brown text-white shadow-inner"
+                        : "text-brand-brown/30 hover:text-brand-brown/60"
                       }`}
                   >
-                    <mode.icon size={20} weight={viewMode === mode.id ? "fill" : "regular"} />
+                    <mode.icon size={16} weight={viewMode === mode.id ? "fill" : "regular"} />
                   </button>
                 ))}
               </div>
             </div>
-          </div>
+          {/* </div> */}
         </div>
 
         {/* Dynamic Results Grid */}
