@@ -5,21 +5,20 @@ import {
     MagnifyingGlass,
     FunnelSimple,
     CheckCircle,
-    CalendarBlank,
     Warning,
     CaretLeft,
     CaretRight,
     CurrencyInr,
     Tag,
-    MapPin,
     Truck,
     Clock,
     XCircle,
-    Plus
+    Plus,
+    Receipt
 } from "@phosphor-icons/react";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
-import { getStatusConfig, getStatusLabel } from "../utils/orderStatusMapper";
+import { getStatusConfig } from "../utils/orderStatusMapper";
 import { OrderListingSkeleton } from "../components/Skeletons";
 
 // --- Types ---
@@ -46,7 +45,7 @@ const OrderListingPage: React.FC = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const itemsPerPage = 6; // Reduced for more spacious layout
 
     const processedOrders = useMemo(() => {
         let result = [...orders];
@@ -70,6 +69,12 @@ const OrderListingPage: React.FC = () => {
         return result;
     }, [orders, filters, searchQuery, sortBy]);
 
+    const stats = useMemo(() => {
+        const total = orders.reduce((acc, curr) => acc + parseFloat(curr.finalAmount || "0"), 0);
+        const active = orders.filter(o => ["PROCESSING", "SHIPPED"].includes(o.status)).length;
+        return { total, active };
+    }, [orders]);
+
     const totalPages = Math.ceil(processedOrders.length / itemsPerPage);
     const paginatedOrders = useMemo(() => {
         const startIdx = (currentPage - 1) * itemsPerPage;
@@ -78,13 +83,13 @@ const OrderListingPage: React.FC = () => {
 
     if (!currentUser) return (
         <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] px-6">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center p-10 bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 max-w-sm">
-                <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center p-12 bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-slate-100 max-w-sm">
+                <div className="w-20 h-20 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-3">
                     <Warning size={40} weight="duotone" className="text-rose-500" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Access Restricted</h2>
-                <p className="text-slate-500 mb-8 leading-relaxed">Your journey begins with a secure login. Please sign in to view your orders.</p>
-                <button onClick={() => navigate("/")} className="w-full py-4 bg-[#3d2b1f] text-white rounded-2xl font-bold transition-all hover:bg-black hover:shadow-lg active:scale-95">Return to Login</button>
+                <h2 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">Access Restricted</h2>
+                <p className="text-slate-500 mb-10 leading-relaxed font-medium">Please sign in to your Sappey account to manage your purchase history.</p>
+                <button onClick={() => navigate("/")} className="w-full py-4 bg-[#3d2b1f] text-white rounded-2xl font-bold transition-all hover:bg-black hover:shadow-2xl active:scale-95">Return to Portal</button>
             </motion.div>
         </div>
     );
@@ -92,90 +97,128 @@ const OrderListingPage: React.FC = () => {
     if (isLoading) return <OrderListingSkeleton />;
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pb-20 selection:bg-[#3d2b1f]/10">
-            {/* Header / Premium Search */}
+        <div className="min-h-screen bg-[#FDFCFB] pb-24 selection:bg-brand-cocoa/20">
+            <div className="max-w-7xl mx-auto px-8 pt-12">
 
-
-            <div className="max-w-7xl mx-auto px-6 pt-10">
-
-                {/* Horizontal Status Scroller */}
-                {/* <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-12 no-scrollbar">
-                    {["ALL", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].map((s) => (
-                        <button
-                            key={s}
-                            onClick={() => { setFilters({ ...filters, status: s as any }); setCurrentPage(1); }}
-                            className={`whitespace-nowrap px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all flex items-center gap-3 ${filters.status === s ? "bg-[#3d2b1f] text-white shadow-xl shadow-brown-900/20" : "bg-white text-slate-400 border border-slate-100 hover:border-slate-300"}`}
-                        >
-                            {s === "ALL" ? "All Orders" : getStatusLabel(s)}
-                            <span className={`w-5 h-5 rounded-lg flex items-center justify-center text-[10px] ${filters.status === s ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
-                                {orders.filter(o => s === "ALL" ? true : o.status === s).length}
-                            </span>
-                        </button>
-                    ))}
-                </div> */}
-                <div className="flex flex-row items-end justify-between mb-10">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="h-[2px] w-8 bg-[#9a5d2e]" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Management Suite</span>
+                {/* Upper Management Header */}
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <span className="h-[1px] w-10 bg-brand-brown/30" />
+                            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-brand-brown/60">Orders & Logistics</span>
                         </div>
-                        <h1 className="text-3xl font-light text-slate-900 leading-tight">
-                            Purchase <span className="text-slate-400 italic">Orders</span>
+                        <h1 className="text-5xl font-light text-slate-900 tracking-tight">
+                            Your <span className="font-serif italic text-brand-brown">Collections</span>
                         </h1>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-3">
-                            <div className="relative group">
-                                <MagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown group-focus-within:text-[#3d2b1f] transition-colors" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Search Order ID..."
-                                    className="min-w-[280px] bg-transparent border border-brand-brown rounded-2xl pl-12 pr-4 py-2 text-sm font-medium transition-all placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#fff]/5"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Summary Stats Pill */}
+                        <div className="hidden lg:flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm pr-6">
+                            <div className="bg-brand-cream/30 p-2.5 rounded-xl mr-4">
+                                <Receipt size={20} className="text-brand-brown" weight="duotone" />
                             </div>
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`p-2 rounded-xl border transition-all ${showFilters ? 'bg-[#3d2b1f] text-white shadow-lg shadow-brown-900/20' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}
-                            >
-                                <FunnelSimple size={20} weight="bold" />
-                            </button>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Lifetime Spend</span>
+                                <span className="text-sm font-bold text-slate-800 flex items-center">
+                                    <CurrencyInr size={14} weight="bold" />
+                                    {stats.total.toLocaleString()}
+                                </span>
+                            </div>
                         </div>
+
                         <button
                             onClick={() => navigate("/shop")}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#9a5d2e] text-white rounded-xl font-bold text-sm hover:bg-slate-900 transition-all shadow-lg shadow-orange-900/10 active:scale-95"
+                            className="group flex items-center gap-3 px-5 py-3 bg-[#65442e] text-white rounded-2xl font-bold text-sm hover:shadow-[0_20px_40px_-10px_rgba(61,43,31,0.3)] transition-all active:scale-95"
                         >
-                            Create New Entry <Plus weight="bold" size={16} />
+                            <span>New Order</span>
+                            <div className="bg-white/10 p-1 rounded-lg group-hover:rotate-90 transition-transform">
+                                <Plus weight="bold" size={14} />
+                            </div>
+                        </button>
+                    </div>
+                </header>
+
+                {/* Search & Filter Bar */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                    <div className="flex-1 relative group">
+                        <MagnifyingGlass className="absolute left-5 top-[45%] -translate-y-1/2 text-slate-400 group-focus-within:text-brand-brown transition-colors" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Track by Order Number or ID..."
+                            className="w-full bg-white border border-slate-100 rounded-2xl pl-14 pr-6 py-3 text-sm font-medium transition-all shadow-sm focus:ring-4 focus:ring-brand-cream/20 focus:border-brand-brown outline-none"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="flex gap-4">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as SortBy)}
+                            className="bg-white border border-slate-100 rounded-2xl px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-600 outline-none cursor-pointer hover:border-brand-brown transition-all"
+                        >
+                            <option value="date-newest">Recently Placed</option>
+                            <option value="date-oldest">Oldest First</option>
+                            <option value="amount-high">Highest Amount</option>
+                            <option value="amount-low">Lowest Amount</option>
+                        </select>
+
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`flex items-center gap-3 px-6 rounded-2xl border transition-all ${showFilters ? 'bg-brand-brown text-white shadow-xl' : 'bg-white text-slate-600 border-slate-100 hover:border-brand-brown'}`}
+                        >
+                            <FunnelSimple size={20} weight={showFilters ? "fill" : "bold"} />
+                            <span className="text-xs font-black uppercase tracking-widest">Refine</span>
                         </button>
                     </div>
                 </div>
 
                 <AnimatePresence>
                     {showFilters && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-12">
-                            <div className="bg-[#3d2b1f] p-8 rounded-2xl shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8 relative overflow-hidden">
-                                {/* Decorative circle for UI depth */}
-                                <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
-
+                        <motion.div
+                            initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+                            animate={{ height: "auto", opacity: 1, marginBottom: 48 }}
+                            exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                            className="overflow-hidden"
+                        >
+                            <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl grid grid-cols-1 md:grid-cols-4 gap-8 relative">
                                 <div>
-                                    <label className="text-[10px] font-black text-white/40 uppercase mb-3 block tracking-widest">Start Date</label>
-                                    <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="w-full bg-white/10 border border-white/10 text-white rounded-xl p-3 text-sm focus:bg-white/20 outline-none transition-all" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block tracking-widest">Order Status</label>
+                                    <select
+                                        value={filters.status}
+                                        onChange={(e) => setFilters({ ...filters, status: e.target.value as any })}
+                                        className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-brand-brown outline-none"
+                                    >
+                                        <option value="ALL">All Statuses</option>
+                                        <option value="PROCESSING">Processing</option>
+                                        <option value="SHIPPED">Shipped</option>
+                                        <option value="DELIVERED">Delivered</option>
+                                        <option value="CANCELLED">Cancelled</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-white/40 uppercase mb-3 block tracking-widest">End Date</label>
-                                    <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="w-full bg-white/10 border border-white/10 text-white rounded-xl p-3 text-sm focus:bg-white/20 outline-none transition-all" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block tracking-widest">From Date</label>
+                                    <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-bold text-slate-700 outline-none" />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block tracking-widest">To Date</label>
+                                    <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-bold text-slate-700 outline-none" />
                                 </div>
                                 <div className="flex items-end">
-                                    <button onClick={() => setFilters({ status: "ALL", dateFrom: "", dateTo: "" })} className="w-full py-3.5 bg-white text-[#3d2b1f] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-100 transition-transform active:scale-95">Reset Filters</button>
+                                    <button
+                                        onClick={() => setFilters({ status: "ALL", dateFrom: "", dateTo: "" })}
+                                        className="w-full py-3.5 bg-brand-cream/20 text-brand-brown rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-brown hover:text-white transition-all active:scale-95"
+                                    >
+                                        Reset Configuration
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Orders Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {paginatedOrders.length === 0 ? (
                         <div className="col-span-full py-40 text-center bg-white rounded-[4rem] border-2 border-dashed border-slate-100">
                             <Tag size={80} weight="duotone" className="mx-auto text-slate-100 mb-6" />
@@ -264,7 +307,7 @@ const OrderListingPage: React.FC = () => {
 
                                         <button
                                             onClick={() => navigate(`/orders/${order.id}`)}
-                                            className="px-6 py-2 bg-[#9a5d2e] text-white rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brown-900/10 hover:bg-black hover:shadow-2xl transition-all active:scale-95 flex items-center gap-2 group/btn"
+                                            className="px-6 py-2 bg-[#65442e] text-white rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brown-900/10 hover:bg-black hover:shadow-2xl transition-all active:scale-95 flex items-center gap-2 group/btn"
                                         >
                                             View Details
                                             <CaretRight weight="bold" className="group-hover/btn:translate-x-1 transition-transform" />
@@ -276,25 +319,29 @@ const OrderListingPage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Sophisticated Pagination */}
+                {/* Aesthetic Pagination */}
                 {totalPages > 1 && (
-                    <div className="mt-20 flex items-center justify-center gap-8 pb-10">
+                    <div className="mt-24 flex items-center justify-center gap-10">
                         <button
                             disabled={currentPage === 1}
                             onClick={() => { setCurrentPage((p) => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-[#3d2b1f] disabled:opacity-20 transition-all"
+                            className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 hover:text-brand-brown disabled:opacity-20 transition-all"
                         >
-                            <CaretLeft weight="bold" /> Prev
+                            <CaretLeft weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                            Previous
                         </button>
 
-                        <div className="flex gap-4">
+                        <div className="flex items-center gap-4">
                             {[...Array(totalPages)].map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => { setCurrentPage(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                                    className={`w-10 h-10 rounded-2xl text-[11px] font-black transition-all ${currentPage === i + 1 ? "bg-[#3d2b1f] text-white shadow-lg shadow-brown-900/20 scale-110" : "bg-white text-slate-400 border border-slate-100 hover:border-slate-300"}`}
+                                    className={`relative w-12 h-12 rounded-2xl text-[11px] font-black transition-all ${currentPage === i + 1
+                                            ? "bg-brand-brown text-white shadow-2xl shadow-brand-brown/30 scale-110"
+                                            : "bg-white text-slate-400 border border-slate-100 hover:border-brand-brown/30"
+                                        }`}
                                 >
-                                    {i + 1}
+                                    {String(i + 1).padStart(2, '0')}
                                 </button>
                             ))}
                         </div>
@@ -302,9 +349,10 @@ const OrderListingPage: React.FC = () => {
                         <button
                             disabled={currentPage === totalPages}
                             onClick={() => { setCurrentPage((p) => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-[#3d2b1f] disabled:opacity-20 transition-all"
+                            className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 hover:text-brand-brown disabled:opacity-20 transition-all"
                         >
-                            Next <CaretRight weight="bold" />
+                            Next
+                            <CaretRight weight="bold" className="group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 )}
