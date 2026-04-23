@@ -220,88 +220,56 @@ const ShopPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-10 pb-24">
-        {/* {/* <div className="relative overflow-hidden bg-gradient-to-b from-[#FCFBF9] via-white/90 to-brand-cream/10 backdrop-blur-xl rounded-[24px] border border-white/60 shadow-2xl shadow-brand-brown/10 p-2 px-4 mb-12"> */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 " />
-          <div className="flex flex-col gap-10 py-4"> 
-            {/* 1. The Collection Navigator */}
-            {/* <div className="flex flex-col gap-4"> */}
-              {/* <div className="flex items-center justify-between px-2">
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-brown/40">
-                  Browse Collections
-                </h2>
-                <p className="text-[10px] font-bold text-brand-brown/40 uppercase tracking-widest">
-                  {sortedProducts.length} Exceptional Items
-                </p>
-              </div> */}
+        {/* The Floating Glass Control Bar */}
+        <div className="sticky top-24 z-30 flex items-center justify-between p-2 px-4 bg-white backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-brand-brown/5">
 
-              {/* <div className="flex flex-wrap gap-3">
-                {[{ id: "all", name: "All Products" }, ...(apiCategories ?? [])].map((cat) => {
-                  const isActive = activeCategory === (cat?.id ?? "all");
-                  return (
-                    <button
-                      key={cat?.id}
-                      onClick={() => setCategory(cat?.id ?? "all")}
-                      className={`px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-500 border ${isActive
-                          ? "bg-brand-brown text-brand-cream border-brand-brown shadow-xl shadow-brand-brown/20 scale-105"
-                          : "bg-white/40 backdrop-blur-md text-brand-brown/60 border-brand-brown/10 hover:border-brand-brown/30 hover:bg-white"
-                        }`}
-                    >
-                      {cat?.name}
-                    </button>
-                  );
-                })}
-              </div> */}
-            {/* </div> */}
-
-            {/* 2. The Floating Glass Control Bar */}
-            <div className="sticky top-24 z-30 flex items-center justify-between p-2 px-4 bg-white backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-brand-brown/5">
-
-              {/* Sort Section - Replaced <select> with a cleaner UI */}
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-brand-brown/5 rounded-full">
-                  <FunnelSimple size={16} className="text-brand-brown" />
-                </div>
-                <div className="flex gap-4 px-2">
-                  {["default", "price-asc", "price-desc"].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setSortBy(option as SortOption)}
-                      className={`text-[11px] font-bold uppercase tracking-tighter transition-all ${sortBy === option ? "text-orange-500" : "text-brand-brown/40 hover:text-brand-brown"
-                        }`}
-                    >
-                      {option === "default" && "Recommended"}
-                      {option === "price-asc" && "Price ↑"}
-                      {option === "price-desc" && "Price ↓"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* View Switcher */}
-              <div className="flex items-center gap-1 bg-brand-brown/5 p-1 rounded-full">
-                {[
-                  { id: "grid-4", icon: GridFour },
-                  { id: "grid-3", icon: SquaresFour },
-                  { id: "grid-2", icon: Rows }
-                ].map((mode) => (
-                  <button
-                    key={mode.id}
-                    onClick={() => setViewMode(mode.id as ViewMode)}
-                    className={`p-2 rounded-full transition-all ${viewMode === mode.id
-                        ? "bg-brand-brown text-white shadow-inner"
-                        : "text-brand-brown/30 hover:text-brand-brown/60"
-                      }`}
-                  >
-                    <mode.icon size={16} weight={viewMode === mode.id ? "fill" : "regular"} />
-                  </button>
-                ))}
-              </div>
+          {/* Sort Section */}
+          <div className="flex items-center gap-2">
+            {/* Filter Icon Circle */}
+            <div className="p-2 bg-brand-brown/5 rounded-full">
+              <FunnelSimple size={16} className="text-brand-brown" />
             </div>
-          {/* </div> */}
+
+            {/* Sort Buttons */}
+            <div className="flex gap-4 px-2">
+              {["default", "price-asc", "price-desc"].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setSortBy(option as SortOption)}
+                  className={`text-[11px] font-bold uppercase tracking-tighter transition-all ${sortBy === option ? "text-orange-500" : "text-brand-brown/40 hover:text-brand-brown"
+                    }`}
+                >
+                  {option === "default" && "Recommended"}
+                  {option === "price-asc" && "Price ↑"}
+                  {option === "price-desc" && "Price ↓"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* View Switcher (Right Side) */}
+          <div className="flex items-center gap-1 bg-brand-brown/5 p-1 rounded-full">
+            {[
+              { id: "grid-4", icon: GridFour },
+              { id: "grid-3", icon: SquaresFour },
+              { id: "grid-2", icon: Rows }
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => setViewMode(mode.id as ViewMode)}
+                className={`p-2 rounded-full transition-all ${viewMode === mode.id
+                    ? "bg-brand-brown text-white shadow-inner"
+                    : "text-brand-brown/30 hover:text-brand-brown/60"
+                  }`}
+              >
+                <mode.icon size={16} weight={viewMode === mode.id ? "fill" : "regular"} />
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Dynamic Results Grid */}
-        <div className="mb-8 flex items-baseline justify-between px-2">
+        <div className="mb-8 flex items-baseline justify-between px-2 mt-6">
           <h3 className="text-brand-brown font-headline text-2xl">
             {activeCategory === "all" ? "Our Collection" : activeCategory}
           </h3>
