@@ -221,12 +221,10 @@ const ShopPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-10 pb-24">
-        {/* Floating Filter Bar */}
         <div className="relative overflow-hidden bg-gradient-to-b from-[#FCFBF9] via-white/90 to-brand-cream/10 backdrop-blur-xl rounded-[24px] border border-white/60 shadow-2xl shadow-brand-brown/10 p-2 px-4 mb-12">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-brown/5 blur-[60px] rounded-full pointer-events-none" />
           <div className="flex flex-col xl:flex-row items-center justify-between gap-6">
 
-            {/* Categories with custom scrollbar */}
             <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-1">
               <div className="flex items-center gap-4 w-full xl:w-auto overflow-x-auto no-scrollbar py-2 px-1">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown">

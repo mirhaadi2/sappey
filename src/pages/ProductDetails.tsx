@@ -12,6 +12,7 @@ import {
   Truck, ArrowLeft, ShieldCheck,
   CaretRight, X, ClockCounterClockwise
 } from "@phosphor-icons/react";
+import ProductCard from "../components/ProductCard";
 
 type DrawerType = "description" | "benefits" | "nutrition" | null;
 
@@ -390,14 +391,7 @@ const ProductDetailPage: React.FC = () => {
             </LazySection>
           </div>
         ) : !reviewsLoading && (
-          <div className="mt-16">
-            <LazySection fallback={<ReviewSkeleton />}>
-              <div className="text-center py-16 bg-slate-50 rounded-3xl border border-slate-100">
-                <h3 className="text-lg font-headline text-slate-600 mb-2">No Reviews Yet</h3>
-                <p className="text-slate-400 text-sm">Be the first to share your experience with this product!</p>
-              </div>
-            </LazySection>
-          </div>
+          null
         )}
 
         {products && products.length > 0 && (
@@ -413,75 +407,8 @@ const ProductDetailPage: React.FC = () => {
                   {products
                     .filter((p: any) => p.category === product.category && p.id !== product.id)
                     .slice(0, 4)
-                    .map((relatedProduct: any) => (
-                      <motion.div
-                        key={relatedProduct.id}
-                        whileHover={{ y: -8 }}
-                        onClick={() => {
-                          navigate(`/shop/product/${relatedProduct.id}`);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="cursor-pointer group h-full flex flex-col"
-                      >
-                        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
-                          {/* Product Image - Fixed height to keep layout consistent */}
-                          <div className="h-48 bg-brand-latte overflow-hidden relative flex-shrink-0">
-                            {relatedProduct.images?.[0] && (
-                              <img
-                                src={relatedProduct.images[0]}
-                                alt={relatedProduct.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                              />
-                            )}
-                          </div>
-
-                          {/* Product Info - flex-1 allows this section to grow and fill space */}
-                          <div className="p-6 flex flex-col flex-1">
-                            <h3 className="font-headline text-brand-brown text-lg mb-2 line-clamp-2 group-hover:text-brand-cocoa transition-colors">
-                              {relatedProduct.name}
-                            </h3>
-
-                            <p className="text-slate-400 text-xs mb-4 line-clamp-2">
-                              {relatedProduct.description?.replace(/<[^>]*>/g, '')}
-                            </p>
-
-                            {/* mt-auto pushes everything below this point to the bottom of the card */}
-                            <div className="mt-auto">
-                              {/* Rating */}
-                              {relatedProduct.rating && (
-                                <div className="flex items-center gap-2 mb-4">
-                                  <div className="flex text-amber-400">
-                                    {[...Array(5)].map((_, s) => (
-                                      <Star
-                                        key={s}
-                                        size={12}
-                                        weight={s < Math.floor(relatedProduct.rating) ? "fill" : "regular"}
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="text-[10px] text-slate-400 font-bold">
-                                    ({relatedProduct.reviews || 0})
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Price Section */}
-                              {relatedProduct.variants && relatedProduct.variants.length > 0 && (
-                                <div className="flex items-center gap-2">
-                                  <span className="font-headline text-lg text-brand-brown">
-                                    ₹{relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price}
-                                  </span>
-                                  {relatedProduct.variants[0]?.price > (relatedProduct.variants[0]?.discountedPrice || relatedProduct.variants[0]?.price) && (
-                                    <span className="text-slate-400 line-through text-sm">
-                                      ₹{relatedProduct.variants[0]?.price}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
+                    .map((product: any) => (
+                      <ProductCard key={product?.id} product={product} />
                     ))}
                 </div>
               ) : (
