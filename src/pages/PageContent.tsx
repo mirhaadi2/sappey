@@ -151,8 +151,8 @@ const PageContent: React.FC = () => {
                       key={link.path}
                       to={link.path}
                       className={`flex items-center gap-4 px-6 py-4 rounded-[20px] transition-all duration-300 group ${isActive
-                          ? "bg-orange-600 text-white shadow-xl shadow-orange-200 ring-4 ring-orange-50"
-                          : "bg-white border border-slate-100 text-slate-600 hover:border-orange-200 hover:shadow-lg"
+                        ? "bg-orange-600 text-white shadow-xl shadow-orange-200 ring-4 ring-orange-50"
+                        : "bg-white border border-slate-100 text-slate-600 hover:border-orange-200 hover:shadow-lg"
                         }`}
                     >
                       <span
@@ -224,23 +224,28 @@ const PageContent: React.FC = () => {
             </div>
 
             {/* Premium Help Banner */}
-            <div className="mt-12 bg-slate-900 rounded-xl p-4 md:p-6 text-white flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden relative">
-              <div className="relative z-10">
-                <h2 className="text-xl md:text-2xl font-black mb-4">
-                  Still have questions?
-                </h2>
-                <p className="text-slate-400 text-md max-w-md leading-relaxed">
-                  Our farm-to-table support team is available 24/7 to assist
-                  with your orders and product inquiries.
-                </p>
-              </div>
-              <button className="relative z-10 bg-orange-600 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-orange-500 transition-all shadow-2xl shadow-orange-900/20 active:scale-95">
-                Contact Sappey Support
-              </button>
+            <div className="mt-8 relative overflow-hidden bg-slate-950 rounded-2xl border border-slate-800 p-6 md:p-8">
+              {/* Subtle Ambient Background */}
+              <div className="absolute -right-16 -top-16 w-64 h-64 bg-orange-500/10 rounded-full blur-[80px]" />
+              <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px]" />
 
-              {/* Abstract decorative circles */}
-              <div className="absolute -right-10 -top-10 w-64 h-64 bg-orange-600/10 rounded-full blur-3xl"></div>
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-800/50 via-transparent to-transparent"></div>
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <h2 className="text-lg md:text-xl font-bold text-white mb-1">
+                    Still have questions?
+                  </h2>
+                  <p className="text-slate-400 text-sm max-w-sm leading-snug">
+                    Our support team is online 24/7 to assist with your orders and inquiries.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => window.location.href = 'mailto:support@sappey.com'}
+                  className="whitespace-nowrap bg-orange-600 hover:bg-orange-500 text-white px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:shadow-lg hover:shadow-orange-600/20 active:scale-95"
+                >
+                  Contact Support
+                </button>
+              </div>
             </div>
           </article>
         </div>
