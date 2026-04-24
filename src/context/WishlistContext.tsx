@@ -6,6 +6,7 @@ export interface WishlistItem {
   variantLabel?: string;
   weight?: string;
   price?: number;
+  discountedPrice?: number;
 }
 
 interface WishlistContextType {

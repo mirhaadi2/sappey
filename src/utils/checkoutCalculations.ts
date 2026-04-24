@@ -41,12 +41,27 @@ const toPaise = (value: number): number => Math.round(value * 100);
 const fromPaise = (value: number): number => parseFloat((value / 100).toFixed(2));
 
 export const getItemUnitPrice = (item: CheckoutItem): number => {
-    const variantPrice = item?.variant && typeof item.variant === 'object' ? sanitizeNumber(item.variant.price) : 0;
-    if (variantPrice > 0) {
-        return variantPrice;
-    }
+    // If there is a discounted price on the variant, THAT is the unit price.
+    // This is distinct from a coupon/promotion.
+    return sanitizeNumber(
+        item?.variant?.discountedPrice || 
+        item?.variant?.price || 
+        item?.product?.price || 0
+    );
+};
 
-    return sanitizeNumber(item?.product?.price);
+export const getItemOriginalUnitPrice = (item: CheckoutItem): number => {
+    return sanitizeNumber(item?.variant?.price || item?.product?.price || 0);
+};
+
+export const getItemDiscountPercentage = (item: CheckoutItem): number => {
+    const original = getItemOriginalUnitPrice(item);
+    const current = getItemUnitPrice(item);
+    
+    if (original > current && original > 0) {
+        return Math.floor(((original - current) / original) * 100);
+    }
+    return 0;
 };
 
 export const getItemQuantity = (item: CheckoutItem): number => Math.max(0, sanitizeNumber(item?.quantity));
@@ -99,41 +114,43 @@ export const getOrderSummary = (
     selectedPromotion: CheckoutPromotionApplicability | null,
     deliveryAddress: Record<string, any> = {}
 ): CheckoutOrderSummary => {
-    const subtotalPaise = getSubtotalPaise(items);
+    // Subtotal already respects item-wise discounts
+    const subtotalPaise = getSubtotalPaise(items); 
     const taxPaise = getTotalTaxPaise(items);
-    const shippingReady = isShippingAddressComplete(deliveryAddress);
-    const shippingPaise = getShippingCostPaise(shippingMethod, shippingReady);
+    const shippingPaise = getShippingCostPaise(shippingMethod, isShippingAddressComplete(deliveryAddress));
+    
+    // PROMOTION is a separate bucket
     const promotionDiscountPaise = selectedPromotion ? toPaise(selectedPromotion.discountAmount || 0) : 0;
 
     const totalPaise = subtotalPaise - promotionDiscountPaise + taxPaise + shippingPaise;
 
     return {
         items: items.length,
-        subtotal: fromPaise(subtotalPaise),
+        subtotal: fromPaise(subtotalPaise), // Sum of (item-wise discounted price * qty)
         tax: fromPaise(taxPaise),
         shipping: fromPaise(shippingPaise),
-        promotionDiscount: fromPaise(promotionDiscountPaise),
+        promotionDiscount: fromPaise(promotionDiscountPaise), // Coupon savings only
         selectedPromotion: selectedPromotion?.promotion ?? null,
         total: fromPaise(totalPaise),
         totalBeforePromo: fromPaise(subtotalPaise + taxPaise + shippingPaise),
-        shippingReady,
+        shippingReady: isShippingAddressComplete(deliveryAddress),
     };
 };
 
 export const buildOrderItemsPayload = (items: CheckoutItem[] = []): OrderItem[] => {
     return items.map((item) => {
-        const variantData = item?.variant && typeof item.variant === 'object' ? item.variant : {};
-        const unitPrice = getItemUnitPrice(item);
-        const quantity = getItemQuantity(item);
+        const variantData = item?.variant || {};
+        const unitPrice = getItemUnitPrice(item); // This is now the effective price
+        const originalPrice = getItemOriginalUnitPrice(item);
 
         return {
             productId: item?.product?.id ?? '',
             productVariantId: variantData?.id ?? item?.product?.id ?? '',
             sku: variantData?.sku ?? '',
-            quantity,
-            price: unitPrice,
-            discountedPrice: sanitizeNumber(variantData?.discountedPrice ?? variantData?.price ?? item?.product?.price ?? 0),
-            discountedPercent: sanitizeNumber(variantData?.discountedPercent ?? 0),
+            quantity: getItemQuantity(item),
+            price: originalPrice, // The "MSRP"
+            discountedPrice: unitPrice, // The actual price charged
+            discountedPercent: variantData?.discounted_percent ?? variantData?.discountedPercent  ?? getItemDiscountPercentage(item),
             gstRate: getItemGstRate(item).toString(),
             gstAmount: fromPaise(getItemTaxPaise(item)),
         };

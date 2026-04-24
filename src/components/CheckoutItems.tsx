@@ -1,6 +1,7 @@
 import { CartState } from "../context/CardContext";
 import { useState } from "react";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
+import { getItemUnitPrice, getItemOriginalUnitPrice } from "../utils/checkoutCalculations";
 
 interface CheckoutItemsProps {
     state: CartState;
@@ -23,12 +24,16 @@ const CheckoutItems = ({ state }: CheckoutItemsProps) => {
 
             <div className="space-y-6">
                 {displayItems.map((item, idx) => {
-                    const unitPrice = item?.variant?.price || item?.product?.price || 0;
-                    const totalPrice = unitPrice * (item?.quantity ?? 1);
+                    // Item-wise discount logic (Product/Variant level)
+                    const currentUnitPrice = getItemUnitPrice(item);
+                    const originalUnitPrice = getItemOriginalUnitPrice(item);
+                    const hasItemDiscount = currentUnitPrice < originalUnitPrice;
+
+                    const totalItemPrice = currentUnitPrice * (item?.quantity ?? 1);
+                    const originalTotalItemPrice = originalUnitPrice * (item?.quantity ?? 1);
 
                     return (
                         <div key={idx} className="flex items-start gap-4 group">
-                            {/* Product Image with Quantity Badge */}
                             <div className="relative flex-shrink-0">
                                 <div className="w-16 h-16 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 group-hover:border-brand-brown/20 transition-all duration-300">
                                     <img
@@ -42,29 +47,34 @@ const CheckoutItems = ({ state }: CheckoutItemsProps) => {
                                 </span>
                             </div>
 
-                            {/* Details */}
                             <div className="flex-1 min-w-0 pt-0.5">
                                 <div className="flex justify-between items-start gap-2">
                                     <div className="flex-1">
                                         <p className="text-sm font-semibold text-brown-900 line-clamp-1 leading-none mb-1.5">
                                             {item?.product?.name}
                                         </p>
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1.5">
                                             {item?.variant?.weight && (
                                                 <p className="text-[11px] font-medium px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded w-fit">
                                                     {item.variant.weight}{item.variant.weightUnit || 'g'}
                                                 </p>
                                             )}
                                             <p className="text-[11px] text-slate-500">
-                                                ₹{unitPrice.toLocaleString('en-IN')} / unit
+                                                ₹{currentUnitPrice.toLocaleString('en-IN')} / unit
                                             </p>
                                         </div>
                                     </div>
                                     
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-brown-900">
-                                            ₹{totalPrice.toLocaleString('en-IN')}
+                                            ₹{totalItemPrice.toLocaleString('en-IN')}
                                         </p>
+                                        {/* This is the ITEM-WISE discount display */}
+                                        {hasItemDiscount && (
+                                            <p className="text-[10px] text-slate-400 line-through">
+                                                ₹{originalTotalItemPrice.toLocaleString('en-IN')}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -73,7 +83,6 @@ const CheckoutItems = ({ state }: CheckoutItemsProps) => {
                 })}
             </div>
 
-            {/* Professional Toggle */}
             {hasHiddenItems && (
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useMemo } from "react";
 import { Product, CartItem, ProductVariant } from "../types";
 
 export interface CartState {
@@ -6,13 +6,13 @@ export interface CartState {
     isOpen: boolean;
 }
 
-type CartAction = 
-    | { type: "ADD_ITEM", payload: { product: Product; variant: ProductVariant | string | null; quantity: number }}
-    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: ProductVariant | string | null }}
-    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: ProductVariant | string | null; quantity: number }}
+type CartAction =
+    | { type: "ADD_ITEM", payload: { product: Product; variant: ProductVariant | string | null; quantity: number } }
+    | { type: "REMOVE_ITEM"; payload: { productId: string; variant: ProductVariant | string | null } }
+    | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: ProductVariant | string | null; quantity: number } }
     | { type: "TOGGLE_CART" }
     | { type: "OPEN_CART" }
-    | { type: "CLOSE_CART" } 
+    | { type: "CLOSE_CART" }
     | { type: "CLEAR_CART" }
     | { type: "RESTORE_CART"; payload: CartState };
 
@@ -121,7 +121,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         case "UPDATE_QUANTITY": {
             const incomingVariantKey = getVariantKey(action.payload.variant);
             const newQuantity = Math.max(0, action.payload.quantity); // Ensure non-negative
-            
+
             // If quantity is 0 or less, remove the item automatically
             if (newQuantity === 0) {
                 return {
@@ -132,7 +132,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
                     }),
                 };
             }
-            
+
             // Otherwise, update quantity with minimum of 1
             return {
                 ...state,
@@ -159,7 +159,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     }
 };
 
-interface CartContextType { 
+interface CartContextType {
     state: CartState;
     dispatch: React.Dispatch<CartAction>;
     totalItems: number;
@@ -168,14 +168,14 @@ interface CartContextType {
 
 const defaultContextValue: CartContextType = {
     state: { items: [], isOpen: false },
-    dispatch: () => {},
+    dispatch: () => { },
     totalItems: 0,
     totalPrice: 0,
 };
 
 const CartContext = createContext<CartContextType>(defaultContextValue);
 
-export const CartProvider = ({ children } : { children: ReactNode }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
     const [isHydrated, setIsHydrated] = React.useState(false);
 
@@ -197,11 +197,18 @@ export const CartProvider = ({ children } : { children: ReactNode }) => {
 
     // totalItems = number of line items in cart (not total quantity)
     const totalItems = state.items.length;
-    
-    const totalPrice = state.items.reduce(
-        (sum, item) => sum + (item?.product?.price || 0) * (item?.quantity || 0),
-        0
-    );
+
+    // Inside your CardContext.tsx
+    const totalPrice = useMemo(() => {
+        return state.items.reduce((acc, item) => {
+            const unitPrice =
+                item.variant?.discountedPrice ||
+                item.variant?.price ||
+                item.product?.price ||
+                0;
+            return acc + (unitPrice * (item.quantity || 0));
+        }, 0);
+    }, [state.items]);
 
     return (
         <CartContext.Provider value={{ state, dispatch, totalItems, totalPrice }}>
