@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect } from "react";
-import { createPortal } from "react-dom"; // Essential for fixing the overlap
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../context/CardContext";
@@ -10,7 +10,6 @@ const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
     const navigate = useNavigate();
 
-    // Lock body scroll when drawer is open
     useEffect(() => {
         if (state.isOpen) {
             document.body.style.overflow = 'hidden';
@@ -25,11 +24,19 @@ const CartDrawer: React.FC = () => {
         navigate("/checkout");
     }, [dispatch, navigate]);
 
+    // Helper to get the actual price (discounted or regular) for an item
+    const getItemPrice = (item: CartItem) => {
+        const variant = item.variant;
+        if (variant && typeof variant === 'object') {
+            return variant.discountedPrice || variant.price || 0;
+        }
+        return item.product.price || 0;
+    };
+
     const drawerContent = (
         <AnimatePresence>
             {state.isOpen && (
                 <>
-                    {/* Backdrop - Uses the same Sappey branding as the Modal */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -40,18 +47,16 @@ const CartDrawer: React.FC = () => {
                         aria-hidden="true"
                     />
 
-                    {/* Drawer Panel */}
                     <motion.div
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-cream z-[9999] flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-l border-brand-brown/5"
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-[#FAF9F6] z-[9999] flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-l border-brand-brown/5"
                         role="dialog"
                         aria-label="Shopping cart"
                         aria-modal="true"
                     >
-                        {/* Header - Editorial Style */}
                         <div className="flex items-center justify-between px-8 py-6 border-b border-brand-brown/5 bg-white/50 backdrop-blur-md sticky top-0 z-20">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-orange-500 mb-1">
@@ -69,7 +74,6 @@ const CartDrawer: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* Cart Items List */}
                         <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
                             {state?.items.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full gap-6 opacity-40">
@@ -89,76 +93,86 @@ const CartDrawer: React.FC = () => {
                                 </div>
                             ) : (
                                 <ul className="space-y-6">
-                                    {(state?.items ?? []).map((item: CartItem) => (
-                                        <li
-                                            key={`${item?.product?.id ?? 'unknown'}-${getVariantKey(item?.variant)}`}
-                                            className="group flex gap-5 pb-6 border-b border-brand-brown/5 last:border-0"
-                                        >
-                                            <div className="relative w-24 h-24 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
-                                                <img
-                                                    src={item?.product?.images?.[0] ?? "/placeholder.png"}
-                                                    alt={item?.product?.name ?? 'Product'}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                />
-                                            </div>
+                                    {(state?.items ?? []).map((item: CartItem) => {
+                                        const unitPrice = getItemPrice(item);
+                                        const lineTotal = unitPrice * (item.quantity || 0);
 
-                                            <div className="flex-1 flex flex-col justify-between py-1">
-                                                <div className="flex justify-between gap-4">
-                                                    <div>
-                                                        <h3 className="font-headline text-md text-brand-brown leading-tight mb-1">
-                                                            {item?.product?.name ?? 'Product'}
-                                                        </h3>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40">
-                                                            {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'g'}` : "Standard"}
-                                                        </span>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => dispatch({ type: "REMOVE_ITEM", payload: { productId: item?.product?.id ?? '', variant: item?.variant } })}
-                                                        className="text-brand-brown/20 hover:text-red-400 transition-colors"
-                                                    >
-                                                        <Trash size={16} />
-                                                    </button>
+                                        return (
+                                            <li
+                                                key={`${item?.product?.id}-${getVariantKey(item?.variant)}`}
+                                                className="group flex gap-5 pb-6 border-b border-brand-brown/5 last:border-0"
+                                            >
+                                                <div className="relative w-24 h-24 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
+                                                    <img
+                                                        src={item?.product?.images?.[0] ?? "/placeholder.png"}
+                                                        alt={item?.product?.name}
+                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                    />
                                                 </div>
 
-                                                <div className="flex items-center justify-between mt-4">
-                                                    {/* Custom Quantity Stepper */}
-                                                    <div className="flex items-center border border-brand-brown/10 rounded-full px-2 py-1 gap-4">
+                                                <div className="flex-1 flex flex-col justify-between py-1">
+                                                    <div className="flex justify-between gap-4">
+                                                        <div>
+                                                            <h3 className="font-headline text-md text-brand-brown leading-tight mb-1">
+                                                                {item?.product?.name}
+                                                            </h3>
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40">
+                                                                {item?.variant?.weight ? `${item.variant.weight} ${item.variant.weightUnit ?? 'G'}` : "Standard Pack"}
+                                                            </span>
+                                                        </div>
                                                         <button
-                                                            onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item?.product?.id ?? '', variant: item?.variant, quantity: (item?.quantity ?? 0) - 1 } })}
-                                                            disabled={(item?.quantity ?? 0) <= 1}
-                                                            className="text-brand-brown/40 hover:text-brand-brown disabled:opacity-10 transition-colors"
+                                                            onClick={() => dispatch({ type: "REMOVE_ITEM", payload: { productId: item.product.id, variant: item.variant } })}
+                                                            className="text-brand-brown/20 hover:text-red-400 transition-colors"
                                                         >
-                                                            <Minus size={10} weight="bold" />
-                                                        </button>
-                                                        <span className="text-xs font-bold text-brand-brown min-w-[12px] text-center">
-                                                            {item?.quantity ?? 0}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item?.product?.id ?? '', variant: item?.variant, quantity: (item?.quantity ?? 0) + 1 } })}
-                                                            className="text-brand-brown/40 hover:text-brand-brown transition-colors"
-                                                        >
-                                                            <Plus size={10} weight="bold" />
+                                                            <Trash size={16} />
                                                         </button>
                                                     </div>
-                                                    <span className="font-headline text-brand-brown">
-                                                        ₹{(((typeof item?.variant === 'object' && item?.variant?.price) ? item?.variant?.price : item?.product?.price ?? 0) * (item?.quantity ?? 0)).toLocaleString()}
-                                                    </span>
+
+                                                    <div className="flex items-center justify-between mt-4">
+                                                        <div className="flex items-center border border-brand-brown/10 rounded-full px-2 py-1 gap-4">
+                                                            <button
+                                                                onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item.product.id, variant: item.variant, quantity: (item.quantity || 0) - 1 } })}
+                                                                disabled={(item.quantity || 0) <= 1}
+                                                                className="text-brand-brown/40 hover:text-brand-brown disabled:opacity-10 transition-colors"
+                                                            >
+                                                                <Minus size={10} weight="bold" />
+                                                            </button>
+                                                            <span className="text-xs font-bold text-brand-brown min-w-[12px] text-center">
+                                                                {item.quantity || 0}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item.product.id, variant: item.variant, quantity: (item.quantity || 0) + 1 } })}
+                                                                className="text-brand-brown/40 hover:text-brand-brown transition-colors"
+                                                            >
+                                                                <Plus size={10} weight="bold" />
+                                                            </button>
+                                                        </div>
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="font-headline text-brand-brown">
+                                                                ₹{lineTotal.toLocaleString('en-IN')}
+                                                            </span>
+                                                            {item.variant?.discountedPrice && (
+                                                                <span className="text-[9px] text-slate-400 line-through">
+                                                                    ₹{(item.variant.price * item.quantity).toLocaleString('en-IN')}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    ))}
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             )}
                         </div>
 
-                        {/* Footer - Classy Summary */}
                         {state?.items.length > 0 && (
                             <div className="p-6 border-t border-brand-brown/5 bg-white">
                                 <div className="space-y-4 mb-8">
                                     <div className="flex justify-between items-center">
                                         <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/40">Subtotal</span>
                                         <span className="font-headline text-2xl text-brand-brown">
-                                            ₹{totalPrice?.toLocaleString()}
+                                            ₹{totalPrice.toLocaleString('en-IN')}
                                         </span>
                                     </div>
                                     <p className="text-[9px] text-brand-brown/30 uppercase tracking-widest leading-relaxed">
@@ -169,7 +183,7 @@ const CartDrawer: React.FC = () => {
                                 <div className="flex justify-between items-center gap-3">
                                     <button
                                         onClick={handleCheckout}
-                                        className="w-[50%] bg-brand-brown text-brand-cream text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
+                                        className="w-[60%] bg-brand-brown text-white text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
                                     >
                                         Finalize Selection
                                     </button>
@@ -188,7 +202,6 @@ const CartDrawer: React.FC = () => {
         </AnimatePresence>
     );
 
-    // FIX: Render outside of the shop content tree
     return createPortal(drawerContent, document.body);
 };
 

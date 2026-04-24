@@ -17,6 +17,7 @@ export interface Product {
     slug: string;
     name: string;
     price?: number;
+    minPrice?: number;
     originalPrice?: number;
     category: string;
     image?: string;

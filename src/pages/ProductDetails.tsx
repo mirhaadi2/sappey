@@ -202,12 +202,23 @@ const ProductDetailPage: React.FC = () => {
                   {product.name}
                 </h1>
                 <div className="flex items-baseline gap-4">
-                  <span className="text-3xl font-medium text-brand-brown">
-                    ₹{Number(selectedVariantData?.price || 0).toLocaleString('en-IN')}
-                  </span>
-                  {selectedVariantData?.originalPrice && (
-                    <span className="text-lg text-slate-300 line-through">
-                      ₹{Number(selectedVariantData.originalPrice).toLocaleString('en-IN')}
+                  {selectedVariantData?.discountedPrice ? (
+                    <>
+                      <span className="text-3xl font-medium text-brand-brown">
+                        ₹{Number(selectedVariantData.discountedPrice).toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-lg text-slate-300 line-through">
+                        ₹{Number(selectedVariantData.price).toLocaleString('en-IN')}
+                      </span>
+                      {selectedVariantData.discountedPercent && (
+                        <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                          {selectedVariantData.discountedPercent}% OFF
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-3xl font-medium text-brand-brown">
+                      ₹{Number(selectedVariantData?.price || 0).toLocaleString('en-IN')}
                     </span>
                   )}
                 </div>

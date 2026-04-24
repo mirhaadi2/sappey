@@ -26,8 +26,6 @@ const CheckoutPage: React.FC = () => {
   const { state, dispatch } = useCart();
   const { placeOrder, isCreatingOrder } = useOrders();
   const { config: guestConfig } = useGuestConfig();
-
-  // Consolidated Checkout Form - manages all form-related state
   const checkoutForm = useFormWithValidation<CheckoutFormData>(checkoutFormSchema, {
     defaultValues: {
       contactEmail: '',
@@ -66,7 +64,6 @@ const CheckoutPage: React.FC = () => {
   const [isGuestVerified, setIsGuestVerified] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
-
   const [existingCustomer, setExistingCustomer] = useState<{
     id: string;
     email?: string;
@@ -80,13 +77,10 @@ const CheckoutPage: React.FC = () => {
   const [newDestinationAddress, setNewDestinationAddress] = useState<boolean>(false);
   const [customerLookupError, setCustomerLookupError] = useState<string | null>(null);
   const placeOrderPendingRef = useRef(false);
-
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
   const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
-
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
-
   const isWelcomePromotion = (promotion: Promotion) => {
     const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
     return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
@@ -99,10 +93,7 @@ const CheckoutPage: React.FC = () => {
   const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
 
   const filteredPromotions = useMemo(() => {
-    if (isReturningCustomer) {
-      return [];
-    }
-
+    if (isReturningCustomer) return [];
     if (isFirstOrderEligible) {
       return applicablePromotions.filter((promotion) => isWelcomePromotion(promotion));
     }
@@ -214,7 +205,6 @@ const CheckoutPage: React.FC = () => {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
         return;
       }
-
       if (!isGuestVerified) {
         placeOrderPendingRef.current = true;
         setShowOtpModal(true);
@@ -308,23 +298,17 @@ const CheckoutPage: React.FC = () => {
 
   const getContactIcon = (type: 'email' | 'phone' | 'whatsapp') => {
     switch (type) {
-      case 'email':
-        return <Envelope size={20} />;
-      case 'phone':
-        return <Phone size={20} />;
-      case 'whatsapp':
-        return <ChatCircle size={20} />;
+      case 'email': return <Envelope size={20} />;
+      case 'phone': return <Phone size={20} />;
+      case 'whatsapp': return <ChatCircle size={20} />;
     }
   };
 
   const getContactPlaceholder = (type: 'email' | 'phone' | 'whatsapp') => {
     switch (type) {
-      case 'email':
-        return 'Enter email address';
-      case 'phone':
-        return 'Enter phone number';
-      case 'whatsapp':
-        return 'Enter WhatsApp number';
+      case 'email': return 'Enter email address';
+      case 'phone': return 'Enter phone number';
+      case 'whatsapp': return 'Enter WhatsApp number';
     }
   };
 

@@ -36,7 +36,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
     const discountedPrice = Number(item?.discountedPrice ?? price);
     const discount = Number(item?.discountedPercent ?? 0);
     const itemQuantity = Number(item?.quantity ?? 0);
-    const itemTotal = Number(isOrderItem ? (item?.subtotal ?? price * itemQuantity) : (discountedPrice * itemQuantity)) ?? 0;
+    const itemTotal = Number((discountedPrice ?? price) * itemQuantity) ?? 0;
 
     const productImage = (item?.productImage ?? null) as string | null;
     const productName = (item?.productName ?? `Item #${item?.sku ?? 'N/A'}`) as string;
@@ -61,7 +61,6 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
         CANCELLED: { bg: "bg-slate-100", text: "text-slate-500", icon: Prohibit },
         FAILED: { bg: "bg-red-100", text: "text-red-700", icon: WarningCircle },
     };
-    console.log(status, 'status for item', itemId);
 
     const statusConfig = status ? STATUS_COLORS[status] : null;
 
@@ -118,7 +117,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
 
                     <div className="flex items-center gap-3 mt-4">
                         <span className="text-lg font-black text-slate-900 tracking-tighter">
-                            ₹{(isOrderItem ? price : discountedPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            ₹{(discountedPrice ?? price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </span>
                         {discount > 0 && (
                             <div className="flex items-center gap-2">
