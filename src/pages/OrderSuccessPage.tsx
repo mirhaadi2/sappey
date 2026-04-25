@@ -28,7 +28,6 @@ const OrderSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const orderData = location.state as OrderSuccessState | undefined;
-  console.log(orderData, 'orderData');
 
   useEffect(() => {
     if (!orderData?.orderId) {

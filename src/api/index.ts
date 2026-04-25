@@ -16,8 +16,8 @@ const api: AxiosInstance = axios.create({
 // Request Interceptor - Log all requests
 api.interceptors.request.use(
   (config) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[API] ${timestamp} → ${config.method?.toUpperCase()} ${config.url}`);
+    // const timestamp = new Date().toISOString();
+    // console.log(`[API] ${timestamp} → ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -29,8 +29,8 @@ api.interceptors.request.use(
 // Response Interceptor - Log all responses
 api.interceptors.response.use(
   (response) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[API] ${timestamp} ✓ ${response.status} ${response.config.url}`, response.data);
+    // const timestamp = new Date().toISOString();
+    // console.log(`[API] ${timestamp} ✓ ${response.status} ${response.config.url}`, response.data);
     return response;
   },
   (error) => {
