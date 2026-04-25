@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
-import { WebsiteAuthProvider } from "./contexts/WebsiteAuthContext";
+import { WebsiteAuthProvider, useWebsiteAuth } from "./contexts/WebsiteAuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Header from "./components/Header";
@@ -44,12 +44,27 @@ const queryClient = new QueryClient({
 
 const AppContent: React.FC = () => {
     const location = useLocation();
+    const { notification, clearNotification } = useWebsiteAuth();
     const isPageContentRoute = ["/about-us", "/shipping-policy", "/returns-refunds", "/faqs", "/privacy-policy", "/terms-and-conditions", "/sitemap"].includes(location.pathname) || location.pathname.startsWith("/pages/");
     const isCheckoutRoute = location.pathname === "/checkout";
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             {!isPageContentRoute && !isCheckoutRoute && <Header />}
+            {notification && (
+                <div className="w-full bg-amber-50 border-b border-amber-200 text-amber-900 px-6 py-3">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+                        <span>{notification}</span>
+                        <button
+                            type="button"
+                            onClick={clearNotification}
+                            className="rounded-md bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800 hover:bg-amber-200"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            )}
             <main className="flex-1">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
