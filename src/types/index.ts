@@ -10,6 +10,7 @@ export interface ProductVariant {
     weightUnit?: string;
     sku?: string;
     status?: string;
+    isAvailable?: boolean;
 }
 
 export interface Product {
@@ -45,6 +46,7 @@ export interface Product {
     basePrice?: number;
     discountedPrice?: number;
     discountedPercent?: number;
+    isAvailable?: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

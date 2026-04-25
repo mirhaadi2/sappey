@@ -33,7 +33,7 @@ export const useOrders = (enabled = true) => {
           ? old 
           : (old?.orders && Array.isArray(old.orders) ? old.orders : []);
         
-        console.log("✓ Cache updated with new order");
+        // console.log("✓ Cache updated with new order");
         return {
           orders: [...existingOrders, newOrder],
         };
@@ -41,7 +41,7 @@ export const useOrders = (enabled = true) => {
       
       // Also cache the individual order
       queryClient.setQueryData(['orders', newOrder.id], newOrder);
-      console.log("✓ Individual order cached");
+      // console.log("✓ Individual order cached");
     },
     onError: (error: any) => {
       console.error("✗ Order mutation failed:", error);

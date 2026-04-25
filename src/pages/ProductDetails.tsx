@@ -51,6 +51,13 @@ const ProductDetailPage: React.FC = () => {
   const variantOptions = useMemo(() => {
     if (!product || !Array.isArray(product.variants)) return [];
     return (product.variants as ProductVariant[])
+      .filter((v) => v !== null && v.isAvailable !== false)
+      .sort((a, b) => Number(a.weight) - Number(b.weight));
+  }, [product]);
+
+  const allVariants = useMemo(() => {
+    if (!product || !Array.isArray(product.variants)) return [];
+    return (product.variants as ProductVariant[])
       .filter((v) => v !== null)
       .sort((a, b) => Number(a.weight) - Number(b.weight));
   }, [product]);
@@ -69,7 +76,7 @@ const ProductDetailPage: React.FC = () => {
   if (productLoading || productsLoading) return <ProductDetailSkeleton />;
   if (!product) return <NotFoundState onBack={() => navigate("/shop")} />;
 
-  const isOutOfStock = selectedVariantData?.status === "out_of_stock";
+  const isOutOfStock = variantOptions.length === 0 || !selectedVariantData;
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] relative overflow-x-hidden">
@@ -236,19 +243,32 @@ const ProductDetailPage: React.FC = () => {
                 <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4">Choose Size</label>
                 <div className="flex flex-wrap gap-3">
                   <LayoutGroup>
-                    {variantOptions.map((variant) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariantId(String(variant.id))}
-                        className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-colors border
-                          ${selectedVariantId === String(variant.id) ? "text-white border-transparent" : "text-brand-brown border-slate-200 hover:border-brand-brown"}`}
-                      >
-                        <span className="relative z-10">{variant.label || `${variant.weight}${variant.weightUnit}`}</span>
-                        {selectedVariantId === String(variant.id) && (
-                          <motion.div layoutId="activeVariant" className="absolute inset-0 bg-brand-brown rounded-xl z-0" transition={{ type: "spring", duration: 0.5 }} />
-                        )}
-                      </button>
-                    ))}
+                    {allVariants.map((variant) => {
+                      const isAvailable = variant.isAvailable !== false;
+                      const isSelected = selectedVariantId === String(variant.id);
+                      return (
+                        <button
+                          key={variant.id}
+                          disabled={!isAvailable}
+                          onClick={() => isAvailable && setSelectedVariantId(String(variant.id))}
+                          className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-colors border ${
+                            !isAvailable
+                              ? "text-red-400 border-red-200 bg-red-50 cursor-not-allowed"
+                              : isSelected
+                              ? "text-white border-transparent"
+                              : "text-brand-brown border-slate-200 hover:border-brand-brown"
+                          }`}
+                        >
+                          <span className="relative z-10">
+                            {variant.label || `${variant.weight}${variant.weightUnit}`}
+                            {!isAvailable && " (Sold Out)"}
+                          </span>
+                          {isSelected && isAvailable && (
+                            <motion.div layoutId="activeVariant" className="absolute inset-0 bg-brand-brown rounded-xl z-0" transition={{ type: "spring", duration: 0.5 }} />
+                          )}
+                        </button>
+                      );
+                    })}
                   </LayoutGroup>
                 </div>
               </div>

@@ -193,7 +193,7 @@ const CheckoutPage: React.FC = () => {
   const handlePlaceOrder = async () => {
     const isFormValid = await checkoutForm.trigger();
     if (!isFormValid) {
-      console.log("Validation failed", checkoutForm.formState.errors);
+      // console.log("Validation failed", checkoutForm.formState.errors);
       return;
     }
 

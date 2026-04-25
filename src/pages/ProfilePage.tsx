@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useAddresses } from "../api/address/hooks";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -52,7 +52,7 @@ const ProfilePage: React.FC = () => {
   const { register, handleSubmit, reset, formState: { errors }, setValue } = useFormWithValidation<AddressFormData>(addressSchema);
 
   if (authLoading || isLoading) return <ProfilePageSkeleton />;
-  if (!currentUser) return null;
+  if (!currentUser) return <Navigate to="/" replace />;
 
   const handleAddressSubmit = (data: AddressFormData) => {
     const payload = {
