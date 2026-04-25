@@ -4,7 +4,7 @@
  * Consolidated authentication context handling both regular and guest authentication
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { websiteAuthService, AuthUser, LoginCredentials, RegisterCredentials } from '../services/auth.service';
 import { useAuth as useAuthApi, User } from "../api/exports";
@@ -162,42 +162,73 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const closeAuthModal = () => {
     setAuthModal(null);
   };
+  const userRef = useRef<AuthUser | null>(null);
 
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
   // Website auth methods (customer OTP)
-  const setUserState = (user: AuthUser | null) => {
+  const setUserState = React.useCallback((user: AuthUser | null) => {
     setUser(user);
     if (user) {
       websiteAuthService.cacheUser(user);
       queryClient.setQueryData(['user'], user);
     } else {
       websiteAuthService.clearCachedUser();
+      localStorage.removeItem('auth_token');
       queryClient.removeQueries({ queryKey: ['user'] });
     }
-  };
+  }, [queryClient]);
 
-  // Initialize website auth state on mount
-  useEffect(() => {
-    const cachedUser = websiteAuthService.getUser();
-    if (cachedUser) {
-      setUser(cachedUser);
-      setIsLoading(false);
-    } else {
-      checkAuth();
-    }
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = React.useCallback(async () => {
     try {
       setIsLoading(true);
       const currentUser = await websiteAuthService.getCurrentUser();
       setUser(currentUser);
+      if (!currentUser) {
+        setUserState(null);
+      }
     } catch (err) {
       console.error('Auth check failed:', err);
-      setUser(null);
+      setUserState(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setUserState]);
+
+  // Initialize website auth state on mount and verify session validity.
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const cachedUser = websiteAuthService.getUser();
+      if (cachedUser) {
+        setUser(cachedUser);
+      }
+      await checkAuth();
+    };
+    initializeAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      if (userRef.current) {
+        window.alert('Your session has expired. Please log in again.');
+      }
+      setUserState(null);
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('website-auth-unauthorized', handleUnauthorized);
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('website-auth-unauthorized', handleUnauthorized);
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [checkAuth, setUserState]);
 
   const login = async (credentials: LoginCredentials) => {
     try {

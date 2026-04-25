@@ -46,9 +46,8 @@ const Header: React.FC = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-
     const isLoggedIn = Boolean(currentUser || isGuestAuthenticated);
-    const displayName = currentUser?.name?.split(" ")[0] || guestDisplayName || "Guest";
+    const displayName = currentUser?.name?.split(" ")[0] || currentUser?.email?.split(" ")[0] || guestDisplayName || "Guest";
 
     const { results: searchResults, isLoading: isSearching } = useProductSearch(debouncedSearchQuery);
     const { data: homepageData } = useHomepageData();

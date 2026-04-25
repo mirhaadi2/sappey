@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../client';
-import { AuthResponse, User, LoginData, RegisterData } from '../types';
+import { AuthResponse } from '../types';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
@@ -36,7 +36,9 @@ export const useAuth = () => {
     queryFn: authApi.getProfile,
     enabled: true, // Always attempt session profile fetch for cookie-based auth
     retry: false, // Don't retry on 401
-    staleTime: 1000 * 60 * 5, // Cache user data for 5 minutes
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always validate session when mounted or focused
     gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
   });
 

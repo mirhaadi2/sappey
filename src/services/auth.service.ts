@@ -97,6 +97,8 @@ class WebsiteAuthService {
       // 401 is normal when user is not authenticated - don't treat as error
       if (error.response?.status === 401) {
         this.clearCachedUser();
+        localStorage.removeItem('auth_token');
+        window.dispatchEvent(new Event('website-auth-unauthorized'));
         return null;
       }
       // Other errors should be re-thrown

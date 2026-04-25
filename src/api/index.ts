@@ -38,6 +38,9 @@ api.interceptors.response.use(
     const errorMsg = error.response?.data?.message || error.message;
     const status = error.response?.status || 'TIMEOUT';
     console.error(`[API] ${timestamp} ✗ ${status} ${error.config?.url} - ${errorMsg}`);
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new Event('website-auth-unauthorized'));
+    }
     return Promise.reject(error);
   }
 );
