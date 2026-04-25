@@ -6,6 +6,8 @@ export interface Variant {
   discountedPrice?: number;
   discountedPercent?: number;
   weight?: number;
+  weightUnit?: string;
+  isAvailable?: boolean;
 }
 
 export interface Product {
@@ -19,7 +21,6 @@ export interface Product {
   reviews?: string[];
   reviewCount?: number;
   nutrition?: string[];
-  description?: string;
   descriptionDetails?: Array<{
     type: 'text' | 'highlight' | 'point';
     content: string;
@@ -45,6 +46,7 @@ export interface Product {
   isNew: boolean;
   isCustomerFavourites: boolean;
   isBestseller: boolean;
+  isAvailable?: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
