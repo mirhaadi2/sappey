@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useHomepageData } from "../api/homepage";
 import { useProducts, useCategories } from "../api/products";
 import { useGetReviews } from "../api/reviews";
@@ -10,11 +9,10 @@ import {
     ProductGridSection,
     TestimonialsCarousel,
     StorySection,
+    HealthWellnessSection,
+    InstagramSection,
+    DynamicSection,
 } from "../components/HomePage";
-import { formatSectionTitle, fadeUpVariants } from "../utils/homePageUtils";
-import LazySection from "../components/LazySection";
-import LazyErrorBoundary from "../components/LazyErrorBoundary";
-import { CategoryGridSkeleton } from "../components/Skeletons";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -142,52 +140,6 @@ const HomePage: React.FC = () => {
         (s: any) => !knownSectionTypes.includes(s.sectionType) && s.isActive
     );
 
-    // Helper to render dynamic sections
-    const renderDynamicSection = (s: any) => (
-        <section key={s.id} className="relative overflow-hidden" aria-label={`${s.sectionType} banner`}>
-            <div className="relative h-80 md:h-96">
-                <img
-                    src={s.backgroundImageUrl || "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"}
-                    alt={`${s.sectionType} banner`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
-                <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
-                    <div className="max-w-lg">
-                        <motion.div
-                            variants={fadeUpVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                {formatSectionTitle(s.sectionType)}
-                            </span>
-                            <h2
-                                className="font-headline text-4xl text-brand-cream mb-4"
-                                style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                            >
-                                {s.title}
-                            </h2>
-                            <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                {s.subtitle || s.content || "Discover more about our premium products."}
-                            </p>
-                            {s.buttonLink && s.buttonText && (
-                                <button
-                                    onClick={() => navigate(s.buttonLink)}
-                                    className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
-                                >
-                                    {s.buttonText}
-                                </button>
-                            )}
-                        </motion.div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-
     return (
         <div className="text-foreground">
             {/* Hero Section */}
@@ -222,46 +174,10 @@ const HomePage: React.FC = () => {
 
             {/* Health & Wellness Banner */}
             {healthWellnessSection && (
-                <section className="relative overflow-hidden" aria-label="Almond lifestyle banner">
-                    <div className="relative h-80 md:h-96">
-                        <img
-                            src={healthWellnessSection?.backgroundImageUrl || "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_2.png"}
-                            alt="almond lifestyle banner"
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-brand-brown via-brand-brown to-transparent opacity-80" />
-                        <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16">
-                            <div className="max-w-lg">
-                                <motion.div
-                                    variants={fadeUpVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true }}
-                                >
-                                    <span className="font-label text-xs uppercase tracking-widest text-brand-cream opacity-80 block mb-3">
-                                        {formatSectionTitle(healthWellnessSection?.sectionType) || "Health & Wellness"}
-                                    </span>
-                                    <h2
-                                        className="font-headline text-4xl text-brand-cream mb-4"
-                                        style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                                    >
-                                        {healthWellnessSection?.title || "Nourish Your Body with Almonds"}
-                                    </h2>
-                                    <p className="font-sans text-brand-cream opacity-90 mb-6 leading-relaxed">
-                                        {healthWellnessSection?.subtitle || "Packed with nutrients, our almonds are the perfect snack for a healthy lifestyle."}
-                                    </p>
-                                    <button
-                                        onClick={() => navigate(healthWellnessSection?.buttonLink || "/shop")}
-                                        className="bg-brand-cream text-brand-brown font-label text-sm px-6 py-3 rounded-lg hover:bg-brand-latte transition-colors duration-200 cursor-pointer uppercase tracking-widest"
-                                    >
-                                        {healthWellnessSection?.buttonText || "Shop Almonds"}
-                                    </button>
-                                </motion.div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <HealthWellnessSection
+                    section={healthWellnessSection}
+                    navigate={(path) => navigate(path)}
+                />
             )}
 
             {/* New Arrivals Section */}
@@ -288,62 +204,16 @@ const HomePage: React.FC = () => {
             />
 
             {/* Instagram Feed Section */}
-            {instagramSection && instagramPosts?.length > 0 && (
-                <LazyErrorBoundary>
-                    <LazySection
-                        fallback={<div className="py-16 px-8"><CategoryGridSkeleton count={6} /></div>}
-                        rootMargin="250px 0px"
-                    >
-                        <section id="recipes" className="py-16 px-8 bg-brand-latte">
-                            <motion.div
-                                variants={fadeUpVariants}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true }}
-                                className="text-center mb-12"
-                            >
-                                <span className="font-label text-xs tracking-widest text-brand-cocoa block mb-2">
-                                    {instagramSection?.title || "Follow Us"}
-                                </span>
-                                <h2
-                                    className="font-headline text-4xl text-brand-brown mb-4"
-                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
-                                >
-                                    {instagramSection?.subtitle || "See Our Latest Posts on Instagram"}
-                                </h2>
-                                <p className="font-sans text-brand-brown/80">
-                                    Join our community of health enthusiasts on Instagram
-                                </p>
-                            </motion.div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-7xl mx-auto">
-                                {instagramPosts?.map((post: any, i: number) => (
-                                    <motion.a
-                                        key={post.id}
-                                        href={post.postUrl || "https://instagram.com"}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        variants={fadeUpVariants}
-                                        className="relative aspect-square rounded-[24px] overflow-hidden group block border border-brand-brown/10 shadow-md hover:shadow-lg transition-all duration-300"
-                                        aria-label={`Instagram post ${i + 1}`}
-                                    >
-                                        <img
-                                            src={post.imageUrl}
-                                            alt={post.caption || `Instagram post ${i + 1}`}
-                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                            loading="lazy"
-                                        />
-                                        <div className="absolute inset-0 bg-brand-brown opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                                    </motion.a>
-                                ))}
-                            </div>
-                        </section>
-                    </LazySection>
-                </LazyErrorBoundary>
-            )}
+            <InstagramSection section={instagramSection} posts={instagramPosts} />
 
             {/* Dynamic Sections */}
-            {dynamicSections.map((section) => renderDynamicSection(section))}
+            {dynamicSections.map((section) => (
+                <DynamicSection
+                    key={section.id}
+                    section={section}
+                    navigate={(path) => navigate(path)}
+                />
+            ))}
         </div>
     );
 };

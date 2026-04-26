@@ -293,7 +293,7 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  const enabledContactTypes = guestConfig?.enabledContactTypes || { email: true };
+  // const enabledContactTypes = guestConfig?.enabledContactTypes || { email: true };
 
   return (
     <div className="min-h-screen bg-brand-latte">
