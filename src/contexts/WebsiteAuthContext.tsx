@@ -16,6 +16,7 @@ interface WebsiteAuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  notification: string | null;
 
   // Customer auth state (OTP)
   customerUser: AuthUser | null;
@@ -43,6 +44,8 @@ interface WebsiteAuthContextType {
   logout: () => Promise<void>;
   setUserState: (user: AuthUser | null) => void;
   clearError: () => void;
+  showNotification: (message: string) => void;
+  clearNotification: () => void;
   checkAuth: () => Promise<void>;
 
   // Regular auth methods
@@ -70,6 +73,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
 
   // Guest auth state
   const [guestDisplayName, setGuestDisplayName] = useState<string | null>(null);
@@ -180,6 +184,20 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     }
   }, [queryClient]);
 
+  const showNotification = React.useCallback((message: string) => {
+    setNotification(message);
+  }, []);
+
+  const clearNotification = React.useCallback(() => {
+    setNotification(null);
+  }, []);
+
+  useEffect(() => {
+    if (!notification) return;
+    const timer = window.setTimeout(() => setNotification(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [notification]);
+
   const checkAuth = React.useCallback(async () => {
     try {
       setIsLoading(true);
@@ -211,7 +229,7 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
   useEffect(() => {
     const handleUnauthorized = () => {
       if (userRef.current) {
-        window.alert('Your session has expired. Please log in again.');
+        showNotification('Your session has expired. Please log in again.');
       }
       setUserState(null);
     };
@@ -329,6 +347,10 @@ export const WebsiteAuthProvider: React.FC<WebsiteAuthProviderProps> = ({ childr
     signInError: loginMutation.error,
     signUpError: registerMutation.error,
     signOutError: logoutMutation.error,
+
+    notification,
+    showNotification,
+    clearNotification,
 
     // Methods
     login,
