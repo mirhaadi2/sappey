@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom'; 
 import { X, Check, WarningCircle, User } from "@phosphor-icons/react";
-import { useFormWithValidation } from "../hooks/useFormValidation";
-import { Input } from "./ui";
+import { useFormWithValidation } from "../../hooks/useFormValidation";
+import { Input } from "../ui";
 import * as z from "zod";
-import { useAuth } from "../api/authentication/hooks";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
-import { AuthUser } from "../services/auth.service";
+import { useAuth } from "../../api/authentication/hooks";
+import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
+import { AuthUser } from "../../services/auth.service";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),

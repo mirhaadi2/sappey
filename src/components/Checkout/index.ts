@@ -8,3 +8,5 @@ export { default as CheckoutItems } from './CheckoutItems';
 export { default as CheckoutPromotionBadge } from './CheckoutPromotionBadge';
 export { default as OtpVerificationModal } from './OtpVerificationModal';
 export { default as PageContentModal } from './PageContentModal';
+export { default as OrderSummary } from './OrderSummary';
+export { default as AddressForm } from './AddressForm';

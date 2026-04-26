@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { UseFormReturn } from "react-hook-form";
 import { CheckoutFormData } from "../../schemas";
-import AddressForm from "../AddressForm";
+import { AddressForm } from "./index";
 
 interface BillingAddressSectionProps {
     form: UseFormReturn<CheckoutFormData>;

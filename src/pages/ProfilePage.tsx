@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
 import { useAddresses } from "../api/address/hooks";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { ProfilePageSkeleton } from "../components/Skeletons";
-import ProfileEditModal from "../components/ProfileEditModal";
 import { useFormWithValidation } from "../hooks/useFormValidation";
 import * as z from "zod";
 import {
   ProfileNavigation,
   ProfileSidebar,
   ProfileMainContent,
+  ProfileEditModal,
 } from "../components/Profile";
 
 const addressSchema = z.object({

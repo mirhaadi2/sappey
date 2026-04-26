@@ -1,7 +1,7 @@
-import { Input, Select, Checkbox } from "../components/ui";
-import { useFormWithValidation } from "../hooks/useFormValidation";
-import { CheckoutFormData } from "../schemas";
-import { INDIAN_STATES } from "../constants";
+import { Input, Select, Checkbox } from "../ui";
+import { useFormWithValidation } from "../../hooks/useFormValidation";
+import { CheckoutFormData } from "../../schemas";
+import { INDIAN_STATES } from "../../constants";
 import { QuestionIcon } from "@phosphor-icons/react";
 
 interface AddressFormProps {

@@ -4,7 +4,7 @@ import { MapPin, Buildings, House, CheckCircle, Plus } from "@phosphor-icons/rea
 import { UseFormReturn } from "react-hook-form";
 import { Address } from "../../types/address";
 import { CheckoutFormData } from "../../schemas";
-import AddressForm from "../AddressForm";
+import { AddressForm } from "./index";
 
 interface ShippingDetailsSectionProps {
     form: UseFormReturn<CheckoutFormData>;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Promotion } from "../api/promotions";
-import { CheckoutPromotionBadge } from "./Checkout";
+import { Promotion } from "../../api/promotions";
+import { CheckoutPromotionBadge } from ".";
 
 interface OrderSummaryData {
     subtotal: number;
