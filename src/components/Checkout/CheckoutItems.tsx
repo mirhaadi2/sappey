@@ -1,7 +1,7 @@
-import { CartState } from "../context/CardContext";
+import { CartState } from "../../context/CardContext";
 import { useState } from "react";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
-import { getItemUnitPrice, getItemOriginalUnitPrice } from "../utils/checkoutCalculations";
+import { getItemUnitPrice, getItemOriginalUnitPrice } from "../../utils/checkoutCalculations";
 
 interface CheckoutItemsProps {
     state: CartState;

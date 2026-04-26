@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "@phosphor-icons/react";
-import { useCart } from "../context/CardContext";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useCart } from "../../context/CardContext";
+import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
 
 const CheckoutHeader: React.FC = () => {
   const navigate = useNavigate();

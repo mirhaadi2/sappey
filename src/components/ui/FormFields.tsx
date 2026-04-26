@@ -6,7 +6,7 @@ type RHFName<T extends FieldValues> = Path<T> & string;
 interface BaseFieldProps<T extends FieldValues = any> {
     name?: RHFName<T>;
     register?: UseFormRegister<T>;
-    error?: FieldError;
+    error?: FieldError | any;
     className?: string;
 }
 

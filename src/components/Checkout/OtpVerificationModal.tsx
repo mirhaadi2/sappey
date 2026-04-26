@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, WarningCircle, SpinnerGap } from '@phosphor-icons/react';
-import { useSendGuestOtp, useVerifyGuestOtp } from '../api/guest/otp';
+import { useSendGuestOtp, useVerifyGuestOtp } from '../../api/guest/otp';
 
 interface OtpVerificationModalProps {
   isOpen: boolean;
