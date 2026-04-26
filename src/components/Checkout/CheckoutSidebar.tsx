@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import CheckoutItems from "../CheckoutItems";
 import OrderSummary from "../OrderSummary";
 import { CartState } from "../../context/CardContext";
+import { CheckoutItems } from "./index";
 
 interface CheckoutSidebarProps {
     state: CartState;

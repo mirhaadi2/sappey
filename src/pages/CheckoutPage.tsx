@@ -10,9 +10,6 @@ import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/c
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import { useAddresses } from "../api/address/hooks";
-import CheckoutHeader from "../components/CheckoutHeader";
-import PageContentModal from "../components/PageContentModal";
-import OtpVerificationModal from "../components/OtpVerificationModal";
 import { useFormWithValidation } from "../hooks/useFormValidation";
 import { checkoutFormSchema, CheckoutFormData } from "../schemas";
 import {
@@ -21,6 +18,9 @@ import {
   PaymentSection,
   BillingAddressSection,
   CheckoutSidebar,
+  CheckoutHeader,
+  OtpVerificationModal,
+  PageContentModal
 } from "../components/Checkout";
 
 const CheckoutPage: React.FC = () => {

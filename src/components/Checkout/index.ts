@@ -3,3 +3,8 @@ export { default as ShippingDetailsSection } from './ShippingDetailsSection';
 export { default as PaymentSection } from './PaymentSection';
 export { default as BillingAddressSection } from './BillingAddressSection';
 export { default as CheckoutSidebar } from './CheckoutSidebar';
+export { default as CheckoutHeader } from './CheckoutHeader';
+export { default as CheckoutItems } from './CheckoutItems';
+export { default as CheckoutPromotionBadge } from './CheckoutPromotionBadge';
+export { default as OtpVerificationModal } from './OtpVerificationModal';
+export { default as PageContentModal } from './PageContentModal';

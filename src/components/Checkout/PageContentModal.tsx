@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Spinner } from '@phosphor-icons/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { usePageBySlug } from '../api/homepage';
+import { usePageBySlug } from '../../api/homepage';
 
 interface PageContentModalProps {
   isOpen: boolean;
