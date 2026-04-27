@@ -11,12 +11,11 @@ import {
 
 const Footer: React.FC = () => {
     return (
-        <footer className="relative bg-brand-brown text-brand-cream pt-20 pb-10 px-6 overflow-hidden">
-            {/* Subtle Decorative Gradient for Depth */}
+        <footer className="relative bg-brand-brown text-brand-cream py-8 px-6 overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-latte/30 to-transparent" />
 
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-6">
 
                     {/* Brand Section - Takes 5 columns for prominence */}
                     <div className="lg:col-span-5 space-y-8">
@@ -44,7 +43,7 @@ const Footer: React.FC = () => {
                                     href={social.href}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 shadow-xl"
+                                    className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 shadow-xl"
                                 >
                                     {social.icon}
                                 </a>
@@ -127,7 +126,7 @@ const Footer: React.FC = () => {
                 </div>
 
                 {/* Bottom Bar - Enhanced with Glassmorphism effect */}
-                <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="pt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="space-y-1 text-center md:text-left">
                         <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-slate-400 font-bold">
                             © 2026 Sappey Foods Private Limited.
