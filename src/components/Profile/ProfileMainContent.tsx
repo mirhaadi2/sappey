@@ -1,23 +1,6 @@
 import React from "react";
-import AddressFormSection from "./AddressFormSection";
-import AddressListSection from "./AddressListSection";
-import { Address } from "../../types/address";
-
-interface ProfileMainContentProps {
-    addresses: Address[];
-    showAddressForm: boolean;
-    selectedAddressType: string | null;
-    onAddressTypeSelect: (type: string) => void;
-    form: any;
-    onAddressSubmit: (data: any) => void;
-    onCancelForm: () => void;
-    onAddAddress: () => void;
-    onSetDefault: (id: string) => void;
-    onEditAddress: (address: Address) => void;
-    onDeleteAddress: (id: string) => void;
-    isCreating: boolean;
-    isUpdating: boolean;
-}
+import { AddressFormSection, AddressListSection } from "./index";
+import { ProfileMainContentProps } from "../../types";
 
 const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     addresses,

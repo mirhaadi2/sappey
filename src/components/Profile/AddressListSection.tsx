@@ -1,16 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { House, Briefcase, MapPin, Check, Pencil, Trash, MapTrifold } from "@phosphor-icons/react";
-import { Address } from "../../types/address";
-
-interface AddressListSectionProps {
-    addresses: Address[];
-    showAddressForm: boolean;
-    onAddAddress: () => void;
-    onSetDefault: (id: string) => void;
-    onEdit: (address: Address) => void;
-    onDelete: (id: string) => void;
-}
+import { AddressListSectionProps } from "../../types";
 
 const AddressListSection: React.FC<AddressListSectionProps> = ({
     addresses,

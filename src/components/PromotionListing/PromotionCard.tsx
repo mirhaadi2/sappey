@@ -1,21 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, CheckCircle, Gift, Package, Warning } from '@phosphor-icons/react';
+import { Calendar, CheckCircle, Package, Warning } from '@phosphor-icons/react';
 import { Promotion } from '../../api/promotions';
 import { formatPromotionDescription, getPromotionBadgeStyle } from '../../hooks/useCheckoutPromotions';
+import { PromotionCardProps } from '../../types/Promotion';
 
-interface PromotionCardProps {
-  promotion: Promotion;
-  discountAmount: number;
-  isSelected?: boolean;
-  onSelect?: (promotion: Promotion) => void;
-  showDetails?: boolean;
-}
-
-/**
- * Professional PromotionCard component for checkout flow
- * Displays promotion details with discount calculation
- */
 export const PromotionCard: React.FC<PromotionCardProps> = ({
   promotion,
   discountAmount,

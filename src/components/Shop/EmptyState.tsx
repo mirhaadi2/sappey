@@ -1,10 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FunnelSimple } from '@phosphor-icons/react';
-
-interface EmptyStateProps {
-    onResetFilters: () => void;
-}
+import { EmptyStateProps } from '../../types';
 
 const EmptyState: React.FC<EmptyStateProps> = ({ onResetFilters }) => {
     return (

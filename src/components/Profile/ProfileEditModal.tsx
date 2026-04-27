@@ -3,24 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom'; 
 import { X, Check, WarningCircle, User } from "@phosphor-icons/react";
 import { useFormWithValidation } from "../../hooks/useFormValidation";
-import { Input } from "../ui";
-import * as z from "zod";
+import { Input } from "../common";
 import { useAuth } from "../../api/authentication/hooks";
 import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
 import { AuthUser } from "../../services/auth.service";
-
-const profileSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().regex(/^[0-9]{10}$/, "Please enter a valid 10-digit phone number"),
-});
-
-type ProfileFormData = z.infer<typeof profileSchema>;
-
-interface ProfileEditModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { ProfileEditModalProps, ProfileFormData } from "../../types";
+import { profileSchema } from "../../schemas/profile.schema";
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose }) => {
   const { currentUser, setUserState } = useWebsiteAuth();

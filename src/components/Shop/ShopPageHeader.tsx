@@ -1,10 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Trophy, Sparkle } from '@phosphor-icons/react';
-
-interface ShopPageHeaderProps {
-    onScroll?: () => void;
-}
+import { ShopPageHeaderProps } from '../../types';
 
 const ShopPageHeader: React.FC<ShopPageHeaderProps> = ({ onScroll }) => {
     return (

@@ -1,15 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Product, ViewMode } from '../../types';
+import { ProductGridProps } from '../../types';
 import { ProductCard } from './index';
-interface ProductGridProps {
-    products: Product[];
-    viewMode: ViewMode;
-    isLoading: boolean;
-    isFetchingNextPage: boolean;
-    onLoadMore: () => void;
-    hasNextPage: boolean;
-}
 
 const staggerContainer = {
     hidden: { opacity: 0 },

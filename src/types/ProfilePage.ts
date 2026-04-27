@@ -1,5 +1,7 @@
+import { UseFormReturn } from 'react-hook-form';
 import { Address } from './address';
-
+import { profileSchema } from '../schemas/profile.schema';
+import * as z from "zod";
 // ============================================
 // Address Types
 // ============================================
@@ -114,4 +116,58 @@ export interface ProfilePageContextValue {
     setSelectedAddressType: (type: AddressType | null) => void;
     showProfileEditModal: boolean;
     setShowProfileEditModal: (value: boolean) => void;
+}
+
+export interface AddressFormSectionProps {
+    showAddressForm: boolean;
+    selectedAddressType: string | null;
+    onAddressTypeSelect: (type: string) => void;
+    form: UseFormReturn<any>;
+    onSubmit: (data: any) => void;
+    onCancel: () => void;
+    isCreating: boolean;
+    isUpdating: boolean;
+}
+
+export interface AddressListSectionProps {
+    addresses: Address[];
+    showAddressForm: boolean;
+    onAddAddress: () => void;
+    onSetDefault: (id: string) => void;
+    onEdit: (address: Address) => void;
+    onDelete: (id: string) => void;
+}
+
+export type ProfileFormData = z.infer<typeof profileSchema>;
+
+export interface ProfileEditModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export interface ProfileMainContentProps {
+    addresses: Address[];
+    showAddressForm: boolean;
+    selectedAddressType: string | null;
+    onAddressTypeSelect: (type: string) => void;
+    form: any;
+    onAddressSubmit: (data: any) => void;
+    onCancelForm: () => void;
+    onAddAddress: () => void;
+    onSetDefault: (id: string) => void;
+    onEditAddress: (address: Address) => void;
+    onDeleteAddress: (id: string) => void;
+    isCreating: boolean;
+    isUpdating: boolean;
+}
+
+export interface ProfileNavigationProps {
+    onBack: () => void;
+    onViewOrders: () => void;
+}
+
+export interface ProfileSidebarProps {
+    currentUser: { name: string; email: string };
+    onAddAddress: () => void;
+    onEditProfile: () => void;
 }
