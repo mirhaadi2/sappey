@@ -6,7 +6,7 @@ import { useCart } from '../context/CardContext';
 import { Product, ProductVariant } from '../types';
 import { productsClient } from '../api/products/client';
 import { WishlistPageSkeleton } from '../components/Skeletons';
-import ConfirmDialog from '../components/ConfirmDialog';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import {
     WishlistHeader,
     WishlistEmptyState,

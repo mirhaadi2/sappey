@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Product, ViewMode } from '../../types';
-import ProductCard from '../ProductCard';
+import ProductCard from './ProductCard';
 
 interface ProductGridProps {
     products: Product[];

@@ -10,8 +10,8 @@ import {
   CircleNotch,
   WarningCircle,
 } from '@phosphor-icons/react';
-import { useGuestConfig, useSendOTP, useVerifyOTP, useCreateCustomer } from '../api/guest';
-import { useWebsiteAuth } from '../contexts/WebsiteAuthContext';
+import { useGuestConfig, useSendOTP, useVerifyOTP, useCreateCustomer } from '../../api/guest';
+import { useWebsiteAuth } from '../../contexts/WebsiteAuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Spinner = () => (

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "@phosphor-icons/react";
-import { useBreakpoint, useTouchDevice, RESPONSIVE_TEXT, SAFE_AREA } from "../utils/responsive";
+import { useBreakpoint, useTouchDevice, RESPONSIVE_TEXT, SAFE_AREA } from "../../utils/responsive";
 
 interface AdaptiveModalProps {
     isOpen: boolean;

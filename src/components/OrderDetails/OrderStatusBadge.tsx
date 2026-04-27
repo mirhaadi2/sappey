@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { getStatusConfig } from "../utils/orderStatusMapper";
+import { getStatusConfig } from "../../utils/orderStatusMapper";
 
 // 1. Updated Type to match your DB and Backend
 type OrderStatus = 

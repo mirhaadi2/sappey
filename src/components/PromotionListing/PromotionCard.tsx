@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, CheckCircle, Gift, Package, Warning } from '@phosphor-icons/react';
-import { Promotion } from '../api/promotions';
-import { formatPromotionDescription, getPromotionBadgeStyle } from '../hooks/useCheckoutPromotions';
+import { Promotion } from '../../api/promotions';
+import { formatPromotionDescription, getPromotionBadgeStyle } from '../../hooks/useCheckoutPromotions';
 
 interface PromotionCardProps {
   promotion: Promotion;

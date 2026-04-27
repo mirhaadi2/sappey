@@ -1,6 +1,6 @@
 import React from "react";
 import { Star } from "@phosphor-icons/react";
-import LazySection from "../../components/LazySection";
+import LazySection from "../common/LazySection";
 import { ReviewSkeleton } from "../../components/Skeletons";
 
 interface Review {

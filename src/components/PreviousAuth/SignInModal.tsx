@@ -4,7 +4,7 @@ import { X, Envelope, Lock, WarningCircle, SignIn, Eye, EyeSlash } from "@phosph
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
 
 const Spinner = () => (
   <motion.div

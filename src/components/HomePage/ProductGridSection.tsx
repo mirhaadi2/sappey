@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "@phosphor-icons/react";
-import ProductCard from "../ProductCard";
-import LazySection from "../LazySection";
-import LazyErrorBoundary from "../LazyErrorBoundary";
+import ProductCard from "../Shop/ProductCard";
+import LazySection from "../common/LazySection";
+import LazyErrorBoundary from "../common/LazyErrorBoundary";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "../Skeletons";
 import { fadeUpVariants, staggerContainer } from "../../utils/homePageUtils";
 import { Product } from "../../types";

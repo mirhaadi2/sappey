@@ -1,7 +1,7 @@
 import React from "react";
 import { AnimatePresence } from "framer-motion";
-import LazySection from "../LazySection";
-import LazyErrorBoundary from "../LazyErrorBoundary";
+import LazySection from "../common/LazySection";
+import LazyErrorBoundary from "../common/LazyErrorBoundary";
 import { ProductGridSkeleton } from "../Skeletons";
 import { WishlistProductGridProps } from "../../types/WishlistPage";
 import WishlistProductCard from "./WishlistProductCard";

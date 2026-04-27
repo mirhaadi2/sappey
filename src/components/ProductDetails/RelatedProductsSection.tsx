@@ -1,6 +1,6 @@
 import React from "react";
-import ProductCard from "../../components/ProductCard";
-import LazySection from "../../components/LazySection";
+import ProductCard from "../Shop/ProductCard";
+import LazySection from "../common/LazySection";
 import { ReviewSkeleton } from "../../components/Skeletons";
 import ComingSoonPlaceholder from "./ComingSoonPlaceholder";
 

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { XCircle, Fingerprint } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
-import ConfirmDialog from "../components/ConfirmDialog";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";
 import {

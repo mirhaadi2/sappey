@@ -4,13 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, CaretRight, ArrowRight
 } from "@phosphor-icons/react";
-import { useCart } from "../context/CardContext";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
-import { useWishlist } from "../context/WishlistContext";
-import { useProductSearch } from "../api/products";
-import { useHomepageData } from "../api/homepage";
-import { useHomepagePromotions } from "../api/promotions";
-import { Product } from "../types";
+import { useCart } from "../../context/CardContext";
+import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
+import { useWishlist } from "../../context/WishlistContext";
+import { useProductSearch } from "../../api/products";
+import { useHomepageData } from "../../api/homepage";
+import { useHomepagePromotions } from "../../api/promotions";
+import { Product } from "../../types";
 
 const navLinks = [
     { label: "Shop", href: "/shop" },

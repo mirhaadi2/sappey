@@ -2,9 +2,9 @@ import React, { memo, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
-import { useCart, getVariantKey } from "../context/CardContext";
+import { useCart, getVariantKey } from "../../context/CardContext";
 import { useNavigate } from "react-router-dom";
-import { CartItem } from "../types";
+import { CartItem } from "../../types";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();

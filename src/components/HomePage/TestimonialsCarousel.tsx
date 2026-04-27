@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Quotes, CaretRight } from "@phosphor-icons/react";
-import LazySection from "../LazySection";
-import LazyErrorBoundary from "../LazyErrorBoundary";
+import LazySection from "../common/LazySection";
+import LazyErrorBoundary from "../common/LazyErrorBoundary";
 import { ReviewSkeleton } from "../Skeletons";
 import { TestimonialCarouselProps  } from "../../types/HomePage";
 
