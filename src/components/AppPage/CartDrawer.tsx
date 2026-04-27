@@ -180,16 +180,16 @@ const CartDrawer: React.FC = () => {
                                     </p>
                                 </div>
 
-                                <div className="flex justify-between items-center gap-3">
+                                <div className="flex flex-col gap-3 sm:flex-row justify-between items-center">
                                     <button
                                         onClick={handleCheckout}
-                                        className="w-[60%] bg-brand-brown text-white text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
+                                        className="w-full sm:w-[60%] bg-brand-brown text-white text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
                                     >
                                         Finalize Selection
                                     </button>
                                     <button
                                         onClick={() => dispatch({ type: "CLEAR_CART" })}
-                                        className="text-[9px] font-bold uppercase tracking-widest text-brand-brown/40 hover:text-red-500 py-2 transition-colors"
+                                        className="w-full sm:w-auto text-center text-[9px] font-bold uppercase tracking-widest text-brand-brown/40 hover:text-red-500 py-3 transition-colors"
                                     >
                                         Clear Entire Cart
                                     </button>

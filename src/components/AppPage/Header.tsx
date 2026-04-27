@@ -206,7 +206,7 @@ const Header: React.FC = () => {
                                         initial={{ width: 0, opacity: 0 }}
                                         animate={{ width: 280, opacity: 1 }}
                                         exit={{ width: 0, opacity: 0 }}
-                                        className="flex items-center bg-[#F9F6F0] rounded-full border border-brand-brown/10 px-4 py-2"
+                                        className="flex items-center bg-[#F9F6F0] rounded-full border border-brand-brown/10 px-4 py-2 w-full max-w-[280px]"
                                     >
                                         <MagnifyingGlass size={18} className="text-brand-brown/40" />
                                         <input
@@ -238,7 +238,7 @@ const Header: React.FC = () => {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 10 }}
-                                        className="absolute top-full mt-4 right-0 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-black/5 w-[380px] rounded-2xl overflow-hidden z-[80]"
+                                        className="absolute top-full mt-4 right-0 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-black/5 w-full max-w-[min(100vw-2rem,380px)] rounded-2xl overflow-hidden z-[80]"
                                     >
                                         <div className="p-4 border-b border-black/5 bg-[#F9F6F0]/50">
                                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-brown/40">Results for "{debouncedSearchQuery}"</h4>

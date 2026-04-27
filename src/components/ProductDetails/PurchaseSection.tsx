@@ -8,13 +8,11 @@ const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     quantity,
     onQuantityChange,
     isOutOfStock,
-    selectedVariantData,
-    product,
     onAddToCart,
     onBuyNow
 }) => (
     <div className="space-y-6 pt-4 mt-auto">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
                 <button onClick={() => onQuantityChange(Math.max(1, quantity - 1))} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Minus weight="bold" /></button>
                 <span className="w-10 text-center font-bold">{quantity}</span>
@@ -43,7 +41,7 @@ const PurchaseSection: React.FC<PurchaseSectionProps> = ({
         </div>
 
         {/* Trust Badges */}
-        <div className="grid grid-cols-2 gap-6 py-6 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6 border-t border-slate-100">
             <Badge icon={<Truck size={20} />} text={<>Complimentary <br />Shipping</>} />
             <Badge icon={<ShieldCheck size={20} />} text={<>Quality <br />Guaranteed</>} />
         </div>

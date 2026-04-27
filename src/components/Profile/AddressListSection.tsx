@@ -38,7 +38,7 @@ const AddressListSection: React.FC<AddressListSectionProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-6 md:mt-0 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    <div className="flex items-center gap-3 mt-6 md:mt-0 opacity-100 md:opacity-0 transition-all md:translate-x-4 md:group-hover:translate-x-0">
                         {!address.isDefault && (
                             <button
                                 onClick={() => onSetDefault(address.id)}

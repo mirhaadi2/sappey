@@ -3,13 +3,13 @@ import { motion } from 'framer-motion';
 import { Leaf, Trophy, Sparkle } from '@phosphor-icons/react';
 import { ShopPageHeaderProps } from '../../types';
 
-const ShopPageHeader: React.FC<ShopPageHeaderProps> = ({ onScroll }) => {
+const ShopPageHeader: React.FC<ShopPageHeaderProps> = () => {
     return (
-        <div className="relative min-h-[500px] flex items-center bg-brand-brown overflow-hidden">
+        <div className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-[500px] flex items-center bg-brand-brown overflow-hidden">
             {/* Premium Background Elements */}
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-brand-latte/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px]" />
+            <div className="absolute top-[-10%] right-[-5%] w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] md:w-[500px] md:h-[500px] bg-brand-latte/10 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-10%] left-[-5%] w-[180px] h-[180px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] bg-orange-500/5 rounded-full blur-[100px]" />
 
             <div className="max-w-7xl mx-auto px-6 py-24 relative z-10 w-full">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">

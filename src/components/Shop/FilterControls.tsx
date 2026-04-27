@@ -9,7 +9,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     onViewModeChange,
 }) => {
     return (
-        <div className="sticky top-24 z-30 flex items-center justify-between p-2 px-4 bg-white backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-brand-brown/5">
+        <div className="sticky top-24 z-30 flex flex-wrap items-center justify-between gap-3 p-2 px-4 bg-white backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-brand-brown/5">
             {/* Sort Section */}
             <div className="flex items-center gap-2">
                 <div className="p-2 bg-brand-brown/5 rounded-full">
