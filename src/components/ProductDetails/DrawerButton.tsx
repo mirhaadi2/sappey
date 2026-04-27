@@ -1,10 +1,6 @@
 import React from "react";
 import { CaretRight } from "@phosphor-icons/react";
-
-interface DrawerButtonProps {
-    label: string;
-    onClick: () => void;
-}
+import { DrawerButtonProps } from "../../types/ProductDetails";
 
 const DrawerButton: React.FC<DrawerButtonProps> = ({ label, onClick }) => (
     <button onClick={onClick} className="w-full flex justify-between items-center py-4 group transition-all border-b border-slate-50 last:border-none">

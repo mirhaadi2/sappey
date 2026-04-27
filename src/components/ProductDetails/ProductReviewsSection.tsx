@@ -1,24 +1,8 @@
 import React from "react";
 import { Star } from "@phosphor-icons/react";
-import LazySection from "../../components/LazySection";
+import { LazySection } from "../common";
 import { ReviewSkeleton } from "../../components/Skeletons";
-
-interface Review {
-    id: string;
-    rating: number;
-    comment?: string;
-    customer?: {
-        name?: string;
-    };
-    createdAt: string;
-    isVerified?: boolean;
-}
-
-interface ProductReviewsSectionProps {
-    reviews: Review[] | undefined;
-    statistics: any;
-    reviewsLoading: boolean;
-}
+import { ProductReviewsSectionProps } from "../../types/ProductDetails";
 
 const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
     reviews,

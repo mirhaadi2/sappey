@@ -2,12 +2,7 @@ import React from "react";
 import {
     User, Envelope, Plus, CaretRight, ShieldCheck, IdentificationCard,
 } from "@phosphor-icons/react";
-
-interface ProfileSidebarProps {
-    currentUser: any;
-    onAddAddress: () => void;
-    onEditProfile: () => void;
-}
+import { ProfileSidebarProps } from "../../types";
 
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     currentUser,

@@ -1,21 +1,6 @@
 import React from 'react';
-import { Promotion } from "../../api/promotions";
 import { CheckoutPromotionBadge } from ".";
-
-interface OrderSummaryData {
-    subtotal: number;
-    shipping: number;
-    tax: number;
-    total: number;
-    promotionDiscount?: number; // Added to match getOrderSummary output
-}
-
-interface OrderSummaryProps {
-    orderSummary: OrderSummaryData;
-    filteredPromotions: Promotion[];
-    isReturningCustomer: boolean;
-    shippingLabel: string;
-}
+import { OrderSummaryProps } from '../../types';
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
     orderSummary,

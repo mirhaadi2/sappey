@@ -1,20 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Envelope, Phone, ChatCircle } from "@phosphor-icons/react";
-import { UseFormReturn } from "react-hook-form";
 import { CheckoutFormData } from "../../schemas";
-
-interface ContactInformationSectionProps {
-    form: UseFormReturn<CheckoutFormData>;
-    enabledContactTypes: {
-        email?: boolean;
-        phone?: boolean;
-        whatsapp?: boolean;
-    };
-    onSignIn: () => void;
-    onContactChange: (contact: string, type: 'email' | 'phone' | 'whatsapp') => void;
-    customerLookupLoading: boolean;
-}
+import { ContactInformationSectionProps } from "../../types";
 
 const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
     form,

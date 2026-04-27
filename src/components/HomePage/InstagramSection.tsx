@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import LazySection from "../LazySection";
-import LazyErrorBoundary from "../LazyErrorBoundary";
+import { LazyErrorBoundary, LazySection } from "../common";
 import { CategoryGridSkeleton } from "../Skeletons";
 import { fadeUpVariants } from "../../utils/homePageUtils";
 import { InstagramSectionProps } from "../../types/HomePage";

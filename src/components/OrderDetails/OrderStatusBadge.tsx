@@ -1,20 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { getStatusConfig } from "../utils/orderStatusMapper";
-
-// 1. Updated Type to match your DB and Backend
-type OrderStatus = 
-    | "PENDING" | "CONFIRMED" | "PROCESSING" | "PACKED" 
-    | "HANDOVER" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" 
-    | "DELIVERY_FAILED" | "RTO" | "CANCELLED" | "FAILED" | "REFUNDED";
-
-interface OrderStatusBadgeProps {
-    status: OrderStatus;
-    size?: "sm" | "md" | "lg";
-    showIcon?: boolean;
-    animated?: boolean;
-    variant?: "solid" | "glass"; // Professional touch: multiple visual styles
-}
+import { getStatusConfig } from "../../utils/orderStatusMapper";
+import { OrderStatusBadgeProps } from "../../types/OrderDetailsPage";
 
 const SIZE_MAP = {
     sm: { container: "px-2 py-0.5 text-[10px]", dot: "w-1 h-1", icon: 12 },

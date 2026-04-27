@@ -1,11 +1,6 @@
 import React from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
-
-interface OrderListingPaginationProps {
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-}
+import { OrderListingPaginationProps } from "../../types/OrderListingPage";
 
 const OrderListingPagination: React.FC<OrderListingPaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
     if (totalPages <= 1) {

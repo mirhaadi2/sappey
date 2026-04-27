@@ -2,18 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, WarningCircle, SpinnerGap } from '@phosphor-icons/react';
 import { useSendGuestOtp, useVerifyGuestOtp } from '../../api/guest/otp';
-
-interface OtpVerificationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onVerified: (data: { contact: string; type: 'email' | 'phone' | 'whatsapp'; guestToken: string }) => void;
-  contactData: {
-    email: string;
-    phone: string;
-    whatsapp: string;
-  };
-  defaultType?: 'email' | 'phone' | 'whatsapp';
-}
+import { OtpVerificationModalProps } from '../../types';
 
 const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({
   isOpen,

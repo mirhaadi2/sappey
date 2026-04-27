@@ -71,3 +71,15 @@ export interface ShopPageContextValue {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
 }
+
+export interface EmptyStateProps {
+    onResetFilters: () => void;
+}
+
+export interface ProductCardProps {
+    product: Product;
+}
+
+export interface ShopPageHeaderProps {
+    onScroll?: () => void;
+}

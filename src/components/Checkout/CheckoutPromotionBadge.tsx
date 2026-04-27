@@ -1,22 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Gift, Truck, Percent, Tag, TrendUp } from '@phosphor-icons/react';
-
-interface PromotionBadgeProps {
-    promotion?: {
-        id: string;
-        title: string;
-        type: 'fixed_discount' | 'percentage_discount' | 'free_gift' | 'free_shipping' | 'bundle' | 'tiered';
-        bannerText: string;
-        minOrderValue?: number;
-        discountValue?: number;
-        freeText?: string;
-        badgeIcon?: string;
-    };
-    cartValue: number;
-    discount?: number;
-    isFreeShipping?: boolean;
-}
+import { PromotionBadgeProps } from '../../types';
 
 const CheckoutPromotionBadge: React.FC<PromotionBadgeProps> = ({
     promotion,

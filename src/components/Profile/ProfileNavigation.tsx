@@ -1,10 +1,6 @@
 import React from "react";
 import { ArrowLeft } from "@phosphor-icons/react";
-
-interface ProfileNavigationProps {
-    onBack: () => void;
-    onViewOrders: () => void;
-}
+import { ProfileNavigationProps } from "../../types";
 
 const ProfileNavigation: React.FC<ProfileNavigationProps> = ({
     onBack,

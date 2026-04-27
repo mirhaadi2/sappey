@@ -5,13 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { usePageBySlug } from '../../api/homepage';
-
-interface PageContentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  slug: string;
-  title: string;
-}
+import { PageContentModalProps } from '../../types';
 
 const PageContentModal: React.FC<PageContentModalProps> = ({
   isOpen,

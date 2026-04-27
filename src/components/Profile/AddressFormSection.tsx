@@ -1,25 +1,14 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, CircleNotch } from "@phosphor-icons/react";
-import { UseFormReturn } from "react-hook-form";
-import { Input } from "../ui";
+import { Input } from "../common";
+import { AddressFormSectionProps } from "../../types";
 
 const ADDRESS_TYPES = [
     { id: "HOME" as const, label: "Home", icon: () => null },
     { id: "WORK" as const, label: "Work", icon: () => null },
     { id: "OTHER" as const, label: "Other", icon: () => null },
 ] as const;
-
-interface AddressFormSectionProps {
-    showAddressForm: boolean;
-    selectedAddressType: string | null;
-    onAddressTypeSelect: (type: string) => void;
-    form: UseFormReturn<any>;
-    onSubmit: (data: any) => void;
-    onCancel: () => void;
-    isCreating: boolean;
-    isUpdating: boolean;
-}
 
 const AddressFormSection: React.FC<AddressFormSectionProps> = ({
     showAddressForm,

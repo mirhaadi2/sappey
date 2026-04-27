@@ -1,14 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Tag, Truck, Clock, XCircle, CheckCircle, CaretRight } from "@phosphor-icons/react";
-import type { Order } from "../../api/orders/types";
-import type { StatusConfig } from "../../utils/orderStatusMapper";
-
-interface OrderListingListProps {
-    orders: Order[];
-    getStatusConfig: (status: Order["status"]) => StatusConfig | undefined;
-    onViewDetails: (orderId: string) => void;
-}
+import { OrderListingListProps } from "../../types/OrderListingPage";
 
 const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusConfig, onViewDetails }) => {
     if (orders.length === 0) {

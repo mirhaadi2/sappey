@@ -1,10 +1,9 @@
 import React from "react";
 import { AnimatePresence } from "framer-motion";
-import LazySection from "../LazySection";
-import LazyErrorBoundary from "../LazyErrorBoundary";
+import { LazyErrorBoundary, LazySection } from "../common";
 import { ProductGridSkeleton } from "../Skeletons";
 import { WishlistProductGridProps } from "../../types/WishlistPage";
-import WishlistProductCard from "./WishlistProductCard";
+import { WishlistProductCard } from "./index";
 
 const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
     products,

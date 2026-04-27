@@ -2,19 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { fadeUpVariants } from "../../utils/homePageUtils";
 import { formatSectionTitle } from "../../utils/homePageUtils";
-import type { Section } from "../../api/homepage";
-
-interface SectionBannerProps {
-    section: Section;
-    label?: string;
-    fallbackTitle?: string;
-    fallbackSubtitle?: string;
-    fallbackDescription?: string;
-    fallbackButtonText?: string;
-    fallbackButtonLink?: string;
-    onNavigate?: (path: string) => void;
-    className?: string;
-}
+import { SectionBannerProps } from "../../types/HomePage";
 
 const SectionBanner: React.FC<SectionBannerProps> = ({
     section,

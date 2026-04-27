@@ -1,5 +1,5 @@
 import React from "react";
-import SectionBanner from "./SectionBanner";
+import { SectionBanner } from "./index";
 import { formatSectionTitle } from "../../utils/homePageUtils";
 import { HealthWellnessBannerProps } from "../../types/HomePage";
 

@@ -1,12 +1,42 @@
 import { Address } from './address';
 import { Promotion } from '../api/promotions';
-
+import { UseFormReturn } from "react-hook-form";
+import { CheckoutFormData } from '../schemas';
+import { CartState } from "../context/CardContext";
+import { useFormWithValidation } from '../hooks/useFormValidation';
 // ============================================
 // Contact & Guest Types
 // ============================================
 export type ContactType = 'email' | 'phone' | 'whatsapp';
 export type ShippingMethod = 'standard' | 'express' | 'overnight';
 export type PaymentMethod = 'cod' | 'razorpay' | 'cashfree';
+
+export interface ContactInformationSectionProps {
+    form: UseFormReturn<CheckoutFormData>;
+    enabledContactTypes: {
+        email?: boolean;
+        phone?: boolean;
+        whatsapp?: boolean;
+    };
+    onSignIn: () => void;
+    onContactChange: (contact: string, type: 'email' | 'phone' | 'whatsapp') => void;
+    customerLookupLoading: boolean;
+}
+
+export interface OrderSummaryData {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+    // promotionDiscount?: number; // Added to match getOrderSummary output
+}
+
+export interface OrderSummaryProps {
+    orderSummary: OrderSummaryData;
+    filteredPromotions: Promotion[];
+    isReturningCustomer: boolean;
+    shippingLabel: string;
+}
 
 export interface VerifiedGuest {
     contact: string;
@@ -172,4 +202,79 @@ export interface CheckoutPageContextValue {
     setNewDestinationAddress: (value: boolean) => void;
     customerLookupError: string | null;
     setCustomerLookupError: (error: string | null) => void;
+}
+
+export interface OtpVerificationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onVerified: (data: { contact: string; type: 'email' | 'phone' | 'whatsapp'; guestToken: string }) => void;
+    contactData: {
+        email: string;
+        phone: string;
+        whatsapp: string;
+    };
+    defaultType?: 'email' | 'phone' | 'whatsapp';
+}
+
+export interface PageContentModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    slug: string;
+    title: string;
+}
+
+export interface CheckoutSidebarProps {
+    state: CartState;
+    orderSummary: any;
+    filteredPromotions: any[];
+    isReturningCustomer: boolean;
+    shippingLabel: string;
+}
+
+export interface PromotionBadgeProps {
+    promotion?: {
+        id: string;
+        title: string;
+        type: 'fixed_discount' | 'percentage_discount' | 'free_gift' | 'free_shipping' | 'bundle' | 'tiered';
+        bannerText: string;
+        minOrderValue?: number;
+        discountValue?: number;
+        freeText?: string;
+        badgeIcon?: string;
+    };
+    cartValue: number;
+    discount?: number;
+    isFreeShipping?: boolean;
+}
+
+export interface CheckoutItemsProps {
+    state: CartState;
+}
+
+export interface BillingAddressSectionProps {
+    form: UseFormReturn<CheckoutFormData>;
+}
+
+export interface AddressFormProps {
+    form: ReturnType<typeof useFormWithValidation<CheckoutFormData>>;
+    addressFieldPrefix: "deliveryAddress" | "billingAddress";
+    showSaveInfo?: boolean;
+    phoneLabel?: string;
+}
+
+export interface PaymentSectionProps {
+    form: UseFormReturn<CheckoutFormData>;
+}
+
+export interface ShippingDetailsSectionProps {
+    form: UseFormReturn<CheckoutFormData>;
+    userAddresses: Address[];
+    existingAddresses: Address[];
+    selectedAddressId: string | null;
+    newDestinationAddress: boolean;
+    currentUser: any;
+    existingCustomer: any;
+    onToggleSavedAddress: (address: Address) => void;
+    onSetNewDestinationAddress: (value: boolean) => void;
+    onCancelNewAddress: () => void;
 }

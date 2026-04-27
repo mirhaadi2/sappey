@@ -1,14 +1,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "@phosphor-icons/react";
-import ComingSoonPlaceholder from "./ComingSoonPlaceholder";
-import { DrawerType } from "../../types/ProductDetails";
-
-interface ProductDetailsInfoDrawerProps {
-    product: any;
-    activeDrawer: DrawerType;
-    onClose: () => void;
-}
+import { ComingSoonPlaceholder } from "./index";
+import { ProductDetailsInfoDrawerProps } from "../../types/ProductDetails";
 
 const ProductDetailsInfoDrawer: React.FC<ProductDetailsInfoDrawerProps> = ({
     product,

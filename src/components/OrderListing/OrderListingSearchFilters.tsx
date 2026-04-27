@@ -1,19 +1,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MagnifyingGlass, FunnelSimple } from "@phosphor-icons/react";
-import { OrderFilter, SortBy } from "../../types/OrderListingPage";
-
-interface OrderListingSearchFiltersProps {
-    searchQuery: string;
-    setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-    sortBy: SortBy;
-    setSortBy: React.Dispatch<React.SetStateAction<SortBy>>;
-    showFilters: boolean;
-    onToggleFilters: () => void;
-    filters: OrderFilter;
-    onUpdateFilters: React.Dispatch<React.SetStateAction<OrderFilter>>;
-    onResetFilters: () => void;
-}
+import { OrderFilter, OrderListingSearchFiltersProps, SortBy } from "../../types/OrderListingPage";
 
 const OrderListingSearchFilters: React.FC<OrderListingSearchFiltersProps> = ({
     searchQuery,

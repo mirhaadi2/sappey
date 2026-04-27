@@ -77,3 +77,29 @@ export interface CollectionFilters {
   limit: number;
   page: number;
 }
+
+export interface ProductGridSectionProps {
+  sectionId?: string;
+  title?: string;
+  subtitle?: string;
+  label?: string;
+  products: Product[];
+  isLoading: boolean;
+  total: number;
+  backgroundColor?: string;
+  onViewAll?: () => void;
+  showViewAllButton?: boolean;
+  isCategoriesGrid?: boolean;
+}
+
+export interface SectionBannerProps {
+  section: Section;
+  label?: string;
+  fallbackTitle?: string;
+  fallbackSubtitle?: string;
+  fallbackDescription?: string;
+  fallbackButtonText?: string;
+  fallbackButtonLink?: string;
+  onNavigate?: (path: string) => void;
+  className?: string;
+}

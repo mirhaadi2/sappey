@@ -1,5 +1,11 @@
 import { OrderItemDetail } from "../api/orders";
 
+export interface ItemReviewCardProps {
+    orderId: string;
+    id: string;
+    productId: string;
+    productName: string;
+};
 export interface OrderDetailsHeaderProps {
     orderNumber: string;
     onBack: () => void;
@@ -45,4 +51,40 @@ export interface OrderDetailsSidebarProps {
     timelineData: any[];
     shippingDossier: OrderDetailsShippingDossierProps;
     cancelButton: OrderDetailsCancelButtonProps;
+}
+
+export interface TimelineStep {
+    status: string;
+    label: string;
+    icon: React.ElementType;
+    isCompleted: boolean;
+    isActive: boolean;
+    isUpcoming: boolean;
+    timestamp?: string; // Optional: To show actual time of status change
+}
+
+export interface LogisticsTimelineProps {
+    timelineData: TimelineStep[];
+}
+
+export type OrderStatus = 
+    | "PENDING" | "CONFIRMED" | "PROCESSING" | "PACKED" | "HANDOVER" 
+    | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "DELIVERY_FAILED" 
+    | "RTO" | "CANCELLED" | "FAILED";
+
+export interface OrderItemCardProps {
+    item: OrderItemDetail;
+    index?: number;
+    onRemove?: (id: string) => void;
+    onQuantityChange?: (id: string, quantity: number) => void;
+    actionable?: boolean;
+    isOrderItem?: boolean;
+}
+
+export interface OrderStatusBadgeProps {
+    status: OrderStatus;
+    size?: "sm" | "md" | "lg";
+    showIcon?: boolean;
+    animated?: boolean;
+    variant?: "solid" | "glass"; // Professional touch: multiple visual styles
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
  * ProtectedRoute - Prevents unauthenticated users from accessing protected pages
  * Redirects to home page if user is not logged in
  */
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { currentUser, isGuestAuthenticated, isLoading } = useWebsiteAuth();
 
   if (isLoading) {
@@ -28,3 +28,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   return <>{children}</>;
 };
+
+export default ProtectedRoute;
