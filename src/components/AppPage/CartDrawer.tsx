@@ -58,20 +58,20 @@ const CartDrawer: React.FC = () => {
                         aria-label="Shopping cart"
                         aria-modal="true"
                     >
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-brand-brown/5 bg-white/50 backdrop-blur-md sticky top-0 z-20">
+                        <div className="flex items-center justify-between py-3 px-6 border-b border-brand-brown/5 bg-white/50 backdrop-blur-md sticky top-0 z-20">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-orange-500 mb-1">
                                     Your Selection
                                 </span>
-                                <h2 className="font-headline text-xl text-brand-brown">
+                                <h2 className="font-headline text-md text-brand-brown">
                                     The Cart ({totalItems})
                                 </h2>
                             </div>
                             <button
                                 onClick={() => dispatch({ type: "CLOSE_CART" })}
-                                className="p-3 rounded-full text-brand-brown/40 hover:text-brand-brown hover:bg-brand-brown/5 transition-all duration-300"
+                                className="p-1 rounded-full text-brand-brown/40 hover:text-brand-brown hover:bg-brand-brown/5 transition-all duration-300"
                             >
-                                <X size={20} weight="bold" />
+                                <X size={18} weight="bold" />
                             </button>
                         </div>
 
@@ -175,7 +175,7 @@ const CartDrawer: React.FC = () => {
                             <div className="p-3 px-5 border-t border-brand-brown/5 bg-white">
                                 <div className="space-y-4 mb-4">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/40">Subtotal</span>
+                                        <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/60">Subtotal</span>
                                         <span className="font-headline text-2xl text-brand-brown">
                                             ₹{totalPrice.toLocaleString('en-IN')}
                                         </span>
