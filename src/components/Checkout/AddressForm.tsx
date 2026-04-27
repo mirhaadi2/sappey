@@ -1,4 +1,4 @@
-import { Input, Select, Checkbox } from "../ui";
+import { Input, Select, Checkbox } from "../common";
 import { INDIAN_STATES } from "../../constants";
 import { QuestionIcon } from "@phosphor-icons/react";
 import { AddressFormProps } from "../../types";
