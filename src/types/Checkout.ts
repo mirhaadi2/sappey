@@ -167,17 +167,6 @@ export interface AddressSectionProps {
     onToggleNewAddress: () => void;
 }
 
-export interface PaymentSectionProps {
-    paymentMethod: PaymentMethod;
-    onPaymentMethodChange: (method: PaymentMethod) => void;
-}
-
-export interface BillingAddressSectionProps {
-    billingSameAsShipping: boolean;
-    checkoutForm: any;
-    onToggleBillingAddress: (same: boolean) => void;
-}
-
 export interface OrderSummaryPanelProps {
     orderSummary: OrderSummaryData;
     filteredPromotions: Promotion[];

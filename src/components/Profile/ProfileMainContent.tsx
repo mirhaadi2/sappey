@@ -19,7 +19,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
 }) => {
     return (
         <main className="lg:col-span-8">
-            <header className="flex items-end justify-between mb-4 px-2">
+            <header className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 px-2 gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <div className="h-1 w-8 bg-brand-brown rounded-full" />

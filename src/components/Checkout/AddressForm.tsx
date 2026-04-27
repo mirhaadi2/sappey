@@ -28,7 +28,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 placeholder="Select Country"
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                     label="First Name"
                     name={field("firstName")}
@@ -53,7 +53,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 placeholder="Address"
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
                     label="City"
                     name={field("city")}

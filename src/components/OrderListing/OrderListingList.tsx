@@ -45,7 +45,7 @@ const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusCo
                                 </p>
                             </div>
 
-                            <div className="bg-slate-50 p-3 rounded-2xl text-center min-w-[100px]">
+                            <div className="bg-slate-50 p-3 rounded-2xl text-center min-w-0 sm:min-w-[100px]">
                                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Total Amount</p>
                                 <div className="flex items-center justify-center gap-0.5 text-[#3d2b1f] font-black text-lg">
                                     {order.finalAmount ? Number(order.finalAmount).toLocaleString() : "0"}
@@ -86,7 +86,7 @@ const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusCo
                             </div>
                         </div>
 
-                        <div className="p-8 flex items-center justify-between">
+                        <div className="p-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-4 text-slate-400">
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black uppercase tracking-tighter">Package</span>

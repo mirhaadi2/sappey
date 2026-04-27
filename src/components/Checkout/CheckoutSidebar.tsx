@@ -15,7 +15,7 @@ const CheckoutSidebar: React.FC<CheckoutSidebarProps> = ({
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="sticky top-28 space-y-4"
+            className="lg:sticky lg:top-28 space-y-4"
         >
             <div className="bg-white rounded-2xl p-6 border border-brand-brown/10">
                 <CheckoutItems state={state} />

@@ -35,9 +35,13 @@ const CheckoutItems = ({ state }: CheckoutItemsProps) => {
                             <div className="relative flex-shrink-0">
                                 <div className="w-16 h-16 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 group-hover:border-brand-brown/20 transition-all duration-300">
                                     <img
-                                        src={item?.product?.images?.[0] || ''}
+                                        src={item?.product?.images?.[0] || item?.product?.image || "/placeholder.png"}
                                         alt={item?.product?.name}
                                         className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                        onError={(event) => {
+                                            event.currentTarget.onerror = null;
+                                            event.currentTarget.src = "/placeholder.png";
+                                        }}
                                     />
                                 </div>
                                 <span className="absolute -top-2 -right-2 bg-brand-brown text-white text-[10px] font-bold min-w-[22px] h-[22px] flex items-center justify-center rounded-full border-2 border-white shadow-sm z-10">

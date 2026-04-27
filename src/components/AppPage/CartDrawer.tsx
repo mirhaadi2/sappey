@@ -33,6 +33,7 @@ const CartDrawer: React.FC = () => {
         return item.product.price || 0;
     };
 
+    console.log("Cart State:", state);
     const drawerContent = (
         <AnimatePresence>
             {state.isOpen && (
@@ -74,7 +75,7 @@ const CartDrawer: React.FC = () => {
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                             {state?.items.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full gap-6 opacity-40">
                                     <ShoppingBag size={48} weight="thin" className="text-brand-brown" />
@@ -92,7 +93,7 @@ const CartDrawer: React.FC = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <ul className="space-y-6">
+                                <ul className="space-y-3">
                                     {(state?.items ?? []).map((item: CartItem) => {
                                         const unitPrice = getItemPrice(item);
                                         const lineTotal = unitPrice * (item.quantity || 0);
@@ -100,20 +101,24 @@ const CartDrawer: React.FC = () => {
                                         return (
                                             <li
                                                 key={`${item?.product?.id}-${getVariantKey(item?.variant)}`}
-                                                className="group flex gap-5 pb-6 border-b border-brand-brown/5 last:border-0"
+                                                className="group flex gap-3 border-b border-brand-brown/5 last:border-0"
                                             >
-                                                <div className="relative w-24 h-24 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
+                                                <div className="relative w-20 h-20 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
                                                     <img
-                                                        src={item?.product?.images?.[0] ?? "/placeholder.png"}
+                                                        src={item?.product?.images?.[0] || item?.product?.image || "/placeholder.png"}
                                                         alt={item?.product?.name}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        onError={(event) => {
+                                                            event.currentTarget.onerror = null;
+                                                            event.currentTarget.src = "/placeholder.png";
+                                                        }}
                                                     />
                                                 </div>
 
                                                 <div className="flex-1 flex flex-col justify-between py-1">
                                                     <div className="flex justify-between gap-4">
                                                         <div>
-                                                            <h3 className="font-headline text-md text-brand-brown leading-tight mb-1">
+                                                            <h3 className="font-headline text-sm text-brand-brown leading-tight mb-1">
                                                                 {item?.product?.name}
                                                             </h3>
                                                             <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40">
@@ -128,7 +133,7 @@ const CartDrawer: React.FC = () => {
                                                         </button>
                                                     </div>
 
-                                                    <div className="flex items-center justify-between mt-4">
+                                                    <div className="flex items-center justify-between mt-1">
                                                         <div className="flex items-center border border-brand-brown/10 rounded-full px-2 py-1 gap-4">
                                                             <button
                                                                 onClick={() => dispatch({ type: "UPDATE_QUANTITY", payload: { productId: item.product.id, variant: item.variant, quantity: (item.quantity || 0) - 1 } })}
@@ -151,11 +156,11 @@ const CartDrawer: React.FC = () => {
                                                             <span className="font-headline text-brand-brown">
                                                                 ₹{lineTotal.toLocaleString('en-IN')}
                                                             </span>
-                                                            {item.variant?.discountedPrice && (
+                                                            {item.variant?.discountedPrice ? (
                                                                 <span className="text-[9px] text-slate-400 line-through">
                                                                     ₹{(item.variant.price * item.quantity).toLocaleString('en-IN')}
                                                                 </span>
-                                                            )}
+                                                            ) : null}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -167,29 +172,29 @@ const CartDrawer: React.FC = () => {
                         </div>
 
                         {state?.items.length > 0 && (
-                            <div className="p-6 border-t border-brand-brown/5 bg-white">
-                                <div className="space-y-4 mb-8">
+                            <div className="p-3 px-5 border-t border-brand-brown/5 bg-white">
+                                <div className="space-y-4 mb-4">
                                     <div className="flex justify-between items-center">
                                         <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/40">Subtotal</span>
                                         <span className="font-headline text-2xl text-brand-brown">
                                             ₹{totalPrice.toLocaleString('en-IN')}
                                         </span>
                                     </div>
-                                    <p className="text-[9px] text-brand-brown/30 uppercase tracking-widest leading-relaxed">
+                                    {/* <p className="text-[9px] text-brand-brown/30 uppercase tracking-widest leading-relaxed">
                                         Complimentary shipping on orders above ₹2,000. Taxes included.
-                                    </p>
+                                    </p> */}
                                 </div>
 
-                                <div className="flex justify-between items-center gap-3">
+                                <div className="flex flex-col gap-3 sm:flex-row justify-between items-center">
                                     <button
                                         onClick={handleCheckout}
-                                        className="w-[60%] bg-brand-brown text-white text-[11px] font-bold uppercase tracking-[0.1em] py-5 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
+                                        className="w-full sm:w-[60%] bg-brand-brown text-white text-[11px] font-bold uppercase tracking-[0.1em] py-3 rounded-2xl hover:bg-brand-brown/95 transition-all shadow-xl shadow-brand-brown/10 active:scale-[0.98]"
                                     >
                                         Finalize Selection
                                     </button>
                                     <button
                                         onClick={() => dispatch({ type: "CLEAR_CART" })}
-                                        className="text-[9px] font-bold uppercase tracking-widest text-brand-brown/40 hover:text-red-500 py-2 transition-colors"
+                                        className="w-full sm:w-auto text-center text-[9px] font-bold uppercase tracking-widest text-brand-brown/60 hover:text-red-500 py-3 transition-colors"
                                     >
                                         Clear Entire Cart
                                     </button>
