@@ -1,26 +1,18 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-    ArrowLeft, Package, MapPin, XCircle,
-    Phone, Copy, CheckFat, Receipt, CaretRight, ShieldCheck,
-    Truck, SealCheck, Fingerprint, CalendarBlank
-} from "@phosphor-icons/react";
+import { XCircle, Fingerprint } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
 import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
-import OrderItemCard from "../components/OrderItemCard";
-import ItemReviewCard from "../components/ItemReviewCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";
-import { OrderItemDetail } from "../api/orders";
-import LogisticsTimeline from "../components/LogisticsTimeline";
 import {
     OrderDetailsHeader,
     OrderDetailsStats,
     OrderDetailsShipmentContents,
     OrderDetailsFinancialCard,
-    OrderDetailsSidebar,
+    OrderDetailsSidebar
 } from "../components/OrderDetails";
 
 const OrderDetailsPage: React.FC = () => {

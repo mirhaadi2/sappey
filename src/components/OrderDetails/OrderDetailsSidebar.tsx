@@ -1,8 +1,8 @@
 import React from "react";
-import LogisticsTimeline from "../LogisticsTimeline";
 import OrderDetailsShippingDossier from "./OrderDetailsShippingDossier";
 import OrderDetailsCancelButton from "./OrderDetailsCancelButton";
 import { OrderDetailsSidebarProps } from "../../types/OrderDetailsPage";
+import { LogisticsTimeline } from "./index";
 
 const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
     timelineData,

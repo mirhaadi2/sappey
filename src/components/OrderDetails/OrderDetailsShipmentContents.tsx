@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import OrderItemCard from "../OrderItemCard";
-import ItemReviewCard from "../ItemReviewCard";
+import { OrderItemCard, ItemReviewCard } from "./index";
 import { OrderDetailsShipmentContentsProps } from "../../types/OrderDetailsPage";
 
 const OrderDetailsShipmentContents: React.FC<OrderDetailsShipmentContentsProps> = ({

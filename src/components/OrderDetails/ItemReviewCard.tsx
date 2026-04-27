@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, SealCheck, PaperPlaneRight } from "@phosphor-icons/react";
-import { useSubmitReview, useGetReviewByOrderItem } from "../api/reviews/hooks";
+import { useSubmitReview, useGetReviewByOrderItem } from "../../api/reviews/hooks";
 
 interface ItemReviewCardProps {
   orderId: string;

@@ -6,7 +6,7 @@ import {
     Clock, WarningCircle, Handshake,
     MapPin, ArrowCounterClockwise, Prohibit
 } from "@phosphor-icons/react";
-import { OrderItemDetail } from "../api/orders";
+import { OrderItemDetail } from "../../api/orders";
 
 // --- Extended Type Definition ---
 type OrderStatus = 
