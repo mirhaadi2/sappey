@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { XCircle, Fingerprint } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { ConfirmDialog } from "../components/common";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
 import { OrderDetailsSkeleton } from "../components/Skeletons";

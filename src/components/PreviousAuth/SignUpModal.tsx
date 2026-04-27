@@ -16,7 +16,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../../context/WebsiteAuthContext";
 import { authApi } from "../../api/authentication/client";
 
 const Spinner = () => (

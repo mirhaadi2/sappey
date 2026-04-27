@@ -5,7 +5,7 @@ import { X, Check, WarningCircle, User } from "@phosphor-icons/react";
 import { useFormWithValidation } from "../../hooks/useFormValidation";
 import { Input } from "../common";
 import { useAuth } from "../../api/authentication/hooks";
-import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../../context/WebsiteAuthContext";
 import { AuthUser } from "../../services/auth.service";
 import { ProfileEditModalProps, ProfileFormData } from "../../types";
 import { profileSchema } from "../../schemas/profile.schema";

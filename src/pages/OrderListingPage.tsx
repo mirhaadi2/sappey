@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Warning } from "@phosphor-icons/react";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { getStatusConfig } from "../utils/orderStatusMapper";
 import { OrderListingHeader, OrderListingSearchFilters, OrderListingList, OrderListingPagination } from "../components/OrderListing";

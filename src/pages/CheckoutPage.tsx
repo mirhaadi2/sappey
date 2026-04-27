@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CardContext";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { Promotion, useApplicablePromotions } from "../api/promotions";

@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
-import { WebsiteAuthProvider, useWebsiteAuth } from "./contexts/WebsiteAuthContext";
+import { WebsiteAuthProvider, useWebsiteAuth } from "./context/WebsiteAuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import ShopPage from "./pages/ShopPage";
 import ProductDetailsPage from "./pages/ProductDetails";
