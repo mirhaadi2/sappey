@@ -11,23 +11,32 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
 }) => {
     return (
         <aside className="lg:col-span-4 space-y-6">
-            <div className="relative overflow-hidden bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50">
+            <div className="relative overflow-hidden bg-white p-4 rounded-[24px] border border-gray-100 shadow-xl shadow-gray-200/50">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-latte/20 rounded-full -mr-16 -mt-16 blur-3xl" />
 
-                <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="relative mb-6">
-                        <div className="w-24 h-24 bg-gradient-to-br from-brand-latte to-brand-brown/20 rounded-[32px] flex items-center justify-center shadow-inner">
-                            <User size={48} weight="duotone" className="text-brand-brown" />
+                <div className="relative z-10 flex flex-row items-center gap-5">
+                    {/* Avatar Container */}
+                    <div className="relative flex-shrink-0">
+                        <div className="w-16 h-16 bg-gradient-to-br from-brand-latte to-brand-brown/20 rounded-[20px] flex items-center justify-center shadow-inner overflow-visible">
+                            <User size={30} weight="duotone" className="text-brand-brown" />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-lg border border-gray-50">
-                            <ShieldCheck size={18} weight="fill" className="text-emerald-500" />
+                        {/* Verified Badge */}
+                        <div className="absolute -bottom-1 -right-1 p-1.5 bg-white rounded-full shadow-md border border-gray-50 flex items-center justify-center">
+                            <ShieldCheck size={14} weight="fill" className="text-emerald-500" />
                         </div>
                     </div>
 
-                    <h1 className="text-2xl font-black text-brand-brown tracking-tight mb-1">{currentUser.name}</h1>
-                    <div className="flex items-center gap-2 text-gray-400">
-                        <Envelope size={14} weight="bold" />
-                        <p className="text-sm font-medium">{currentUser.email}</p>
+                    {/* User Info Container */}
+                    <div className="flex flex-col justify-center">
+                        <h1 className="text-2xl font-black text-brand-brown tracking-tight leading-none mb-1.5">
+                            {currentUser.name}
+                        </h1>
+                        <div className="flex items-center gap-2 text-gray-400">
+                            <Envelope size={16} weight="regular" className="opacity-70" />
+                            <p className="text-sm font-medium leading-none">
+                                {currentUser.email}
+                            </p>
+                        </div>
                     </div>
                 </div>
 

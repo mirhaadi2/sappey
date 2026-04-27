@@ -16,11 +16,11 @@ const AddressListSection: React.FC<AddressListSectionProps> = ({
             {addresses.map((address) => (
                 <motion.div
                     key={address.id} layout
-                    className={`group relative flex flex-col md:flex-row items-start md:items-center justify-between p-8 rounded-[32px] border transition-all ${address.isDefault ? 'border-brand-brown/30 bg-white shadow-xl shadow-brand-brown/5' : 'border-white bg-white shadow-sm hover:shadow-md hover:border-gray-100'}`}
+                    className={`group relative flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-[20px] border transition-all ${address.isDefault ? 'border-brand-brown/30 bg-white shadow-xl shadow-brand-brown/5' : 'border-white bg-white shadow-sm hover:shadow-md hover:border-gray-100'}`}
                 >
                     <div className="flex items-center gap-6">
-                        <div className={`w-16 h-16 rounded-[22px] flex items-center justify-center transition-colors ${address.isDefault ? 'bg-brand-brown text-white' : 'bg-brand-latte/10 text-brand-brown group-hover:bg-brand-brown group-hover:text-white'}`}>
-                            {address.type === 'HOME' ? <House size={28} weight="duotone" /> : address.type === 'WORK' ? <Briefcase size={28} weight="duotone" /> : <MapPin size={28} weight="duotone" />}
+                        <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center transition-colors ${address.isDefault ? 'bg-brand-brown text-white' : 'bg-brand-latte/10 text-brand-brown group-hover:bg-brand-brown group-hover:text-white'}`}>
+                            {address.type === 'HOME' ? <House size={24} weight="duotone" /> : address.type === 'WORK' ? <Briefcase size={24} weight="duotone" /> : <MapPin size={28} weight="duotone" />}
                         </div>
                         <div>
                             <div className="flex items-center gap-3 mb-1">

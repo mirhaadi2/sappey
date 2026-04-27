@@ -11,14 +11,15 @@ import {
 
 const Footer: React.FC = () => {
     return (
-        <footer className="relative bg-brand-brown text-brand-cream pt-20 pb-10 px-6 overflow-hidden">
-            {/* Subtle Decorative Gradient for Depth */}
+        <footer className="relative bg-brand-brown text-brand-cream py-8 px-6 overflow-hidden">
+            {/* Top Gradient Divider */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-latte/30 to-transparent" />
 
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-6">
 
-                    {/* Brand Section - Takes 5 columns for prominence */}
+                    {/* Brand Section (Left side) */}
                     <div className="lg:col-span-5 space-y-8">
                         <Link to="/" className="inline-block group">
                             <h2 className="font-headline text-4xl font-black tracking-tighter text-white">
@@ -32,107 +33,124 @@ const Footer: React.FC = () => {
                             at the source to preserve absolute freshness and nutritional integrity.
                         </p>
 
-                        <div className="flex items-center gap-3">
-                            {[
-                                { icon: <InstagramLogo size={22} />, href: "https://www.instagram.com/sappeyofficial?igsh=MTZqMm96anpkM3o2cQ==" },
-                                // { icon: <FacebookLogo size={22} />, href: "https://www.facebook.com/sappey" },
-                                { icon: <TwitterLogo size={22} />, href: "https://twitter.com/sappey" },
-                                { icon: <LinkedinLogo size={22} />, href: "https://www.linkedin.com/company/sappey/" }
-                            ].map((social, idx) => (
-                                <a
-                                    key={idx}
-                                    href={social.href}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 shadow-xl"
-                                >
-                                    {social.icon}
-                                </a>
-                            ))}
+                        {/* FSSAI Integration - Now aligned with the text block */}
+                        <div className="flex items-center gap-4 py-4 px-5 bg-white/5 rounded-2xl border border-white/10 w-fit">
+                            <img
+                                src="/images/fssai-logo.png"
+                                alt="FSSAI Licensed"
+                                className="h-8 w-auto brightness-0 invert opacity-80"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Lic. No.</span>
+                                <span className="text-xs font-mono text-slate-300 tracking-wider">21026251000320</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Links Grid - Takes 7 columns */}
-                    <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-8">
-                        {/* Quick Shop */}
-                        <div>
-                            <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
-                                Collections
-                            </h4>
-                            <ul className="space-y-4 font-sans text-sm">
-                                {["Premium Nuts", "Dried Fruits", "Organic Seeds", "Healthy Mixes"].map((item) => (
-                                    <li key={item}>
-                                        <Link to="/" className="text-slate-300 hover:text-white flex items-center group transition-colors">
-                                            <span className="w-0 group-hover:w-4 overflow-hidden transition-all duration-300 text-orange-500">—</span>
-                                            {item}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                    {/* Right Side Links & Contact Grid */}
+                    <div className="lg:col-span-7">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                            {/* Quick Shop */}
+                            <div>
+                                <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
+                                    Collections
+                                </h4>
+                                <ul className="space-y-4 font-sans text-sm">
+                                    {["Premium Nuts", "Dried Fruits", "Organic Seeds", "Healthy Mixes"].map((item) => (
+                                        <li key={item}>
+                                            <Link to="/" className="text-slate-300 hover:text-white flex items-center group transition-colors">
+                                                <span className="w-0 group-hover:w-4 overflow-hidden transition-all duration-300 text-orange-500">—</span>
+                                                {item}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
-                        {/* Support */}
-                        <div>
-                            <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
-                                Assistance
-                            </h4>
-                            <ul className="space-y-4 font-sans text-sm">
-                                {[
-                                    { name: "About Us", path: "/about-us" },
-                                    { name: "Shipping Policy", path: "/shipping-policy" },
-                                    { name: "Returns & Refunds", path: "/returns-refunds" },
-                                    { name: "FAQs", path: "/faqs" }
-                                ].map((link) => (
-                                    <li key={link.name}>
-                                        <Link to={link.path} className="text-slate-300 hover:text-white transition-colors italic-hover">
-                                            {link.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                            {/* Support */}
+                            <div>
+                                <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
+                                    Assistance
+                                </h4>
+                                <ul className="space-y-4 font-sans text-sm">
+                                    {[
+                                        { name: "About Us", path: "/about-us" },
+                                        { name: "Shipping Policy", path: "/shipping-policy" },
+                                        { name: "Returns & Refunds", path: "/returns-refunds" },
+                                        { name: "FAQs", path: "/faqs" }
+                                    ].map((link) => (
+                                        <li key={link.name}>
+                                            <Link to={link.path} className="text-slate-300 hover:text-white transition-colors">
+                                                {link.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
-                        {/* Contact */}
-                        <div className="col-span-2 md:col-span-1">
-                            <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
-                                Office
-                            </h4>
-                            <ul className="space-y-5 font-sans text-sm">
-                                <li className="flex items-start gap-4 group">
-                                    <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
-                                        <MapPin size={18} className="text-orange-500" />
-                                    </div>
-                                    <span className="text-slate-300 leading-snug">Jammu & Kashmir,<br />India</span>
-                                </li>
-                                <li className="flex items-center gap-4 group">
-                                    <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
-                                        <Phone size={18} className="text-orange-500" />
-                                    </div>
-                                    <span className="text-slate-300">+91 8492943652</span>
-                                </li>
-                                <li className="flex items-center gap-4 group">
-                                    <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
-                                        <EnvelopeSimple size={18} className="text-orange-500" />
-                                    </div>
-                                    <a
-                                        href="mailto:support@sappey.com?subject=Inquiry regarding Sappey Products"
-                                        className="text-slate-300 hover:text-orange-500 transition-colors"
-                                    >
-                                        support@sappey.com
-                                    </a>
-                                </li>
-                            </ul>
+                            {/* Contact & Socials (Fixed alignment here) */}
+                            <div className="col-span-2 md:col-span-1 space-y-8">
+                                <div>
+                                    <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
+                                        Office
+                                    </h4>
+                                    <ul className="space-y-5 font-sans text-sm">
+                                        <li className="flex items-start gap-4 group">
+                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                                <MapPin size={18} className="text-orange-500" />
+                                            </div>
+                                            <span className="text-slate-300 leading-snug">Jammu & Kashmir,<br />India</span>
+                                        </li>
+                                        <li className="flex items-center gap-4 group">
+                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                                <Phone size={18} className="text-orange-500" />
+                                            </div>
+                                            <span className="text-slate-300">+91 8492943652</span>
+                                        </li>
+                                        <li className="flex items-center gap-4 group">
+                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                                <EnvelopeSimple size={18} className="text-orange-500" />
+                                            </div>
+                                            <a
+                                                href="mailto:support@sappey.com?subject=Inquiry regarding Sappey Products"
+                                                className="text-slate-300 hover:text-orange-500 transition-colors"
+                                            >
+                                                support@sappey.com
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {/* Social Media Icons - Aligned under Office info */}
+                                <div className="flex items-center gap-3 pt-4">
+                                    {[
+                                        { icon: <InstagramLogo size={22} />, href: "https://www.instagram.com/sappeyofficial?igsh=MTZqMm96anpkM3o2cQ==" },
+                                        { icon: <TwitterLogo size={22} />, href: "https://twitter.com/sappey" },
+                                        { icon: <LinkedinLogo size={22} />, href: "https://www.linkedin.com/company/sappey/" }
+                                    ].map((social, idx) => (
+                                        <a
+                                            key={idx}
+                                            href={social.href}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 shadow-xl"
+                                        >
+                                            {social.icon}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Bar - Enhanced with Glassmorphism effect */}
-                <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
+                {/* Bottom Bar - Copyright & Legal */}
+                <div className="pt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="space-y-1 text-center md:text-left">
-                        <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-slate-400 font-bold">
+                        <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-slate-300 font-bold">
                             © 2026 Sappey Foods Private Limited.
                         </p>
-                        <p className="text-[10px] text-slate-500 italic">Crafting health, one harvest at a time.</p>
+                        <p className="text-[10px] text-slate-400 italic">Crafting health, one harvest at a time.</p>
                     </div>
 
                     <div className="flex items-center gap-6 px-6 py-3 bg-white/5 backdrop-blur-md rounded-full border border-white/5 shadow-inner">
