@@ -5,7 +5,7 @@ import {
     MagnifyingGlass, User, ShoppingCart, List, X, Heart, SpinnerGap, SignOut, CaretRight, ArrowRight
 } from "@phosphor-icons/react";
 import { useCart } from "../../context/CardContext";
-import { useWebsiteAuth } from "../../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../../context/WebsiteAuthContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useProductSearch } from "../../api/products";
 import { useHomepageData } from "../../api/homepage";

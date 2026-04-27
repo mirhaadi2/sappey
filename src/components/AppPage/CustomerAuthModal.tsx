@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, WarningCircle, ArrowLeft } from '@phosphor-icons/react';
 import { useSendCustomerOtp, useVerifyCustomerOtp } from '../../api/customers';
-import { useWebsiteAuth } from '../../contexts/WebsiteAuthContext';
+import { useWebsiteAuth } from '../../context/WebsiteAuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Spinner = () => (

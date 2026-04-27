@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useWebsiteAuth } from "../contexts/WebsiteAuthContext";
+import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useAddresses } from "../api/address/hooks";
 import { ConfirmDialog } from "../components/common";
 import { ProfilePageSkeleton } from "../components/Skeletons";
