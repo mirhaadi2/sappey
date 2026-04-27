@@ -1,9 +1,6 @@
 import React from "react";
 import { ArrowLeft } from "@phosphor-icons/react";
-
-interface NotFoundStateProps {
-    onBack: () => void;
-}
+import { NotFoundStateProps } from "../../types/ProductDetails";
 
 const NotFoundState: React.FC<NotFoundStateProps> = ({ onBack }) => (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-8 text-center">

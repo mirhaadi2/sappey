@@ -1,15 +1,7 @@
 import { Input, Select, Checkbox } from "../ui";
-import { useFormWithValidation } from "../../hooks/useFormValidation";
-import { CheckoutFormData } from "../../schemas";
 import { INDIAN_STATES } from "../../constants";
 import { QuestionIcon } from "@phosphor-icons/react";
-
-interface AddressFormProps {
-  form: ReturnType<typeof useFormWithValidation<CheckoutFormData>>;
-  addressFieldPrefix: "deliveryAddress" | "billingAddress";
-  showSaveInfo?: boolean;
-  phoneLabel?: string;
-}
+import { AddressFormProps } from "../../types";
 
 const AddressForm: React.FC<AddressFormProps> = ({
     form,

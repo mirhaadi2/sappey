@@ -1,12 +1,6 @@
 import React from "react";
 import { Star } from "@phosphor-icons/react";
-
-interface ProductHeaderProps {
-    rating: number;
-    reviewCount: number;
-    name: string;
-    selectedVariantData: any;
-}
+import { ProductHeaderProps } from "../../types/ProductDetails";
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
     rating,

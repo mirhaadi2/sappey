@@ -1,23 +1,9 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Buildings, House, CheckCircle, Plus } from "@phosphor-icons/react";
-import { UseFormReturn } from "react-hook-form";
 import { Address } from "../../types/address";
-import { CheckoutFormData } from "../../schemas";
 import { AddressForm } from "./index";
-
-interface ShippingDetailsSectionProps {
-    form: UseFormReturn<CheckoutFormData>;
-    userAddresses: Address[];
-    existingAddresses: Address[];
-    selectedAddressId: string | null;
-    newDestinationAddress: boolean;
-    currentUser: any;
-    existingCustomer: any;
-    onToggleSavedAddress: (address: Address) => void;
-    onSetNewDestinationAddress: (value: boolean) => void;
-    onCancelNewAddress: () => void;
-}
+import { ShippingDetailsSectionProps } from "../../types";
 
 const ShippingDetailsSection: React.FC<ShippingDetailsSectionProps> = ({
     form,

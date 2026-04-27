@@ -6,22 +6,7 @@ import {
     Clock, WarningCircle, Handshake,
     MapPin, ArrowCounterClockwise, Prohibit
 } from "@phosphor-icons/react";
-import { OrderItemDetail } from "../../api/orders";
-
-// --- Extended Type Definition ---
-type OrderStatus = 
-    | "PENDING" | "CONFIRMED" | "PROCESSING" | "PACKED" | "HANDOVER" 
-    | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "DELIVERY_FAILED" 
-    | "RTO" | "CANCELLED" | "FAILED";
-
-interface OrderItemCardProps {
-    item: OrderItemDetail;
-    index?: number;
-    onRemove?: (id: string) => void;
-    onQuantityChange?: (id: string, quantity: number) => void;
-    actionable?: boolean;
-    isOrderItem?: boolean;
-}
+import { OrderItemCardProps, OrderStatus } from "../../types/OrderDetailsPage";
 
 const OrderItemCard: React.FC<OrderItemCardProps> = ({
     item,

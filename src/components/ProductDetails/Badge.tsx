@@ -1,9 +1,5 @@
 import React from "react";
-
-interface BadgeProps {
-    icon: React.ReactNode;
-    text: React.ReactNode;
-}
+import { BadgeProps } from "../../types/ProductDetails";
 
 const Badge: React.FC<BadgeProps> = ({ icon, text }) => (
     <div className="flex items-center gap-3">

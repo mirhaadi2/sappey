@@ -1,22 +1,6 @@
 import React from "react";
 import { CheckFat } from "@phosphor-icons/react";
-
-/**
- * Interface for timeline steps including logistics metadata
- */
-interface TimelineStep {
-    status: string;
-    label: string;
-    icon: React.ElementType;
-    isCompleted: boolean;
-    isActive: boolean;
-    isUpcoming: boolean;
-    timestamp?: string; // Optional: To show actual time of status change
-}
-
-interface LogisticsTimelineProps {
-    timelineData: TimelineStep[];
-}
+import { LogisticsTimelineProps } from "../../types/OrderDetailsPage";
 
 const LogisticsTimeline: React.FC<LogisticsTimelineProps> = ({ timelineData }) => {
     return (

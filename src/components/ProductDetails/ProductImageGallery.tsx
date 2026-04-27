@@ -1,11 +1,5 @@
 import React from "react";
-
-interface ProductImageGalleryProps {
-    images: string[];
-    selectedImage: number;
-    onImageSelect: (index: number) => void;
-    badge?: string;
-}
+import { ProductImageGalleryProps } from "../../types/ProductDetails";
 
 const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     images,

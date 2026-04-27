@@ -2,13 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, SealCheck, PaperPlaneRight } from "@phosphor-icons/react";
 import { useSubmitReview, useGetReviewByOrderItem } from "../../api/reviews/hooks";
-
-interface ItemReviewCardProps {
-  orderId: string;
-  id: string; 
-  productId: string;
-  productName: string;
-}
+import { ItemReviewCardProps } from "../../types/OrderDetailsPage";
 
 const ItemReviewCard: React.FC<ItemReviewCardProps> = ({
   orderId,

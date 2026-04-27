@@ -2,12 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
     InstagramLogo,
-    FacebookLogo,
     TwitterLogo,
     EnvelopeSimple,
     Phone,
     MapPin,
-    ArrowRight,
     LinkedinLogo
 } from "@phosphor-icons/react";
 

@@ -1,26 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "@phosphor-icons/react";
-import ProductCard from "../Shop/ProductCard";
-import LazySection from "../common/LazySection";
-import LazyErrorBoundary from "../common/LazyErrorBoundary";
+import { ProductCard } from "../Shop";
+import { LazyErrorBoundary, LazySection } from "../common";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "../Skeletons";
 import { fadeUpVariants, staggerContainer } from "../../utils/homePageUtils";
 import { Product } from "../../types";
-
-interface ProductGridSectionProps {
-    sectionId?: string;
-    title?: string;
-    subtitle?: string;
-    label?: string;
-    products: Product[];
-    isLoading: boolean;
-    total: number;
-    backgroundColor?: string;
-    onViewAll?: () => void;
-    showViewAllButton?: boolean;
-    isCategoriesGrid?: boolean;
-}
+import { ProductGridSectionProps } from "../../types/HomePage";
 
 const ProductGridSection: React.FC<ProductGridSectionProps> = ({
     sectionId,

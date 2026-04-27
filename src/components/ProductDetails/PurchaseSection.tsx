@@ -1,17 +1,8 @@
 import React from "react";
 import { Minus, Plus, ShoppingCart, Check } from "@phosphor-icons/react";
-import Badge from "./Badge";
+import { Badge } from "./index";
 import { Truck, ShieldCheck } from "@phosphor-icons/react";
-
-interface PurchaseSectionProps {
-    quantity: number;
-    onQuantityChange: (quantity: number) => void;
-    isOutOfStock: boolean;
-    selectedVariantData: any;
-    product: any;
-    onAddToCart: () => void;
-    onBuyNow: () => void;
-}
+import { PurchaseSectionProps } from "../../types/ProductDetails";
 
 const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     quantity,

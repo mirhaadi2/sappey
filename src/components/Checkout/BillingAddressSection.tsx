@@ -1,12 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { UseFormReturn } from "react-hook-form";
-import { CheckoutFormData } from "../../schemas";
 import { AddressForm } from "./index";
-
-interface BillingAddressSectionProps {
-    form: UseFormReturn<CheckoutFormData>;
-}
+import { BillingAddressSectionProps } from "../../types";
 
 const BillingAddressSection: React.FC<BillingAddressSectionProps> = ({ form }) => {
     return (

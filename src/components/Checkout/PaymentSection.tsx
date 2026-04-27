@@ -1,12 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CreditCard } from "@phosphor-icons/react";
-import { UseFormReturn } from "react-hook-form";
-import { CheckoutFormData } from "../../schemas";
-
-interface PaymentSectionProps {
-    form: UseFormReturn<CheckoutFormData>;
-}
+import { PaymentSectionProps } from "../../types";
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({ form }) => {
     return (

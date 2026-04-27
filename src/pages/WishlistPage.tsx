@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useWishlist, WishlistItem } from '../context/WishlistContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CardContext';
-import { Product, ProductVariant } from '../types';
+import { ProductVariant } from '../types';
 import { productsClient } from '../api/products/client';
 import { WishlistPageSkeleton } from '../components/Skeletons';
-import ConfirmDialog from '../components/common/ConfirmDialog';
+import { ConfirmDialog } from "../components/common";
 import {
     WishlistHeader,
     WishlistEmptyState,

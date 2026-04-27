@@ -4,12 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "./context/CardContext";
 import { WebsiteAuthProvider, useWebsiteAuth } from "./contexts/WebsiteAuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
-import { ProtectedRoute } from "./components/AppPage/ProtectedRoute";
-import Header from "./components/AppPage/Header";
-import Footer from "./components/AppPage/Footer";
-import CartDrawer from "./components/AppPage/CartDrawer";
-import GuestAuthModal from "./components/AppPage/GuestAuthModal";
-import CustomerAuthModal from "./components/AppPage/CustomerAuthModal";
 import ShopPage from "./pages/ShopPage";
 import ProductDetailsPage from "./pages/ProductDetails";
 import HomePage from "./pages/HomePage";
@@ -21,6 +15,14 @@ import OrderListingPage from "./pages/OrderListingPage";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
 import PageContent from "./pages/PageContent";
 import WishlistPage from "./pages/WishlistPage";
+import { 
+    ProtectedRoute, 
+    Header, 
+    Footer, 
+    CartDrawer, 
+    GuestAuthModal, 
+    CustomerAuthModal 
+} from "./components/AppPage";
 
 const queryClient = new QueryClient({
     defaultOptions: {

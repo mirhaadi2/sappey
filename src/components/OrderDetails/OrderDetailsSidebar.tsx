@@ -1,6 +1,5 @@
 import React from "react";
-import OrderDetailsShippingDossier from "./OrderDetailsShippingDossier";
-import OrderDetailsCancelButton from "./OrderDetailsCancelButton";
+import { OrderDetailsShippingDossier, OrderDetailsCancelButton } from "./index";
 import { OrderDetailsSidebarProps } from "../../types/OrderDetailsPage";
 import { LogisticsTimeline } from "./index";
 

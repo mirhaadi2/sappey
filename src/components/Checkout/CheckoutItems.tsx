@@ -1,11 +1,9 @@
-import { CartState } from "../../context/CardContext";
 import { useState } from "react";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { getItemUnitPrice, getItemOriginalUnitPrice } from "../../utils/checkoutCalculations";
+import { CheckoutItemsProps } from "../../types";
 
-interface CheckoutItemsProps {
-    state: CartState;
-}
+
 
 const CheckoutItems = ({ state }: CheckoutItemsProps) => {
     const items = state?.items ?? [];

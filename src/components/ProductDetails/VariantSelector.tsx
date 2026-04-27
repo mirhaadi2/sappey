@@ -1,12 +1,6 @@
 import React from "react";
 import { motion, LayoutGroup } from "framer-motion";
-import { ProductVariant } from "../../types";
-
-interface VariantSelectorProps {
-    allVariants: ProductVariant[];
-    selectedVariantId: string;
-    onVariantSelect: (variantId: string) => void;
-}
+import { VariantSelectorProps } from "../../types/ProductDetails";
 
 const VariantSelector: React.FC<VariantSelectorProps> = ({
     allVariants,

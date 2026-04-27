@@ -1,14 +1,9 @@
 import React from "react";
-import ProductCard from "../Shop/ProductCard";
-import LazySection from "../common/LazySection";
+import { ProductCard } from "../Shop";
+import { LazySection } from "../common";
 import { ReviewSkeleton } from "../../components/Skeletons";
-import ComingSoonPlaceholder from "./ComingSoonPlaceholder";
-
-interface RelatedProductsSectionProps {
-    products: any[] | undefined;
-    currentProductCategory: string;
-    currentProductId: string;
-}
+import { ComingSoonPlaceholder } from "./index";
+import { RelatedProductsSectionProps } from "../../types/ProductDetails";
 
 const RelatedProductsSection: React.FC<RelatedProductsSectionProps> = ({
     products,

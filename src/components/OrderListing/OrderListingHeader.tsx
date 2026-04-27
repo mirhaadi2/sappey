@@ -1,11 +1,6 @@
 import React from "react";
 import { Plus, Receipt } from "@phosphor-icons/react";
-import { OrderListingStats } from "../../types/OrderListingPage";
-
-interface OrderListingHeaderProps {
-    stats: OrderListingStats;
-    onNewOrder: () => void;
-}
+import { OrderListingHeaderProps } from "../../types/OrderListingPage";
 
 const OrderListingHeader: React.FC<OrderListingHeaderProps> = ({ stats, onNewOrder }) => {
     return (
