@@ -1,7 +1,9 @@
+import React, { useState, useEffect } from "react";
 import { Input, Select, Checkbox } from "../common";
 import { INDIAN_STATES } from "../../constants";
-import { QuestionIcon } from "@phosphor-icons/react";
+import { QuestionIcon, CheckCircle, XCircle, Spinner } from "@phosphor-icons/react";
 import { AddressFormProps } from "../../types";
+import { useCheckPincodeServiceability } from "../../api/integrations/delhivery";
 
 const AddressForm: React.FC<AddressFormProps> = ({
     form,
@@ -9,7 +11,36 @@ const AddressForm: React.FC<AddressFormProps> = ({
     showSaveInfo = false,
     phoneLabel = "Phone",
 }) => {
-    const { register, formState: { errors } } = form;
+    const { register, formState: { errors }, watch } = form;
+    const { mutate: checkPincode, isPending } = useCheckPincodeServiceability();
+
+    const pincode = watch(`${addressFieldPrefix}.pinCode`);
+    const [pincodeServiceable, setPincodeServiceable] = useState<boolean | null>(null);
+
+    // Check pincode serviceability when pincode changes
+    useEffect(() => {
+        if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
+            checkPincode(pincode, {
+                onSuccess: (response) => {
+                    const isServiceable = response.data?.delivery_codes?.some((item: any) => {
+                        const details = item.postal_code;
+                        return (
+                            details?.pin?.toString() === pincode.toString() &&
+                            details?.pre_paid === 'Y' && details?.cod === 'Y' && details?.cash === 'Y' &&
+                            details?.repl === 'Y' && details?.pickup === 'Y'
+                        );
+                    }) || false;
+
+                    setPincodeServiceable(isServiceable);
+                },
+                onError: () => {
+                    setPincodeServiceable(false);
+                }
+            });
+        } else {
+            setPincodeServiceable(null);
+        }
+    }, [pincode, checkPincode]);
 
     const field = (fieldName: string) => `${addressFieldPrefix}.${fieldName}` as const;
     const getNestedError = (fieldName: string) => {
@@ -69,16 +100,50 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     options={INDIAN_STATES.map(state => ({ value: state, label: state }))}
                     placeholder="Select State"
                 />
-                <Input
-                    label="PIN Code"
-                    name={field("pinCode")}
-                    register={register}
-                    error={getNestedError("pinCode")}
-                    placeholder="PIN code"
-                    type="text"
-                    maxLength={6}
-                />
+                <div className="relative">
+                    <Input
+                        label="PIN Code"
+                        name={field("pinCode")}
+                        register={register}
+                        error={getNestedError("pinCode")}
+                        placeholder="PIN code"
+                        type="text"
+                        maxLength={6}
+                    />
+                    {/* Serviceability Indicator */}
+                    {pincode && pincode.length === 6 && (
+                        <div className="absolute right-3 top-[70%] -translate-y-1/2 flex items-center gap-1">
+                            {isPending ? (
+                                <Spinner size={16} className="animate-spin text-slate-400" />
+                            ) : pincodeServiceable === true ? (
+                                <CheckCircle size={16} weight="fill" className="text-emerald-500" />
+                            ) : pincodeServiceable === false ? (
+                                <XCircle size={16} weight="fill" className="text-red-500" />
+                            ) : null}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* Serviceability Message */}
+            {pincode && pincode.length === 6 && pincodeServiceable !== null && !isPending && (
+                <div className={`text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2 ${pincodeServiceable
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                    }`}>
+                    {pincodeServiceable ? (
+                        <>
+                            <CheckCircle size={14} weight="fill" />
+                            This PIN code is serviceable for delivery
+                        </>
+                    ) : (
+                        <>
+                            <XCircle size={14} weight="fill" />
+                            This PIN code is not serviceable for delivery
+                        </>
+                    )}
+                </div>
+            )}
 
             <div className="relative group">
                 <Input
@@ -92,7 +157,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 />
                 <QuestionIcon
                     size={20}
-                    className="absolute right-4 top-1/3 -translate-y-1/2 text-slate-400 cursor-help z-10"
+                    className="absolute right-4 top-[calc(50%+12px)] -translate-y-1/2 text-slate-400 cursor-help z-10"
                 />
                 <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block transition-opacity duration-200">
                     <div className="bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg whitespace-nowrap">
