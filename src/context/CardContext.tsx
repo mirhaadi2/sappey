@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useMemo, useState } from "react";
 import { Product, CartItem, ProductVariant } from "../types";
+import { productsClient } from "../api/products/client";
 
 export interface CartState {
     items: CartItem[];
@@ -177,16 +178,50 @@ const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
-    const [isHydrated, setIsHydrated] = React.useState(false);
+    const [isHydrated, setIsHydrated] = useState(false);
+    const [cartRestorePending, setCartRestorePending] = useState(false);
 
     // Load cart from localStorage on component mount
     useEffect(() => {
         const savedCart = loadCartFromStorage();
         if (savedCart.items.length > 0) {
             dispatch({ type: "RESTORE_CART", payload: savedCart });
+            setCartRestorePending(true);
         }
         setIsHydrated(true);
     }, []);
+
+    // Refresh restored cart products to ensure image URLs and latest product data are current
+    useEffect(() => {
+        if (!cartRestorePending || state.items.length === 0) {
+            return;
+        }
+
+        const refreshCartProducts = async () => {
+            try {
+                const refreshedItems = await Promise.all(
+                    state.items.map(async (item) => {
+                        try {
+                            const latestProduct = await productsClient.getProduct(item.product.id);
+                            return { ...item, product: latestProduct };
+                        } catch (error) {
+                            console.warn(
+                                `Failed to refresh product ${item.product.id} during cart restore, keeping fallback product data.`,
+                                error
+                            );
+                            return item;
+                        }
+                    })
+                );
+
+                dispatch({ type: "RESTORE_CART", payload: { items: refreshedItems, isOpen: false } });
+            } finally {
+                setCartRestorePending(false);
+            }
+        };
+
+        refreshCartProducts();
+    }, [cartRestorePending, state.items]);
 
     // Save cart to localStorage whenever state changes
     useEffect(() => {

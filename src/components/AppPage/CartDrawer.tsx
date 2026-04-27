@@ -33,6 +33,7 @@ const CartDrawer: React.FC = () => {
         return item.product.price || 0;
     };
 
+    console.log("Cart State:", state);
     const drawerContent = (
         <AnimatePresence>
             {state.isOpen && (
@@ -104,9 +105,13 @@ const CartDrawer: React.FC = () => {
                                             >
                                                 <div className="relative w-24 h-24 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
                                                     <img
-                                                        src={item?.product?.images?.[0] ?? "/placeholder.png"}
+                                                        src={item?.product?.images?.[0] || item?.product?.image || "/placeholder.png"}
                                                         alt={item?.product?.name}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        onError={(event) => {
+                                                            event.currentTarget.onerror = null;
+                                                            event.currentTarget.src = "/placeholder.png";
+                                                        }}
                                                     />
                                                 </div>
 
