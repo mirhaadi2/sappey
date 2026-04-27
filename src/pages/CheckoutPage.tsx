@@ -10,6 +10,7 @@ import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/c
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import { useAddresses } from "../api/address/hooks";
+import { useCheckPincodeServiceability } from "../api/integrations/delhivery";
 import { useFormWithValidation } from "../hooks/useFormValidation";
 import { checkoutFormSchema, CheckoutFormData } from "../schemas";
 import {
@@ -77,10 +78,13 @@ const CheckoutPage: React.FC = () => {
   } | null>(null);
   const [existingAddresses, setExistingAddresses] = useState<Array<any>>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressServiceable, setSelectedAddressServiceable] = useState<boolean | null>(null);
+  const [selectedAddressServiceabilityLoading, setSelectedAddressServiceabilityLoading] = useState<boolean>(false);
   const [newDestinationAddress, setNewDestinationAddress] = useState<boolean>(false);
   const [customerLookupError, setCustomerLookupError] = useState<string | null>(null);
   const placeOrderPendingRef = useRef(false);
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
+  const { mutate: checkPincodeServiceability } = useCheckPincodeServiceability();
   const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
@@ -174,6 +178,7 @@ const CheckoutPage: React.FC = () => {
 
   const applySavedAddress = (address: any) => {
     setSelectedAddressId(address.id);
+    setSelectedAddressServiceable(null);
     checkoutForm.setValue('deliveryAddress.firstName', address.name?.split(' ')?.[0] || '');
     checkoutForm.setValue('deliveryAddress.lastName', address.name?.split(' ')?.slice(1).join(' ') || '');
     checkoutForm.setValue('deliveryAddress.address', address.addressLine1 || '');
@@ -182,11 +187,38 @@ const CheckoutPage: React.FC = () => {
     checkoutForm.setValue('deliveryAddress.pinCode', address.postalCode || '');
     checkoutForm.setValue('deliveryAddress.country', address.country || 'India');
     checkoutForm.setValue('deliveryAddress.phone', address.phone || '');
+
+    const pincode = address.postalCode?.toString?.() || '';
+    if (/^\d{6}$/.test(pincode)) {
+      setSelectedAddressServiceabilityLoading(true);
+      checkPincodeServiceability(pincode, {
+        onSuccess: (response) => {
+          const isServiceable = response.data?.delivery_codes?.some((item: any) => {
+            const details = item.postal_code;
+            return (
+              details?.pin?.toString() === pincode &&
+              details?.pre_paid === 'Y' &&
+              details?.cod === 'Y' &&
+              details?.cash === 'Y' &&
+              details?.repl === 'Y' &&
+              details?.pickup === 'Y'
+            );
+          }) || false;
+          setSelectedAddressServiceable(isServiceable);
+          setSelectedAddressServiceabilityLoading(false);
+        },
+        onError: () => {
+          setSelectedAddressServiceable(false);
+          setSelectedAddressServiceabilityLoading(false);
+        }
+      });
+    }
   };
 
   const toggleSavedAddress = (address: any) => {
     if (selectedAddressId === address.id) {
       setSelectedAddressId(null);
+      setSelectedAddressServiceable(null);
       return;
     }
 
@@ -318,6 +350,8 @@ const CheckoutPage: React.FC = () => {
               userAddresses={userAddresses}
               existingAddresses={existingAddresses}
               selectedAddressId={selectedAddressId}
+              selectedAddressServiceable={selectedAddressServiceable}
+              selectedAddressServiceabilityLoading={selectedAddressServiceabilityLoading}
               newDestinationAddress={newDestinationAddress}
               currentUser={currentUser}
               existingCustomer={existingCustomer}

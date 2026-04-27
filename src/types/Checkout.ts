@@ -260,6 +260,8 @@ export interface ShippingDetailsSectionProps {
     userAddresses: Address[];
     existingAddresses: Address[];
     selectedAddressId: string | null;
+    selectedAddressServiceable: boolean | null;
+    selectedAddressServiceabilityLoading: boolean;
     newDestinationAddress: boolean;
     currentUser: any;
     existingCustomer: any;

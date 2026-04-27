@@ -10,6 +10,8 @@ const ShippingDetailsSection: React.FC<ShippingDetailsSectionProps> = ({
     userAddresses,
     existingAddresses,
     selectedAddressId,
+    selectedAddressServiceable,
+    selectedAddressServiceabilityLoading,
     newDestinationAddress,
     currentUser,
     existingCustomer,
@@ -78,6 +80,18 @@ const ShippingDetailsSection: React.FC<ShippingDetailsSectionProps> = ({
                                         <p className="text-[12px] font-medium text-slate-400">
                                             {address.state}, {address.postalCode}
                                         </p>
+                                        {isSelected && (
+                                            <p className={`text-[12px] font-semibold ${selectedAddressServiceable === true ? 'text-emerald-700' : selectedAddressServiceable === false ? 'text-red-700' : 'text-slate-500'}`}>
+                                                {selectedAddressServiceabilityLoading
+                                                    ? 'Checking delivery serviceability…'
+                                                    : selectedAddressServiceable === true
+                                                        ? 'Delivery available for this PIN code'
+                                                        : selectedAddressServiceable === false
+                                                            ? 'Delivery not available for this PIN code'
+                                                            : ''
+                                                }
+                                            </p>
+                                        )}
                                     </div>
                                 </button>
                             );
