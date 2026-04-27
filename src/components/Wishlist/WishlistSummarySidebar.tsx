@@ -23,8 +23,8 @@ const WishlistSummarySidebar: React.FC<WishlistSummarySidebarProps> = ({
             transition={{ delay: 0.2 }}
             className="sticky top-32"
         >
-            <div className="bg-white rounded-[24px] border border-brand-brown/10 p-[clamp(1.5rem,3vw,2rem)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden flex flex-col">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-brown/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+            <div className="relative bg-white rounded-[24px] border border-brand-brown/10 p-[clamp(1.5rem,3vw,2rem)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(139,115,85,0.15)] hover:-translate-y-1 overflow-hidden flex flex-col">
+                <div className="pointer-events-none absolute top-0 right-0 w-32 h-32 bg-brand-brown/5 rounded-full -mr-16 -mt-16 blur-3xl" />
 
                 <h3 className="text-[clamp(0.625rem,1.2vw,0.75rem)] font-black uppercase tracking-[0.2em] text-slate-400 mb-[clamp(1rem,2vw,1.5rem)]">Order Summary</h3>
 

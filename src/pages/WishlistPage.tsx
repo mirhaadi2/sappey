@@ -123,7 +123,7 @@ const WishlistPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB]">
+        <div className="min-h-screen bg-[#FDFCFB] overflow-x-hidden">
             {/* Minimal Sticky Header */}
             <WishlistHeader
                 wishlistCount={wishlistCount}
