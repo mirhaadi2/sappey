@@ -58,6 +58,7 @@ export interface Order {
   itemsCount: any;
   id: string;
   orderNumber: string;
+  trackingNumber?: string;
   customerId: string;
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
   totalAmount: string;
@@ -93,10 +94,10 @@ export interface OrderResponse {
 
 export interface OrdersListResponse {
   success: boolean;
-  data: Order[];
-  pagination?: {
-    page: number;
-    limit: number;
+  data: {
+    orders: Order[];
     total: number;
+    limit: number;
+    offset: number;
   };
 }

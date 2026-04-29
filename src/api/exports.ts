@@ -28,3 +28,7 @@ export type { Banner, Hero, Section, Testimonial, InstagramPost, HomepageData } 
 // Customers API
 export { customersApi, useSendCustomerOtp, useVerifyCustomerOtp } from './customers';
 export type { Customer, CustomerAuthResponse } from './customers';
+
+// Delhivery API
+export { delhiveryApi, useCheckPincodeServiceability } from './integrations/delhivery';
+export type { PincodeServiceabilityResponse } from './integrations/delhivery';

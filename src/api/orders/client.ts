@@ -7,7 +7,7 @@ export const ordersClient = {
     const config = guestToken
       ? { headers: { Authorization: `Bearer ${guestToken}` } }
       : {};
-    
+
     const response = await apiMethods.post<OrderResponse>(
       '/orders',
       data,
@@ -17,27 +17,23 @@ export const ordersClient = {
   },
 
   // Get all orders for current user
-  getOrders: async (filters?: {
+  getOrders: async (params?: {
     limit?: number;
     offset?: number;
     status?: string;
+    search?: string;
+    sortBy?: string;
   }): Promise<{
     orders: Order[];
     total: number;
-    pagination: {
-      limit: number;
-      offset: number;
-    };
+    limit: number;
+    offset: number;
   }> => {
-    const response = await apiMethods.get<OrdersListResponse>('/orders', filters);
-    return {
-      orders: response.data.data,
-      total: response.data.pagination?.total || 0,
-      pagination: {
-        limit: response.data.pagination?.limit || 20,
-        offset: response.data.pagination?.page ? ((response.data.pagination.page - 1) * (response.data.pagination.limit || 20)) : 0,
-      },
-    };
+    // We pass params directly to the GET request as query parameters
+    const response = await apiMethods.get<OrdersListResponse>('/orders', params);
+
+    // Based on your previous logic, we return the nested data correctly
+    return response?.data?.data || { orders: [], total: 0, limit: 20, offset: 0 };
   },
 
   // Get single order by ID

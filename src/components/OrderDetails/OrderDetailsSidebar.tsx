@@ -5,12 +5,13 @@ import { LogisticsTimeline } from "./index";
 
 const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
     timelineData,
+    trackingNumber,
     shippingDossier,
     cancelButton
 }) => {
     return (
         <div className="lg:col-span-4 space-y-8">
-            <LogisticsTimeline timelineData={timelineData} />
+            <LogisticsTimeline timelineData={timelineData} trackingNumber={trackingNumber} />
             <OrderDetailsShippingDossier {...shippingDossier} />
             <OrderDetailsCancelButton {...cancelButton} />
         </div>

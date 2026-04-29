@@ -2,7 +2,9 @@ import React from "react";
 import { CheckFat } from "@phosphor-icons/react";
 import { LogisticsTimelineProps } from "../../types/OrderDetailsPage";
 
-const LogisticsTimeline: React.FC<LogisticsTimelineProps> = ({ timelineData }) => {
+const LogisticsTimeline: React.FC<LogisticsTimelineProps> = ({ timelineData, trackingNumber }) => {
+    console.log("Timeline Data:", timelineData);
+    console.log("Tracking Number:", trackingNumber);
     return (
         <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between mb-8">
@@ -54,6 +56,12 @@ const LogisticsTimeline: React.FC<LogisticsTimelineProps> = ({ timelineData }) =
                                 }`}>
                                     {step.label.replace(/_/g, ' ')}
                                 </p>
+
+                                {(trackingNumber && step?.label === 'In Transit') && (
+                                    <p className="text-[11px] font-bold text-slate-500 mt-1">
+                                        Delhivery Tracking No.: {trackingNumber}
+                                    </p>
+                                )}
                                 
                                 {/* Placeholder for real logistics timestamps */}
                                 {step.timestamp && (

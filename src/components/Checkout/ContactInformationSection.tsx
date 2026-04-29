@@ -10,6 +10,7 @@ const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
     onSignIn,
     onContactChange,
     customerLookupLoading,
+    customerLookupError,
 }) => {
     const contactFields = [];
     if (enabledContactTypes.email) contactFields.push('email');
@@ -79,6 +80,11 @@ const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
                     <div className="flex items-center gap-2 text-xs font-bold text-brand-brown/60 uppercase tracking-widest animate-pulse mt-2">
                         <div className="w-4 h-4 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
                         Checking for profile...
+                    </div>
+                )}
+                {customerLookupError && (
+                    <div className="mt-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                        {customerLookupError}
                     </div>
                 )}
             </div>

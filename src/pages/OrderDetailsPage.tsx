@@ -33,12 +33,12 @@ const OrderDetailsPage: React.FC = () => {
 
     const timelineData = useMemo(() => {
         if (!order) return [];
-        const statusOrder = ["ORDER_PLACED", "PROCESSING", "SHIPPED", "DELIVERED"];
+        const statusOrder = ["ORDER_PLACED", "PROCESSING", "SHIPPED", "HANDOVER", "DELIVERED"];
         let mappedStatus: string = order.status;
 
         if (["CONFIRMED", "PENDING"].includes(order.status)) mappedStatus = "ORDER_PLACED";
-        else if (["PACKED", "HANDOVER", "PROCESSING"].includes(order.status)) mappedStatus = "PROCESSING";
-        else if (["OUT_FOR_DELIVERY", "SHIPPED"].includes(order.status)) mappedStatus = "SHIPPED";
+        else if (["PACKED", "PROCESSING"].includes(order.status)) mappedStatus = "PROCESSING";
+        else if (["OUT_FOR_DELIVERY", "SHIPPED", "HANDOVER"].includes(order.status)) mappedStatus = "SHIPPED";
 
         const currentIndex = statusOrder.indexOf(mappedStatus);
 
@@ -117,6 +117,7 @@ const OrderDetailsPage: React.FC = () => {
                     {/* Sidebar Information */}
                     <OrderDetailsSidebar
                         timelineData={timelineData}
+                        trackingNumber={order.trackingNumber}
                         shippingDossier={{
                             userName: currentUser?.name || "",
                             shippingAddress: {
