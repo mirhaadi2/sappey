@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { delhiveryApi, PincodeServiceabilityResponse } from './client';
+import { delhiveryApi, ShippingChargesResponse } from './client';
 
 export const useCheckPincodeServiceability = () => {
     return useMutation({
@@ -11,7 +11,7 @@ export const useCheckPincodeServiceability = () => {
 };
 
 export const useCalculateShippingCharges = (params: Record<string, any>, options: any = {}) => {
-    return useQuery({
+    return useQuery<ShippingChargesResponse>({
         queryKey: [
             'delhiveryCharges',
             params?.o_pin,
