@@ -8,6 +8,7 @@ export interface ItemReviewCardProps {
 };
 export interface OrderDetailsHeaderProps {
     orderNumber: string;
+    trackingNumber?: string;
     onBack: () => void;
 }
 
@@ -49,6 +50,7 @@ export interface OrderDetailsCancelButtonProps {
 
 export interface OrderDetailsSidebarProps {
     timelineData: any[];
+    trackingNumber?: string;
     shippingDossier: OrderDetailsShippingDossierProps;
     cancelButton: OrderDetailsCancelButtonProps;
 }
@@ -65,6 +67,7 @@ export interface TimelineStep {
 
 export interface LogisticsTimelineProps {
     timelineData: TimelineStep[];
+    trackingNumber?: string;
 }
 
 export type OrderStatus = 
