@@ -16,7 +16,7 @@ const OrderListingHeader: React.FC<OrderListingHeaderProps> = ({ stats, onNewOrd
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
-                <div className="hidden lg:flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm pr-6">
+                {/* <div className="hidden lg:flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm pr-6">
                     <div className="bg-brand-cream/30 p-2.5 rounded-xl mr-4">
                         <Receipt size={20} className="text-brand-brown" weight="duotone" />
                     </div>
@@ -26,7 +26,7 @@ const OrderListingHeader: React.FC<OrderListingHeaderProps> = ({ stats, onNewOrd
                             {stats.total.toLocaleString()}
                         </span>
                     </div>
-                </div>
+                </div> */}
 
                 <button
                     onClick={onNewOrder}
