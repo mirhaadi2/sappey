@@ -18,6 +18,7 @@ const ShippingDetailsSection: React.FC<ShippingDetailsSectionProps> = ({
     onToggleSavedAddress,
     onSetNewDestinationAddress,
     onCancelNewAddress,
+    onDeliveryPincodeServiceabilityChange,
 }) => {
     const addresses = currentUser ? userAddresses : existingAddresses;
 
@@ -144,6 +145,7 @@ const ShippingDetailsSection: React.FC<ShippingDetailsSectionProps> = ({
                                 addressFieldPrefix="deliveryAddress"
                                 showSaveInfo={!currentUser}
                                 phoneLabel="Delivery Phone"
+                                onPincodeServiceabilityChange={onDeliveryPincodeServiceabilityChange}
                             />
                         </div>
                     </motion.div>

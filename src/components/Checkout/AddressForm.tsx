@@ -10,6 +10,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
     addressFieldPrefix,
     showSaveInfo = false,
     phoneLabel = "Phone",
+    onPincodeServiceabilityChange,
 }) => {
     const { register, formState: { errors }, watch } = form;
     const { mutate: checkPincode, isPending } = useCheckPincodeServiceability();
@@ -32,13 +33,16 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     }) || false;
 
                     setPincodeServiceable(isServiceable);
+                    onPincodeServiceabilityChange?.(isServiceable);
                 },
                 onError: () => {
                     setPincodeServiceable(false);
+                    onPincodeServiceabilityChange?.(false);
                 }
             });
         } else {
             setPincodeServiceable(null);
+            onPincodeServiceabilityChange?.(null);
         }
     }, [pincode, checkPincode]);
 

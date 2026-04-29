@@ -10,7 +10,7 @@ import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/c
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import { useAddresses } from "../api/address/hooks";
-import { useCheckPincodeServiceability } from "../api/integrations/delhivery";
+import { useCheckPincodeServiceability, useCalculateShippingCharges } from "../api/integrations/delhivery";
 import { useFormWithValidation } from "../hooks/useFormValidation";
 import { checkoutFormSchema, CheckoutFormData } from "../schemas";
 import {
@@ -80,18 +80,75 @@ const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [selectedAddressServiceable, setSelectedAddressServiceable] = useState<boolean | null>(null);
   const [selectedAddressServiceabilityLoading, setSelectedAddressServiceabilityLoading] = useState<boolean>(false);
+  const [deliveryAddressServiceable, setDeliveryAddressServiceable] = useState<boolean | null>(null);
   const [newDestinationAddress, setNewDestinationAddress] = useState<boolean>(false);
   const [customerLookupError, setCustomerLookupError] = useState<string | null>(null);
   const placeOrderPendingRef = useRef(false);
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
   const { mutate: checkPincodeServiceability } = useCheckPincodeServiceability();
-  const { addresses: userAddresses = [], isLoading: addressesLoading } = useAddresses();
+  const { addresses: userAddresses = [] } = useAddresses();
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
   const isWelcomePromotion = (promotion: Promotion) => {
     const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
     return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
   };
+
+  const shippingOriginPincode = import.meta.env.VITE_ORIGIN_PINCODE?.trim() || '';
+  const deliveryPincode = checkoutForm.watch("deliveryAddress.pinCode");
+  const shippingMethod = checkoutForm.watch("shippingMethod");
+
+  const getCartWeightGrams = (items: any[] = []) => {
+    return items.reduce((sum, item) => {
+      let rawWeight = item?.variant?.weight ?? item?.product?.weight ?? 0;
+      let weight = Number(rawWeight) || 0;
+      const unit = String(item?.variant?.weightUnit ?? item?.product?.weightUnit ?? 'G').toLowerCase();
+      if (unit === 'kg') weight *= 1000;
+      return sum + weight * (Number(item?.quantity) || 0);
+    }, 0);
+  };
+
+  const cartWeightGrams = useMemo(() => getCartWeightGrams(state?.items ?? []), [state?.items]);
+
+  const shippingChargeParams = useMemo(() => ({
+    d_pin: shippingOriginPincode,
+    o_pin: deliveryPincode,
+    cgm: cartWeightGrams,
+    md: "E",
+    ss: "Delivered",
+    pt: "Pre-paid"
+    // shipping_method: shippingMethod,
+  }), [shippingOriginPincode, deliveryPincode, cartWeightGrams, shippingMethod]);
+
+  const { data: shippingChargesApiResponse } = useCalculateShippingCharges(shippingChargeParams, {
+    enabled: Boolean(shippingChargeParams.d_pin && shippingChargeParams.o_pin),
+  });
+
+  const shippingChargesFromApi = useMemo(() => {
+    // 1. Handle Array vs Object safely
+    const apiData = Array.isArray(shippingChargesApiResponse?.data) && shippingChargesApiResponse.data.length > 0
+      ? shippingChargesApiResponse.data[0]
+      : shippingChargesApiResponse;
+
+    if (!apiData) return 0;
+
+    // 2. Priority check for the keys found in your JSON
+    // total_amount (104.14) or gross_amount (88.26)
+    if (typeof apiData.total_amount === 'number') return apiData.total_amount;
+    if (typeof apiData.gross_amount === 'number') return apiData.gross_amount;
+
+    // 3. Fallback for your previous logic
+    if (typeof apiData.amount === 'number') return apiData.amount;
+    if (typeof apiData.charge === 'number') return apiData.charge;
+    if (typeof apiData.total === 'number') return apiData.total;
+    if (typeof apiData.value === 'number') return apiData.value;
+
+    if (Array.isArray(apiData.charges)) {
+      return Number(apiData.charges[0]?.amount || 0);
+    }
+
+    return Number(apiData?.rate || apiData?.fee || 0);
+  }, [shippingChargesApiResponse]);
 
   const baseSubtotal = useMemo(() => {
     return getSubtotal(state?.items ?? []);
@@ -112,7 +169,7 @@ const CheckoutPage: React.FC = () => {
   const orderSummary = useMemo(() => {
     const deliveryValues = checkoutForm.watch("deliveryAddress");
     const shippingMethod = checkoutForm.watch("shippingMethod");
-    return getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, {
+    const baseSummary = getOrderSummary(state?.items ?? [], shippingMethod, bestPromotion, {
       firstName: deliveryValues.firstName || '',
       lastName: deliveryValues.lastName || '',
       address: deliveryValues.address || '',
@@ -122,7 +179,19 @@ const CheckoutPage: React.FC = () => {
       phone: deliveryValues.phone || '',
       country: deliveryValues.country || 'India',
     });
-  }, [state?.items, checkoutForm.watch(), bestPromotion]);
+
+    if (shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi)) {
+      const shipping = Number(shippingChargesFromApi);
+      return {
+        ...baseSummary,
+        shipping,
+        total: Number((baseSummary.subtotal - baseSummary.promotionDiscount + baseSummary.tax + shipping).toFixed(2)),
+        totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + shipping).toFixed(2)),
+      };
+    }
+
+    return baseSummary;
+  }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi]);
 
   const shippingLabel = orderSummary.shippingReady
     ? orderSummary.shipping === 0
@@ -219,10 +288,21 @@ const CheckoutPage: React.FC = () => {
     if (selectedAddressId === address.id) {
       setSelectedAddressId(null);
       setSelectedAddressServiceable(null);
+      setDeliveryAddressServiceable(null);
       return;
     }
 
+    setDeliveryAddressServiceable(null);
     applySavedAddress(address);
+  };
+
+  const handleSetNewDestinationAddress = (value: boolean) => {
+    setNewDestinationAddress(value);
+    if (value) {
+      setSelectedAddressId(null);
+      setSelectedAddressServiceable(null);
+      setDeliveryAddressServiceable(null);
+    }
   };
 
   const handlePlaceOrder = async () => {
@@ -235,6 +315,11 @@ const CheckoutPage: React.FC = () => {
     const formValues = checkoutForm.getValues();
     const deliveryValues = formValues.deliveryAddress;
     const billingValues = formValues.billingSameAsShipping ? deliveryValues : formValues.billingAddress;
+    const effectiveServiceability = selectedAddressId ? selectedAddressServiceable : deliveryAddressServiceable;
+    if (effectiveServiceability === false) {
+      alert("Cannot place order because delivery is not available for the selected PIN code.");
+      return;
+    }
     if (!currentUser) {
       if (!formValues.contactEmail && !formValues.contactPhone && !formValues.contactWhatsapp) {
         alert("Please provide at least one contact method (email, phone, or WhatsApp)");
@@ -341,6 +426,7 @@ const CheckoutPage: React.FC = () => {
                 onSignIn={() => openAuthModal("customer")}
                 onContactChange={runCustomerLookup}
                 customerLookupLoading={customerLookupLoading}
+                customerLookupError={customerLookupError}
               />
             )}
 
@@ -356,7 +442,8 @@ const CheckoutPage: React.FC = () => {
               currentUser={currentUser}
               existingCustomer={existingCustomer}
               onToggleSavedAddress={toggleSavedAddress}
-              onSetNewDestinationAddress={setNewDestinationAddress}
+              onSetNewDestinationAddress={handleSetNewDestinationAddress}
+              onDeliveryPincodeServiceabilityChange={setDeliveryAddressServiceable}
               onCancelNewAddress={() => {
                 setNewDestinationAddress(false);
                 const firstAddr = currentUser ? userAddresses[0] : existingAddresses[0];
@@ -371,7 +458,7 @@ const CheckoutPage: React.FC = () => {
             <BillingAddressSection form={checkoutForm} />
             <motion.button
               onClick={handlePlaceOrder}
-              disabled={isCreatingOrder}
+              disabled={isCreatingOrder || selectedAddressServiceable === false || (!selectedAddressId && deliveryAddressServiceable === false)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
@@ -386,7 +473,7 @@ const CheckoutPage: React.FC = () => {
               <button onClick={() => setOpenModal('about-sappey')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Contact</button>
             </div>
           </div>
-          
+
           <div className="lg:col-span-1">
             <CheckoutSidebar
               state={state}

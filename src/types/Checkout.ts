@@ -21,6 +21,7 @@ export interface ContactInformationSectionProps {
     onSignIn: () => void;
     onContactChange: (contact: string, type: 'email' | 'phone' | 'whatsapp') => void;
     customerLookupLoading: boolean;
+    customerLookupError?: string | null;
 }
 
 export interface OrderSummaryData {
@@ -249,6 +250,7 @@ export interface AddressFormProps {
     addressFieldPrefix: "deliveryAddress" | "billingAddress";
     showSaveInfo?: boolean;
     phoneLabel?: string;
+    onPincodeServiceabilityChange?: (isServiceable: boolean | null) => void;
 }
 
 export interface PaymentSectionProps {
@@ -268,4 +270,5 @@ export interface ShippingDetailsSectionProps {
     onToggleSavedAddress: (address: Address) => void;
     onSetNewDestinationAddress: (value: boolean) => void;
     onCancelNewAddress: () => void;
+    onDeliveryPincodeServiceabilityChange?: (isServiceable: boolean | null) => void;
 }
