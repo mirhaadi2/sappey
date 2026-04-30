@@ -1,13 +1,21 @@
 import React from "react";
-import { Receipt } from "@phosphor-icons/react";
+import { Receipt, Gift, Truck } from "@phosphor-icons/react";
 import { OrderDetailsFinancialCardProps } from "../../types/OrderDetailsPage";
 
 const OrderDetailsFinancialCard: React.FC<OrderDetailsFinancialCardProps> = ({
     totalAmount,
     shippingCost,
     taxAmount,
-    finalAmount
+    finalAmount,
+    metadata
 }) => {
+    const promotion = metadata?.promotion;
+    
+    const getPromotionIcon = (type: string) => {
+        if (type?.includes('shipping') || type === 'free_shipping') return <Truck size={16} weight="bold" />;
+        if (type?.includes('discount') || type === 'percent_discount') return <Gift size={16} weight="bold" />;
+        return <Gift size={16} weight="bold" />;
+    };
     return (
         <section className="bg-brand-brown rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl shadow-brand-brown/20">
             <div className="absolute top-0 right-0 p-12 opacity-10">
@@ -44,6 +52,30 @@ const OrderDetailsFinancialCard: React.FC<OrderDetailsFinancialCardProps> = ({
                     </div>
                 </div>
             </div>
+
+            {/* Promotion Badge */}
+            {promotion && (
+                <div className="mt-8 pt-8 border-t border-white/10">
+                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-amber-600/30 to-amber-700/30 backdrop-blur-md border border-brand-cream/20 rounded-2xl">
+                        <div className="p-3 bg-brand-cream/20 rounded-xl flex-shrink-0 text-brand-cream">
+                            {getPromotionIcon(promotion.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-black text-brand-cream/70 uppercase tracking-widest mb-2">✓ Applied Promotion</p>
+                            <h4 className="text-sm font-bold text-brand-cream mb-2 line-clamp-2">{promotion.title}</h4>
+                            {promotion.appliedAt && (
+                                <p className="text-xs text-brand-cream/50">
+                                    Applied on {new Date(promotion.appliedAt).toLocaleDateString('en-IN', { 
+                                        day: '2-digit', 
+                                        month: 'short',
+                                        year: 'numeric'
+                                    })}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
