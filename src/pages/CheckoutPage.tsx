@@ -5,7 +5,7 @@ import { useCart } from "../context/CardContext";
 import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
-import { Promotion, useApplicablePromotions } from "../api/promotions";
+import { useApplicablePromotions } from "../api/promotions";
 import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/checkoutCalculations";
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
@@ -89,10 +89,10 @@ const CheckoutPage: React.FC = () => {
   const { addresses: userAddresses = [] } = useAddresses();
   const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
   const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
-  const isWelcomePromotion = (promotion: Promotion) => {
-    const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
-    return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
-  };
+  // const isWelcomePromotion = (promotion: Promotion) => {
+  //   const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
+  //   return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
+  // };
 
   const shippingOriginPincode = import.meta.env.VITE_ORIGIN_PINCODE?.trim() || '';
   const deliveryPincode = checkoutForm.watch("deliveryAddress.pinCode");
@@ -156,12 +156,31 @@ const CheckoutPage: React.FC = () => {
 
   const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
 
+  const isWelcomePromotion = (promo: any) => {
+    return promo.type === 'fixed_discount' && promo.title.toLowerCase().includes('welcome');
+  };
+
   const filteredPromotions = useMemo(() => {
-    if (isReturningCustomer) return [];
-    if (isFirstOrderEligible) {
-      return applicablePromotions.filter((promotion) => isWelcomePromotion(promotion));
+    console.log("Filtering promotions for customer:", { isReturningCustomer, isFirstOrderEligible });
+
+    // 1. If they are a returning customer, filter OUT the welcome offers 
+    // but keep general offers (Free shipping, gifts, etc.)
+    if (isReturningCustomer) {
+      return applicablePromotions.filter((promotion) => !isWelcomePromotion(promotion));
     }
 
+    // 2. If they are eligible for a first order, you might want to show 
+    // ONLY the welcome offer or ALL offers. 
+    // Usually, showing ALL is better for conversion.
+    if (isFirstOrderEligible) {
+      // If you want ONLY welcome offers:
+      // return applicablePromotions.filter((promotion) => isWelcomePromotion(promotion));
+
+      // If you want BOTH welcome + general offers (Recommended):
+      return applicablePromotions;
+    }
+
+    // 3. Fallback: Return all active promotions
     return applicablePromotions;
   }, [applicablePromotions, isReturningCustomer, isFirstOrderEligible]);
 
@@ -180,17 +199,20 @@ const CheckoutPage: React.FC = () => {
       country: deliveryValues.country || 'India',
     });
 
-    if (shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi)) {
-      const shipping = Number(shippingChargesFromApi);
-      return {
-        ...baseSummary,
-        shipping,
-        total: Number((baseSummary.subtotal - baseSummary.promotionDiscount + baseSummary.tax + shipping).toFixed(2)),
-        totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + shipping).toFixed(2)),
-      };
-    }
+    const freeShippingApplied = bestPromotion?.promotion?.type === 'free_shipping';
+    const rawShipping = shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi)
+      ? Number(shippingChargesFromApi)
+      : baseSummary.shipping;
+    const shipping = freeShippingApplied ? 0 : rawShipping;
+    const promotionDiscount = baseSummary.promotionDiscount;
 
-    return baseSummary;
+    return {
+      ...baseSummary,
+      shipping,
+      promotionDiscount,
+      total: Number((baseSummary.subtotal - promotionDiscount + baseSummary.tax + shipping).toFixed(2)),
+      totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + rawShipping).toFixed(2)),
+    };
   }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi]);
 
   const shippingLabel = orderSummary.shippingReady
