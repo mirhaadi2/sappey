@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { XCircle, Fingerprint } from "@phosphor-icons/react";
+import { XCircle, Fingerprint, CheckCircle } from "@phosphor-icons/react";
 import { useOrder } from "../api/orders/hooks";
+import { useOrders } from "../api/orders/hooks";
 import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { ConfirmDialog } from "../components/common";
 import { TIMELINE_STEPS } from "../utils/orderStatusMapper";
@@ -19,10 +20,13 @@ const OrderDetailsPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
     const { currentUser } = useWebsiteAuth();
-    const { order, isLoading, error } = useOrder(orderId || "", !!orderId);
+    const { order, isLoading, error, refetch } = useOrder(orderId || "", !!orderId);
+    const { cancelOrder, isCancelingOrder, cancelError } = useOrders();
 
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [cancelSuccess, setCancelSuccess] = useState(false);
+    const [cancelErrorMsg, setCancelErrorMsg] = useState<string | null>(null);
 
     const copyToClipboard = useCallback((text: string, field: string) => {
         if (!text) return;
@@ -30,6 +34,27 @@ const OrderDetailsPage: React.FC = () => {
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
     }, []);
+
+    const handleCancelOrder = useCallback(async () => {
+        if (!orderId) return;
+        
+        try {
+            setCancelErrorMsg(null);
+            await cancelOrder(orderId, "Customer requested cancellation");
+            setCancelSuccess(true);
+            setShowCancelConfirm(false);
+            
+            // Refetch order details to show updated status
+            setTimeout(() => {
+                refetch();
+                setCancelSuccess(false);
+            }, 2000);
+        } catch (err: any) {
+            const errorMessage = err?.response?.data?.message || err?.message || "Failed to cancel order. Please try again.";
+            setCancelErrorMsg(errorMessage);
+            console.error("Cancel order error:", err);
+        }
+    }, [orderId, cancelOrder, refetch]);
 
     const timelineData = useMemo(() => {
         if (!order) return [];
@@ -144,12 +169,49 @@ const OrderDetailsPage: React.FC = () => {
                     <ConfirmDialog
                         isOpen={showCancelConfirm}
                         onCancel={() => setShowCancelConfirm(false)}
-                        onConfirm={() => { setShowCancelConfirm(false); }}
+                        onConfirm={handleCancelOrder}
                         type="danger"
                         title="Confirm Cancellation"
                         description="This will halt the current logistics process and trigger a refund to your original payment method."
-                        confirmText="Revoke Order"
+                        confirmText={isCancelingOrder ? "Processing..." : "Revoke Order"}
+                        isLoading={isCancelingOrder}
                     />
+                )}
+            </AnimatePresence>
+
+            {/* Cancel Success Notification */}
+            <AnimatePresence>
+                {cancelSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="fixed bottom-8 right-8 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3 shadow-xl max-w-sm"
+                    >
+                        <CheckCircle size={24} weight="duotone" className="text-emerald-600 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-emerald-900 text-sm">Order Cancelled</h4>
+                            <p className="text-xs text-emerald-700">Your order has been successfully cancelled. Refund will be processed shortly.</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Cancel Error Notification */}
+            <AnimatePresence>
+                {cancelErrorMsg && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="fixed bottom-8 right-8 bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-center gap-3 shadow-xl max-w-sm"
+                    >
+                        <XCircle size={24} weight="duotone" className="text-rose-600 flex-shrink-0" />
+                        <div>
+                            <h4 className="font-bold text-rose-900 text-sm">Cancellation Failed</h4>
+                            <p className="text-xs text-rose-700">{cancelErrorMsg}</p>
+                        </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>
