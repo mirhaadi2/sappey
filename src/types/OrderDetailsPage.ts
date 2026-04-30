@@ -28,6 +28,7 @@ export interface OrderDetailsFinancialCardProps {
     shippingCost: string;
     taxAmount: string;
     finalAmount: string;
+    metadata?: Record<string, any>;
 }
 
 export interface OrderDetailsShippingDossierProps {

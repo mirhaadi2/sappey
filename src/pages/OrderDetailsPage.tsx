@@ -111,6 +111,7 @@ const OrderDetailsPage: React.FC = () => {
                             shippingCost={order?.shippingCost ?? "0"}
                             taxAmount={order?.taxAmount ?? "0"}
                             finalAmount={order?.finalAmount ?? "0"}
+                            metadata={order?.metadata}
                         />
                     </div>
 
