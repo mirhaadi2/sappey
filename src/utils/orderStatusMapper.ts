@@ -176,7 +176,8 @@ export const ORDER_STATUS_CONFIG: Record<OrderStatus, StatusConfig> = {
  * Get status configuration by status code
  */
 export const getStatusConfig = (status: string): StatusConfig => {
-    return ORDER_STATUS_CONFIG[(status as OrderStatus) || "PENDING"];
+    const normalizedStatus = (status || "PENDING") as OrderStatus;
+    return ORDER_STATUS_CONFIG[normalizedStatus] || ORDER_STATUS_CONFIG.PENDING;
 };
 
 /**
@@ -190,9 +191,13 @@ export const getStatusLabel = (status: string): string => {
  * Get timeline steps for order tracking
  */
 export const TIMELINE_STEPS = [
-    { status: "PENDING", label: "Order Placed", description: "Order received", icon: Clock },
-    { status: "PROCESSING", label: "Processing", description: "Being prepared", icon: Package },
-    { status: "SHIPPING", label: "In Transit", description: "On the way", icon: Truck },
+    { status: "PENDING", label: "Order Received", description: "Order received", icon: Clock },
+    { status: "CONFIRMED", label: "Confirmed", description: "Order confirmed", icon: SealCheck },
+    { status: "PROCESSING", label: "Preparing", description: "Being prepared", icon: Package },
+    { status: "PACKED", label: "Packed", description: "Shipment packed", icon: Package },
+    { status: "HANDOVER", label: "Handed Over", description: "Handed to courier", icon: Handshake },
+    { status: "SHIPPED", label: "In Transit", description: "On the way", icon: Truck },
+    { status: "OUT_FOR_DELIVERY", label: "Out for Delivery", description: "Courier is nearby", icon: MapPin },
     { status: "DELIVERED", label: "Delivered", description: "Successfully delivered", icon: CheckCircle },
 ];
 

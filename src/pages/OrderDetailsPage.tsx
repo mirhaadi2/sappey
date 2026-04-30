@@ -13,7 +13,8 @@ import {
     OrderDetailsStats,
     OrderDetailsShipmentContents,
     OrderDetailsFinancialCard,
-    OrderDetailsSidebar
+    OrderDetailsSidebar,
+    OrderStatusBadge,
 } from "../components/OrderDetails";
 
 const OrderDetailsPage: React.FC = () => {
@@ -58,20 +59,15 @@ const OrderDetailsPage: React.FC = () => {
 
     const timelineData = useMemo(() => {
         if (!order) return [];
-        const statusOrder = ["ORDER_PLACED", "PROCESSING", "SHIPPED", "HANDOVER", "DELIVERED"];
-        let mappedStatus: string = order.status;
 
-        if (["CONFIRMED", "PENDING"].includes(order.status)) mappedStatus = "ORDER_PLACED";
-        else if (["PACKED", "PROCESSING"].includes(order.status)) mappedStatus = "PROCESSING";
-        else if (["OUT_FOR_DELIVERY", "SHIPPED", "HANDOVER"].includes(order.status)) mappedStatus = "SHIPPED";
-
-        const currentIndex = statusOrder.indexOf(mappedStatus);
+        const currentIndex = TIMELINE_STEPS.findIndex((step) => step.status === order.status);
+        const resolvedIndex = currentIndex >= 0 ? currentIndex : 0;
 
         return TIMELINE_STEPS.map((step, idx) => ({
             ...step,
-            isCompleted: idx < currentIndex || (order.status === "DELIVERED" && idx === currentIndex),
-            isActive: idx === currentIndex && order.status !== "DELIVERED",
-            isUpcoming: idx > currentIndex,
+            isCompleted: idx < resolvedIndex || (order.status === "DELIVERED" && idx === resolvedIndex),
+            isActive: idx === resolvedIndex && order.status !== "DELIVERED",
+            isUpcoming: idx > resolvedIndex,
         }));
     }, [order]);
 
@@ -113,6 +109,16 @@ const OrderDetailsPage: React.FC = () => {
                 orderNumber={order.orderNumber}
                 onBack={() => navigate("/orders")}
             />
+
+            <div className="max-w-7xl mx-auto px-6 mt-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Current Order Status</p>
+                        <p className="mt-2 text-sm font-black text-slate-900">Your order status is live and updated in real time.</p>
+                    </div>
+                    <OrderStatusBadge status={order.status} size="lg" variant="glass" />
+                </div>
+            </div>
 
             <main className="max-w-7xl mx-auto px-6 mt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
