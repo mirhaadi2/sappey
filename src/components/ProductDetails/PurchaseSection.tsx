@@ -13,10 +13,21 @@ const PurchaseSection: React.FC<PurchaseSectionProps> = ({
 }) => (
     <div className="space-y-6 pt-4 mt-auto">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
-                <button onClick={() => onQuantityChange(Math.max(1, quantity - 1))} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Minus weight="bold" /></button>
-                <span className="w-10 text-center font-bold">{quantity}</span>
-                <button onClick={() => onQuantityChange(quantity + 1)} className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"><Plus weight="bold" /></button>
+            {/* Change the inner div to include w-fit and justify-between for better spacing */}
+            <div className="flex items-center justify-between w-fit min-w-[140px] bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+                <button
+                    onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
+                    className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"
+                >
+                    <Minus weight="bold" />
+                </button>
+                <span className="w-10 text-center font-bold text-slate-900">{quantity}</span>
+                <button
+                    onClick={() => onQuantityChange(quantity + 1)}
+                    className="p-3 text-brand-brown hover:bg-slate-50 rounded-xl transition-colors"
+                >
+                    <Plus weight="bold" />
+                </button>
             </div>
             <div className="text-[11px] font-bold uppercase tracking-widest">
                 {isOutOfStock ? <span className="text-red-500">Out of Stock</span> : <span className="text-emerald-600 flex items-center gap-1"><Check weight="bold" /> In Stock</span>}
