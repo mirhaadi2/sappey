@@ -3,8 +3,6 @@ import { CheckFat } from "@phosphor-icons/react";
 import { LogisticsTimelineProps } from "../../types/OrderDetailsPage";
 
 const LogisticsTimeline: React.FC<LogisticsTimelineProps> = ({ timelineData, trackingNumber }) => {
-    console.log("Timeline Data:", timelineData);
-    console.log("Tracking Number:", trackingNumber);
     return (
         <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between mb-8">

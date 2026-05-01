@@ -161,7 +161,6 @@ const CheckoutPage: React.FC = () => {
   };
 
   const filteredPromotions = useMemo(() => {
-    console.log("Filtering promotions for customer:", { isReturningCustomer, isFirstOrderEligible });
 
     // 1. If they are a returning customer, filter OUT the welcome offers 
     // but keep general offers (Free shipping, gifts, etc.)

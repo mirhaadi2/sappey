@@ -33,7 +33,6 @@ const CartDrawer: React.FC = () => {
         return item.product.price || 0;
     };
 
-    console.log("Cart State:", state);
     const drawerContent = (
         <AnimatePresence>
             {state.isOpen && (
