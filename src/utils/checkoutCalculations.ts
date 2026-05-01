@@ -123,6 +123,7 @@ export const getOrderSummary = (
     const promotionDiscountPaise = selectedPromotion ? toPaise(selectedPromotion.discountAmount || 0) : 0;
 
     const totalPaise = subtotalPaise - promotionDiscountPaise + taxPaise + shippingPaise;
+    const total = Math.round(fromPaise(totalPaise));
 
     return {
         items: items.length,
@@ -131,7 +132,7 @@ export const getOrderSummary = (
         shipping: fromPaise(shippingPaise),
         promotionDiscount: fromPaise(promotionDiscountPaise), // Coupon savings only
         selectedPromotion: selectedPromotion?.promotion ?? null,
-        total: fromPaise(totalPaise),
+        total,
         totalBeforePromo: fromPaise(subtotalPaise + taxPaise + shippingPaise),
         shippingReady: isShippingAddressComplete(deliveryAddress),
     };

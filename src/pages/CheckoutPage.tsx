@@ -209,7 +209,7 @@ const CheckoutPage: React.FC = () => {
       ...baseSummary,
       shipping,
       promotionDiscount,
-      total: Number((baseSummary.subtotal - promotionDiscount + baseSummary.tax + shipping).toFixed(2)),
+      total: Math.round(baseSummary.subtotal - promotionDiscount + baseSummary.tax + shipping),
       totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + rawShipping).toFixed(2)),
     };
   }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi]);
