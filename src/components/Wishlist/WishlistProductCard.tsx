@@ -29,7 +29,7 @@ const WishlistProductCard: React.FC<WishlistProductCardProps> = ({
                     src={product?.images?.[0] ?? 'https://via.placeholder.com/300?text=No+Image'}
                     alt={product?.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    onClick={() => onNavigate(product.id)}
+                    onClick={() => onNavigate(product.slug)}
                 />
                 {/* Luxury Floating Controls */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
@@ -55,7 +55,7 @@ const WishlistProductCard: React.FC<WishlistProductCardProps> = ({
                 <div className="mb-auto">
                     <h3
                         className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-brand-brown transition-colors cursor-pointer"
-                        onClick={() => onNavigate(product.id)}
+                        onClick={() => onNavigate(product.slug)}
                     >
                         {product?.name}
                     </h3>

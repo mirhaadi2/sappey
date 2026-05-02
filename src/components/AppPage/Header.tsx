@@ -250,7 +250,7 @@ const Header: React.FC = () => {
                                                 searchResults.slice(0, 5).map((product: Product) => (
                                                     <button
                                                         key={product.id}
-                                                        onClick={() => { navigate(`/products/${product.id}`); closeSearch(); }}
+                                                        onClick={() => { navigate(`/products/${product.slug}`); closeSearch(); }}
                                                         className="w-full p-4 flex items-center gap-4 hover:bg-[#F9F6F0] transition-colors group text-left"
                                                     >
                                                         <img src={product.images?.[0]} className="w-14 h-14 object-cover rounded-lg bg-gray-50" alt="" />
