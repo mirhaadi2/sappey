@@ -182,7 +182,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
             ) : (
                 <Link
-                    to={`/products/${product.id}`}
+                    to={`/products/${product.slug}`}
                     className="block h-full"
                     onClick={(e) => showVariantModal && e.preventDefault()}
                 >

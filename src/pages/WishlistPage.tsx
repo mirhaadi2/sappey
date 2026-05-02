@@ -103,8 +103,8 @@ const WishlistPage: React.FC = () => {
         }
     };
 
-    const handleNavigateToProduct = (productId: string) => {
-        navigate(`/products/${productId}`);
+    const handleNavigateToProduct = (productSlug: string) => {
+        navigate(`/products/${productSlug}`);
     };
 
     const totalValue = useMemo(() => {
