@@ -23,6 +23,7 @@ import {
     GuestAuthModal, 
     CustomerAuthModal 
 } from "./components/AppPage";
+import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -120,6 +121,7 @@ const AppContent: React.FC = () => {
             <CartDrawer />
             <GuestAuthModal />
             <CustomerAuthModal />
+            {/* <WhatsAppFloatingButton /> */}
         </div>
     );
 };
