@@ -6,6 +6,7 @@ import { CheckoutSidebarProps } from "../../types";
 
 const CheckoutSidebar: React.FC<CheckoutSidebarProps> = ({
     state,
+    dispatch,
     orderSummary,
     filteredPromotions,
     isReturningCustomer,
@@ -18,7 +19,7 @@ const CheckoutSidebar: React.FC<CheckoutSidebarProps> = ({
             className="lg:sticky lg:top-28 space-y-4"
         >
             <div className="bg-white rounded-2xl p-6 border border-brand-brown/10">
-                <CheckoutItems state={state} />
+                <CheckoutItems state={state} dispatch={dispatch} />
             </div>
 
             <OrderSummary

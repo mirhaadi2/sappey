@@ -7,7 +7,7 @@ export interface CartState {
     isOpen: boolean;
 }
 
-type CartAction =
+export type CartAction =
     | { type: "ADD_ITEM", payload: { product: Product; variant: ProductVariant | string | null; quantity: number } }
     | { type: "REMOVE_ITEM"; payload: { productId: string; variant: ProductVariant | string | null } }
     | { type: "UPDATE_QUANTITY"; payload: { productId: string; variant: ProductVariant | string | null; quantity: number } }

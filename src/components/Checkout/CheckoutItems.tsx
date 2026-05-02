@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { CaretDown, CaretUp } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, Trash } from "@phosphor-icons/react";
 import { getItemUnitPrice, getItemOriginalUnitPrice } from "../../utils/checkoutCalculations";
 import { CheckoutItemsProps } from "../../types";
 
 
 
-const CheckoutItems = ({ state }: CheckoutItemsProps) => {
+const CheckoutItems = ({ state, dispatch }: CheckoutItemsProps) => {
     const items = state?.items ?? [];
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -67,16 +67,26 @@ const CheckoutItems = ({ state }: CheckoutItemsProps) => {
                                         </div>
                                     </div>
                                     
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-brown-900">
-                                            ₹{totalItemPrice.toLocaleString('en-IN')}
-                                        </p>
-                                        {/* This is the ITEM-WISE discount display */}
-                                        {hasItemDiscount && (
-                                            <p className="text-[10px] text-slate-400 line-through">
-                                                ₹{originalTotalItemPrice.toLocaleString('en-IN')}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => dispatch({ type: "REMOVE_ITEM", payload: { productId: item.product.id, variant: item.variant } })}
+                                            className="text-slate-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 rounded"
+                                            title="Remove item"
+                                        >
+                                            <Trash size={14} weight="bold" />
+                                        </button>
+                                        
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-brown-900">
+                                                ₹{totalItemPrice.toLocaleString('en-IN')}
                                             </p>
-                                        )}
+                                            {/* This is the ITEM-WISE discount display */}
+                                            {hasItemDiscount && (
+                                                <p className="text-[10px] text-slate-400 line-through">
+                                                    ₹{originalTotalItemPrice.toLocaleString('en-IN')}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
