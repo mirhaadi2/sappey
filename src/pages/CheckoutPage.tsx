@@ -498,6 +498,7 @@ const CheckoutPage: React.FC = () => {
           <div className="lg:col-span-1">
             <CheckoutSidebar
               state={state}
+              dispatch={dispatch}
               orderSummary={orderSummary}
               filteredPromotions={filteredPromotions}
               isReturningCustomer={isReturningCustomer}

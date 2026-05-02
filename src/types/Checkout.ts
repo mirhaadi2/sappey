@@ -2,7 +2,7 @@ import { Address } from './address';
 import { Promotion } from '../api/promotions';
 import { UseFormReturn } from "react-hook-form";
 import { CheckoutFormData } from '../schemas';
-import { CartState } from "../context/CardContext";
+import { CartState, CartAction } from "../context/CardContext";
 import { useFormWithValidation } from '../hooks/useFormValidation';
 // ============================================
 // Contact & Guest Types
@@ -215,6 +215,7 @@ export interface PageContentModalProps {
 
 export interface CheckoutSidebarProps {
     state: CartState;
+    dispatch: React.Dispatch<CartAction>;
     orderSummary: any;
     filteredPromotions: any[];
     isReturningCustomer: boolean;
@@ -239,6 +240,7 @@ export interface PromotionBadgeProps {
 
 export interface CheckoutItemsProps {
     state: CartState;
+    dispatch: React.Dispatch<CartAction>;
 }
 
 export interface BillingAddressSectionProps {
