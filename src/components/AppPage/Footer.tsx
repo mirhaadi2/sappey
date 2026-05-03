@@ -11,7 +11,7 @@ import {
 
 const Footer: React.FC = () => {
     return (
-        <footer className="relative bg-brand-brown text-brand-cream py-8 px-6 overflow-hidden">
+        <footer id="contact" className="relative bg-brand-brown text-brand-cream py-8 px-6 overflow-hidden">
             {/* Top Gradient Divider */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-latte/30 to-transparent" />
 
