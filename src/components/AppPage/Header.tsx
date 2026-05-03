@@ -16,7 +16,6 @@ const navLinks = [
     { label: "Shop", href: "/shop" },
     { label: "Bulk Order", href: "/bulk-order" },
     { label: "Our Story", href: "/#story" },
-    { label: "Recipes", href: "/#recipes" },
     { label: "Contact", href: "/#contact" },
 ];
 
@@ -87,22 +86,34 @@ const Header: React.FC = () => {
         }
     }, [searchQuery, navigate, closeSearch]);
 
+    const scrollToSection = useCallback((sectionId: string) => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: "smooth" });
+        }
+    }, []);
+
+    useEffect(() => {
+        const state = location.state as { scrollToId?: string } | null;
+        if (state?.scrollToId) {
+            const timeout = window.setTimeout(() => scrollToSection(state.scrollToId!), 200);
+            return () => window.clearTimeout(timeout);
+        }
+    }, [location, scrollToSection]);
+
     const handleNavClick = useCallback((href: string) => {
         setMobileOpen(false);
         if (href.startsWith('/#')) {
             const sectionId = href.replace('/#', "");
             if (location.pathname !== "/") {
-                navigate("/");
-                setTimeout(() => {
-                    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
-                }, 300);
+                navigate("/", { state: { scrollToId: sectionId } });
             } else {
-                document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+                scrollToSection(sectionId);
             }
         } else {
             navigate(href);
         }
-    }, [location.pathname, navigate]);
+    }, [location.pathname, navigate, scrollToSection]);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
