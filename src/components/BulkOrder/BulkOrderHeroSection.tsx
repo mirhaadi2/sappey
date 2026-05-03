@@ -8,7 +8,7 @@ const BulkOrderHeroSection: React.FC = () => {
                 <Sparkle size={16} weight="fill" className="text-brand-cream" />
                 Bulk Order Services
             </span>
-            <h1 className="font-headline text-5xl md:text-6xl font-black tracking-tight leading-[1.02] mb-6">
+            <h1 className="font-headline text-[clamp(1.75rem,4vw,2.8rem)] font-black tracking-tight leading-[1.02] mb-6">
                 Premium Bulk Ordering for Retailers & Businesses
             </h1>
             <p className="max-w-2xl text-base md:text-lg text-brand-cream/90 leading-relaxed mb-8">

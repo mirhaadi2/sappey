@@ -132,14 +132,14 @@ const BulkOrderFormSection: React.FC = () => {
     };
 
     return (
-        <div className="rounded-[32px] border border-white/15 bg-white text-slate-900 shadow-[0_30px_80px_rgba(0,0,0,0.12)] p-8 md:p-10">
+        <div className="rounded-[32px] border border-white/15 bg-white text-slate-900 shadow-[0_30px_80px_rgba(0,0,0,0.12)] p-6 md:p-10">
             <div className="flex flex-col gap-4 mb-8">
                 <div className="inline-flex items-center gap-3 rounded-full bg-brand-brown/10 px-4 py-2 text-sm font-semibold text-brand-brown w-fit">
                     <Building size={18} /> Wholesale Inquiry
                 </div>
                 <div>
                     <p className="text-sm uppercase tracking-[0.25em] text-brand-brown/60">Start your order</p>
-                    <h2 className="text-3xl font-black text-slate-900">Get a quote in minutes</h2>
+                    <h2 className="text-[clamp(1.75rem,4vw,2.2rem)] font-black text-slate-900">Get a quote in minutes</h2>
                 </div>
             </div>
 
