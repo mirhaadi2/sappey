@@ -57,7 +57,7 @@ const TestimonialsCarousel: React.FC<TestimonialCarouselProps> = ({
                                 Reviews
                             </motion.span>
 
-                            <h2 className="font-headline text-[clamp(1.75rem,4vw,2.2rem)] text-brand-cream leading-tight mb-8">
+                            <h2 className="font-headline text-[clamp(1.75rem,4vw,2rem)] text-brand-cream leading-tight mb-[clamp(0.75rem,1.5vw,1rem)]">
                                 What Our Community Says
                             </h2>
 
