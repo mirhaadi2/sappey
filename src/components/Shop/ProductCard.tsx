@@ -94,201 +94,143 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     const isSoldOut = !product?.isAvailable;
 
+    // Shared Card Wrapper Logic for cleaner JSX
+    const cardVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    };
+
+    const cardClassName = `group relative flex flex-col w-full h-full bg-white rounded-2xl md:rounded-[32px] border border-brand-brown/10 overflow-hidden shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(62,44,28,0.12)] ${isSoldOut ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`;
+
     return (
         <>
-            {isSoldOut ? (
-                <div className="block h-full cursor-not-allowed">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={{
-                            hidden: { opacity: 0, y: 20 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        className="group relative flex flex-col h-full bg-white rounded-[32px] border border-brand-brown/10 overflow-hidden shadow-sm opacity-60"
-                    >
-                        <div className="relative aspect-square m-2 overflow-hidden rounded-[26px] bg-[#FAF9F6]">
-                            <img
-                                src={product?.images?.[0] ?? "https://via.placeholder.com/400"}
-                                alt={product?.name}
-                                className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                <span className="text-white font-bold text-lg uppercase tracking-wider">Sold Out</span>
-                            </div>
-                            
-                            <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                {(product?.isNew || product?.isBestseller) && (
-                                    <span className={`${product?.isNew ? "bg-brand-plum" : "bg-brand-brown"} text-white text-[8px] font-bold uppercase tracking-[0.2em] px-2.5 py-1.5 rounded-lg shadow-sm`}>
-                                        {product?.isNew ? "New Arrival" : "Bestseller"}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="p-6 pt-2 flex flex-col flex-1">
-                            <div className="mb-4">
-                                <div className="flex items-baseline justify-between gap-2 mb-1">
-                                    <h3 className="font-headline text-gray-500 text-xl line-clamp-1">
-                                        {product?.name}
-                                    </h3>
-                                    {variantOptions.length === 1 && (
-                                        <span className="text-[12px] font-bold text-brand-brown/40 whitespace-nowrap">
-                                            {variantOptions[0].label}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        {variantOptions.length > 1 ? `${variantOptions.length} Pack Sizes` : "Single Pack"}
-                                    </span>
-                                    <div className="h-1 w-1 rounded-full bg-slate-200" />
-                                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Premium Selection</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-auto flex items-end justify-between border-t border-brand-brown/5 pt-5">
-                                <div className="flex flex-col">
-                                    {variantOptions.length === 1 && variantOptions[0].discountedPrice ? (
-                                        <>
-                                            <span className="text-xl font-bold text-gray-500 tracking-tighter">
-                                                ₹{variantOptions[0].discountedPrice.toLocaleString('en-IN')}
-                                            </span>
-                                            <span className="text-[11px] text-slate-400 line-through">
-                                                ₹{variantOptions[0].price.toLocaleString('en-IN')}
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {variantOptions.length > 1 && (
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mb-0.5">Price starting</span>
-                                            )}
-                                            <span className="text-xl font-bold text-gray-500 tracking-tighter">
-                                                {priceRange.min === priceRange.max
-                                                    ? `₹${priceRange.min.toLocaleString('en-IN')}`
-                                                    : `₹${priceRange.min.toLocaleString('en-IN')} - ₹${priceRange.max.toLocaleString('en-IN')}`}
-                                            </span>
-                                        </>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center gap-2 text-gray-400">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Sold Out</span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            ) : (
+            <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                variants={cardVariants}
+                className="w-full h-full"
+            >
                 <Link
-                    to={`/products/${product.slug}`}
-                    className="block h-full"
-                    onClick={(e) => showVariantModal && e.preventDefault()}
+                    to={isSoldOut ? "#" : `/products/${product.slug}`}
+                    className={`block h-full w-full ${isSoldOut ? "pointer-events-none" : ""}`}
+                    onClick={(e) => {
+                        if (isSoldOut || (showVariantModal)) e.preventDefault();
+                    }}
                 >
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={{
-                            hidden: { opacity: 0, y: 20 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        className="group relative flex flex-col h-full bg-white rounded-[32px] border border-brand-brown/10 overflow-hidden transition-all duration-500 hover:-translate-y-1 shadow-sm hover:shadow-[0_30px_60px_-15px_rgba(62,44,28,0.12)]"
-                    >
-                        <div className="relative aspect-square m-2 overflow-hidden rounded-[26px] bg-[#FAF9F6]">
+                    <div className={cardClassName}>
+                        {/* Image Container - Responsive aspect ratio */}
+                        <div className="relative aspect-square m-1.5 md:m-2 overflow-hidden rounded-xl md:rounded-[26px] bg-[#FAF9F6]">
                             <img
                                 src={product?.images?.[0] ?? "https://via.placeholder.com/400"}
                                 alt={product?.name}
                                 className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+                                loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             
-                            <div className="absolute top-3 left-3 flex flex-col gap-2">
+                            {/* Overlays */}
+                            {!isSoldOut && <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
+                            
+                            {isSoldOut && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                    <span className="text-white font-bold text-sm md:text-lg uppercase tracking-wider">Sold Out</span>
+                                </div>
+                            )}
+
+                            {/* Badges - Top Left */}
+                            <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1.5">
                                 {(product?.isNew || product?.isBestseller) && (
-                                    <span className={`${product?.isNew ? "bg-brand-plum" : "bg-brand-brown"} text-white text-[8px] font-bold uppercase tracking-[0.2em] px-2.5 py-1.5 rounded-lg shadow-sm`}>
+                                    <span className={`${product?.isNew ? "bg-brand-plum" : "bg-brand-brown"} text-white text-[7px] md:text-[8px] font-bold uppercase tracking-[0.15em] md:tracking-[0.2em] px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg shadow-sm`}>
                                         {product?.isNew ? "New Arrival" : "Bestseller"}
                                     </span>
                                 )}
                             </div>
 
-                            <div className="absolute top-3 right-3 flex flex-col gap-2">
-                                <button
-                                    className={`p-2.5 rounded-full transition-all duration-300 transform shadow-md ${
-                                        isAnyVariantInWishlist
-                                        ? 'bg-red-500 text-white scale-110'
-                                        : 'bg-white/95 backdrop-blur-md text-brand-brown opacity-0 translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
-                                    }`}
-                                    onClick={handleWishlistToggle}
-                                >
-                                    <Heart size={18} weight={isAnyVariantInWishlist ? "fill" : "regular"} />
-                                </button>
+                            {/* Actions - Top Right (Hidden on mobile by default, shown on hover/touch) */}
+                            {!isSoldOut && (
+                                <div className="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 z-10">
+                                    <button
+                                        className={`p-2 md:p-2.5 rounded-full transition-all duration-300 transform shadow-md ${
+                                            isAnyVariantInWishlist
+                                            ? 'bg-red-500 text-white scale-110'
+                                            : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
+                                        }`}
+                                        onClick={handleWishlistToggle}
+                                    >
+                                        <Heart size={16} weight={isAnyVariantInWishlist ? "fill" : "regular"} className="md:w-[18px] md:h-[18px]" />
+                                    </button>
 
-                                <button
-                                    className="p-2.5 rounded-full bg-white/95 backdrop-blur-md text-brand-brown opacity-0 translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white transition-all duration-300 delay-75 shadow-md"
-                                    onClick={handleCartClick}
-                                >
-                                    <ShoppingCartSimple size={18} weight="bold" />
-                                </button>
-                            </div>
+                                    <button
+                                        className="p-2 md:p-2.5 rounded-full bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white transition-all duration-300 delay-75 shadow-md"
+                                        onClick={handleCartClick}
+                                    >
+                                        <ShoppingCartSimple size={16} weight="bold" className="md:w-[18px] md:h-[18px]" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="p-6 pt-2 flex flex-col flex-1">
-                            <div className="mb-4">
-                                <div className="flex items-baseline justify-between gap-2 mb-1">
-                                    <h3 className="font-headline text-brand-brown text-xl line-clamp-1 group-hover:text-brand-cocoa transition-colors">
+                        {/* Content Area */}
+                        <div className="p-3 md:p-6 pt-1 md:pt-2 flex flex-col flex-1 min-w-0">
+                            <div className="mb-2 md:mb-4">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                    <h3 className={`font-headline text-lg md:text-xl line-clamp-1 transition-colors ${isSoldOut ? 'text-gray-500' : 'text-brand-brown group-hover:text-brand-cocoa'}`}>
                                         {product?.name}
                                     </h3>
                                     {variantOptions.length === 1 && (
-                                        <span className="text-[12px] font-bold text-brand-brown/40 whitespace-nowrap">
+                                        <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
                                             {variantOptions[0].label}
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                                    <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
                                         {variantOptions.length > 1 ? `${variantOptions.length} Pack Sizes` : "Single Pack"}
                                     </span>
-                                    <div className="h-1 w-1 rounded-full bg-slate-200" />
-                                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Premium Selection</span>
+                                    <div className="h-0.5 w-0.5 md:h-1 md:w-1 rounded-full bg-slate-200" />
+                                    <span className="text-[8px] md:text-[10px] font-bold text-orange-500 uppercase tracking-widest whitespace-nowrap">Premium Selection</span>
                                 </div>
                             </div>
 
-                            <div className="mt-auto flex items-end justify-between border-t border-brand-brown/5 pt-5">
-                                <div className="flex flex-col">
+                            {/* Footer / Price Section */}
+                            <div className="mt-auto flex items-end justify-between border-t border-brand-brown/5 pt-3 md:pt-5">
+                                <div className="flex flex-col min-w-0">
                                     {variantOptions.length === 1 && variantOptions[0].discountedPrice ? (
                                         <>
-                                            <span className="text-xl font-bold text-brand-brown tracking-tighter">
+                                            <span className={`text-lg md:text-xl font-bold tracking-tighter ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
                                                 ₹{variantOptions[0].discountedPrice.toLocaleString('en-IN')}
                                             </span>
-                                            <span className="text-[11px] text-slate-400 line-through">
+                                            <span className="text-[10px] md:text-[11px] text-slate-400 line-through">
                                                 ₹{variantOptions[0].price.toLocaleString('en-IN')}
                                             </span>
                                         </>
                                     ) : (
                                         <>
                                             {variantOptions.length > 1 && (
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mb-0.5">Price starting</span>
+                                                <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase tracking-tighter mb-0.5">Starting From</span>
                                             )}
-                                            <span className="text-xl font-bold text-brand-brown tracking-tighter">
+                                            <span className={`text-lg md:text-xl font-bold tracking-tighter truncate ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
                                                 {priceRange.min === priceRange.max
                                                     ? `₹${priceRange.min.toLocaleString('en-IN')}`
-                                                    : `₹${priceRange.min.toLocaleString('en-IN')} - ₹${priceRange.max.toLocaleString('en-IN')}`}
+                                                    : `₹${priceRange.min.toLocaleString('en-IN')}+`}
                                             </span>
                                         </>
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-2 text-brand-brown/40 group-hover:text-brand-brown transition-colors">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Details</span>
-                                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                <div className={`flex items-center gap-1 md:gap-2 transition-colors ${isSoldOut ? 'text-gray-400' : 'text-brand-brown/40 group-hover:text-brand-brown'}`}>
+                                    <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+                                        {isSoldOut ? 'Out of Stock' : 'Details'}
+                                    </span>
+                                    {!isSoldOut && <ArrowRight size={12} className="md:w-[14px] md:h-[14px] group-hover:translate-x-1 transition-transform" />}
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 </Link>
-            )}
+            </motion.div>
 
+            {/* Selection Modal */}
             <Modal
                 isOpen={showVariantModal}
                 onClose={() => setShowVariantModal(false)}
@@ -298,7 +240,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <div className="flex flex-col py-2">
                     <div className="mb-6">
                         <p className="text-[10px] font-bold text-brand-brown/40 uppercase tracking-[0.2em] mb-1">Authentic Sappey</p>
-                        <h4 className="text-xl font-headline text-brand-brown leading-none">{product.name}</h4>
+                        <h4 className="text-xl font-headline text-brand-brown leading-tight">{product.name}</h4>
                     </div>
 
                     <div className="space-y-3 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
@@ -310,8 +252,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     onClick={() => handleAction(variant, modalMode)}
                                     className="w-full group flex items-center justify-between p-4 rounded-2xl border-2 border-slate-100 bg-slate-50 hover:border-brand-brown/20 hover:bg-white transition-all duration-300"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-left">
+                                    <div className="flex items-center gap-4 text-left">
+                                        <div>
                                             <p className="text-[11px] font-bold text-brand-brown uppercase tracking-widest">{variant.label}</p>
                                             <p className="text-[9px] text-slate-400 uppercase tracking-tighter">Vacuum Sealed Pack</p>
                                         </div>
