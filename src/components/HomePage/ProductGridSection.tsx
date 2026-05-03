@@ -48,19 +48,19 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                         >
                             <div className="max-w-2xl">
                                 {label && (
-                                    <span className="font-label text-xs uppercase tracking-widest text-brand-cocoa block mb-2">
+                                    <span className="font-label text-[clamp(0.7rem,2vw,0.85rem)] uppercase tracking-widest text-brand-cocoa block mb-2">
                                         {label}
                                     </span>
                                 )}
                                 <h2
-                                    className="font-headline text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
+                                    className="font-headline text-[clamp(1.75rem,4vw,2.2rem)] text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
                                     style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                                 >
                                     {title}
                                 </h2>
 
                                 {subtitle && (
-                                    <p className="font-sans text-brand-brown/80">
+                                    <p className="font-sans text-[clamp(0.9rem,2.5vw,1rem)] text-brand-brown/80 leading-relaxed">
                                         {subtitle}
                                     </p>
                                 )}
@@ -70,9 +70,14 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                                 <div className="shrink-0">
                                     <button
                                         onClick={onViewAll}
-                                        className="inline-flex items-center gap-2 font-label text-sm text-brand-brown hover:text-brand-cocoa transition-colors duration-200"
+                                        className="inline-flex items-center gap-2 font-label text-[clamp(0.8rem,2vw,0.9rem)] text-brand-brown hover:text-brand-cocoa transition-colors duration-200 group"
                                     >
-                                        View All <ArrowRight size={16} weight="regular" />
+                                        View All
+                                        <ArrowRight
+                                            size={16}
+                                            weight="regular"
+                                            className="group-hover:translate-x-1 transition-transform"
+                                        />
                                     </button>
                                 </div>
                             )}

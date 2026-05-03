@@ -21,7 +21,7 @@ const StorySection: React.FC<StorySectionProps> = ({ storySection }) => {
                         Our {formatSectionTitle(storySection?.sectionType) || "Story"}
                     </span>
                     <h2
-                        className="font-headline text-4xl text-brand-brown mb-4"
+                        className="font-headline text-[clamp(1.75rem,4vw,2.2rem)] text-brand-brown mb-4"
                         style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                     >
                         {storySection?.title || "From Our Farms to Your Table"}
