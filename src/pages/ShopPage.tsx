@@ -88,7 +88,7 @@ const ShopPage: React.FC = () => {
       {/* Hero Header */}
       <ShopPageHeader />
 
-      <div className="max-w-7xl mx-auto px-6 -mt-10 pb-24">
+      <div className="max-w-7xl mx-auto px-6 -mt-10 pb-12">
         {/* Filter Controls Bar */}
         <FilterControls
           sortBy={sortBy}
