@@ -83,7 +83,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 gap-x-4 md:gap-x-6"
                         >
                             {(products.length > 0 ? products : []).map((product: Product) => (
                                 <motion.div key={product.id} variants={fadeUpVariants}>
