@@ -33,7 +33,7 @@ const InstagramSection: React.FC<InstagramSectionProps> = ({
                             {section.title || "Follow Us"}
                         </span>
                         <h2
-                            className="font-headline text-4xl text-brand-brown mb-4"
+                            className="font-headline text-[clamp(1.75rem,4vw,2.2rem)] text-brand-brown mb-4"
                             style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                         >
                             {section.subtitle || "See Our Latest Posts on Instagram"}
