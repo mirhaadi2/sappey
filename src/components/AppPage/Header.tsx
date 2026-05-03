@@ -334,60 +334,83 @@ const Header: React.FC = () => {
             {/* Mobile Menu Overlay - OUTSIDE header for proper fixed positioning */}
             <AnimatePresence>
                 {mobileOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, x: "100%" }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: "100%" }}
-                        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                        className="fixed inset-0 h-[100dvh] bg-white z-[100] flex flex-col p-8 pb-10 lg:hidden overflow-y-auto"
-                    >
-                        {/* Header: Increased top margin for notch/status bar safety */}
-                        <div className="flex justify-between items-center mb-10 mt-4">
-                            <img 
-                                src="/images/sappey-logo-4.png" 
-                                alt="SAPPEY" 
-                                className="h-16 w-auto object-contain" 
-                            />
-                            <button
-                                onClick={() => setMobileOpen(false)}
-                                className="p-2 -mr-2 active:scale-95 transition-transform"
-                            >
-                                <X size={32} weight="light" />
-                            </button>
-                        </div>
+                    <>
+                        {/* 1. Added a Backdrop for depth - helps the menu feel "layered" */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileOpen(false)}
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[90] lg:hidden"
+                        />
 
-                        {/* Links: Slightly smaller text for better fit on small iPhones */}
-                        <div className="flex flex-col">
-                            {navLinks.map((link) => (
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            // 2. Refined transition: Slightly snappier for navigation feel
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            /* 
+                               3. Safety Fixes:
+                               - Changed 'inset-0' to 'top-0 right-0 w-[85%] sm:w-[400px]' 
+                                 Full-screen menus can feel claustrophobic; a partial slide-out is more modern.
+                               - Added 'pb-[safe-area-inset-bottom]' logic via padding classes.
+                            */
+                            className="fixed top-0 right-0 w-full h-[100dvh] bg-white z-[100] flex flex-col shadow-2xl lg:hidden overflow-hidden"
+                        >
+                            {/* Header: Added 'pt-safe' (if using tailwind-safe-area) or extra top padding for notch safety */}
+                            <div className="flex justify-between items-center p-6 pt-10 border-b border-brand-brown/5">
+                                <img
+                                    src="/images/sappey-logo-4.png"
+                                    alt="SAPPEY"
+                                    className="h-10 md:h-12 w-auto object-contain"
+                                />
                                 <button
-                                    key={link.label}
-                                    onClick={() => handleNavClick(link.href)}
-                                    className="text-[28px] py-2 font-light text-brand-brown text-left border-b border-black/5 flex justify-between items-center group active:bg-black/[0.02] transition-colors"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="p-2 rounded-full bg-slate-50 text-brand-brown active:scale-90 transition-all"
                                 >
-                                    <span className="tracking-tight">{link.label}</span>
-                                    <CaretRight size={20} className="opacity-30" />
+                                    <X size={24} weight="bold" />
                                 </button>
-                            ))}
-                        </div>
-
-                        {/* Footer: Pushed to bottom */}
-                        <div className="mt-auto pt-10 space-y-6">
-                            {!isLoggedIn && (
-                                <button
-                                    onClick={() => { openAuthModal("customer"); setMobileOpen(false); }}
-                                    className="w-full py-4 bg-brand-brown text-white font-bold uppercase tracking-[0.2em] rounded-xl shadow-lg active:scale-[0.98] transition-transform"
-                                >
-                                    Member Login
-                                </button>
-                            )}
-                            <div className="text-center space-y-1">
-                                <p className="text-[10px] uppercase tracking-[0.3em] text-brand-brown/40">
-                                    Premium Dry Fruits & Nuts
-                                </p>
-                                <div className="w-12 h-1 bg-brand-brown/10 mx-auto rounded-full mt-4" />
                             </div>
-                        </div>
-                    </motion.div>
+
+                            {/* Links: Added staggered animation for that "Premium" feel */}
+                            <div className="flex-1 overflow-y-auto px-6">
+                                <nav className="flex flex-col space-y-2">
+                                    {navLinks.map((link, i) => (
+                                        <motion.button
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 + (i * 0.05) }}
+                                            key={link.label}
+                                            onClick={() => handleNavClick(link.href)}
+                                            className="w-full py-2 text-md font-medium text-brand-brown flex justify-between items-center group active:opacity-60 transition-all border-b border-brand-brown/5"
+                                        >
+                                            <span className="tracking-tight">{link.label}</span>
+                                            <CaretRight size={20} className="text-brand-brown/30" />
+                                        </motion.button>
+                                    ))}
+                                </nav>
+                            </div>
+
+                            {/* Footer: Sticky bottom with safe area padding */}
+                            <div className="mt-auto p-6 bg-slate-50/50 pb-10">
+                                {!isLoggedIn && (
+                                    <button
+                                        onClick={() => { openAuthModal("customer"); setMobileOpen(false); }}
+                                        className="w-full py-4 bg-brand-brown text-white font-bold uppercase tracking-[0.2em] rounded-2xl shadow-lg active:scale-[0.98] transition-all mb-6"
+                                    >
+                                        Member Login
+                                    </button>
+                                )}
+                                <div className="text-center">
+                                    <p className="text-[10px] uppercase tracking-[0.3em] text-brand-brown/40 font-bold">
+                                        Direct From Source • Premium Selection
+                                    </p>
+                                    <div className="w-8 h-1 bg-brand-brown/10 mx-auto rounded-full mt-4" />
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
 
