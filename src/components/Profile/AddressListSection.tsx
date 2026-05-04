@@ -38,27 +38,29 @@ const AddressListSection: React.FC<AddressListSectionProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-6 md:mt-0 opacity-100 md:opacity-0 transition-all md:translate-x-4 md:group-hover:translate-x-0">
+                    <div className="flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         {!address.isDefault && (
                             <button
                                 onClick={() => onSetDefault(address.id)}
-                                className="w-10 h-10 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all"
-                                title="Set as Primary"
+                                className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Set Primary"
                             >
-                                <Check size={18} weight="bold" />
+                                <Check size={16} weight="bold" />
                             </button>
                         )}
                         <button
                             onClick={() => onEdit(address)}
-                            className="w-10 h-10 flex items-center justify-center bg-brand-latte/10 text-brand-brown rounded-xl hover:bg-brand-brown hover:text-white transition-all"
+                            className="p-2 text-gray-400 hover:text-brand-brown hover:bg-brand-latte/20 rounded-lg transition-colors"
+                            title="Edit"
                         >
-                            <Pencil size={18} weight="bold" />
+                            <Pencil size={16} weight="bold" />
                         </button>
                         <button
                             onClick={() => onDelete(address.id)}
-                            className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
                         >
-                            <Trash size={18} weight="bold" />
+                            <Trash size={16} weight="bold" />
                         </button>
                     </div>
                 </motion.div>
