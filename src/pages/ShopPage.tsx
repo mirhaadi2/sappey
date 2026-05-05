@@ -65,21 +65,10 @@ const ShopPage: React.FC = () => {
 
   // Sort products
   const sortedProducts = useMemo(() => {
-    if (!products || products.length === 0) return [];
-    const result = [...products];
-    switch (sortBy) {
-      case "price-asc":
-        return result.sort((a, b) => Number(a?.basePrice ?? 0) - Number(b?.basePrice ?? 0));
-      case "price-desc":
-        return result.sort((a, b) => Number(b?.basePrice ?? 0) - Number(a?.basePrice ?? 0));
-      case "newest":
-        return result.sort((a, b) => new Date(b?.createdAt ?? 0).getTime() - new Date(a?.createdAt ?? 0).getTime());
-      case "rating":
-        return result.sort((a, b) => Number(b?.rating ?? 0) - Number(a?.rating ?? 0));
-      default:
-        return result;
-    }
-  }, [products, sortBy]);
+    // API already returns sorted results based on filters.sort
+    // No need for client-side sorting - it breaks infinite pagination
+    return products || [];
+  }, [products]);
 
   if (isLoading && sortedProducts.length === 0) return <ShopPageSkeleton />;
 
