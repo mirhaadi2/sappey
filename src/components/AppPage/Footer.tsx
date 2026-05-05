@@ -33,16 +33,38 @@ const Footer: React.FC = () => {
                             at the source to preserve absolute freshness and nutritional integrity.
                         </p>
 
-                        {/* FSSAI Integration */}
-                        <div className="flex items-center gap-4 py-4 px-5 bg-white/5 rounded-2xl border border-white/10 w-fit">
-                            <img
-                                src="/images/fssai-logo.png"
-                                alt="FSSAI Licensed"
-                                className="h-8 w-auto brightness-0 invert opacity-80"
-                            />
-                            <div className="flex flex-col">
-                                <span className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Lic. No.</span>
-                                <span className="text-xs font-mono text-slate-300 tracking-wider">21026251000320</span>
+                        <div className="flex flex-wrap items-center gap-4">
+                            {/* FSSAI Integration */}
+                            <div className="flex items-center gap-4 py-4 px-5 bg-white/5 rounded-2xl border border-white/10 w-fit">
+                                <img
+                                    src="/images/fssai-logo.png"
+                                    alt="FSSAI Licensed"
+                                    className="h-8 w-auto brightness-0 invert opacity-80"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Lic. No.</span>
+                                    <span className="text-xs font-mono text-slate-300 tracking-wider">21026251000320</span>
+                                </div>
+                            </div>
+
+                            
+                            {/* Social Media */}
+                            <div className="flex items-center gap-3 pt-1">
+                                {[
+                                    { icon: <InstagramLogo size={20} />, href: "https://www.instagram.com/sappeyofficial" },
+                                    { icon: <TwitterLogo size={20} />, href: "https://twitter.com/sappey" },
+                                    { icon: <LinkedinLogo size={20} />, href: "https://www.linkedin.com/company/sappey/" }
+                                ].map((social, idx) => (
+                                    <a
+                                        key={idx}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300"
+                                    >
+                                        {social.icon}
+                                    </a>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -131,25 +153,6 @@ const Footer: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Social Media */}
-                                <div className="flex items-center gap-3 pt-1">
-                                    {[
-                                        { icon: <InstagramLogo size={20} />, href: "https://www.instagram.com/sappeyofficial" },
-                                        { icon: <TwitterLogo size={20} />, href: "https://twitter.com/sappey" },
-                                        { icon: <LinkedinLogo size={20} />, href: "https://www.linkedin.com/company/sappey/" }
-                                    ].map((social, idx) => (
-                                        <a
-                                            key={idx}
-                                            href={social.href}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300"
-                                        >
-                                            {social.icon}
-                                        </a>
-                                    ))}
                                 </div>
                             </div>
                         </div>
