@@ -17,23 +17,23 @@ const Footer: React.FC = () => {
 
             <div className="max-w-7xl mx-auto">
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-8">
 
                     {/* Brand Section (Left side) */}
-                    <div className="lg:col-span-5 space-y-8">
+                    <div className="lg:col-span-4 space-y-8">
                         <Link to="/" className="inline-block group">
                             <h2 className="font-headline text-4xl font-black tracking-tighter text-white">
                                 SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-all duration-300">.COM</span>
                             </h2>
                         </Link>
 
-                        <p className="font-sans text-base text-slate-300/90 leading-relaxed max-w-md">
+                        <p className="font-sans text-base text-slate-300/90 leading-relaxed">
                             Bridging the gap between Himalayan orchards and your home. We deliver
                             <span className="text-white"> peak-season dry fruits</span>, vacuum-sealed
                             at the source to preserve absolute freshness and nutritional integrity.
                         </p>
 
-                        {/* FSSAI Integration - Now aligned with the text block */}
+                        {/* FSSAI Integration */}
                         <div className="flex items-center gap-4 py-4 px-5 bg-white/5 rounded-2xl border border-white/10 w-fit">
                             <img
                                 src="/images/fssai-logo.png"
@@ -48,8 +48,8 @@ const Footer: React.FC = () => {
                     </div>
 
                     {/* Right Side Links & Contact Grid */}
-                    <div className="lg:col-span-7">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div className="lg:col-span-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
                             {/* Quick Shop */}
                             <div>
                                 <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
@@ -88,52 +88,64 @@ const Footer: React.FC = () => {
                                 </ul>
                             </div>
 
-                            {/* Contact & Socials (Fixed alignment here) */}
-                            <div className="col-span-2 md:col-span-1 space-y-8">
+                            {/* Office & Contact - Expanded to handle larger content */}
+                            <div className="space-y-6">
                                 <div>
                                     <h4 className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-orange-500 mb-8">
-                                        Office
+                                        Contact Us
                                     </h4>
-                                    <ul className="space-y-5 font-sans text-sm">
-                                        <li className="flex items-start gap-4 group">
-                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                    <div className="space-y-6">
+                                        {/* Address Block */}
+                                        {/* Phone & Email */}
+                                        <div className="space-y-3 ">
+                                            <div className="flex items-center gap-4 group">
+                                                <div className="shrink-0 p-2 h-fit bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                                    <Phone size={18} className="text-orange-500" />
+                                                </div>
+                                                <span className="text-sm text-slate-300">+91 8492943652</span>
+                                            </div>
+                                            <div className="flex items-center gap-4 group">
+                                                <div className="shrink-0 p-2 h-fit bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
+                                                    <EnvelopeSimple size={18} className="text-orange-500" />
+                                                </div>
+                                                <a
+                                                    href="mailto:support@sappey.com"
+                                                    className="text-sm text-slate-300 hover:text-orange-500 transition-colors"
+                                                >
+                                                    support@sappey.com
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-4 group ">
+                                            <div className="shrink-0 p-2 h-fit bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
                                                 <MapPin size={18} className="text-orange-500" />
                                             </div>
-                                            <span className="text-slate-300 leading-snug">Jammu & Kashmir,<br />India</span>
-                                        </li>
-                                        <li className="flex items-center gap-4 group">
-                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
-                                                <Phone size={18} className="text-orange-500" />
+                                            <div className="flex flex-col gap-1">
+                                                <h5 className="text-white font-bold text-xs uppercase tracking-wider">Registered Office</h5>
+                                                <address className="not-italic text-slate-300 leading-relaxed text-sm">
+                                                    Malik Market, GTB Nagar, <br />
+                                                    Channi Rama, Jammu, <br />
+                                                    Jammu & Kashmir — 180015
+                                                </address>
                                             </div>
-                                            <span className="text-slate-300">+91 8492943652</span>
-                                        </li>
-                                        <li className="flex items-center gap-4 group">
-                                            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
-                                                <EnvelopeSimple size={18} className="text-orange-500" />
-                                            </div>
-                                            <a
-                                                href="mailto:support@sappey.com?subject=Inquiry regarding Sappey Products"
-                                                className="text-slate-300 hover:text-orange-500 transition-colors"
-                                            >
-                                                support@sappey.com
-                                            </a>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Social Media Icons - Aligned under Office info */}
-                                <div className="flex items-center gap-3 pt-4">
+                                {/* Social Media */}
+                                <div className="flex items-center gap-3 pt-1">
                                     {[
-                                        { icon: <InstagramLogo size={22} />, href: "https://www.instagram.com/sappeyofficial?igsh=MTZqMm96anpkM3o2cQ==" },
-                                        { icon: <TwitterLogo size={22} />, href: "https://twitter.com/sappey" },
-                                        { icon: <LinkedinLogo size={22} />, href: "https://www.linkedin.com/company/sappey/" }
+                                        { icon: <InstagramLogo size={20} />, href: "https://www.instagram.com/sappeyofficial" },
+                                        { icon: <TwitterLogo size={20} />, href: "https://twitter.com/sappey" },
+                                        { icon: <LinkedinLogo size={20} />, href: "https://www.linkedin.com/company/sappey/" }
                                     ].map((social, idx) => (
                                         <a
                                             key={idx}
                                             href={social.href}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 shadow-xl"
+                                            className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300"
                                         >
                                             {social.icon}
                                         </a>
@@ -144,7 +156,7 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Bottom Bar - Copyright & Legal */}
+                {/* Bottom Bar */}
                 <div className="pt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="space-y-1 text-center md:text-left">
                         <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-slate-300 font-bold">
@@ -154,17 +166,13 @@ const Footer: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-6 px-6 py-3 bg-white/5 backdrop-blur-md rounded-full border border-white/5 shadow-inner">
-                        {[
-                            { name: "Privacy", path: "/privacy-policy" },
-                            { name: "Terms", path: "/terms-and-conditions" },
-                            { name: "Sitemap", path: "/sitemap" }
-                        ].map((legal) => (
+                        {["Privacy", "Terms", "Sitemap"].map((name) => (
                             <Link
-                                key={legal.name}
-                                to={legal.path}
+                                key={name}
+                                to={`/${name.toLowerCase()}-policy`}
                                 className="text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-orange-500 transition-colors"
                             >
-                                {legal.name}
+                                {name}
                             </Link>
                         ))}
                     </div>
