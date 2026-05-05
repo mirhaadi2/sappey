@@ -53,12 +53,28 @@ const loadCartFromStorage = (): CartState => {
     }
 };
 
+// Helper function to normalize product data before persisting to localStorage
+const sanitizeProductForStorage = (product: Product): Product => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    minPrice: product.minPrice,
+    category: product.category,
+    isAvailable: product.isAvailable,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+});
+
 // Helper function to save cart to localStorage
 const saveCartToStorage = (state: CartState) => {
     try {
         if (typeof window !== 'undefined') {
             const cartToSave = {
-                items: state.items,
+                items: state.items.map(item => ({
+                    ...item,
+                    product: sanitizeProductForStorage(item.product),
+                })),
                 isOpen: false, // Don't persist the isOpen state
             };
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartToSave));
@@ -225,10 +241,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     // Save cart to localStorage whenever state changes
     useEffect(() => {
-        if (isHydrated) {
+        if (isHydrated && !cartRestorePending) {
             saveCartToStorage(state);
         }
-    }, [state, isHydrated]);
+    }, [state, isHydrated, cartRestorePending]);
 
     // totalItems = number of line items in cart (not total quantity)
     const totalItems = state.items.length;

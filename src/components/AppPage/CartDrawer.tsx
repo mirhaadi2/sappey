@@ -106,6 +106,8 @@ const CartDrawer: React.FC = () => {
                                                     <img
                                                         src={item?.product?.images?.[0] || item?.product?.image || "/placeholder.png"}
                                                         alt={item?.product?.name}
+                                                        loading="lazy"
+                                                        decoding="async"
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                         onError={(event) => {
                                                             event.currentTarget.onerror = null;
