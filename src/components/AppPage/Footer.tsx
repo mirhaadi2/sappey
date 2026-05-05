@@ -144,7 +144,7 @@ const Footer: React.FC = () => {
                                                 <MapPin size={18} className="text-orange-500" />
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                {/* <h5 className="text-white font-bold text-xs uppercase tracking-wider">Registered Office</h5> */}
+                                                <h5 className="text-white font-bold text-xs uppercase tracking-wider">Registered Office</h5>
                                                 <address className="not-italic text-slate-300 leading-relaxed text-sm">
                                                     Malik Market, GTB Nagar, <br />
                                                     Channi Rama, Jammu, <br />
