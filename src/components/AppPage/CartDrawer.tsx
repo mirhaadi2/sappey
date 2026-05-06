@@ -5,6 +5,7 @@ import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../../context/CardContext";
 import { useNavigate } from "react-router-dom";
 import { CartItem } from "../../types";
+import SafeImage from "../common/SafeImage";
 
 const CartDrawer: React.FC = () => {
     const { state, dispatch, totalItems, totalPrice } = useCart();
@@ -103,16 +104,12 @@ const CartDrawer: React.FC = () => {
                                                 className="group flex gap-3 border-b border-brand-brown/5 last:border-0"
                                             >
                                                 <div className="relative w-20 h-20 overflow-hidden rounded-2xl bg-white border border-brand-brown/5">
-                                                    <img
-                                                        src={item?.product?.images?.[0] || item?.product?.image || "/placeholder.png"}
-                                                        alt={item?.product?.name}
+                                                    <SafeImage
+                                                        src={item?.product?.images?.[0] || item?.product?.image || undefined}
+                                                        alt={item?.product?.name || "Product image"}
                                                         loading="lazy"
                                                         decoding="async"
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                        onError={(event) => {
-                                                            event.currentTarget.onerror = null;
-                                                            event.currentTarget.src = "/placeholder.png";
-                                                        }}
                                                     />
                                                 </div>
 
