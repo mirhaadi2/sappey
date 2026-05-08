@@ -19,7 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         if (!Array.isArray(product?.variants) || product?.variants?.length === 0) return [];
 
         return product.variants.map((variant: any) => {
-            const basePrice = Number(variant?.price ?? 0);
+            const basePrice = Number(variant?.price ?? variant?.basePrice ?? 0);
             const discountedPrice = variant?.discountedPrice ? Number(variant.discountedPrice) : null;
             const displayPrice = getDisplayPrice({ product, variant });
             const originalDisplayPrice = getOriginalDisplayPrice({ product, variant });
@@ -40,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     const priceRange = useMemo(() => {
         if (variantOptions.length === 0) {
-            const basePrice = Number(product?.minPrice ?? product?.price ?? 0);
+            const basePrice = Number(product?.minPrice ?? product?.price ?? product?.basePrice ?? product?.displayPrice ?? 0);
             return { min: basePrice, max: basePrice };
         }
         const prices = variantOptions.map(v => v.effectivePrice);

@@ -15,16 +15,25 @@ export const getGstRate = (source: PriceSource): number => {
 
 export const getBasePrice = (source: PriceSource): number => {
     return sanitizeNumber(
-        source?.variant?.discountedPrice ??
+        (source?.variant?.discountedPrice > 0 ? source?.variant?.discountedPrice : null) ??
         source?.variant?.price ??
+        source?.variant?.basePrice ??
         source?.product?.discountedPrice ??
         source?.product?.price ??
+        source?.product?.basePrice ??
+        source?.product?.displayPrice ??
         0
     );
 };
 
 export const getOriginalBasePrice = (source: PriceSource): number => {
-    return sanitizeNumber(source?.variant?.price ?? source?.product?.price ?? 0);
+    return sanitizeNumber(
+        source?.variant?.price ??
+        source?.variant?.basePrice ??
+        source?.product?.price ??
+        source?.product?.basePrice ??
+        0
+    );
 };
 
 export const getPriceWithGst = (price: number, gstRate: number): number => {
