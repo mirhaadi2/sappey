@@ -347,9 +347,22 @@ const CheckoutPage: React.FC = () => {
       alert("Cannot place order because delivery is not available for the selected PIN code.");
       return;
     }
+
     if (!currentUser) {
       if (!formValues.contactEmail && !formValues.contactPhone && !formValues.contactWhatsapp) {
-        alert("Please provide at least one contact method (email, phone, or WhatsApp)");
+        alert("Please provide a Email");
+        if (checkoutForm.setFocus) {
+          if (document.querySelector('input[name="contactEmail"]')) {
+            checkoutForm.setFocus('contactEmail');
+          } else if (document.querySelector('input[name="contactPhone"]')) {
+            checkoutForm.setFocus('contactPhone');
+          } else if (document.querySelector('input[name="contactWhatsapp"]')) {
+            checkoutForm.setFocus('contactWhatsapp');
+          }
+        } else {
+          const firstField = document.querySelector<HTMLInputElement>('input[name="contactEmail"], input[name="contactPhone"], input[name="contactWhatsapp"]');
+          firstField?.focus();
+        }
         return;
       }
       if (!isGuestVerified) {

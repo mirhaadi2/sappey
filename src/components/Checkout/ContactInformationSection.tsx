@@ -35,6 +35,14 @@ const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
 
     const getFieldName = (type: string) => `contact${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof CheckoutFormData;
 
+    const handleFieldBlur = async (type: 'email' | 'phone' | 'whatsapp', value: string) => {
+        const fieldName = getFieldName(type);
+        onContactChange(value, type);
+        if (value) {
+            await form.trigger(fieldName);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -60,7 +68,7 @@ const ContactInformationSection: React.FC<ContactInformationSectionProps> = ({
                         <input
                             type={type === 'email' ? 'email' : 'tel'}
                             {...form.register(getFieldName(type))}
-                            onBlur={(e) => onContactChange(e.target.value, type as 'email' | 'phone' | 'whatsapp')}
+                            onBlur={(e) => handleFieldBlur(type as 'email' | 'phone' | 'whatsapp', e.target.value)}
                             placeholder={getContactPlaceholder(type as 'email' | 'phone' | 'whatsapp')}
                             className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-100 bg-slate-50/30 focus:bg-white focus:border-brand-brown focus:ring-4 focus:ring-brand-brown/5 focus:outline-none transition-all"
                         />
