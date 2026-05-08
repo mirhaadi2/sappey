@@ -205,16 +205,22 @@ const CheckoutPage: React.FC = () => {
     const shipping = freeShippingApplied ? 0 : rawShipping;
     const promotionDiscount = baseSummary.promotionDiscount;
 
+    // FIXED: shippingReady should be true if API has calculated shipping charges
+    // This fixes the issue where shipping is added to total but not displayed
+    const hasApiShipping = shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi) && shippingChargesFromApi > 0;
+    const shippingReady = baseSummary.shippingReady || hasApiShipping;
+
     return {
       ...baseSummary,
       shipping,
       promotionDiscount,
+      shippingReady,
       total: Math.round(baseSummary.subtotal - promotionDiscount + baseSummary.tax + shipping),
       totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + rawShipping).toFixed(2)),
     };
   }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi]);
 
-  const shippingLabel = orderSummary.shippingReady
+  const shippingLabel = orderSummary?.shippingReady
     ? orderSummary.shipping === 0
       ? 'Free'
       : `₹${orderSummary.shipping.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
