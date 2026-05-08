@@ -5,6 +5,7 @@ import { Heart, ArrowRight, ShoppingCartSimple } from "@phosphor-icons/react";
 import { ProductCardProps, ProductVariant } from "../../types";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CardContext";
+import { getDisplayPrice, getOriginalDisplayPrice } from "../../utils/priceUtils";
 import { Modal } from "../common";
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
@@ -20,14 +21,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         return product.variants.map((variant: any) => {
             const basePrice = Number(variant?.price ?? 0);
             const discountedPrice = variant?.discountedPrice ? Number(variant.discountedPrice) : null;
-            
+            const displayPrice = getDisplayPrice({ product, variant });
+            const originalDisplayPrice = getOriginalDisplayPrice({ product, variant });
+
             return {
                 id: variant?.id ?? variant?.sku,
                 label: `${Math.floor(Number(variant?.weight ?? 0))} ${variant?.weightUnit ?? 'g'}`,
                 weight: Number(variant?.weight ?? 0),
                 price: basePrice,
                 discountedPrice: discountedPrice,
-                effectivePrice: discountedPrice !== null ? discountedPrice : basePrice,
+                effectivePrice: displayPrice,
+                displayOriginalPrice: originalDisplayPrice,
                 sku: variant?.sku,
                 fullVariant: variant as ProductVariant,
             };
@@ -198,10 +202,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     {variantOptions.length === 1 && variantOptions[0].discountedPrice ? (
                                         <>
                                             <span className={`text-lg md:text-xl font-bold tracking-tighter ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
-                                                ₹{variantOptions[0].discountedPrice.toLocaleString('en-IN')}
+                                                ₹{Math.round(variantOptions[0].effectivePrice).toLocaleString('en-IN')}
                                             </span>
                                             <span className="text-[10px] md:text-[11px] text-slate-400 line-through">
-                                                ₹{variantOptions[0].price.toLocaleString('en-IN')}
+                                                ₹{Math.round(variantOptions[0].displayOriginalPrice || 0).toLocaleString('en-IN')}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
+                                                Incl. GST
                                             </span>
                                         </>
                                     ) : (
@@ -211,8 +218,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                             )}
                                             <span className={`text-lg md:text-xl font-bold tracking-tighter truncate ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
                                                 {priceRange.min === priceRange.max
-                                                    ? `₹${priceRange.min.toLocaleString('en-IN')}`
-                                                    : `₹${priceRange.min.toLocaleString('en-IN')}+`}
+                                                    ? `₹${Math.round(priceRange.min).toLocaleString('en-IN')}`
+                                                    : `₹${Math.round(priceRange.min).toLocaleString('en-IN')}+`}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
+                                                Incl. GST
                                             </span>
                                         </>
                                     )}
@@ -260,9 +270,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="flex flex-col items-end">
-                                            <span className="text-sm font-bold text-brand-brown">₹{variant.effectivePrice.toLocaleString('en-IN')}</span>
+                                            <span className="text-sm font-bold text-brand-brown">₹{Math.round(variant.effectivePrice).toLocaleString('en-IN')}</span>
                                             {variant.discountedPrice && (
-                                                <span className="text-[10px] text-slate-400 line-through">₹{variant.price.toLocaleString('en-IN')}</span>
+                                                <span className="text-[10px] text-slate-400 line-through">₹{Math.round(variant.displayOriginalPrice || 0).toLocaleString('en-IN')}</span>
                                             )}
                                         </div>
                                         {modalMode === "wishlist" && isWishlisted && <Heart size={14} weight="fill" className="text-red-500" />}

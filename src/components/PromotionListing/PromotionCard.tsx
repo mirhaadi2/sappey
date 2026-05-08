@@ -115,7 +115,7 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({
                 <div className="mt-3 space-y-1 text-xs">
                   <p className="font-semibold text-gray-800">Terms & Conditions:</p>
                   {promotion.minOrderValue && (
-                    <p>✓ Minimum order value: ₹{promotion.minOrderValue.toLocaleString('en-IN')}</p>
+                    <p>✓ Minimum order value: ₹{Math.round(promotion.minOrderValue).toLocaleString('en-IN')}</p>
                   )}
                   {promotion.applicableCategories && promotion.applicableCategories.length > 0 && (
                     <p>✓ Applicable to: {promotion.applicableCategories.join(', ')}</p>

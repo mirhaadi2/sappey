@@ -36,7 +36,7 @@ const WishlistSummarySidebar: React.FC<WishlistSummarySidebarProps> = ({
                     <div className="flex justify-between items-end">
                         <span className="text-[clamp(0.75rem,1.5vw,0.875rem)] font-medium text-slate-500">Estimated Total</span>
                         <div className="text-right">
-                            <span className="block text-[clamp(1.25rem,3vw,1.75rem)] font-black text-brand-brown">₹{totalValue.toFixed(0)}</span>
+                            <span className="block text-[clamp(1.25rem,3vw,1.75rem)] font-black text-brand-brown">₹{Math.round(totalValue).toLocaleString('en-IN')}</span>
                         </div>
                     </div>
                 </div>

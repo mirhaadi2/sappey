@@ -31,6 +31,7 @@ export interface ProductHeaderProps {
   reviewCount: number;
   name: string;
   selectedVariantData: any;
+  product?: any;
 }
 
 export interface ProductImageGalleryProps {

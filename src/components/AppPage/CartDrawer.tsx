@@ -5,6 +5,7 @@ import { X, Minus, Plus, Trash, ShoppingBag } from "@phosphor-icons/react";
 import { useCart, getVariantKey } from "../../context/CardContext";
 import { useNavigate } from "react-router-dom";
 import { CartItem } from "../../types";
+import { getDisplayPrice, getOriginalDisplayPrice } from "../../utils/priceUtils";
 import SafeImage from "../common/SafeImage";
 
 const CartDrawer: React.FC = () => {
@@ -25,13 +26,9 @@ const CartDrawer: React.FC = () => {
         navigate("/checkout");
     }, [dispatch, navigate]);
 
-    // Helper to get the actual price (discounted or regular) for an item
+    // Helper to get the actual price (discounted or regular) for an item, including GST
     const getItemPrice = (item: CartItem) => {
-        const variant = item.variant;
-        if (variant && typeof variant === 'object') {
-            return variant.discountedPrice || variant.price || 0;
-        }
-        return item.product.price || 0;
+        return getDisplayPrice(item);
     };
 
     const drawerContent = (
@@ -96,6 +93,7 @@ const CartDrawer: React.FC = () => {
                                 <ul className="space-y-3">
                                     {(state?.items ?? []).map((item: CartItem) => {
                                         const unitPrice = getItemPrice(item);
+                                        const originalUnitPrice = item.variant?.price ? getOriginalDisplayPrice({ product: item.product, variant: item.variant }) : getDisplayPrice({ product: item.product, variant: item.variant });
                                         const lineTotal = unitPrice * (item.quantity || 0);
 
                                         return (
@@ -152,11 +150,11 @@ const CartDrawer: React.FC = () => {
                                                         </div>
                                                         <div className="flex flex-col items-end">
                                                             <span className="font-headline text-brand-brown">
-                                                                ₹{lineTotal.toLocaleString('en-IN')}
+                                                                ₹{Math.round(lineTotal).toLocaleString('en-IN')}
                                                             </span>
                                                             {item.variant?.discountedPrice ? (
                                                                 <span className="text-[9px] text-slate-400 line-through">
-                                                                    ₹{(item.variant.price * item.quantity).toLocaleString('en-IN')}
+                                                                    ₹{Math.round(originalUnitPrice * (item.quantity || 0)).toLocaleString('en-IN')}
                                                                 </span>
                                                             ) : null}
                                                         </div>
@@ -173,9 +171,9 @@ const CartDrawer: React.FC = () => {
                             <div className="p-3 px-5 border-t border-brand-brown/5 bg-white">
                                 <div className="space-y-4 mb-4">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/60">Subtotal</span>
+                                        <span className="text-[11px] font-bold uppercase tracking-widest text-brand-brown/60">Subtotal (Incl. GST)</span>
                                         <span className="font-headline text-2xl text-brand-brown">
-                                            ₹{totalPrice.toLocaleString('en-IN')}
+                                            ₹{Math.round(totalPrice).toLocaleString('en-IN')}
                                         </span>
                                     </div>
                                     {/* <p className="text-[9px] text-brand-brown/30 uppercase tracking-widest leading-relaxed">

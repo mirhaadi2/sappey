@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Trash, ShoppingBag } from "@phosphor-icons/react";
 import { WishlistProductCardProps } from "../../types/WishlistPage";
+import { getDisplayPrice, getOriginalDisplayPrice } from "../../utils/priceUtils";
 
 const fadeInVariants = {
     hidden: { opacity: 0, y: 15 },
@@ -70,11 +71,11 @@ const WishlistProductCard: React.FC<WishlistProductCardProps> = ({
                 <div className="mt-[clamp(0.75rem,1.5vw,1rem)] flex items-end justify-between border-t border-slate-50 pt-[clamp(0.75rem,1.5vw,1rem)]">
                     <div>
                         <p className="text-[clamp(1rem,2vw,1.25rem)] font-black text-slate-900 tracking-tight">
-                            ₹{Number(product.selectedVariant?.discountedPrice ?? product?.discountedPrice ?? product?.price ?? 0).toFixed(0)}
+                            ₹{Math.round(getDisplayPrice({ product, variant: product.selectedVariant })).toLocaleString('en-IN')}
                         </p>
                         {(product.selectedVariant?.discountedPrice ?? product?.discountedPrice) && (
                             <p className="text-[clamp(0.625rem,1.2vw,0.75rem)] text-slate-400 line-through font-medium">
-                                ₹{Number(product.selectedVariant?.price ?? product?.basePrice ?? product?.price ?? 0).toFixed(0)}
+                                ₹{Math.round(getOriginalDisplayPrice({ product, variant: product.selectedVariant })).toLocaleString('en-IN')}
                             </p>
                         )}
                     </div>

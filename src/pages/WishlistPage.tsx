@@ -5,6 +5,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CardContext';
 import { ProductVariant } from '../types';
 import { productsClient } from '../api/products/client';
+import { getDisplayPrice } from '../utils/priceUtils';
 import { WishlistPageSkeleton } from '../components/Skeletons';
 import { ConfirmDialog } from "../components/common";
 import {
@@ -109,12 +110,8 @@ const WishlistPage: React.FC = () => {
 
     const totalValue = useMemo(() => {
         return wishlistProducts.reduce((sum, product) => {
-            const price = product.selectedVariant?.discountedPrice ??
-                product.selectedVariant?.price ??
-                product?.discountedPrice ??
-                product?.basePrice ??
-                product?.price ?? 0;
-            return sum + Number(price);
+            const price = getDisplayPrice({ product, variant: product.selectedVariant });
+            return sum + price;
         }, 0);
     }, [wishlistProducts]);
 

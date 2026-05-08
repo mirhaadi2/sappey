@@ -1,5 +1,6 @@
 import { Promotion } from '../api/promotions';
 import { OrderItem } from '../api/orders/types';
+import { getDisplayPrice, getOriginalDisplayPrice, getBasePrice, getGstRate, getOriginalBasePrice } from './priceUtils';
 
 export interface CheckoutItem {
     product?: Record<string, any>;
@@ -41,17 +42,11 @@ const toPaise = (value: number): number => Math.round(value * 100);
 const fromPaise = (value: number): number => parseFloat((value / 100).toFixed(2));
 
 export const getItemUnitPrice = (item: CheckoutItem): number => {
-    // If there is a discounted price on the variant, THAT is the unit price.
-    // This is distinct from a coupon/promotion.
-    return sanitizeNumber(
-        item?.variant?.discountedPrice || 
-        item?.variant?.price || 
-        item?.product?.price || 0
-    );
+    return getDisplayPrice(item);
 };
 
 export const getItemOriginalUnitPrice = (item: CheckoutItem): number => {
-    return sanitizeNumber(item?.variant?.price || item?.product?.price || 0);
+    return getOriginalDisplayPrice(item);
 };
 
 export const getItemDiscountPercentage = (item: CheckoutItem): number => {
@@ -66,21 +61,19 @@ export const getItemDiscountPercentage = (item: CheckoutItem): number => {
 
 export const getItemQuantity = (item: CheckoutItem): number => Math.max(0, sanitizeNumber(item?.quantity));
 
-export const getItemGstRate = (item: CheckoutItem): number => {
-    const rate = sanitizeNumber(item?.product?.gst_rate ?? item?.variant?.gst_rate ?? 0);
-    return rate;
-};
+export const getItemGstRate = (item: CheckoutItem): number => getGstRate(item);
 
 export const getItemSubtotalPaise = (item: CheckoutItem): number => {
-    const unitPrice = getItemUnitPrice(item);
+    const unitPrice = getBasePrice(item);
     const quantity = getItemQuantity(item);
     return toPaise(unitPrice * quantity);
 };
 
 export const getItemTaxPaise = (item: CheckoutItem): number => {
-    const subtotalPaise = getItemSubtotalPaise(item);
+    const quantity = getItemQuantity(item);
+    const basePrice = getBasePrice(item);
     const gstRate = getItemGstRate(item);
-    return Math.round((subtotalPaise * gstRate) / 100);
+    return toPaise((basePrice * quantity * gstRate) / 100);
 };
 
 export const getSubtotalPaise = (items: CheckoutItem[] = []): number => {
@@ -127,7 +120,7 @@ export const getOrderSummary = (
 
     return {
         items: items.length,
-        subtotal: fromPaise(subtotalPaise), // Sum of (item-wise discounted price * qty)
+        subtotal: fromPaise(subtotalPaise),
         tax: fromPaise(taxPaise),
         shipping: fromPaise(shippingPaise),
         promotionDiscount: fromPaise(promotionDiscountPaise), // Coupon savings only
@@ -141,16 +134,16 @@ export const getOrderSummary = (
 export const buildOrderItemsPayload = (items: CheckoutItem[] = []): OrderItem[] => {
     return items.map((item) => {
         const variantData = item?.variant || {};
-        const unitPrice = getItemUnitPrice(item); // This is now the effective price
-        const originalPrice = getItemOriginalUnitPrice(item);
+        const basePrice = getBasePrice(item);
+        const originalBasePrice = getOriginalBasePrice(item);
 
         return {
             productId: item?.product?.id ?? '',
             productVariantId: variantData?.id ?? item?.product?.id ?? '',
             sku: variantData?.sku ?? '',
             quantity: getItemQuantity(item),
-            price: originalPrice, // The "MSRP"
-            discountedPrice: unitPrice, // The actual price charged
+            price: originalBasePrice,
+            discountedPrice: basePrice,
             discountedPercent: variantData?.discounted_percent ?? variantData?.discountedPercent  ?? getItemDiscountPercentage(item),
             gstRate: getItemGstRate(item).toString(),
             gstAmount: fromPaise(getItemTaxPaise(item)),

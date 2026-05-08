@@ -120,6 +120,7 @@ const ProductDetailPage: React.FC = () => {
                 rating={statistics?.averageRating || product?.rating || 0}
                 reviewCount={statistics?.totalReviews || product?.reviewCount || 0}
                 name={product.name}
+                product={product}
                 selectedVariantData={selectedVariantData}
               />
 

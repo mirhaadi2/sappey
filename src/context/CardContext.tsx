@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useMemo, useState } from "react";
 import { Product, CartItem, ProductVariant } from "../types";
 import { productsClient } from "../api/products/client";
+import { getDisplayPrice } from "../utils/priceUtils";
 
 export interface CartState {
     items: CartItem[];
@@ -249,14 +250,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     // totalItems = number of line items in cart (not total quantity)
     const totalItems = state.items.length;
 
-    // Inside your CardContext.tsx
+    // totalPrice now reflects GST-inclusive display pricing for the cart
     const totalPrice = useMemo(() => {
         return state.items.reduce((acc, item) => {
-            const unitPrice =
-                item.variant?.discountedPrice ||
-                item.variant?.price ||
-                item.product?.price ||
-                0;
+            const unitPrice = getDisplayPrice(item);
             return acc + (unitPrice * (item.quantity || 0));
         }, 0);
     }, [state.items]);

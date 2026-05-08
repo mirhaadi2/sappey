@@ -64,16 +64,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
             {/* Totals Section */}
             <div className="space-y-3 pt-6 border-t border-slate-100 mt-6">
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 font-medium">Subtotal</span>
-                    <span className="font-semibold text-slate-900">₹{orderSummary?.subtotal?.toLocaleString('en-IN')}</span>
-                </div>
+                {/* <div className="flex justify-between text-sm">
+                    <span className="text-slate-500 font-medium">Subtotal (Incl. GST)</span>
+                    <span className="font-semibold text-slate-900">₹{Math.round(orderSummary?.subtotal || 0).toLocaleString('en-IN')}</span>
+                </div> */}
 
                 {/* Discount Row (Visible only if discount > 0) */}
                 {(orderSummary.promotionDiscount && orderSummary?.promotionDiscount > 0) ? (
                     <div className="flex justify-between text-sm">
                         <span className="text-emerald-600 font-medium">Promotion Applied</span>
-                        <span className="font-bold text-emerald-600">- ₹{orderSummary?.promotionDiscount?.toLocaleString('en-IN')}</span>
+                        <span className="font-bold text-emerald-600">- ₹{Math.round(orderSummary?.promotionDiscount || 0).toLocaleString('en-IN')}</span>
                     </div>
                 ) : null}
 
@@ -90,13 +90,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-xs font-bold text-slate-400">INR</span>
                             <span className="text-3xl font-black text-slate-900 tracking-tight">
-                                ₹{orderSummary?.total?.toLocaleString('en-IN')}
+                                ₹{Math.round(orderSummary?.total || 0).toLocaleString('en-IN')}
                             </span>
                         </div>
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] font-medium text-slate-400">
-                            Incl. GST ₹{orderSummary?.tax?.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            GST: ₹{Math.round(orderSummary?.tax || 0).toLocaleString('en-IN')}
                         </p>
                     </div>
                 </div>

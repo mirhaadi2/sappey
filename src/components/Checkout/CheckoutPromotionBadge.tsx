@@ -102,7 +102,7 @@ const CheckoutPromotionBadge: React.FC<PromotionBadgeProps> = ({
             {discount > 0 && (
                 <div className="flex-shrink-0 text-right">
                     <p className={`text-sm font-bold ${getPromotionTextColor()}`}>
-                        -₹{Number(discount)?.toFixed(2)}
+                        -₹{Math.round(Number(discount))}
                     </p>
                 </div>
             )}

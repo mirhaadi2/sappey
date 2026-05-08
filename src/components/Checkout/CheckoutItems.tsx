@@ -59,7 +59,7 @@ const CheckoutItems = ({ state, dispatch }: CheckoutItemsProps) => {
                                                 </p>
                                             )}
                                             <p className="text-[11px] text-slate-500">
-                                                ₹{currentUnitPrice.toLocaleString('en-IN')} / unit
+                                                ₹{Math.round(currentUnitPrice).toLocaleString('en-IN')} / unit
                                             </p>
                                         </div>
                                     </div>
@@ -75,12 +75,12 @@ const CheckoutItems = ({ state, dispatch }: CheckoutItemsProps) => {
                                         
                                         <div className="text-right">
                                             <p className="text-sm font-bold text-brown-900">
-                                                ₹{totalItemPrice.toLocaleString('en-IN')}
+                                                ₹{Math.round(totalItemPrice).toLocaleString('en-IN')}
                                             </p>
                                             {/* This is the ITEM-WISE discount display */}
                                             {hasItemDiscount && (
                                                 <p className="text-[10px] text-slate-400 line-through">
-                                                    ₹{originalTotalItemPrice.toLocaleString('en-IN')}
+                                                    ₹{Math.round(originalTotalItemPrice).toLocaleString('en-IN')}
                                                 </p>
                                             )}
                                         </div>
