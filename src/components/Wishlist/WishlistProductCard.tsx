@@ -27,7 +27,7 @@ const WishlistProductCard: React.FC<WishlistProductCardProps> = ({
             {/* Image Container */}
             <div className="relative aspect-[4/5] overflow-hidden bg-[#F7F7F7]">
                 <img
-                    src={product?.images?.[0] ?? 'https://via.placeholder.com/300?text=No+Image'}
+                    src={product?.images?.[0] || 'https://via.placeholder.com/300?text=No+Image'}
                     alt={product?.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     onClick={() => onNavigate(product.slug)}

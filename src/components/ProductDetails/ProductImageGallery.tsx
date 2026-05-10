@@ -29,7 +29,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                     className={`relative w-20 h-20 lg:w-24 lg:h-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all
             ${selectedImage === index ? "border-brand-brown scale-95" : "border-transparent opacity-60 hover:opacity-100"}`}
                 >
-                    <img src={img} className="w-full h-full object-cover" />
+                    <img src={img || "/placeholder-product.png"} className="w-full h-full object-cover" />
                 </button>
             ))}
         </div>

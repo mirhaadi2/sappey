@@ -126,7 +126,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         {/* Image Container - Responsive aspect ratio */}
                         <div className="relative aspect-square m-1.5 md:m-2 overflow-hidden rounded-xl md:rounded-[26px] bg-[#FAF9F6]">
                             <img
-                                src={product?.images?.[0] ?? "https://via.placeholder.com/400"}
+                                src={product?.images?.[0] || "https://via.placeholder.com/400"}
                                 alt={product?.name}
                                 className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                                 loading="lazy"
