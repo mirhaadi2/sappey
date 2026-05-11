@@ -183,13 +183,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                             : 'text-brand-brown group-hover:text-brand-cocoa'
                                             }`}
                                     >
-                                        {product?.name?.split('|')[0]}
+                                        {product?.name?.split('|')[0]}&nbsp;
+                                        {variantOptions.length === 1 && (
+                                            <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
+                                                ({variantOptions[0].label})
+                                            </span>
+                                        )}
                                     </h3>
-                                    {variantOptions.length === 1 && (
-                                        <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
-                                            {variantOptions[0].label}
-                                        </span>
-                                    )}
+
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                                     {variantOptions.length > 1 && (
