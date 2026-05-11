@@ -155,8 +155,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 <div className="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 z-10">
                                     <button
                                         className={`p-2 md:p-2.5 rounded-full transition-all duration-300 transform shadow-md ${isAnyVariantInWishlist
-                                                ? 'bg-red-500 text-white scale-110'
-                                                : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
+                                            ? 'bg-red-500 text-white scale-110'
+                                            : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
                                             }`}
                                         onClick={handleWishlistToggle}
                                     >
@@ -174,13 +174,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         </div>
 
                         {/* Content Area */}
-                        <div className="p-3 md:p-6 pt-1 md:pt-2 flex flex-col flex-1 min-w-0">
-                            <div className="mb-2 md:mb-4">
+                        <div className="p-3 md:p-6 pt-1 md:pt-2 flex flex-col flex-1 min-w-0 !px-3">
+                            <div className="mb-2 md:mb-3">
                                 <div className="flex items-start justify-between gap-2 mb-1">
                                     <h3
-                                        className={`font-headline text-base md:text-lg line-clamp-2 leading-snug transition-colors ${isSoldOut
-                                                ? 'text-gray-500'
-                                                : 'text-brand-brown group-hover:text-brand-cocoa'
+                                        className={`font-headline text-base line-clamp-2 leading-snug transition-colors ${isSoldOut
+                                            ? 'text-gray-500'
+                                            : 'text-brand-brown group-hover:text-brand-cocoa'
                                             }`}
                                     >
                                         {product?.name?.split('|')[0]}
@@ -192,52 +192,52 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     )}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-                                    <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                                        {variantOptions.length > 1 ? `${variantOptions.length} Pack Sizes` : "Single Pack"}
-                                    </span>
-                                    <div className="h-0.5 w-0.5 md:h-1 md:w-1 rounded-full bg-slate-200" />
-                                    <span className="text-[8px] md:text-[10px] font-bold text-orange-500 uppercase tracking-widest whitespace-nowrap">Premium Selection</span>
+                                    {variantOptions.length > 1 && (
+                                        <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                                            {variantOptions.length} Weight Options
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Footer / Price Section */}
-                            <div className="mt-auto flex items-end justify-between border-t border-brand-brown/5 pt-3 md:pt-5">
+                            <div className="mt-auto flex items-end justify-between ">
                                 <div className="flex flex-col min-w-0">
                                     {variantOptions.length === 1 && variantOptions[0].discountedPrice ? (
                                         <>
-                                            <span className={`text-lg md:text-xl font-bold tracking-tighter ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
-                                                ₹{Math.round(variantOptions[0].effectivePrice).toLocaleString('en-IN')}
+                                            <span className={`text-lg md:text-xl tracking-tighter ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
+                                                Rs. {Math.round(variantOptions[0].effectivePrice).toLocaleString('en-IN')}
                                             </span>
                                             <span className="text-[10px] md:text-[11px] text-slate-400 line-through">
-                                                ₹{Math.round(variantOptions[0].displayOriginalPrice || 0).toLocaleString('en-IN')}
+                                                Rs. {Math.round(variantOptions[0].displayOriginalPrice || 0).toLocaleString('en-IN')}
                                             </span>
-                                            <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
+                                            {/* <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
                                                 Incl. GST
-                                            </span>
+                                            </span> */}
                                         </>
                                     ) : (
                                         <>
-                                            {variantOptions.length > 1 && (
+                                            {/* {variantOptions.length > 1 && (
                                                 <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase tracking-tighter mb-0.5">Starting From</span>
-                                            )}
-                                            <span className={`text-lg md:text-xl font-bold tracking-tighter truncate ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
+                                            )} */}
+                                            <span className={`text-base  tracking-tighter truncate ${isSoldOut ? 'text-gray-400' : 'text-brand-brown'}`}>
                                                 {priceRange.min === priceRange.max
-                                                    ? `₹${Math.round(priceRange.min).toLocaleString('en-IN')}`
-                                                    : `₹${Math.round(priceRange.min).toLocaleString('en-IN')}+`}
+                                                    ? `Rs. ${Math.round(priceRange.min).toLocaleString('en-IN')}`
+                                                    : `Rs. ${Math.round(priceRange.min).toLocaleString('en-IN')}`}
                                             </span>
-                                            <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
+                                            {/* <span className="text-[10px] text-slate-400 uppercase tracking-[0.15em] mt-1 block">
                                                 Incl. GST
-                                            </span>
+                                            </span> */}
                                         </>
                                     )}
                                 </div>
 
-                                <div className={`flex items-center gap-1 md:gap-2 transition-colors ${isSoldOut ? 'text-gray-400' : 'text-brand-brown/40 group-hover:text-brand-brown'}`}>
+                                {/* <div className={`flex items-center gap-1 md:gap-2 transition-colors ${isSoldOut ? 'text-gray-400' : 'text-brand-brown/40 group-hover:text-brand-brown'}`}>
                                     <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                                         {isSoldOut ? 'Out of Stock' : 'Details'}
                                     </span>
                                     {!isSoldOut && <ArrowRight size={12} className="md:w-[14px] md:h-[14px] group-hover:translate-x-1 transition-transform" />}
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
