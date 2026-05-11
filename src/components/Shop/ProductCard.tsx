@@ -193,7 +193,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                             {variantOptions.length} Weight Options
                                         </span>
                                     ) : (
-                                        <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
+                                        <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
                                             {variantOptions[0].label}
                                         </span>
                                     )}
