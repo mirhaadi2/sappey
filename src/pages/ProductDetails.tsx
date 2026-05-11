@@ -39,7 +39,6 @@ const ProductDetailPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
-  // Disable body scroll when drawer is open
   useEffect(() => {
     if (activeDrawer) {
       document.body.style.overflow = "hidden";
@@ -82,16 +81,15 @@ const ProductDetailPage: React.FC = () => {
   const isOutOfStock = variantOptions.length === 0 || !selectedVariantData;
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] relative overflow-x-hidden">
-      {/* Info Drawer */}
+    /* REMOVED overflow-x-hidden here as it breaks sticky */
+    <div className="min-h-screen bg-[#FDFCFB] relative">
       <ProductDetailsInfoDrawer
         product={product}
         activeDrawer={activeDrawer}
         onClose={() => setActiveDrawer(null)}
       />
 
-      {/* Breadcrumb */}
-      <nav className="border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-4 z-30">
+      <nav className="border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <button onClick={() => navigate("/shop")} className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-brown/60 hover:text-brand-brown transition-colors">
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
@@ -101,9 +99,11 @@ const ProductDetailPage: React.FC = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
+        {/* Changed to grid for more stable sticky behavior */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+          
           {/* Left Column: Media Gallery */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-6 lg:sticky lg:top-24">
             <ProductImageGallery
               images={product.images || []}
               selectedImage={selectedImage}
@@ -113,9 +113,8 @@ const ProductDetailPage: React.FC = () => {
           </div>
 
           {/* Right Column: Details */}
-          <div className="lg:col-span-5 flex flex-col h-full">
+          <div className="lg:col-span-6">
             <div className="space-y-8">
-              {/* Product Header */}
               <ProductHeader
                 rating={statistics?.averageRating || product?.rating || 0}
                 reviewCount={statistics?.totalReviews || product?.reviewCount || 0}
@@ -124,21 +123,18 @@ const ProductDetailPage: React.FC = () => {
                 selectedVariantData={selectedVariantData}
               />
 
-              {/* Information Detail Buttons */}
               <div className="space-y-1 border-y border-slate-100 py-4">
                 <DrawerButton label="Product Description" onClick={() => setActiveDrawer("description")} />
                 <DrawerButton label="Key Benefits" onClick={() => setActiveDrawer("benefits")} />
                 <DrawerButton label="Nutritional Profile" onClick={() => setActiveDrawer("nutrition")} />
               </div>
 
-              {/* Variant Selector */}
               <VariantSelector
                 allVariants={allVariants}
                 selectedVariantId={selectedVariantId}
                 onVariantSelect={setSelectedVariantId}
               />
 
-              {/* Purchase Section */}
               <PurchaseSection
                 quantity={quantity}
                 onQuantityChange={setQuantity}
@@ -149,11 +145,7 @@ const ProductDetailPage: React.FC = () => {
                   if (selectedVariantData && product) {
                     dispatch({
                       type: "ADD_ITEM",
-                      payload: {
-                        product,
-                        variant: selectedVariantData,
-                        quantity
-                      }
+                      payload: { product, variant: selectedVariantData, quantity }
                     });
                     dispatch({ type: "OPEN_CART" });
                   }
@@ -162,11 +154,7 @@ const ProductDetailPage: React.FC = () => {
                   if (selectedVariantData && product) {
                     dispatch({
                       type: "ADD_ITEM",
-                      payload: {
-                        product,
-                        variant: selectedVariantData,
-                        quantity
-                      }
+                      payload: { product, variant: selectedVariantData, quantity }
                     });
                     navigate("/checkout");
                   }
@@ -176,14 +164,14 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <ProductReviewsSection
-          reviews={reviews}
-          statistics={statistics}
-          reviewsLoading={reviewsLoading}
-        />
+        <div className="mt-20">
+          <ProductReviewsSection
+            reviews={reviews}
+            statistics={statistics}
+            reviewsLoading={reviewsLoading}
+          />
+        </div>
 
-        {/* Related Products Section */}
         <RelatedProductsSection
           products={products}
           currentProductCategory={product.category}
