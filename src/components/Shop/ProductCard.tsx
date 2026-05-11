@@ -184,18 +184,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                             }`}
                                     >
                                         {product?.name?.split('|')[0]}&nbsp;
-                                        {variantOptions.length === 1 && (
-                                            <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
-                                                ({variantOptions[0].label})
-                                            </span>
-                                        )}
                                     </h3>
 
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-                                    {variantOptions.length > 1 && (
+                                    {variantOptions.length > 1 ? (
                                         <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
                                             {variantOptions.length} Weight Options
+                                        </span>
+                                    ) : (
+                                        <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">
+                                            {variantOptions[0].label}
                                         </span>
                                     )}
                                 </div>
