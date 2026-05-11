@@ -56,7 +56,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.1 }}
-                className={`grid gap-y-6 gap-x-4 md:gap-x-6 ${gridClass}`}
+                className={`grid gap-y-6 gap-x-2 md:gap-x-4 ${gridClass}`}
             >
                 {products.map((product) => (
                     <ProductCard key={product.id} product={product} />

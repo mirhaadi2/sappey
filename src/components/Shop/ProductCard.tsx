@@ -104,7 +104,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
     };
 
-    const cardClassName = `group relative flex flex-col w-full h-full bg-white rounded-2xl md:rounded-[32px] border border-brand-brown/10 overflow-hidden shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(62,44,28,0.12)] ${isSoldOut ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`;
+    const cardClassName = `group relative flex flex-col w-full h-full bg-white rounded-md md:rounded-lg border border-brand-brown/10 overflow-hidden shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(62,44,28,0.12)] ${isSoldOut ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`;
 
     return (
         <>
@@ -124,7 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 >
                     <div className={cardClassName}>
                         {/* Image Container - Responsive aspect ratio */}
-                        <div className="relative aspect-square m-1.5 md:m-2 overflow-hidden rounded-xl md:rounded-[26px] bg-[#FAF9F6]">
+                        <div className="relative aspect-square m-1.5 md:m-2.5 overflow-hidden bg-[#FAF9F6]">
                             <img
                                 src={product?.images?.[0] || "https://via.placeholder.com/400"}
                                 alt={product?.name}
@@ -190,11 +190,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                                     {variantOptions.length > 1 ? (
                                         <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                                            {variantOptions.length} Weight Options
+                                            {variantOptions?.length} Weight Options
                                         </span>
                                     ) : (
                                         <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                                            {variantOptions[0].label}
+                                            {variantOptions?.[0]?.label}
                                         </span>
                                     )}
                                 </div>

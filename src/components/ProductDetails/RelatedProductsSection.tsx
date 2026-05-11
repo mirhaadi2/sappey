@@ -21,7 +21,7 @@ const RelatedProductsSection: React.FC<RelatedProductsSectionProps> = ({
                 </div>
 
                 {products && products.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 gap-x-4 md:gap-x-6 items-stretch">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 gap-x-2 md:gap-x-4 items-stretch">
                         {products
                             .filter((p: any) => p.category === currentProductCategory && p.id !== currentProductId)
                             .slice(0, 4)
