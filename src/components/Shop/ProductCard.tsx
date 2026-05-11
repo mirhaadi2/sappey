@@ -131,10 +131,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                                 loading="lazy"
                             />
-                            
+
                             {/* Overlays */}
                             {!isSoldOut && <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
-                            
+
                             {isSoldOut && (
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
                                     <span className="text-white font-bold text-sm md:text-lg uppercase tracking-wider">Sold Out</span>
@@ -154,11 +154,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                             {!isSoldOut && (
                                 <div className="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 z-10">
                                     <button
-                                        className={`p-2 md:p-2.5 rounded-full transition-all duration-300 transform shadow-md ${
-                                            isAnyVariantInWishlist
-                                            ? 'bg-red-500 text-white scale-110'
-                                            : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
-                                        }`}
+                                        className={`p-2 md:p-2.5 rounded-full transition-all duration-300 transform shadow-md ${isAnyVariantInWishlist
+                                                ? 'bg-red-500 text-white scale-110'
+                                                : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
+                                            }`}
                                         onClick={handleWishlistToggle}
                                     >
                                         <Heart size={16} weight={isAnyVariantInWishlist ? "fill" : "regular"} className="md:w-[18px] md:h-[18px]" />
@@ -178,8 +177,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <div className="p-3 md:p-6 pt-1 md:pt-2 flex flex-col flex-1 min-w-0">
                             <div className="mb-2 md:mb-4">
                                 <div className="flex items-start justify-between gap-2 mb-1">
-                                    <h3 className={`font-headline text-lg md:text-xl line-clamp-1 transition-colors ${isSoldOut ? 'text-gray-500' : 'text-brand-brown group-hover:text-brand-cocoa'}`}>
-                                        {product?.name}
+                                    <h3
+                                        className={`font-headline text-base md:text-lg line-clamp-2 leading-snug transition-colors ${isSoldOut
+                                                ? 'text-gray-500'
+                                                : 'text-brand-brown group-hover:text-brand-cocoa'
+                                            }`}
+                                    >
+                                        {product?.name?.split('|')[0]}
                                     </h3>
                                     {variantOptions.length === 1 && (
                                         <span className="text-[10px] md:text-[12px] font-bold text-brand-brown/40 whitespace-nowrap mt-1">

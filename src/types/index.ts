@@ -20,6 +20,7 @@ export interface Product {
     price?: number;
     minPrice?: number;
     originalPrice?: number;
+    displayPrice?: number;
     category: string;
     image?: string;
     images?: string[];
@@ -97,5 +98,5 @@ export interface User {
 // ============================================
 export * from './Checkout';
 export * from './ShopPage';
-export * from './ProfilePage';
+// export * from './ProfilePage';
 export * from './BulkOrderPage';
