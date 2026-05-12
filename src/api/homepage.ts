@@ -17,7 +17,8 @@ export interface Hero {
   subtitle: string;
   ctaText?: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
+  backgroundImageUrl?: string;
   videoUrl?: string;
   videoPosterUrl?: string;
   buttonText: string;

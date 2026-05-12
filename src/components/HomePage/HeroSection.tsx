@@ -12,27 +12,49 @@ const HeroSection: React.FC<HeroSectionProps> = ({ hero }) => {
             {/* Hero Section */}
             <section
                 ref={heroRef}
-                className={`relative ${hero?.videoUrl ? 'min-h-[80vh]' : 'min-h-screen'} flex items-center justify-center overflow-hidden`}
+                className={`relative min-h-[70vh] flex items-center justify-center overflow-hidden`}
                 aria-label="Hero section"
             >
                 <div className="absolute inset-0">
-                    <motion.video
-                        alt={hero?.title || "Premium Dry Fruits Hero Video"}
-                        src={
-                            hero?.videoUrl ||
-                            "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1.mp4"
-                        }
-                        poster={"https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1-poster.png"}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-80" />
+                    {hero?.videoUrl ? (
+                        <motion.video
+                            alt={hero?.title || "Premium Dry Fruits Hero Video"}
+                            src={hero.videoUrl}
+                            poster={hero.videoPosterUrl || "https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1-poster.png"}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                        />
+                    ) : hero?.backgroundImageUrl || hero?.imageUrl ? (
+                        <motion.img
+                            src={hero.backgroundImageUrl || hero.imageUrl}
+                            alt={hero?.title || "Premium Dry Fruits Hero Image"}
+                            className="w-full h-full object-cover"
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                        />
+                    ) : (
+                        <motion.video
+                            alt={hero?.title || "Premium Dry Fruits Hero Video"}
+                            src={"https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1.mp4"}
+                            poster={"https://c.animaapp.com/mmlqdzfpT0CVfh/img/ai_1-poster.png"}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-90" />
                 </div>
 
                 <div className="relative z-10 text-center px-8 max-w-4xl mx-auto">
@@ -42,9 +64,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ hero }) => {
                         transition={{ duration: 0.8, delay: 0.3 }}
                     >
                         <h1
-                            className="font-headline text-[clamp(2rem,6vw,4rem)] text-brand-cream mb-[clamp(1rem,2vw,1.5rem)] leading-tight"
+                            className="font-serif text-[clamp(2rem,6vw,3rem)] text-brand-cream mb-[clamp(1rem,2vw,1.5rem)] max-w-2xl mx-auto"
                             style={{
-                                fontWeight: 500,
+                                // fontWeight: 500,
                                 letterSpacing: "-0.025em",
                                 lineHeight: 1.2,
                             }}
@@ -63,10 +85,34 @@ const HeroSection: React.FC<HeroSectionProps> = ({ hero }) => {
                                     .getElementById("collections")
                                     ?.scrollIntoView({ behavior: "smooth" });
                             }}
-                            className="bg-brand-cream text-brand-brown font-label text-[clamp(0.65rem,1.5vw,0.75rem)] px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.75rem,1.5vw,1rem)] rounded-lg hover:bg-brand-latte transition-all duration-300 cursor-pointer uppercase tracking-widest inline-flex items-center gap-3 min-h-11"
+                            className="
+                                bg-transparent
+                                text-white
+                                border border-white/80
+                                font-label
+                                text-[clamp(0.65rem,1.5vw,0.75rem)]
+                                px-[clamp(1.5rem,3vw,2rem)]
+                                py-[clamp(0.75rem,1.5vw,1rem)]
+                                rounded-lg
+                                transition-all duration-300 ease-out
+                                cursor-pointer
+                                uppercase tracking-widest
+                                inline-flex items-center gap-3
+                                min-h-11
+                                hover:-translate-y-1
+                                hover:scale-[1.03]
+                                hover:shadow-[0_10px_30px_rgba(255,255,255,0.18)]
+                                hover:border-white
+                                active:scale-[0.98]
+                            "
                         >
                             {hero?.buttonText || "Explore Collections"}
-                            <ArrowRight size={16} weight="regular" />
+
+                            <ArrowRight
+                                size={16}
+                                weight="regular"
+                                className="transition-transform duration-300 group-hover:translate-x-1"
+                            />
                         </button>
                     </motion.div>
                 </div>
@@ -76,7 +122,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ hero }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.8 }}
-                    className="absolute bottom-12 left-0 right-0 z-10"
+                    className="absolute bottom-6 left-0 right-0 z-10"
                 >
                     <div className="flex flex-wrap items-center justify-center gap-[clamp(1rem,2vw,2rem)] px-[clamp(1rem,3vw,2rem)]">
                         {[
