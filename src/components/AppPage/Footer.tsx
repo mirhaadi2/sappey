@@ -22,15 +22,13 @@ const Footer: React.FC = () => {
                     {/* Brand Section (Left side) */}
                     <div className="lg:col-span-4 space-y-8">
                         <Link to="/" className="inline-block group">
-                            <h2 className="font-headline text-4xl font-black tracking-tighter text-white">
-                                SAPPEY<span className="text-orange-500 group-hover:text-orange-400 transition-all duration-300">.COM</span>
-                            </h2>
+                            <p className="font-serif text-3xl tracking-tighter text-white">
+                                SAPPEY
+                            </p>
                         </Link>
 
                         <p className="font-sans text-base text-slate-300/90 leading-relaxed">
-                            Bridging the gap between Himalayan orchards and your home. We deliver
-                            <span className="text-white"> peak-season dry fruits</span>, vacuum-sealed
-                            at the source to preserve absolute freshness and nutritional integrity.
+                            Premium dry fruits sourced directly from trusted farmers and packed with freshness, purity, and uncompromising quality.
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4">
