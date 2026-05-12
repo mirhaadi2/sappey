@@ -48,12 +48,12 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                         >
                             <div className="max-w-2xl">
                                 {label && (
-                                    <span className="font-label text-[clamp(0.7rem,2vw,0.85rem)] uppercase tracking-widest text-brand-cocoa block mb-2">
+                                    <span className="font-label text-[clamp(0.7rem,2vw,0.85rem)] uppercase tracking-widest text-brand-cocoa block mb-1">
                                         {label}
                                     </span>
                                 )}
                                 <h2
-                                    className="font-headline text-[clamp(1.75rem,4vw,2.2rem)] text-brand-brown mb-[clamp(0.75rem,1.5vw,1rem)]"
+                                    className="font-headline text-[clamp(1.75rem,4vw,2rem)] text-brand-brown mb-[clamp(0.5rem,1.5vw,0.75)]"
                                     style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
                                 >
                                     {title}
