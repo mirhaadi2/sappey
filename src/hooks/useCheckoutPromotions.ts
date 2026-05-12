@@ -11,32 +11,12 @@ interface PromotionApplicability {
  * Professional promotion calculation hook for checkout
  * Evaluates promotion conditions and calculates discounts
  */
-export const useCheckoutPromotions = (subtotal: number, applicablePromotions: Promotion[] = []) => {
-    // Calculate the best promotion (highest discount)
-    const bestPromotion = useMemo<PromotionApplicability | null>(() => {
-        if (!applicablePromotions || applicablePromotions.length === 0) {
-            return null;
-        }
-
-        // Sort by priority (higher priority first)
-        const sorted = [...applicablePromotions].sort((a, b) => b.priority - a.priority);
-
-        const topPromotion = sorted[0];
-        if (!topPromotion) return null;
-
-        // Calculate discount based on promotion type
-        const discountAmount = calculateDiscount(topPromotion, subtotal);
-
-        return {
-            promotion: topPromotion,
-            discountAmount: parseFloat(discountAmount.toFixed(2)),
-            finalPrice: parseFloat((subtotal - discountAmount).toFixed(2)),
-        };
-    }, [applicablePromotions, subtotal]);
-
-    // Get all applicable promotions with calculated discounts
+export const useCheckoutPromotions = (
+    subtotal: number,
+    applicablePromotions: Promotion[] = []
+) => {
     const allApplicableWithDiscount = useMemo<PromotionApplicability[]>(() => {
-        return applicablePromotions.map((promo: any) => {
+        return applicablePromotions.map((promo: Promotion) => {
             const discountAmount = calculateDiscount(promo, subtotal);
             return {
                 promotion: promo,
@@ -45,6 +25,33 @@ export const useCheckoutPromotions = (subtotal: number, applicablePromotions: Pr
             };
         });
     }, [applicablePromotions, subtotal]);
+
+    const bestPromotion = useMemo<PromotionApplicability | null>(() => {
+        if (!allApplicableWithDiscount || allApplicableWithDiscount.length === 0) {
+            return null;
+        }
+
+        // Special handling: Always prefer free_shipping if available
+        const freeShippingPromo = allApplicableWithDiscount.find(p => p.promotion.type === 'free_shipping');
+        if (freeShippingPromo) {
+            return freeShippingPromo;
+        }
+
+        // Otherwise, select the highest discount amount, then highest priority
+        return allApplicableWithDiscount.reduce<PromotionApplicability | null>((bestSoFar, current) => {
+            if (!bestSoFar) return current;
+
+            if (current.discountAmount > bestSoFar.discountAmount) {
+                return current;
+            }
+
+            if (current.discountAmount === bestSoFar.discountAmount) {
+                return current.promotion.priority > bestSoFar.promotion.priority ? current : bestSoFar;
+            }
+
+            return bestSoFar;
+        }, null);
+    }, [allApplicableWithDiscount]);
 
     return {
         bestPromotion,
@@ -64,27 +71,22 @@ function calculateDiscount(promotion: Promotion, subtotal: number): number {
 
     switch (promotion.type) {
         case 'fixed_discount':
-            // Fixed amount discount
             return Math.min(promotion.discountValue || 0, subtotal);
 
         case 'percentage_discount':
-            // Percentage-based discount
             return parseFloat(((subtotal * (promotion.discountValue || 0)) / 100).toFixed(2));
 
         case 'free_shipping':
-            // Free shipping (handled separately in checkout)
+            // Free shipping (handled separately in checkout - shipping cost is zeroed out)
             return 0;
 
         case 'free_gift':
-            // Free gift (no direct discount on subtotal)
             return 0;
 
         case 'bundle':
-            // Bundle discount (if applicable)
             return promotion.discountValue || 0;
 
         case 'tiered':
-            // Tiered discount based on order value
             return promotion.discountValue || 0;
 
         default:

@@ -87,8 +87,8 @@ const CheckoutPage: React.FC = () => {
   const { findCustomerByContact, loading: customerLookupLoading, error: customerLookupServiceError } = useFindCustomerByContact();
   const { mutate: checkPincodeServiceability } = useCheckPincodeServiceability();
   const { addresses: userAddresses = [] } = useAddresses();
-  const isReturningCustomer = !existingCustomer || existingCustomer?.orderCount > 0;
-  const isFirstOrderEligible = !existingCustomer || existingCustomer.orderCount === 0;
+  const isReturningCustomer = Boolean(existingCustomer && existingCustomer.orderCount > 0);
+  const isFirstOrderEligible = Boolean(existingCustomer && existingCustomer.orderCount === 0);
   // const isWelcomePromotion = (promotion: Promotion) => {
   //   const text = `${promotion.title} ${promotion.description || ''}`.toLowerCase();
   //   return text.includes('welcome') || text.includes('first order') || text.includes('new customer');
