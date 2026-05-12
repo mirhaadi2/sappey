@@ -12,6 +12,7 @@ import {
     HealthWellnessSection,
     InstagramSection,
     DynamicSection,
+    WhyChooseSappey,
 } from "../components/HomePage";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -203,8 +204,11 @@ const HomePage: React.FC = () => {
                 isLoading={reviewsLoading}
             />
 
+            {/* Why Choose Sappey */}
+            <WhyChooseSappey />
+
             {/* Instagram Feed Section */}
-            <InstagramSection section={instagramSection} posts={instagramPosts} />
+            {/* <InstagramSection section={instagramSection} posts={instagramPosts} /> */}
 
             {/* Dynamic Sections */}
             {dynamicSections.map((section) => (

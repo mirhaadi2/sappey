@@ -7,3 +7,4 @@ export { default as HealthWellnessSection } from './HealthWellnessSection';
 export { default as InstagramSection } from './InstagramSection';
 export { default as DynamicSection } from './DynamicSection';
 export { default as SectionBanner } from './SectionBanner';
+export { default as WhyChooseSappey } from './WhyChooseSappey';
