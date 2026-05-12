@@ -6,7 +6,7 @@ import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { useApplicablePromotions } from "../api/promotions";
-import { getOrderSummary, buildOrderItemsPayload, getSubtotal } from "../utils/checkoutCalculations";
+import { getOrderSummary, buildOrderItemsPayload, getSubtotal, getTotalTaxPaise } from "../utils/checkoutCalculations";
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import { useAddresses } from "../api/address/hooks";
@@ -153,8 +153,9 @@ const CheckoutPage: React.FC = () => {
   const baseSubtotal = useMemo(() => {
     return getSubtotal(state?.items ?? []);
   }, [state?.items]);
-
-  const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal);
+  const fromPaise = (value: number): number => parseFloat((value / 100).toFixed(2));
+  const baseTax = fromPaise(getTotalTaxPaise(state?.items ?? []))
+  const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal + baseTax);
 
   const isWelcomePromotion = (promo: any) => {
     return promo.type === 'fixed_discount' && promo.title.toLowerCase().includes('welcome');
@@ -205,8 +206,6 @@ const CheckoutPage: React.FC = () => {
     const shipping = freeShippingApplied ? 0 : rawShipping;
     const promotionDiscount = baseSummary.promotionDiscount;
 
-    // FIXED: shippingReady should be true if API has calculated shipping charges
-    // This fixes the issue where shipping is added to total but not displayed
     const hasApiShipping = shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi) && shippingChargesFromApi > 0;
     const shippingReady = baseSummary.shippingReady || hasApiShipping;
 
