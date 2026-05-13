@@ -4,11 +4,10 @@ import { Tag, Truck, Clock, XCircle, CheckCircle, CaretRight } from "@phosphor-i
 import { OrderListingListProps } from "../../types/OrderListingPage";
 
 const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusConfig, onViewDetails }) => {
-    // Senior Approach: Handle empty states with a more premium feel
-    if (orders.length === 0) {
+    if (orders?.length === 0) {
         return (
-            <motion.div 
-                initial={{ opacity: 0 }} 
+            <motion.div
+                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="col-span-full py-40 text-center bg-white rounded-[4rem] border-2 border-dashed border-slate-100"
             >
@@ -22,10 +21,10 @@ const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusCo
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {orders.map((order, idx) => {
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {orders?.map((order, idx) => {
                 const config = getStatusConfig(order.status);
-                
+
                 // Safety check for styles
                 const statusBgClass = config?.bg || "bg-slate-400";
                 const statusTextClass = config?.text || "text-slate-500";
@@ -35,95 +34,141 @@ const OrderListingList: React.FC<OrderListingListProps> = ({ orders, getStatusCo
                         key={order.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05, duration: 0.4 }}
-                        className="group relative bg-white rounded-3xl border border-slate-100 flex flex-col hover:border-[#3d2b1f]/20 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(61,43,31,0.12)]"
+                        transition={{ delay: idx * 0.05, duration: 0.45 }}
+                        className="group relative bg-white rounded-[24px] border border-[#EFE7DC] p-4 px-6 hover:shadow-[0_25px_70px_rgba(0,0,0,0.06)] transition-all duration-500"
                     >
-                        {/* Header Section */}
-                        <div className="p-6 pb-4 flex justify-between items-start">
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className={`w-2 h-2 rounded-full animate-pulse ${statusBgClass}`} />
-                                    <span className={`text-[10px] font-black uppercase tracking-widest ${statusTextClass}`}>
+
+                        {/* TOP */}
+                        <div className="flex items-start justify-between gap-5">
+
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2 mb-3">
+
+                                    <div className={`w-2 h-2 rounded-full ${statusBgClass}`} />
+
+                                    <span className={`text-[10px] tracking-[0.25em] uppercase font-semibold ${statusTextClass}`}>
                                         {config?.label || order.status}
                                     </span>
                                 </div>
-                                <h4 className="text-xl font-black text-[#3d2b1f] tracking-tight group-hover:translate-x-1 transition-transform truncate pr-4">
-                                    #{order.orderNumber || order.id.slice(-6).toUpperCase()}
-                                </h4>
-                                <p className="text-xs text-slate-400 font-bold mt-1">
-                                    Placed {new Date(order.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "long", year: "numeric" })}
+
+                                <h3 className="font-serif text-[1.6rem] text-[#1A1815] leading-none">
+                                    {order.orderNumber || order.id.slice(-6).toUpperCase()}
+                                </h3>
+
+                                <p className="mt-2 text-[13px] text-[#7A746B]">
+                                    Placed on{" "}
+                                    {new Date(order.createdAt).toLocaleDateString("en-US", {
+                                        day: "2-digit",
+                                        month: "long",
+                                        year: "numeric",
+                                    })}
                                 </p>
                             </div>
 
-                            <div className="bg-slate-50 p-3 rounded-2xl text-center min-w-[100px]">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Amount Paid</p>
-                                <div className="flex items-center justify-center gap-0.5 text-[#3d2b1f] font-black text-lg">
-                                    ₹{order.finalAmount ? Number(order.finalAmount).toLocaleString() : "0"}
-                                </div>
+                            {/* PRICE */}
+                            <div className="text-right shrink-0">
+
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-[#9B9489] font-semibold mb-1">
+                                    Total
+                                </p>
+
+                                <p className="font-serif text-2xl text-[#1A1815]">
+                                    ₹{order.finalAmount
+                                        ? Number(order.finalAmount).toLocaleString()
+                                        : "0"}
+                                </p>
                             </div>
                         </div>
 
-                        {/* Progress Tracker Section */}
-                        <div className="px-4 py-3 mx-6 bg-[#FAF9F6] rounded-[2rem] border border-slate-50 flex items-center justify-between relative">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300">
-                                    <Clock size={20} weight="duotone" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Origin</span>
-                                    <span className="text-[11px] font-bold text-slate-600">Warehouse</span>
-                                </div>
+                        {/* DIVIDER */}
+                        {/* <div className="my-3 h-px bg-gradient-to-r from-transparent via-[#B08A37]/20 to-transparent" /> */}
+
+                        {/* TRACKING */}
+                        <div className="flex items-center gap-5 mt-8">
+
+                            {/* ORIGIN */}
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-[#9B9489] mb-1">
+                                    Origin
+                                </p>
+
+                                <p className="text-sm text-[#1A1815] font-medium">
+                                    Warehouse
+                                </p>
                             </div>
 
-                            <div className="flex-1 px-4 flex flex-col items-center gap-2">
-                                <Truck 
-                                    size={18} 
-                                    weight="duotone" 
-                                    className={`transition-all duration-700 ${order.status === "DELIVERED" ? "text-green-600 ml-auto" : "text-brand-brown"}`} 
-                                />
-                                <div className="w-full h-[4px] bg-slate-200 rounded-full relative overflow-hidden">
+                            {/* PROGRESS */}
+                            <div className="flex-1 relative">
+
+                                <div className="h-[3px] rounded-full bg-[#ECE6DD] overflow-hidden">
+
                                     <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ 
-                                            width: order.status === "DELIVERED" ? "100%" : 
-                                                   order.status === "SHIPPED" ? "60%" : "20%" 
+                                        animate={{
+                                            width:
+                                                order.status === "DELIVERED"
+                                                    ? "100%"
+                                                    : order.status === "SHIPPED"
+                                                        ? "65%"
+                                                        : "25%",
                                         }}
-                                        className="absolute inset-y-0 left-0 bg-[#3d2b1f]"
+                                        className="h-full rounded-full bg-gradient-to-r from-[#B08A37] to-[#D4AF37]"
                                     />
                                 </div>
+
+                                <Truck
+                                    size={18}
+                                    weight="fill"
+                                    className={`absolute -top-[7px] transition-all duration-700 ${order.status === "DELIVERED"
+                                            ? "right-0 text-[#B08A37]"
+                                            : "left-[55%] text-[#B08A37]"
+                                        }`}
+                                />
                             </div>
 
-                            <div className="flex items-center gap-3 text-right">
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target</span>
-                                    <span className="text-[11px] font-bold text-slate-600">Residence</span>
-                                </div>
-                                <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center transition-colors ${order.status === "DELIVERED" ? "bg-green-600 text-white" : "bg-white text-slate-200"}`}>
-                                    {order.status === "CANCELLED" ? <XCircle size={20} weight="fill" className="text-rose-500" /> : <CheckCircle size={20} weight="fill" />}
-                                </div>
+                            {/* DESTINATION */}
+                            <div className="text-right">
+
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-[#9B9489] mb-1">
+                                    Destination
+                                </p>
+
+                                <p className="text-sm text-[#1A1815] font-medium">
+                                    Residence
+                                </p>
                             </div>
                         </div>
 
-                        {/* Footer Section */}
-                        <div className="p-6 mt-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-4 text-slate-400">
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black uppercase tracking-tighter">Manifest</span>
-                                    {/* Synchronized with your SQL alias 'itemCount' */}
-                                    <span className="text-xs font-bold text-slate-600">
-                                        {order.itemsCount || 0} {Number(order.itemsCount) === 1 ? 'Premium Item' : 'Premium Items'}
-                                    </span>
-                                </div>
+                        {/* FOOTER */}
+                        <div className="mt-8 pt-2 flex items-center justify-between">
+
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-[#9B9489] mb-1">
+                                    Order Summary
+                                </p>
+
+                                <p className="text-sm text-[#1A1815] font-medium">
+                                    {order.itemsCount || 0}{" "}
+                                    {Number(order.itemsCount) === 1
+                                        ? "Premium Item"
+                                        : "Premium Items"}
+                                </p>
                             </div>
 
                             <button
                                 onClick={() => onViewDetails(order.id)}
-                                className="px-6 py-2.5 bg-[#3d2b1f] text-white rounded-full text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-black hover:shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-2 group/btn"
+                                className="group/button inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] font-semibold text-[#1A1815] hover:text-[#B08A37] transition-colors"
                             >
                                 Track Order
-                                <CaretRight weight="bold" className="group-hover/btn:translate-x-1 transition-transform" />
+
+                                <CaretRight
+                                    size={14}
+                                    weight="bold"
+                                    className="group-hover/button:translate-x-1 transition-transform"
+                                />
                             </button>
                         </div>
+
                     </motion.div>
                 );
             })}

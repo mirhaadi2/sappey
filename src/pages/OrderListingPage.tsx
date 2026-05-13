@@ -74,7 +74,7 @@ const OrderListingPage: React.FC = () => {
     if (isLoading) return <OrderListingSkeleton />;
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pb-24">
+        <div className="min-h-screen bg-[#FDFCFB] pb-12">
             <div className="max-w-7xl mx-auto px-8 pt-12">
                 <OrderListingHeader 
                     stats={stats} 
