@@ -38,7 +38,7 @@ const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                             </div>
 
                             {/* Heading */}
-                            <h2
+                            {/* <h2
                                 className="font-serif text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] text-[#1A1815]"
                                 style={{
                                     fontWeight: 500,
@@ -50,10 +50,23 @@ const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                                 <span className="block italic text-[#B08A37] mt-2">
                                     Wellness Families
                                 </span>
+                            </h2> */}
+                            <h2
+                                className="font-serif text-[clamp(1.75rem,4vw,3rem)] leading-none text-[#1A1815] max-w-3xl"
+                                style={{
+                                    fontWeight: 500,
+                                    letterSpacing: "-0.04em",
+                                }}
+                            >
+                                Trusted By{" "}
+
+                                <span className="italic text-[#B08A37]">
+                                    Wellness Families
+                                </span>
                             </h2>
 
                             {/* Subtitle */}
-                            <p className="mt-6 text-[#6B665E] text-[13px] leading-[1.9] max-w-2xl mx-auto lg:mx-0">
+                            <p className="mt-4 text-[#6B665E] text-[13px] leading-[1.9] max-w-2xl mx-auto lg:mx-0">
                                 Honest experiences from customers who trust Sappey
                                 for freshness, purity, and premium quality.
                             </p>
@@ -61,7 +74,7 @@ const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
 
                         {/* RIGHT SECTION */}
                         {statistics && (
-                            <div className="w-full lg:max-w-[460px] rounded-[32px] bg-white/75 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.05)] px-8 py-6">
+                            <div className="w-full lg:max-w-[460px] rounded-[24px] bg-white/75 backdrop-blur-xl border border-[#B08A37] shadow-[0_10px_40px_rgba(0,0,0,0.05)] px-8 py-6">
 
                                 <div className="flex items-center gap-8">
 
@@ -125,12 +138,12 @@ const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                                                         className="h-full rounded-full bg-gradient-to-r from-[#B08A37] to-[#D4AF37]"
                                                         style={{
                                                             width: `${statistics.totalReviews > 0
-                                                                    ? (statistics.ratingDistribution[
-                                                                        rating as keyof typeof statistics.ratingDistribution
-                                                                    ] /
-                                                                        statistics.totalReviews) *
-                                                                    100
-                                                                    : 0
+                                                                ? (statistics.ratingDistribution[
+                                                                    rating as keyof typeof statistics.ratingDistribution
+                                                                ] /
+                                                                    statistics.totalReviews) *
+                                                                100
+                                                                : 0
                                                                 }%`,
                                                         }}
                                                     />
