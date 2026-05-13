@@ -44,30 +44,35 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="flex flex-col md:flex-row md:items-end justify-between gap-[clamp(1rem,2vw,1.5rem)] mb-[clamp(1.5rem,3vw,2rem)]"
+                            className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 mb-[clamp(1.5rem,3vw,2rem)]"
                         >
-                            <div className="max-w-2xl">
-                                {label && (
-                                    <span className="font-label text-[clamp(0.7rem,2vw,0.85rem)] uppercase tracking-widest text-brand-cocoa block mb-1">
-                                        {label}
+                            {/* 1. Left Spacer (Empty on desktop to balance the button on the right) */}
+                            <div className="hidden md:block" />
+
+                            {/* 2. Centered Content */}
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-[1px] bg-[#B08A37]" />
+                                    <span className="uppercase tracking-[0.35em] text-[#B08A37] text-[10px] font-semibold">
+                                        Premium Collection
                                     </span>
-                                )}
+                                    <div className="w-10 h-[1px] bg-[#B08A37]" />
+                                </div>
+
                                 <h2
-                                    className="font-headline text-[clamp(1.75rem,4vw,2rem)] text-brand-brown mb-[clamp(0.5rem,1.5vw,0.75)]"
-                                    style={{ fontWeight: 500, letterSpacing: "-0.025em" }}
+                                    className="font-serif text-[clamp(1.75rem,4vw,2rem)] leading-[1.05] text-brand-brown"
+                                    style={{
+                                        fontWeight: 500,
+                                        letterSpacing: "-0.04em",
+                                    }}
                                 >
                                     {title}
                                 </h2>
-
-                                {subtitle && (
-                                    <p className="font-sans text-[clamp(0.9rem,2.5vw,1rem)] text-brand-brown/80 leading-relaxed">
-                                        {subtitle}
-                                    </p>
-                                )}
                             </div>
 
-                            {showViewAllButton && total > 4 && onViewAll && (
-                                <div className="shrink-0">
+                            {/* 3. Right Aligned Button */}
+                            <div className="flex justify-center md:justify-end shrink-0">
+                                {showViewAllButton && total > 4 && onViewAll && (
                                     <button
                                         onClick={onViewAll}
                                         className="inline-flex items-center gap-2 font-label text-[clamp(0.8rem,2vw,0.9rem)] text-brand-brown hover:text-brand-cocoa transition-colors duration-200 group"
@@ -79,8 +84,8 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
                                             className="group-hover:translate-x-1 transition-transform"
                                         />
                                     </button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </motion.div>
 
                         <motion.div

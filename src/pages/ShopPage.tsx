@@ -87,13 +87,41 @@ const ShopPage: React.FC = () => {
         />
 
         {/* Results Header */}
-        <div className="mb-8 flex items-baseline justify-between px-2 mt-6">
-          <h3 className="text-brand-brown font-headline text-2xl">
-            {activeCategory === "all" ? "Our Collection" : activeCategory}
-          </h3>
-          <p className="text-slate-400 text-sm font-medium">
-            Showing <span className="text-brand-brown font-bold">{sortedProducts.length}</span> items
-          </p>
+        <div className="relative flex items-center justify-center mb-6 mt-6 px-4 min-h-[80px]">
+          {/* CENTER CONTENT */}
+          <div className="flex flex-col items-center text-center z-10">
+            {/* Small Premium Label */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-[1px] bg-[#B08A37]/60" />
+              <span className="uppercase tracking-[0.35em] text-[#B08A37] text-[10px] font-semibold">
+                Premium Collection
+              </span>
+              <div className="w-8 h-[1px] bg-[#B08A37]/60" />
+            </div>
+
+            {/* Main Heading */}
+            <h3
+              className="font-serif text-[clamp(1.75rem,4vw,2.5rem)] text-brand-brown capitalize leading-tight"
+              style={{
+                fontWeight: 500,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              {activeCategory === "all" ? "Our Collection" : activeCategory}
+            </h3>
+          </div>
+
+          {/* RIGHT COUNT - Absolute ensures it doesn't shift the H3 */}
+          <div className="hidden lg:flex absolute right-4 items-center">
+            <div className="px-5 py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-[#B08A37]/20 shadow-sm transition-all hover:border-[#B08A37]/40">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#6B665E] font-medium">
+                <span className="text-[#B08A37] font-bold mr-1">
+                  {sortedProducts.length}
+                </span>
+                Products
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Products Grid or Empty State */}
