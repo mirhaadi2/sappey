@@ -281,9 +281,9 @@ const Header: React.FC = () => {
                             </AnimatePresence>
                         </div>
 
-                        <button onClick={() => navigate("/wishlist")} className="p-3 hover:bg-brand-brown/5 rounded-full relative transition-colors">
+                        {/* <button onClick={() => navigate("/wishlist")} className="p-3 hover:bg-brand-brown/5 rounded-full relative transition-colors">
                             <Heart size={22} weight={wishlistCount > 0 ? "fill" : "light"} className={wishlistCount > 0 ? "text-red-500" : "text-brand-brown"} />
-                        </button>
+                        </button> */}
 
                         <button onClick={() => dispatch({ type: "OPEN_CART" })} className="p-3 hover:bg-brand-brown/5 rounded-full relative transition-colors group">
                             <ShoppingCart size={22} weight="light" className="text-brand-brown" />

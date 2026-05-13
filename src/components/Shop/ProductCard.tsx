@@ -153,7 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                             {/* Actions - Top Right (Hidden on mobile by default, shown on hover/touch) */}
                             {!isSoldOut && (
                                 <div className="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 z-10">
-                                    <button
+                                    {/* <button
                                         className={`p-2 md:p-2.5 rounded-full transition-all duration-300 transform shadow-md ${isAnyVariantInWishlist
                                             ? 'bg-red-500 text-white scale-110'
                                             : 'bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white'
@@ -161,7 +161,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                         onClick={handleWishlistToggle}
                                     >
                                         <Heart size={16} weight={isAnyVariantInWishlist ? "fill" : "regular"} className="md:w-[18px] md:h-[18px]" />
-                                    </button>
+                                    </button> */}
 
                                     <button
                                         className="p-2 md:p-2.5 rounded-full bg-white/95 backdrop-blur-md text-brand-brown md:opacity-0 md:translate-x-[10px] group-hover:opacity-100 group-hover:translate-x-0 hover:bg-brand-brown hover:text-white transition-all duration-300 delay-75 shadow-md"
