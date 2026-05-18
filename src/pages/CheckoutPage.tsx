@@ -419,7 +419,7 @@ const CheckoutPage = () => {
           billingAddress: formValues.billingSameAsShipping ? undefined : {
             name: `${billingValues?.firstName} ${billingValues?.lastName}`,
             phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-            email: currentUser ? currentUser?.email : formValues.contactEmail,
+            email: currentUser ? currentUser.email : formValues.contactEmail,
             addressLine1: billingValues?.address,
             city: billingValues?.city,
             state: billingValues?.state,
