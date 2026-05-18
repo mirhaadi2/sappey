@@ -44,7 +44,11 @@ export interface CreateOrderData {
     postalCode: string;
     country: string;
   };
-  paymentMethod: 'card' | 'cod' | 'upi' | 'netbanking';
+  paymentMethod: 'cod' | 'online';
+  paymentDetails?: {
+    upiId?: string;
+    netbankingBank?: string;
+  };
   promotionId?: string;
   promotionDetails?: {
     id: string;
@@ -68,6 +72,12 @@ export interface Order {
   finalAmount: string;
   paymentStatus: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
   paymentMethod?: string;
+  paymentSession?: {
+    provider: string;
+    gatewayOrderId: string;
+    publicKey?: string;
+    rawResponse?: Record<string, any>;
+  };
   shippingAddressId: string;
   deliveryDate?: Date;
   notes?: string;
@@ -84,6 +94,12 @@ export interface Order {
   shippingPostalCode?: string;
   shippingCountry?: string;
   shippingPhone?: string;
+}
+
+export interface ConfirmPaymentPayload {
+  razorpayPaymentId: string;
+  razorpayOrderId: string;
+  razorpaySignature: string;
 }
 
 export interface OrderResponse {

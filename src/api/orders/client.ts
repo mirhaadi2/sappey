@@ -1,5 +1,5 @@
 import { apiMethods } from '../index';
-import { CreateOrderData, Order, OrderResponse, OrdersListResponse } from './types';
+import { CreateOrderData, ConfirmPaymentPayload, Order, OrderResponse, OrdersListResponse } from './types';
 
 export const ordersClient = {
   // Place a new order (supports both authenticated and guest users)
@@ -54,10 +54,13 @@ export const ordersClient = {
   },
 
   // Confirm payment for an order
-  confirmPayment: async (id: string): Promise<Order> => {
+  confirmPayment: async (
+    id: string,
+    payload?: ConfirmPaymentPayload
+  ): Promise<Order> => {
     const response = await apiMethods.post<OrderResponse>(
       `/orders/${id}/payment`,
-      {}
+      payload || {}
     );
     return response.data.data;
   },

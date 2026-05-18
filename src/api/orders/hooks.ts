@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersClient } from './client';
-import { Order, CreateOrderData } from './types';
+import { Order, CreateOrderData, ConfirmPaymentPayload } from './types';
 
 /**
  * Hook for fetching user's orders list
@@ -103,7 +103,8 @@ export const useOrders = ({
   });
 
   const confirmPaymentMutation = useMutation({
-    mutationFn: (id: string) => ordersClient.confirmPayment(id),
+    mutationFn: ({ id, payload }: { id: string; payload?: ConfirmPaymentPayload }) =>
+      ordersClient.confirmPayment(id, payload),
     onSuccess: (response: any) => {
       // Extract the order from response
       const updatedOrder = response?.data || response;
@@ -142,7 +143,8 @@ export const useOrders = ({
       createMutation.mutateAsync({ data, guestToken }),
     cancelOrder: (id: string, reason: string) =>
       cancelMutation.mutateAsync({ id, reason }),
-    confirmPayment: (id: string) => confirmPaymentMutation.mutateAsync(id),
+    confirmPayment: (id: string, payload?: ConfirmPaymentPayload) =>
+      confirmPaymentMutation.mutateAsync({ id, payload }),
 
     // Mutation states
     isCreatingOrder: createMutation.isPending,

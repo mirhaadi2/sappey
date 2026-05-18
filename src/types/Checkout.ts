@@ -9,7 +9,7 @@ import { useFormWithValidation } from '../hooks/useFormValidation';
 // ============================================
 export type ContactType = 'email' | 'phone' | 'whatsapp';
 export type ShippingMethod = 'standard' | 'express' | 'overnight';
-export type PaymentMethod = 'cod' | 'razorpay' | 'cashfree';
+export type PaymentMethod = 'cod' | 'online';
 
 export interface ContactInformationSectionProps {
     form: UseFormReturn<CheckoutFormData>;
@@ -83,6 +83,12 @@ export interface CheckoutFormDataType {
     billingAddress: DeliveryAddressFormData;
     billingSameAsShipping: boolean;
     paymentMethod: PaymentMethod;
+    cardNumber?: string;
+    cardHolderName?: string;
+    cardExpiry?: string;
+    cardCvv?: string;
+    upiId?: string;
+    netbankingBank?: string;
     shippingMethod: ShippingMethod;
     newsletter: boolean;
     saveInfo: boolean;
@@ -140,6 +146,10 @@ export interface PlaceOrderPayload {
         state: string;
         postalCode: string;
         country: string;
+    };
+    paymentDetails?: {
+        upiId?: string;
+        netbankingBank?: string;
     };
     promotionId?: string;
 }

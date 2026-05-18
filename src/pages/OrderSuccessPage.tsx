@@ -6,7 +6,6 @@ import {
   Package,
   Truck,
   House,
-  Receipt,
   CreditCard,
   ArrowRight,
   EnvelopeSimple,
@@ -117,9 +116,17 @@ const OrderSuccessPage: React.FC = () => {
                     <h3 className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-bold uppercase tracking-wider">Payment</h3>
                   </div>
                   <p className="text-slate-900 font-medium capitalize text-[clamp(0.875rem,1.5vw,1rem)]">
-                    {orderData.paymentMethod === "cod" ? "Cash on Delivery" : orderData.paymentMethod}
+                    {orderData.paymentMethod === "cod"
+                      ? "Cash on Delivery"
+                      : orderData.paymentMethod === "card"
+                      ? "Card Payment"
+                      : orderData.paymentMethod === "upi"
+                      ? "UPI"
+                      : orderData.paymentMethod === "netbanking"
+                      ? "Netbanking"
+                      : orderData.paymentMethod}
                   </p>
-                  <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] text-slate-500 mt-1">Total charged: ₹{Math.round(orderData.orderTotal).toLocaleString('en-IN')}</p>
+                  <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] text-slate-500 mt-1">Total charged: ₹{orderData?.orderTotal ? orderData?.orderTotal?.toLocaleString('en-IN') : 'N/A'}</p>
                 </div>
               </div>
               <div className="bg-slate-50 p-[clamp(0.75rem,1vw,1rem)] border-t border-slate-100 flex items-center gap-3">

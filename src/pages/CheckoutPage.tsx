@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CardContext";
@@ -24,11 +24,11 @@ import {
   PageContentModal
 } from "../components/Checkout";
 
-const CheckoutPage: React.FC = () => {
+const CheckoutPage = () => {
   const navigate = useNavigate();
   const { currentUser, openAuthModal } = useWebsiteAuth();
   const { state, dispatch } = useCart();
-  const { placeOrder, isCreatingOrder } = useOrders();
+  const { placeOrder, confirmPayment, isCreatingOrder, isConfirmingPayment } = useOrders();
   const { config: guestConfig } = useGuestConfig();
   const checkoutForm = useFormWithValidation<CheckoutFormData>(checkoutFormSchema, {
     defaultValues: {
@@ -58,6 +58,12 @@ const CheckoutPage: React.FC = () => {
       billingSameAsShipping: true,
       paymentMethod: 'cod',
       shippingMethod: 'standard',
+      cardNumber: '',
+      cardHolderName: '',
+      cardExpiry: '',
+      cardCvv: '',
+      upiId: '',
+      netbankingBank: '',
       newsletter: true,
       saveInfo: true,
     }
@@ -66,6 +72,7 @@ const CheckoutPage: React.FC = () => {
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isGuestVerified, setIsGuestVerified] = useState(false);
+  const [isPaymentRedirecting, setIsPaymentRedirecting] = useState(false);
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [verifiedGuest, setVerifiedGuest] = useState<{ contact: string; type: 'email' | 'phone' | 'whatsapp' } | null>(null);
   const [existingCustomer, setExistingCustomer] = useState<{
@@ -331,12 +338,24 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePlaceOrder = async () => {
+    // 1. Validate Form
     const isFormValid = await checkoutForm.trigger();
-    if (!isFormValid) {
-      // console.log("Validation failed", checkoutForm.formState.errors);
-      return;
-    }
+    if (!isFormValid) return;
 
     const formValues = checkoutForm.getValues();
     const deliveryValues = formValues.deliveryAddress;
@@ -364,73 +383,161 @@ const CheckoutPage: React.FC = () => {
         }
         return;
       }
-      if (!isGuestVerified) {
+
+      // 3. Guest Verification Logic
+      if (!currentUser && !isGuestVerified) {
         placeOrderPendingRef.current = true;
         setShowOtpModal(true);
         return;
       }
-    }
 
-    try {
-      const orderData = {
-        guestData: !currentUser ? {
-          contact: verifiedGuest?.contact || '',
-          contactType: verifiedGuest?.type || 'email',
-        } : undefined,
-        items: buildOrderItemsPayload(state?.items ?? []),
-        subtotal: orderSummary.subtotal,
-        totalAmount: orderSummary.total,
-        discountAmount: orderSummary.promotionDiscount,
-        taxAmount: orderSummary.tax,
-        shippingCost: orderSummary.shipping,
-        paymentMethod: formValues.paymentMethod,
-        shippingAddressId: selectedAddressId || undefined,
-        shippingAddress: {
-          name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
-          phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-          email: currentUser ? currentUser.email : formValues.contactEmail,
-          addressLine1: deliveryValues.address,
-          city: deliveryValues.city,
-          state: deliveryValues.state,
-          postalCode: deliveryValues.pinCode,
-          country: deliveryValues.country,
-        },
-        billingAddress: formValues.billingSameAsShipping ? undefined : {
-          name: `${billingValues?.firstName} ${billingValues?.lastName}`,
-          phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-          email: currentUser ? currentUser.email : formValues.contactEmail,
-          addressLine1: billingValues?.address,
-          city: billingValues?.city,
-          state: billingValues?.state,
-          postalCode: billingValues?.pinCode,
-          country: billingValues?.country,
-        },
-        promotionId: orderSummary.selectedPromotion?.id,
-      };
+      try {
+        // 4. Construct Payload
+        const orderData = {
+          guestData: !currentUser ? {
+            contact: verifiedGuest?.contact || '',
+            contactType: verifiedGuest?.type || 'email',
+          } : undefined,
+          items: buildOrderItemsPayload(state?.items ?? []),
+          subtotal: orderSummary.subtotal,
+          totalAmount: orderSummary.total,
+          discountAmount: orderSummary.promotionDiscount,
+          taxAmount: orderSummary.tax,
+          shippingCost: orderSummary.shipping,
+          paymentMethod: formValues.paymentMethod, // 'cod' or 'online'
+          shippingAddressId: selectedAddressId || undefined,
+          shippingAddress: {
+            name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
+            phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+            email: currentUser ? currentUser.email : formValues.contactEmail,
+            addressLine1: deliveryValues.address,
+            city: deliveryValues.city,
+            state: deliveryValues.state,
+            postalCode: deliveryValues.pinCode,
+            country: deliveryValues.country,
+          },
+          billingAddress: formValues.billingSameAsShipping ? undefined : {
+            name: `${billingValues?.firstName} ${billingValues?.lastName}`,
+            phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
+            email: currentUser ? currentUser?.email : formValues.contactEmail,
+            addressLine1: billingValues?.address,
+            city: billingValues?.city,
+            state: billingValues?.state,
+            postalCode: billingValues?.pinCode,
+            country: billingValues?.country,
+          },
+          promotionId: orderSummary.selectedPromotion?.id,
+        };
 
-      const newOrder = await placeOrder(orderData, guestToken ?? undefined);
-      dispatch({ type: "CLEAR_CART" });
-      navigate("/order-success", {
-        state: {
-          orderId: newOrder?.id ?? '',
-          orderNumber: newOrder?.orderNumber ? `Order #${newOrder.orderNumber}` : `Order ${newOrder?.id ?? 'Unknown'}`,
-          orderTotal: orderSummary.total,
-          estimatedDelivery: new Date(
-            Date.now() + (formValues.shippingMethod === "standard" ? 6 : formValues.shippingMethod === "express" ? 3 : 1) * 24 * 60 * 60 * 1000
-          ).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          shippingMethod: formValues.shippingMethod,
-          paymentMethod: formValues.paymentMethod,
-          address: `${deliveryValues.firstName}, ${deliveryValues.city}`,
-          itemCount: state?.items?.length ?? 0,
-          promotionApplied: orderSummary.selectedPromotion?.title,
-          promotionSavings: orderSummary.promotionDiscount,
-        },
-      });
-    } catch (err) {
-      console.error("✗ Failed to place order:", err);
-      alert("Failed to place order. Please try again.");
-    }
-  };
+        // 5. Create Order in Backend
+        const newOrder = await placeOrder(orderData, guestToken ?? undefined);
+
+        // 6. Handle Online Payment (Razorpay)
+        console.log(formValues, 'f')
+        if (formValues.paymentMethod === 'online') {
+          if (!newOrder?.paymentSession?.gatewayOrderId) {
+            throw new Error("Failed to initialize payment gateway session.");
+          }
+
+          setIsPaymentRedirecting(true);
+          const scriptLoaded = await loadRazorpayScript();
+
+          if (!scriptLoaded) {
+            setIsPaymentRedirecting(false);
+            alert("Payment gateway failed to load. Check your internet connection.");
+            return;
+          }
+
+          const options = {
+            key: newOrder.paymentSession.publicKey, // Your Razorpay Key
+            amount: Math.round(orderSummary.total * 100), // In Paisa
+            currency: "INR",
+            name: "Sappey",
+            description: `Order #${newOrder.orderNumber || newOrder.id}`,
+            image: "https://your-brand-logo-url.com/logo.png", // Optional: your logo
+            order_id: newOrder.paymentSession.gatewayOrderId,
+            method: {
+              card: true,
+              netbanking: true,
+              // wallet: true,
+              upi: true,
+              // paylater: true,
+            },
+            notes: {
+              orderId: newOrder.id,
+              receipt: newOrder.orderNumber || newOrder.id,
+            },
+            handler: async (response: any) => {
+              console.log(response, 'response')
+              setIsPaymentRedirecting(false);
+              try {
+                console.log(newOrder,'new Order')
+                const res = await confirmPayment(newOrder?.id, {
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpaySignature: response.razorpay_signature,
+                });
+                console.log(res,'res', orderSummary, 'ord')
+
+                dispatch({ type: "CLEAR_CART" });
+                navigate("/order-success", {
+                  state: {
+                    orderId: newOrder.id,
+                    orderNumber: newOrder.orderNumber,
+                    orderTotal: orderSummary.total,
+                    paymentMethod: 'online'
+                  }
+                });
+              } catch (err) {
+                console.error("Payment confirmation failed", err);
+                alert("Payment was completed but confirmation failed. Please check your order history or contact support.");
+                navigate("/order-success", { state: { orderId: newOrder.id, orderNumber: newOrder.orderNumber, paymentMethod: 'online' } });
+              }
+            },
+            prefill: {
+              name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
+              email: currentUser ? currentUser.email : formValues.contactEmail,
+              contact: deliveryValues?.phone || formValues.contactPhone,
+            },
+            theme: {
+              color: "#7B3F00", // Your brand-brown
+            },
+            modal: {
+              ondismiss: () => {
+                setIsPaymentRedirecting(false);
+              }
+            }
+          };
+
+          console.log('🔍 Razorpay Options:', options);
+          const rzp = new (window as any).Razorpay(options);
+          rzp.on('payment.failed', (response: any) => {
+            console.error('Razorpay payment failed', response);
+            setIsPaymentRedirecting(false);
+            alert('Payment failed or was cancelled. Please try again or choose another payment method.');
+          });
+          rzp.open();
+
+        } else {
+          // 7. Handle COD Flow
+          dispatch({ type: "CLEAR_CART" });
+          navigate("/order-success", {
+            state: {
+              orderId: newOrder?.id,
+              orderNumber: newOrder?.orderNumber,
+              paymentMethod: 'cod'
+            }
+          });
+        }
+
+      } catch (err) {
+        console.error("Checkout Error:", err);
+        alert("Something went wrong while processing your order. Please try again.");
+      } finally {
+        setIsPaymentRedirecting(false);
+      }
+    };
+  }
 
   if ((state?.items?.length ?? 0) === 0) {
     return (
@@ -448,8 +555,6 @@ const CheckoutPage: React.FC = () => {
       </div>
     );
   }
-
-  // const enabledContactTypes = guestConfig?.enabledContactTypes || { email: true };
 
   return (
     <div className="min-h-screen bg-brand-latte">
@@ -497,12 +602,12 @@ const CheckoutPage: React.FC = () => {
             <BillingAddressSection form={checkoutForm} />
             <motion.button
               onClick={handlePlaceOrder}
-              disabled={isCreatingOrder || selectedAddressServiceable === false || (!selectedAddressId && deliveryAddressServiceable === false)}
+              disabled={isCreatingOrder || isConfirmingPayment || isPaymentRedirecting || selectedAddressServiceable === false || (!selectedAddressId && deliveryAddressServiceable === false)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isCreatingOrder ? "Processing..." : "Complete order"}
+              {isCreatingOrder || isConfirmingPayment || isPaymentRedirecting ? "Processing payment..." : "Complete order"}
             </motion.button>
             <div className="flex justify-center gap-6 text-sm text-slate-600 flex-wrap">
               <button onClick={() => setOpenModal('returns-and-refunds')} className="text-brand-brown font-medium hover:underline cursor-pointer bg-none border-none p-0">Refund policy</button>
@@ -575,6 +680,6 @@ const CheckoutPage: React.FC = () => {
       />
     </div>
   );
-};
+}
 
 export default CheckoutPage;
