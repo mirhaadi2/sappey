@@ -56,7 +56,7 @@ const CheckoutPage = () => {
         country: 'India',
       },
       billingSameAsShipping: true,
-      paymentMethod: 'cod',
+      paymentMethod: 'online',
       shippingMethod: 'standard',
       cardNumber: '',
       cardHolderName: '',
