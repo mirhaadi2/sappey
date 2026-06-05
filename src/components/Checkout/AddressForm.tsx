@@ -28,7 +28,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         return (
                             details?.pin?.toString() === pincode.toString() &&
                             details?.pre_paid === 'Y' && details?.cod === 'Y' && details?.cash === 'Y' &&
-                            details?.repl === 'Y' && details?.pickup === 'Y'
+                            // details?.repl === 'Y' && 
+                            details?.pickup === 'Y'
                         );
                     }) || false;
 
