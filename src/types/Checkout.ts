@@ -37,6 +37,15 @@ export interface OrderSummaryProps {
     filteredPromotions: Promotion[];
     isReturningCustomer: boolean;
     shippingLabel: string;
+    // Coupon props
+    couponCode: string;
+    onCouponCodeChange: (code: string) => void;
+    onApplyCoupon: () => void;
+    couponLoading?: boolean;
+    couponError?: string | null;
+    appliedCoupon?: any;
+    couponDiscount?: number;
+    onClearCoupon?: () => void;
 }
 
 export interface VerifiedGuest {
@@ -230,6 +239,14 @@ export interface CheckoutSidebarProps {
     filteredPromotions: any[];
     isReturningCustomer: boolean;
     shippingLabel: string;
+    couponCode: string;
+    onCouponCodeChange: (code: string) => void;
+    onApplyCoupon: () => void;
+    couponLoading?: boolean;
+    couponError?: string | null;
+    appliedCoupon?: any;
+    couponDiscount?: number;
+    onClearCoupon?: () => void;
 }
 
 export interface PromotionBadgeProps {

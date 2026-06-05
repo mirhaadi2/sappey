@@ -10,6 +10,7 @@ const OrderDetailsFinancialCard: React.FC<OrderDetailsFinancialCardProps> = ({
     metadata
 }) => {
     const promotion = metadata?.promotion;
+    const coupon = metadata?.coupon;
     
     const getPromotionIcon = (type: string) => {
         if (type?.includes('shipping') || type === 'free_shipping') return <Truck size={16} weight="bold" />;
@@ -71,6 +72,26 @@ const OrderDetailsFinancialCard: React.FC<OrderDetailsFinancialCardProps> = ({
                                         year: 'numeric'
                                     })}
                                 </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {coupon && (
+                <div className="mt-6 pt-6 border-t border-white/10">
+                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-sky-600/25 to-slate-700/25 backdrop-blur-md border border-brand-cream/20 rounded-2xl">
+                        <div className="p-3 bg-brand-cream/20 rounded-xl flex-shrink-0 text-brand-cream">
+                            <Gift size={16} weight="bold" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-black text-brand-cream/70 uppercase tracking-widest mb-2">✓ Applied Coupon</p>
+                            <h4 className="text-sm font-bold text-brand-cream mb-2 line-clamp-2">{coupon.code || 'Coupon applied'}</h4>
+                            {typeof coupon.discountAmount === 'number' && (
+                                <p className="text-xs text-brand-cream/50">Saved ₹{coupon.discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                            )}
+                            {coupon.type && (
+                                <p className="text-xs text-brand-cream/50">Type: {coupon.type.replace('_', ' ')}</p>
                             )}
                         </div>
                     </div>

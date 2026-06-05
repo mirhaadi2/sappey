@@ -5,6 +5,7 @@ import { useCart } from "../context/CardContext";
 import { useWebsiteAuth } from "../context/WebsiteAuthContext";
 import { useOrders } from "../api/orders/hooks";
 import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
+import { useCheckoutCoupon } from "../hooks/useCheckoutCoupon";
 import { useApplicablePromotions } from "../api/promotions";
 import { getOrderSummary, buildOrderItemsPayload, getSubtotal, getTotalTaxPaise } from "../utils/checkoutCalculations";
 import { Package } from "@phosphor-icons/react";
@@ -192,6 +193,26 @@ const CheckoutPage = () => {
   }, [applicablePromotions, isReturningCustomer, isFirstOrderEligible]);
 
   const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
+
+  // Initialize coupon hook
+  const cartItems = (state?.items ?? []).map((item: any) => ({
+    productId: item.id,
+    categoryId: item.categoryId,
+    quantity: item.quantity,
+    price: item.price,
+  }));
+  
+  const {
+    couponCode,
+    setCouponCode,
+    appliedCoupon,
+    couponDiscount,
+    couponLoading,
+    couponError,
+    applyCouponCode,
+    clearCoupon,
+  } = useCheckoutCoupon(currentUser?.id || null, cartItems, baseSubtotal);
+
   const orderSummary = useMemo(() => {
     const deliveryValues = checkoutForm.watch("deliveryAddress");
     const shippingMethod = checkoutForm.watch("shippingMethod");
@@ -216,15 +237,24 @@ const CheckoutPage = () => {
     const hasApiShipping = shippingChargesFromApi !== null && !Number.isNaN(shippingChargesFromApi) && shippingChargesFromApi > 0;
     const shippingReady = baseSummary.shippingReady || hasApiShipping;
 
+    // Compute totals with special handling for `free_order` coupons
+    const totalBeforeCoupon = baseSummary.subtotal - promotionDiscount + baseSummary.tax + rawShipping;
+    const isFreeOrderCoupon = appliedCoupon?.coupon?.type === 'free_order';
+
+    const computedCouponDiscount = isFreeOrderCoupon ? Math.round(Math.max(0, totalBeforeCoupon)) : (couponDiscount || 0);
+    const finalShipping = isFreeOrderCoupon ? 0 : shipping;
+    const finalTotal = isFreeOrderCoupon ? 0 : Math.round(baseSummary.subtotal - promotionDiscount - computedCouponDiscount + baseSummary.tax + finalShipping);
+
     return {
       ...baseSummary,
-      shipping,
+      shipping: finalShipping,
       promotionDiscount,
       shippingReady,
-      total: Math.round(baseSummary.subtotal - promotionDiscount + baseSummary.tax + shipping),
+      couponDiscount: computedCouponDiscount,
+      total: finalTotal,
       totalBeforePromo: Number((baseSummary.subtotal + baseSummary.tax + rawShipping).toFixed(2)),
     };
-  }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi]);
+  }, [state?.items, checkoutForm.watch(), bestPromotion, shippingChargesFromApi, couponDiscount]);
 
   const shippingLabel = orderSummary?.shippingReady
     ? orderSummary.shipping === 0
@@ -393,6 +423,7 @@ const CheckoutPage = () => {
 
       try {
         // 4. Construct Payload
+        const currentUserEmail = (currentUser as any)?.email;
         const orderData = {
           guestData: !currentUser ? {
             contact: verifiedGuest?.contact || '',
@@ -402,6 +433,10 @@ const CheckoutPage = () => {
           subtotal: orderSummary.subtotal,
           totalAmount: orderSummary.total,
           discountAmount: orderSummary.promotionDiscount,
+          couponDiscount: couponDiscount,
+          couponCode: appliedCoupon?.coupon?.code,
+          couponId: appliedCoupon?.coupon?.id,
+          couponType: appliedCoupon?.coupon?.type,
           taxAmount: orderSummary.tax,
           shippingCost: orderSummary.shipping,
           paymentMethod: formValues.paymentMethod, // 'cod' or 'online'
@@ -409,7 +444,7 @@ const CheckoutPage = () => {
           shippingAddress: {
             name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
             phone: deliveryValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-            email: currentUser ? currentUser.email : formValues.contactEmail,
+            email: currentUserEmail || formValues.contactEmail,
             addressLine1: deliveryValues.address,
             city: deliveryValues.city,
             state: deliveryValues.state,
@@ -419,7 +454,7 @@ const CheckoutPage = () => {
           billingAddress: formValues.billingSameAsShipping ? undefined : {
             name: `${billingValues?.firstName} ${billingValues?.lastName}`,
             phone: billingValues?.phone || formValues.contactPhone || formValues.contactWhatsapp,
-            email: currentUser ? currentUser.email : formValues.contactEmail,
+            email: currentUserEmail || formValues.contactEmail,
             addressLine1: billingValues?.address,
             city: billingValues?.city,
             state: billingValues?.state,
@@ -434,7 +469,8 @@ const CheckoutPage = () => {
 
         // 6. Handle Online Payment (Razorpay)
         console.log(formValues, 'f')
-        if (formValues.paymentMethod === 'online') {
+        const isFreeOrder = orderSummary.total === 0;
+        if (formValues.paymentMethod === 'online' && !isFreeOrder) {
           if (!newOrder?.paymentSession?.gatewayOrderId) {
             throw new Error("Failed to initialize payment gateway session.");
           }
@@ -496,7 +532,7 @@ const CheckoutPage = () => {
             },
             prefill: {
               name: `${deliveryValues.firstName} ${deliveryValues.lastName}`,
-              email: currentUser ? currentUser.email : formValues.contactEmail,
+              email: currentUserEmail || formValues.contactEmail,
               contact: deliveryValues?.phone || formValues.contactPhone,
             },
             theme: {
@@ -626,6 +662,14 @@ const CheckoutPage = () => {
               filteredPromotions={filteredPromotions}
               isReturningCustomer={isReturningCustomer}
               shippingLabel={shippingLabel}
+              couponCode={couponCode}
+              onCouponCodeChange={setCouponCode}
+              onApplyCoupon={applyCouponCode}
+              couponLoading={couponLoading}
+              couponError={couponError}
+              appliedCoupon={appliedCoupon}
+              couponDiscount={orderSummary?.couponDiscount ?? couponDiscount}
+              onClearCoupon={clearCoupon}
             />
           </div>
         </div>

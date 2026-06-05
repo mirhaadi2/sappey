@@ -7,6 +7,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     filteredPromotions,
     isReturningCustomer,
     shippingLabel,
+    couponCode,
+    onCouponCodeChange,
+    onApplyCoupon,
+    couponLoading = false,
+    couponError,
+    appliedCoupon,
+    couponDiscount = 0,
+    onClearCoupon,
 }) => {
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -16,12 +24,48 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <input
                         type="text"
                         placeholder="Discount code"
-                        className="w-full pl-4 pr-16 py-3 border border-slate-200 rounded-xl focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20 focus:outline-none text-sm transition-all"
+                        value={couponCode}
+                        onChange={(e) => onCouponCodeChange(e.target.value)}
+                        disabled={couponLoading || appliedCoupon}
+                        className="w-full pl-4 pr-16 py-3 border border-slate-200 rounded-xl focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20 focus:outline-none text-sm transition-all disabled:bg-slate-50"
                     />
-                    <button className="absolute right-2 top-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-brand-brown transition-colors">
-                        Apply
-                    </button>
+                    {appliedCoupon ? (
+                        <button
+                            onClick={() => {
+                                onCouponCodeChange('');
+                                onClearCoupon?.();
+                            }}
+                            className="absolute right-2 top-1.5 px-3 py-1.5 bg-red-500 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-red-600 transition-colors"
+                        >
+                            Remove
+                        </button>
+                    ) : (
+                        <button
+                            onClick={onApplyCoupon}
+                            disabled={couponLoading || !couponCode.trim()}
+                            className="absolute right-2 top-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-brand-brown transition-colors disabled:bg-slate-400"
+                        >
+                            {couponLoading ? 'Wait...' : 'Apply'}
+                        </button>
+                    )}
                 </div>
+                
+                {/* Coupon Error Message */}
+                {couponError && (
+                    <p className="text-xs text-red-500 font-medium">{couponError}</p>
+                )}
+
+                {/* Applied Coupon Success */}
+                {appliedCoupon && appliedCoupon.valid && (
+                    <div className="p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                        <p className="text-xs font-semibold text-green-700">
+                            ✓ Coupon applied: {appliedCoupon.coupon?.code}
+                        </p>
+                        <p className="text-xs text-green-600 mt-1">
+                            Discount: ₹{Math.round(couponDiscount).toLocaleString('en-IN')}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Promotions Logic */}
@@ -69,7 +113,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span className="font-semibold text-slate-900">₹{Math.round(orderSummary?.subtotal || 0).toLocaleString('en-IN')}</span>
                 </div> */}
 
-                {/* Discount Row (Visible only if discount > 0) */}
+                {/* Coupon Discount Row */}
+                {couponDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                        <span className="text-emerald-600 font-medium">Coupon Discount</span>
+                        <span className="font-bold text-emerald-600">- ₹{Math.round(couponDiscount).toLocaleString('en-IN')}</span>
+                    </div>
+                )}
+
+                {/* Promotion Discount Row (Visible only if discount > 0) */}
                 {(orderSummary.promotionDiscount && orderSummary?.promotionDiscount > 0) ? (
                     <div className="flex justify-between text-sm">
                         <span className="text-emerald-600 font-medium">Promotion Applied</span>

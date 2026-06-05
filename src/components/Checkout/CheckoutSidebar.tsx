@@ -11,6 +11,14 @@ const CheckoutSidebar: React.FC<CheckoutSidebarProps> = ({
     filteredPromotions,
     isReturningCustomer,
     shippingLabel,
+    couponCode,
+    onCouponCodeChange,
+    onApplyCoupon,
+    couponLoading,
+    couponError,
+    appliedCoupon,
+    couponDiscount,
+    onClearCoupon,
 }) => {
     return (
         <motion.div
@@ -27,6 +35,14 @@ const CheckoutSidebar: React.FC<CheckoutSidebarProps> = ({
                 filteredPromotions={filteredPromotions}
                 isReturningCustomer={isReturningCustomer}
                 shippingLabel={shippingLabel}
+                couponCode={couponCode}
+                onCouponCodeChange={onCouponCodeChange}
+                onApplyCoupon={onApplyCoupon}
+                couponLoading={couponLoading}
+                couponError={couponError}
+                appliedCoupon={appliedCoupon}
+                couponDiscount={couponDiscount}
+                onClearCoupon={onClearCoupon}
             />
         </motion.div>
     );
