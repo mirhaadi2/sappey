@@ -104,7 +104,7 @@ export const useHomepagePromotions = () => {
         queryKey: ['promotions', 'homepage'] as const,
         queryFn: async () => {
             const promos = await fetchActivePromotions();
-            return promos.filter(p => p.displayOnHomepage);
+            return promos;
         },
         staleTime: 10 * 60 * 1000, // 10 minutes
     });
