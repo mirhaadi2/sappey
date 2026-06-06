@@ -86,7 +86,7 @@ export const useApplicablePromotions = (cartValue: number = 0) => {
             if (promo.minOrderValue && cartValue < promo.minOrderValue) return false;
             if (promo.maxOrderValue && cartValue > promo.maxOrderValue) return false;
             // Check if has display preferences for checkout/homepage
-            return promo.isActive && promo.displayOnCheckout;
+            return promo.isActive;
         });
     }, [query.data, cartValue]);
 
