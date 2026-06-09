@@ -8,6 +8,7 @@ import { useCheckoutPromotions } from "../hooks/useCheckoutPromotions";
 import { useCheckoutCoupon } from "../hooks/useCheckoutCoupon";
 import { useApplicablePromotions } from "../api/promotions";
 import { getOrderSummary, buildOrderItemsPayload, getSubtotal, getTotalTaxPaise } from "../utils/checkoutCalculations";
+import { getDisplayPrice } from "../utils/priceUtils";
 import { Package } from "@phosphor-icons/react";
 import { useGuestConfig, useFindCustomerByContact } from "../api/guest";
 import { useAddresses } from "../api/address/hooks";
@@ -163,7 +164,19 @@ const CheckoutPage = () => {
   }, [state?.items]);
   const fromPaise = (value: number): number => parseFloat((value / 100).toFixed(2));
   const baseTax = fromPaise(getTotalTaxPaise(state?.items ?? []))
-  const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal + baseTax);
+  const cartItems = useMemo(() => {
+    return (state?.items ?? []).map((item: any) => ({
+      productId: item?.product?.id || item?.id || '',
+      categoryId: item?.product?.category || item?.categoryId || '',
+      quantity: item?.quantity ?? 0,
+      price: getDisplayPrice({
+        product: item?.product,
+        variant: typeof item?.variant === 'object' ? item?.variant : undefined,
+      }),
+    }));
+  }, [state?.items]);
+
+  const { data: applicablePromotions = [] } = useApplicablePromotions(baseSubtotal + baseTax, cartItems);
 
   const isWelcomePromotion = (promo: any) => {
     return promo.type === 'fixed_discount' && promo.title.toLowerCase().includes('welcome');
@@ -192,16 +205,8 @@ const CheckoutPage = () => {
     return applicablePromotions;
   }, [applicablePromotions, isReturningCustomer, isFirstOrderEligible]);
 
-  const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions);
+  const { bestPromotion } = useCheckoutPromotions(baseSubtotal, filteredPromotions, cartItems);
 
-  // Initialize coupon hook
-  const cartItems = (state?.items ?? []).map((item: any) => ({
-    productId: item.id,
-    categoryId: item.categoryId,
-    quantity: item.quantity,
-    price: item.price,
-  }));
-  
   const {
     couponCode,
     setCouponCode,

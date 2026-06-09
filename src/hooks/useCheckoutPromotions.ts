@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Promotion } from '../api/promotions';
+import { calculatePromotionDiscount, isPromotionApplicableToCart, PromotionCartItem } from '../utils/promotionUtils';
 
 interface PromotionApplicability {
     promotion: Promotion;
@@ -13,18 +14,21 @@ interface PromotionApplicability {
  */
 export const useCheckoutPromotions = (
     subtotal: number,
-    applicablePromotions: Promotion[] = []
+    applicablePromotions: Promotion[] = [],
+    cartItems: PromotionCartItem[] = []
 ) => {
     const allApplicableWithDiscount = useMemo<PromotionApplicability[]>(() => {
-        return applicablePromotions.map((promo: Promotion) => {
-            const discountAmount = calculateDiscount(promo, subtotal);
-            return {
-                promotion: promo,
-                discountAmount: parseFloat(discountAmount.toFixed(2)),
-                finalPrice: parseFloat((subtotal - discountAmount).toFixed(2)),
-            };
-        });
-    }, [applicablePromotions, subtotal]);
+        return applicablePromotions
+            .filter((promo: Promotion) => isPromotionApplicableToCart(promo, cartItems, subtotal))
+            .map((promo: Promotion) => {
+                const discountAmount = calculatePromotionDiscount(promo, subtotal);
+                return {
+                    promotion: promo,
+                    discountAmount: parseFloat(discountAmount.toFixed(2)),
+                    finalPrice: parseFloat((subtotal - discountAmount).toFixed(2)),
+                };
+            });
+    }, [applicablePromotions, cartItems, subtotal]);
 
     const bestPromotion = useMemo<PromotionApplicability | null>(() => {
         if (!allApplicableWithDiscount || allApplicableWithDiscount.length === 0) {
@@ -63,36 +67,6 @@ export const useCheckoutPromotions = (
 /**
  * Calculate discount amount based on promotion type
  */
-function calculateDiscount(promotion: Promotion, subtotal: number): number {
-    // Check usage limit
-    if (promotion.usageLimit && promotion.currentUsage && promotion.currentUsage >= promotion.usageLimit) {
-        return 0;
-    }
-
-    switch (promotion.type) {
-        case 'fixed_discount':
-            return Math.min(promotion.discountValue || 0, subtotal);
-
-        case 'percentage_discount':
-            return parseFloat(((subtotal * (promotion.discountValue || 0)) / 100).toFixed(2));
-
-        case 'free_shipping':
-            // Free shipping (handled separately in checkout - shipping cost is zeroed out)
-            return 0;
-
-        case 'free_gift':
-            return 0;
-
-        case 'bundle':
-            return promotion.discountValue || 0;
-
-        case 'tiered':
-            return promotion.discountValue || 0;
-
-        default:
-            return 0;
-    }
-}
 
 /**
  * Format promotion description for display

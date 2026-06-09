@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import apiClient from './index';
 import { useQuery } from '@tanstack/react-query';
+import { isPromotionApplicableToCart, PromotionCartItem } from '../utils/promotionUtils';
 
 // Types
 export interface Promotion {
@@ -70,7 +71,10 @@ export const usePromotions = () => {
 /**
  * Hook to get applicable promotions based on cart value
  */
-export const useApplicablePromotions = (cartValue: number = 0) => {
+export const useApplicablePromotions = (
+    cartValue: number = 0,
+    cartItems: PromotionCartItem[] = []
+) => {
     const query = useQuery<Promotion[], Error>({
         queryKey: ['promotions', 'applicable', cartValue] as const,
         queryFn: () => fetchApplicablePromotions(cartValue),
@@ -78,17 +82,15 @@ export const useApplicablePromotions = (cartValue: number = 0) => {
         enabled: true,
     });
 
-    // Memoize the data to prevent unnecessary re-renders
+    // Memoize the data to prevent unnecessary re-renders and filter by actual cart items
     const applicablePromotions = useMemo(() => {
         if (!query.data) return [];
-        return query.data?.filter((promo: Promotion) => {
-            // Check if cart value qualifies
-            if (promo.minOrderValue && cartValue < promo.minOrderValue) return false;
-            if (promo.maxOrderValue && cartValue > promo.maxOrderValue) return false;
-            // Check if has display preferences for checkout/homepage
-            return promo.isActive;
-        });
-    }, [query.data, cartValue]);
+        return query.data.filter((promo: Promotion) =>
+            promo.isActive &&
+            promo.displayOnCheckout !== false &&
+            isPromotionApplicableToCart(promo, cartItems, cartValue)
+        );
+    }, [query.data, cartItems, cartValue]);
 
     return {
         ...query,
