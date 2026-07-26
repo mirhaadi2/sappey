@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 import { Analytics } from "@vercel/analytics/react";
 
+
 ReactDOM.createRoot(document.getElementById('app')!).render(
     <React.StrictMode>
         <App />
