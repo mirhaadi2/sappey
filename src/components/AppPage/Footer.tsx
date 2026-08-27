@@ -122,7 +122,7 @@ const Footer: React.FC = () => {
                                                 <div className="shrink-0 p-2 h-fit bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
                                                     <Phone size={18} className="text-orange-500" />
                                                 </div>
-                                                <span className="text-sm text-slate-300">+91 8492943652</span>
+                                                <span className="text-sm text-slate-300">+91 81305 24848</span>
                                             </div>
                                             <div className="flex items-center gap-4 group">
                                                 <div className="shrink-0 p-2 h-fit bg-white/5 rounded-lg group-hover:bg-orange-500/10 transition-colors">
